@@ -4,35 +4,73 @@ function main()
 while lualoader == nil do
  wait()-- задержка.
  player = findplayer()-- получить игрока
-  if Keypress(VK_H) -- если клавиша H.
- then   x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
-Giveweaponped(player,600,"uzi")-- дать педу оружие. 
-Hold_cellphone(player, 1)-- понять телефон.
-wait(1300)
-show_text_styled("BNK1_4",1000,2)
-play_voice("BNK1_4")
-Hold_cellphone(player, 0)-- положить телефон.
-mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
-
- wait(12)-- задержка.
-  x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 10 м впереди.
- ped = Createped("HMYST",x,y,z) 
-ped_car_as_driver(ped, mycar)-- пед садится в авто как водитель.
- wait(12)-- задержка.
-  x,y,z =getcoordinates_on_y(player,15)-- получить координаты на 15 м впереди.
- ped1 = Createped("HFOBE",x,y,z) 
- ped_car_as_passenger(ped1, mycar)-- пед садится в авто как пассажир.
- b= false 
- while b == false do wait()
- b, p = incar(ped1)
- end
- wait(3000)-- задержка.
- destroy()
- end  
- end
+ if Keypress(VK_H) -- если клавиша H.
+ then  
+while lualoader == nil do
+ --wait(50)-- задержка.
+ x,y,z =getcoordinates_on_y(player,-1)-- получить координаты на 5 м впереди.
+ z=z+1
+camera_at_point(x,y,z,1 ) 
+set_camera_position(x,y,z, 0.0, 0.0, 0.0 )
+ wait(350)-- задержка.
+restore_camera()  
+  end  
+if Keypress(VK_G)
+then break
+  end
+  end
+  end
 end
 
+ -- ped1 = Createped("HFOBE",x,y,z) 
 
+ -- wait(100)-- задержка.
+ -- ped_atack(ped1)
+
+ -- wait(100)-- задержка.
+ -- ped_atack(ped1)
+ --mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
+ -- angle = getpedangle(player)
+-- camera_at_point(x,y,z,1 ) 
+-- set_camera_position(x,y,z, 0.0, 0.0, 0.0 )
+--flash_hud(8)-- мигания интефейса.
+ -- set_car_tires(mycar, 0)-- проколоть шину.
+ -- set_radio(3,-1)-- уст радио.
+ -- while countdown(8) do wait()-- таймер на 8 секунд. 
+-- end
+-- if is_wanted_level(1)
+-- then
+-- setpedhealth(player,10)
+-- --timer_donw(6,"R_TIME",1)-- Таймер на уменьшения
+-- --  ped = Createped("HMYST",x,y,z) 
+ -- -- if isped(ped)
+ -- -- then
+ -- -- printmessage("yes", 3000,1)
+  -- end
+-- camera_at_point(-3982.5, -238.75, 63.44,1 ) 
+-- set_camera_position(-817.4, -905.55, 13.86, 0.0, 0.0, 0.0 )
+ --x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
+ -- Giveweaponped(player,600,"uzi")-- дать педу оружие. 
+-- Hold_cellphone(player, 1)-- понять телефон.
+-- wait(1300)
+-- show_text_styled("BNK1_4",1000,2)
+-- play_voice("BNK1_4")
+-- Hold_cellphone(player, 0)-- положить телефон.
+-- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
+
+ -- wait(12)-- задержка.
+  -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 10 м впереди.
+-- ped_car_as_driver(ped, mycar)-- пед садится в авто как водитель.
+ -- wait(12)-- задержка.
+  -- x,y,z =getcoordinates_on_y(player,15)-- получить координаты на 15 м впереди.
+ -- ped1 = Createped("HFOBE",x,y,z) 
+ -- ped_car_as_passenger(ped1, mycar)-- пед садится в авто как пассажир.
+ -- b= false 
+ -- while b == false do wait()
+ -- b, p = incar(ped1)
+ -- end
+ -- wait(3000)-- задержка.
+ -- destroy()
 -- Giveweaponped(player,600,"tec9")-- дать педу оружие. 
 -- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
 
