@@ -25,11 +25,13 @@
 #include "extensions\KeyCheck.h"
 #include "extensions\ScriptCommands.h"
 #include "eScriptCommands.h"
+#include "CCivilianPed.h"
 #include "CMessages.h"
 #include "ePedModel.h"
 #include "ePedType.h"
 #include "CModelInfo.h"
 
+#include "CStreaming.h"
 #include "CTheScripts.h"
 #include "eWeaponType.h"
 #include "eWeaponModel.h"
@@ -264,6 +266,11 @@ int ped_atack(lua_State* L); // пед бьет.
 int flash_hud(lua_State* L); // Мигание элементов HUD.
 int set_radio(lua_State* L); // уст радио.
 int set_car_tires(lua_State* L); // проколоть  шину.
+
+int create_spec_ped(lua_State* L); // создать спец педа.
+int set_wheel_status(lua_State* L); // уст состояния шин авто.
+int set_skin(lua_State* L); // уст скин педа.
+int remove_spec_ped(lua_State* L);  // удалить спец педа.
 
 int newthread(lua_State* L);// запуск функции в новом потоке.
 
@@ -801,6 +808,11 @@ void funs(lua_State* L) {// список функций.
 		.addCFunction("flash_hud", flash_hud) // Мигание элементов HUD.
 		.addCFunction("set_radio", set_radio) // уст радио.			
 		.addCFunction("set_car_tires", set_car_tires)// проколоть шину.
+
+		.addCFunction("create_spec_ped", create_spec_ped) // создать спец педа.
+		.addCFunction("set_wheel_status", set_wheel_status)// уст состояния шин авто.
+		.addCFunction("set_skin", set_skin) // уст скин педа.
+		.addCFunction("remove_spec_ped", remove_spec_ped) // удалить спец педа.
 
 		.addCFunction("newthread", newthread)// запуск функции в новом потоке.
 		.addCFunction("exitcar", exitcar);// название функции в lua и c++. выйти из авто.
@@ -2061,6 +2073,19 @@ int remove_ped(lua_State* L) {// удалить педа.
 	catch (const char* x) { writelog(x); }
 	return 0;
 };
+int remove_spec_ped(lua_State* L) {// удалить спец педа.
+	try {
+		if (LUA_TUSERDATA == lua_type(L, 1)) {// значение пед.
+
+			int idped = Stack<int>::get(L, 1);
+			CStreaming::SetMissionDoesntRequireSpecialChar(idped); // 0296: unload_special_actor 21 
+			return 0;
+		}
+		else { throw "bad argument in function remove_spec_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
 int kill_ped(lua_State* L) {// убить педа.
 	try {
 		if (LUA_TUSERDATA == lua_type(L, -1)) {// значение число.
@@ -2429,6 +2454,48 @@ int createped(lua_State* L) {// создать педа.
 			return 1;
 		}// int
 
+		else { throw "bad argument in function createped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int create_spec_ped(lua_State* L) {// создать спец педа.
+	try {
+		if (LUA_TSTRING == lua_type(L, -8) && LUA_TNUMBER == lua_type(L, -7) && LUA_TNUMBER == lua_type(L, -6) && LUA_TNUMBER == lua_type(L, -5) 
+			&& LUA_TNUMBER == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3) && LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// значение число.
+			CPed* ped;
+			char const* model = lua_tostring(L, -8);// модель "sam.
+			int idmodel = Stack<int>::get(L, -7);// спец id пед.
+			int specmodel = Stack<int>::get(L, -6);// модель педа.
+			int type = Stack<int>::get(L, -5);// тип педа.
+			int slot  = Stack<int>::get(L, -4);// слот педа.
+			float x = Stack<float>::get(L, -3); float y = Stack<float>::get(L, -2);
+			float z = Stack<float>::get(L, -1);
+			while (!CStreaming::HasSpecialCharLoaded(specmodel)) {
+
+				this_thread::sleep_for(chrono::milliseconds(1));
+				CStreaming::RequestSpecialChar(specmodel, model, type); // 023C: load_special_actor 21 'SAM'
+			} 
+			if (type == 4) {
+
+				 ped = new CCivilianPed(PEDTYPE_CIVMALE, idmodel);
+			};
+			if (type == 5) {
+
+				ped = new CCivilianPed(PEDTYPE_CIVFEMALE, idmodel);
+			};
+			if (ped) {
+
+				ped->m_placement.pos.x = x;
+				ped->m_placement.pos.y = y;
+				ped->m_placement.pos.z = z;// ж + v->GetDistanceFromCentreOfMassToBaseOfModel();
+		//	ped->SetPosition(FindPlayerPed()->TransformFromObjectSpace(CVector(0.0f, 2.0f, 0.0f)));
+				CWorld::Add(ped);
+				Stack<const CPed*>::push(L, (CPed const*)ped);// отправить в стек и получить из стека можно.
+				return 1;
+			}// int
+		}
 		else { throw "bad argument in function createped"; }
 	}
 	catch (const char* x) { writelog(x); }
@@ -3259,11 +3326,18 @@ int restore_camera(lua_State* L) {// восстановить камеру.
 int ped_atack(lua_State* L) {// пед бьет.
 	try {
 		if (LUA_TUSERDATA == lua_type(L, 1)) {
-		static	CPed* ped = (CPed*)Userdata::get<CPed>(L, 1, false);
-		spite::active(true, ped);
-			//this_thread::sleep_for(chrono::milliseconds(1000));
-			//unsigned int x =	ped->Attack();// правой рукой.
-			return 0;
+		static	CPed* p = (CPed*)Userdata::get<CPed>(L, 1, false);		
+		for (auto ped : CPools::ms_pPedPool) {
+			if (ped == p) {
+				
+				ped->Attack();
+				this_thread::sleep_for(chrono::milliseconds(1));
+				//spite::active(true, ped);
+				//this_thread::sleep_for(chrono::milliseconds(1000));
+				//unsigned int x =	ped->Attack();// правой рукой.
+				return 0;
+			}
+			}
 		}
 		else { throw "bad argument in function ped_atack"; }
 	}
@@ -3320,6 +3394,43 @@ int set_car_tires(lua_State* L) {// проколоть  шину.
 		else { throw "bad argument in function set_car_tires"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+}; 
+int set_wheel_status(lua_State* L) {// уст состояния шин авто.
+	try {
+		if (LUA_TUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {//строка.
+			/*второй параметр колесо
+			третий  статус, 0 = починка.
+			*/
+			CVehicle* car = (CVehicle*)Userdata::get<CVehicle>(L, 1, false);
+			int wheel = Stack<int>::get(L, 2);
+			int status = Stack<int>::get(L, 3);
+			if (car && car->m_nVehicleClass == VEHICLE_AUTOMOBILE) {
+				CAutomobile* automobile = reinterpret_cast<CAutomobile*>(car);
+				automobile->m_carDamage.SetWheelStatus(wheel, status);
+				return 0;
+			}
+		}
+		else { throw "bad argument in function set_car_tires"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+int set_skin(lua_State* L) {// уст скин педа.
+	try {
+		if (LUA_TUSERDATA == lua_type(L, 1)&& LUA_TSTRING == lua_type(L, 2)) {
+			CPed* player = (CPed*)Userdata::get<CPed>(L, 1, false);
+			char const* model = Stack<char const*>::get(L, 2);// модель скина
+			
+			Command<COMMAND_UNDRESS_CHAR>(CPools::GetPedRef(player), model);
+			Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+			Command<COMMAND_DRESS_CHAR>(CPools::GetPedRef(player));
+			this_thread::sleep_for(chrono::milliseconds(1));
+			return 0;
+		}
+		else { throw "bad argument in function ped_atack"; }
+	}
+	catch (const char* x) { writelog(x); }
 	return 0;
 };
 string getkey(int key) {

@@ -100,6 +100,22 @@ PED_MODELS_AND_TYPES = { COP = {1,6}, SWAT = {2,6}, FBI = {3,6}, ARMY = {4,6}, M
              BKA = {93, 12}, BKB = {94,12}, PGA = {95,13}, PGB = {96,13}, VICE1 = {97,18}, VICE2 = {98,18},
              VICE3 = {99,18}, VICE4 = {100,18}, VICE5 = {101,18}, VICE6 = {102,18}, VICE7 = {103,18},
              VICE8 = {104,18},WFYG1 = {105,5}, WFYG2 = {106,6}}
+SPEC_PED_MODELS_AND_TYPES = {
+ BGA = {129,4,20}, BGB = {129,4,20}, BOUNCA = {129,4,20}, BURGER = {129,4,20}, CGONA = {129,4,20}, CGONB = {129,4,20}, CGONC = {129,4,20},
+ CHEF = {129,4,20}, CMRAMAN = {129,4,20}, COURIER = {129,4,20}, CREWA = {129,4,20}, CREWB = {129,4,20}, CSJUGGZ = {129,5,20}, 
+ DGOONA = {129,4,20}, DGOONB = {129,4,20}, DGOONC = {129,4,20}, FLOOZYA = {129,5,20}, FLOOZYB = {129,5,20}, FLOOZYC = {129,5,20}, 
+ FSFA = {129,4,20}, IGALSCB = {129,4,20}, IGBUDDY = {129,4,20}, IGBUDY2 = {129,4,20}, IGBUDY3 = {129,4,20}, IGCANDY = {129,5,20}, 
+ IGCOLON = {129,4,20}, IGDIAZ = {129,4,20}, IGDICK = {129,4,20}, IGGONZ = {129,4,20}, IGHLARY = {129,4,20}, IGHLRY2 = {129,4,20}, 
+ IGJEZZ = {129,4,20}, IGKEN = {129,4,20}, IGMERC = {129,5,20}, IGMIKE = {129,4,20}, IGMIKE2 = {129,4,20}, IGPERCY = {129,4,20}, 
+ IGPHIL = {129,4,20}, IGPHIL2 = {129,4,20}, IGPHIL3 = {129,4,20}, IGSONNY = {129,4,20}, IGMERC2 = {129,5,20}, MBA = {129,4,20}, 
+ MBB = {129,4,20}, MPORNA = {129,4,20}, MGOONA = {129,4,20}, MSERVER = {129,4,20}, MBA = {129,4,20}, MBB = {129,4,20}, MPORNA = {129,4,20},
+ MGOONA = {129,4,20}, MSERVER = {129,4,20}, PLAY10 = {129,4,20}, PLAY11 = {129,4,20}, PLAY12 = {129,4,20}, PLAYER2 = {129,4,20}, 
+ PLAYER3 = {129,4,20}, PLAYER4 = {129,4,20},  PLAYER5 = {129,4,20},  PLAYER6 = {129,4,20},   PLAYER7 = {129,4,20}, 
+ PLAYER8 = {129,4,20}, PLAYER9 = {129,4,20}, PRINTRA = {129,4,20},  PRINTRB = {129,4,20}, PRINTRC = {129,4,20}, PSYCHO = {129,4,20},
+ S_KEEP = {129,4,20}, SAM = {129,4,20}, SGC = {129,4,20}, SGOONA = {129,4,20}, SGOONB = {129,4,20}, SHOOTRA = {129,5,20}, 
+ SHOOTRB = {129,4,20}, SPANDXA = {129,5,20},SPANDXB = {129,5,20}, STRIPA = {129,5,20}
+}
+			 
 WEAPONS_MODELS_AND_TYPES = {brassknuckle = {259,1}, screwdriver = {260,2}, golfclub = {261,3},
 nitestick = {262,4},knifecur = {263,5}, bat = {264,6}, hammer = {265,7}, cleaver = {266,8}, 
 machete = {267,9}, katana = {268,10}, chnsaw = {269,11}, grenade = {270,12}, teargas = {271,14},
@@ -119,6 +135,9 @@ for k, v in pairs(MODEL_WEAPONS) do _G[k] = v end
 for k, v in pairs(PED_MODELS_AND_TYPES) do _G[k] = v end
 for k, v in pairs(WEAPONS_MODELS_AND_TYPES) do _G[k] = v end
 for k, v in pairs(DOORS_CAR) do _G[k] = v end	
+for k, v in pairs(SPEC_PED_MODELS_AND_TYPES) do _G[k] = v end	
+
+
 function delay()
 for i=1,100 do u= i end
 end
@@ -171,6 +190,12 @@ while not availablemodel(m) do wait(1) loadmodel(m) end
 ped= createped(m,t, x,y,z)
 releasemodel(m) 
 return ped
+end
+function Create_spec_ped(m, slot, x,y,z)--создать спец пед.
+idmodel, t = model_and_type(m, SPEC_PED_MODELS_AND_TYPES)-- модель и тип.
+tipe = idmodel -108- slot
+create_spec_ped(m,idmodel,tipe, t ,slot, x,y,z) 
+ return ped
 end
 function Giveweaponped(ped, ammo, ...)-- дать педу оружие и патроны.
     for m1, v in pairs({...}) do	    
