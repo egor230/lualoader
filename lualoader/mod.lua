@@ -101,19 +101,19 @@ PED_MODELS_AND_TYPES = { COP = {1,6}, SWAT = {2,6}, FBI = {3,6}, ARMY = {4,6}, M
              VICE3 = {99,18}, VICE4 = {100,18}, VICE5 = {101,18}, VICE6 = {102,18}, VICE7 = {103,18},
              VICE8 = {104,18},WFYG1 = {105,5}, WFYG2 = {106,6}}
 SPEC_PED_MODELS_AND_TYPES = {
- BGA = {129,4,20}, BGB = {129,4,20}, BOUNCA = {129,4,20}, BURGER = {129,4,20}, CGONA = {129,4,20}, CGONB = {129,4,20}, CGONC = {129,4,20},
- CHEF = {129,4,20}, CMRAMAN = {129,4,20}, COURIER = {129,4,20}, CREWA = {129,4,20}, CREWB = {129,4,20}, CSJUGGZ = {129,5,20}, 
- DGOONA = {129,4,20}, DGOONB = {129,4,20}, DGOONC = {129,4,20}, FLOOZYA = {129,5,20}, FLOOZYB = {129,5,20}, FLOOZYC = {129,5,20}, 
- FSFA = {129,4,20}, IGALSCB = {129,4,20}, IGBUDDY = {129,4,20}, IGBUDY2 = {129,4,20}, IGBUDY3 = {129,4,20}, IGCANDY = {129,5,20}, 
- IGCOLON = {129,4,20}, IGDIAZ = {129,4,20}, IGDICK = {129,4,20}, IGGONZ = {129,4,20}, IGHLARY = {129,4,20}, IGHLRY2 = {129,4,20}, 
- IGJEZZ = {129,4,20}, IGKEN = {129,4,20}, IGMERC = {129,5,20}, IGMIKE = {129,4,20}, IGMIKE2 = {129,4,20}, IGPERCY = {129,4,20}, 
- IGPHIL = {129,4,20}, IGPHIL2 = {129,4,20}, IGPHIL3 = {129,4,20}, IGSONNY = {129,4,20}, IGMERC2 = {129,5,20}, MBA = {129,4,20}, 
- MBB = {129,4,20}, MPORNA = {129,4,20}, MGOONA = {129,4,20}, MSERVER = {129,4,20}, MBA = {129,4,20}, MBB = {129,4,20}, MPORNA = {129,4,20},
- MGOONA = {129,4,20}, MSERVER = {129,4,20}, PLAY10 = {129,4,20}, PLAY11 = {129,4,20}, PLAY12 = {129,4,20}, PLAYER2 = {129,4,20}, 
- PLAYER3 = {129,4,20}, PLAYER4 = {129,4,20},  PLAYER5 = {129,4,20},  PLAYER6 = {129,4,20},   PLAYER7 = {129,4,20}, 
- PLAYER8 = {129,4,20}, PLAYER9 = {129,4,20}, PRINTRA = {129,4,20},  PRINTRB = {129,4,20}, PRINTRC = {129,4,20}, PSYCHO = {129,4,20},
- S_KEEP = {129,4,20}, SAM = {129,4,20}, SGC = {129,4,20}, SGOONA = {129,4,20}, SGOONB = {129,4,20}, SHOOTRA = {129,5,20}, 
- SHOOTRB = {129,4,20}, SPANDXA = {129,5,20},SPANDXB = {129,5,20}, STRIPA = {129,5,20}
+ BGA = {128,4,20}, BGB = {128,4,20}, BOUNCA = {128,4,20}, BURGER = {128,4,20}, CGONA = {128,4,20}, CGONB = {128,4,20}, CGONC = {128,4,20},
+ CHEF = {128,4,20}, CMRAMAN = {128,4,20}, COURIER = {128,4,20}, CREWA = {128,4,20}, CREWB = {128,4,20}, CSJUGGZ = {128,5,20}, 
+ DGOONA = {128,4,20}, DGOONB = {128,4,20}, DGOONC = {128,4,20}, FLOOZYA = {128,5,20}, FLOOZYB = {128,5,20}, FLOOZYC = {128,5,20}, 
+ FSFA = {128,4,20}, IGALSCB = {128,4,20}, IGBUDDY = {128,4,20}, IGBUDY2 = {128,4,20}, IGBUDY3 = {128,4,20}, IGCANDY = {128,5,20}, 
+ IGCOLON = {128,4,20}, IGDIAZ = {128,4,20}, IGDICK = {128,4,20}, IGGONZ = {128,4,20}, IGHLARY = {128,4,20}, IGHLRY2 = {128,4,20}, 
+ IGJEZZ = {128,4,20}, IGKEN = {128,4,20}, IGMERC = {128,5,20}, IGMIKE = {128,4,20}, IGMIKE2 = {128,4,20}, IGPERCY = {128,4,20}, 
+ IGPHIL = {128,4,20}, IGPHIL2 = {128,4,20}, IGPHIL3 = {128,4,20}, IGSONNY = {128,4,20}, IGMERC2 = {128,5,20}, MBA = {128,4,20}, 
+ MBB = {128,4,20}, MPORNA = {128,4,20}, MGOONA = {128,4,20}, MSERVER = {128,4,20}, MBA = {128,4,20}, MBB = {128,4,20}, MPORNA = {128,4,20},
+ MGOONA = {128,4,20}, MSERVER = {128,4,20}, PLAY10 = {128,4,20}, PLAY11 = {128,4,20}, PLAY12 = {128,4,20}, PLAYER2 = {128,4,20}, 
+ PLAYER3 = {128,4,20}, PLAYER4 = {128,4,20},  PLAYER5 = {128,4,20},  PLAYER6 = {128,4,20},   PLAYER7 = {128,4,20}, 
+ PLAYER8 = {128,4,20}, PLAYER9 = {128,4,20}, PRINTRA = {128,4,20},  PRINTRB = {128,4,20}, PRINTRC = {128,4,20}, PSYCHO = {128,4,20},
+ S_KEEP = {128,4,20}, SAM = {128,4,20}, SGC = {128,4,20}, SGOONA = {128,4,20}, SGOONB = {128,4,20}, SHOOTRA = {128,5,20}, 
+ SHOOTRB = {128,4,20}, SPANDXA = {128,5,20},SPANDXB = {128,5,20}, STRIPA = {128,5,20}
 }
 			 
 WEAPONS_MODELS_AND_TYPES = {brassknuckle = {259,1}, screwdriver = {260,2}, golfclub = {261,3},
@@ -151,9 +151,9 @@ wait(50)
 local res = ped_in_point_in_radius(ped, x,y,z, rx,ry,rz)
 return res
 end
-function Car_in_point_in_radius(car, x,y,z, rx,ry,rz)
+function Car_in_point_in_radius(car, x,y,z, r)
 wait(50)
-local res = car_in_point_in_radius(car, x,y,z, rx,ry,rz)
+local res = car_in_point_in_radius(car, x,y,z, r)
 return res
 end
 
@@ -191,12 +191,12 @@ ped= createped(m,t, x,y,z)
 releasemodel(m) 
 return ped
 end
-function Create_spec_ped(m, slot, x,y,z)--создать спец пед.
-idmodel, t = model_and_type(m, SPEC_PED_MODELS_AND_TYPES)-- модель и тип.
-tipe = idmodel -108- slot
-create_spec_ped(m,idmodel,tipe, t ,slot, x,y,z) 
- return ped
-end
+-- function Create_spec_ped(m, slot, x,y,z)--создать спец пед.
+-- idmodel, t = model_and_type(m, SPEC_PED_MODELS_AND_TYPES)-- модель и тип.
+-- tipe = idmodel -108- slot
+-- create_spec_ped(m,idmodel,tipe, t ,slot, x,y,z) 
+ -- return ped
+-- end
 function Giveweaponped(ped, ammo, ...)-- дать педу оружие и патроны.
     for m1, v in pairs({...}) do	    
         m, t = model_and_type(v, WEAPONS_MODELS_AND_TYPES)	
@@ -279,6 +279,7 @@ Co_Draw_corona= coroutine.wrap(
  end
  )
  function races()
+ ped_frozen(0)
   sound_coordinate(7, 0.0,0.0,0.0)
   show_text_styled("RACE2", 1500, 4)-- 3 для гонки
   wait(1700)
@@ -291,6 +292,9 @@ Co_Draw_corona= coroutine.wrap(
   sound_coordinate(7, 0.0,0.0,0.0)
   show_text_styled("RACE5", 1500, 4)-- go для гонки
   wait(1700)
+ ped_frozen(1)
+  timer_donw(0,"R_TIME",0)-- Таймер гонки.
+  return "R_TIME"
  end 
  
 function set_ped_in_car(car, ped, place)  -- уст водителя авто.
@@ -354,16 +358,8 @@ obj =  create_obj(model, x,y,z)
 releasemodel(model)  
 return obj
 end
- function star_mission(player, cheat_word)
- statuscar, car = incar(player)
- if cheat(cheat_word) and false == statuscar and false == getflagmission()  -- получить статус миссии.
-and  player_defined(player) and not Arrested()
- then setflagmission(1) -- установить флаг миссии
-return true
- end
-end
 
- function miss(money)  text="mission passed $"..tostring(money)
+function miss(money)  text="mission passed $"..tostring(money)
  setflagmission(0) -- установить флаг миссии
  play_sound(1)  showtext(text, 2500,0) wait(900)-- вывод статуса миссии. 
  givemoney(money) 
@@ -386,6 +382,17 @@ break
  end 
 end
  end
+
+function star_mission(player, cheat_word)
+ statuscar, car = incar(player)
+ if cheat(cheat_word) and false == statuscar and false == getflagmission()  -- получить статус миссии.
+and  player_defined(player) and not Arrested()
+ then setflagmission(1) -- установить флаг миссии
+ newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
+return true
+ end
+end
+
 rotate_obj = coroutine.wrap(-- ехать по маршруту.
 function(obj)
 local i=1
@@ -407,7 +414,7 @@ for i, v in pairs(road) do
        iter= iter+3 cardrive(car, x, y, z)
 while lualoader == nil  do  coroutine.yield(false) 
 local rx = 3.0  ry = 4.0 rz = 2.0
-  if car_in_point_in_radius(car, x, y, z, rx, ry, rz)
+  if car_in_point_in_radius(car, x, y, z, r)
     then  break
 	 end   end
  end
@@ -422,13 +429,15 @@ for i, v in pairs(road) do
     then x = road[i] y= road[i+1] z = road[i+2]  iter= iter+3   
    	blip = createmarker(1,2, x,y,z) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
 	setsizemarker(blip,2)--уст размер маркера. Принимает маркер, значение его размера
-while lualoader == nil  do
- coroutine.yield(false) 
-local t = {4.5, 6, 0, 255, 0, 0, x,y,z}
-  draw_corona(t) 
- local rx = 3.0  ry = 3.0 rz = 3.0
-  if car_in_point_in_radius(mycar, x, y, z, rx, ry, rz)
+local t = {true, 4.5, 6, 0, 255, 0, 0, x,y,z}
+  draw_corona(t) -- вкл корону
+while lualoader == nil  do 
+ local r = 4.0  
+ coroutine.yield(false)  wait()
+  if car_in_point_in_radius(mycar, x, y, z, r)
   then	sound_coordinate(7, 0.0,0.0,0.0)
+local t = {false, 4.5, 6, 0, 255, 0, 0, x,y,z}
+  draw_corona(t) -- выкл корону
   remove_blip(blip)
 	break
 	 end 
@@ -438,8 +447,19 @@ local t = {4.5, 6, 0, 255, 0, 0, x,y,z}
  return true
 end 
  )
+function finish_road(car, road)
+local x= road[#road-2] 
+local y=road[#road-1] 
+local z=road[#road] -- 
+
+  if car_in_point_in_radius(car, x,y, z, 3.0)
+  then  return true
+  else return false
+ end
+ end
  
- function turn_default_timer(turn, str_timer)
+ 
+function turn_default_timer(turn, str_timer)
 if turn == true
 then local t ={turn,str_timer,1267,270, 1,1, 2.0, 2.0, 101, 193, 244}--
 print_front(t)
@@ -516,6 +536,45 @@ function Hold_cellphone(ped, status)
     hold_cellphone(player, status)
     releasemodel(258) 
 end
+
+function sethealth(e, n)
+if isped(e)
+then  setpedhealth(e, n)
+end
+if isvehicle(e)
+then setpedhealth(e, n)
+end
+
+end
+function create_marker(e)
+if isped(e)
+then  m= create_marker_actor(e)
+return m
+end
+if isvehicle(e)
+then m = create_marker_car(e)
+return m
+end
+if isobject(e)
+then m = create_marker_obj(e)
+return m
+end
+end
+
+function Remove(e)
+if isped(e)
+then remove_ped(e)
+return m
+end
+if isvehicle(e)
+then remove_car(e)
+end
+if isobject(e)
+then remove_obj(e)
+end
+end
+
+
 -- function in_point_actor_in_radius(ped, x1, y1, z1, rx, ry, rz)
   -- x,y,z=getcoordes(ped)
 -- if rx == 0 and ry == 0 and x == x1 and y == y1
@@ -800,3 +859,7 @@ end
 -- 432 - Пикап музыки (Наушники)
 
 --]
+
+
+
+

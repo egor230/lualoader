@@ -1,3 +1,4 @@
-loaded F:\games\GTA Vice City\lualoader\exapmle 5.lua.lua 06:24:14 22-12-2019
-loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 06:24:14 22-12-2019
-loaded F:\games\GTA Vice City\lualoader\mod.lua 06:24:14 22-12-2019
+loaded F:\games\GTA Vice City\lualoader\misson 4.lua.lua 11:14:10 28-01-2020
+loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 11:14:10 28-01-2020
+loaded F:\games\GTA Vice City\lualoader\mod.lua 11:14:10 28-01-2020
+bad argument in function givemoney 11:17:18 28-01-2020
