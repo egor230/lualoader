@@ -39,6 +39,9 @@
 #include "CPickups.h"
 #include "CClock.h"
 #include "CUserDisplay.h"
+#include "CAnimManager.cpp"
+#include "CBaseModelInfo.cpp"
+
 using namespace plugin;
 using namespace std;
 using namespace luabridge;
@@ -331,6 +334,13 @@ int set_skin(lua_State* L); // уст скин педа.
 int remove_spec_ped(lua_State* L);  // удалить спец педа.
 
 int go_to_route(lua_State* L); //уст маршрут авто.
+int add_stuck_car_check(lua_State* L); // условия для того, чтобы авто считалась застрявшей.
+int load_scene(lua_State* L); // загрузить модели на координатах заранее.
+int ped_anim(lua_State* L); // анимация.
+
+int del_anim(lua_State* L); // удалить анимацию.
+int get_current_name_luascript(lua_State* L); // получить имя текущего lua файла.
+int star_mission_marker(lua_State* L); // создать маркер для миссии.
 
 int newthread(lua_State* L);// запуск функции в новом потоке.
 
@@ -683,7 +693,8 @@ public: Message() {
 				if (CTimer::m_snTimeInMilliseconds - time > 500) {
 					this_thread::sleep_for(chrono::milliseconds(160));// задержка
 					time = 0;// обнулить таймер
-				}; 
+				};
+				this_thread::sleep_for(chrono::milliseconds(160));// задержка
 				thread th(second, std::ref(reload)); th.detach();// независимый поток.       
 				reload = true;// флаг, что уже запущен поток. 
 			};
@@ -876,6 +887,14 @@ void funs(lua_State* L) {// список функций.
 		.addCFunction("remove_spec_ped", remove_spec_ped) // удалить спец педа.
 
 		.addCFunction("go_to_route", go_to_route) //уст маршрут авто.
+		.addCFunction("add_stuck_car_check", add_stuck_car_check) // условия для того, чтобы авто считалась застрявшей.
+		.addCFunction("load_scene", load_scene)// загрузить модели на координатах заранее.
+		.addCFunction("ped_anim", ped_anim)// анимация.
+
+		.addCFunction("del_anim", del_anim)// удалить анимацию.
+		.addCFunction("get_current_name_luascript", get_current_name_luascript)// получить имя текущего lua файла.
+		.addCFunction("star_mission_marker", star_mission_marker) // создать маркер для миссии.
+
 
 		.addCFunction("newthread", newthread)// запуск функции в новом потоке.
 		.addCFunction("exitcar", exitcar);// название функции в lua и c++. выйти из авто.
@@ -1866,7 +1885,7 @@ int getcarcoordinates_on_ordinate(lua_State* L) {// // Получить миро
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// указатель на авто.
 			
-			const void* p = lua_topointer(L, -1);
+			const void* p = lua_topointer(L, -2);
 
 			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 			
@@ -1885,7 +1904,7 @@ int worldcoord(lua_State* L) {// Перевод в мировые координ
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -3) && LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// указатель на игрока.
 
-			const void* p = lua_topointer(L, -1);
+			const void* p = lua_topointer(L, -3);
 			CPed* ped = findpedinpool(p);// получить указатель на игрока.
 			
 			float x = Stack<float>::get(L, -2); float y = Stack<float>::get(L, -1);
@@ -2800,6 +2819,23 @@ int sound_coordinate(lua_State* L) {// Проиграть звук в коорд
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;
+}; 
+int load_scene(lua_State* L) {// загрузить модели на координатах заранее.
+	try {
+		if (LUA_TNUMBER == lua_type(L, -3) && LUA_TNUMBER == lua_type(L, -2)
+			&& LUA_TNUMBER == lua_type(L, -1)) {// значение число.
+
+			float x = Stack<float>::get(L, 1); float y = Stack<float>::get(L, 2);
+			float z = Stack<float>::get(L, 3);
+			Command<COMMAND_LOAD_SCENE>(x, y, z);// Проиграть звук в координатах
+			lua_settop(L, 0);
+			return 0;
+		}// int
+
+		else { throw "bad argument in function load_scene"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
 };
 int show_text_styled(lua_State* L) {// вывести игровой текст.
 	try {
@@ -3143,6 +3179,27 @@ int find_road_for_car(lua_State* L) {// найти дорогу.
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
 };
+
+int add_stuck_car_check(lua_State * L) {// условия для того, чтобы авто считалась застрявшей.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, -3) && LUA_TNUMBER == lua_type(L, -2)
+			&& LUA_TNUMBER == lua_type(L, -1)) {//число.
+
+
+			const void* p = lua_topointer(L, -3);
+
+			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
+			float distance = Stack<float>::get(L, -2);
+			int time = Stack<int>::get(L, -1);
+			Command<COMMAND_ADD_STUCK_CAR_CHECK>(time, distance,  CPools::GetVehicleRef(car));// найти дорогу.
+			return 0;
+		}
+		else { throw "bad argument in function find_road_for_car"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
 int setcarstrong(lua_State* L) {// сделать авто устойчивым.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {//указатель на авто.
@@ -3270,7 +3327,7 @@ int destroy(lua_State* L) {// удаления объектов из памят�
 
 	for (auto pick = mappeds.begin(); pick != mappeds.end(); ++pick) {
 		if (L == pick->second) {
-			CPed* ped = pick->first;
+			CPed* ped = pick->first; ped->ClearInvestigateEvent();// пед уходит, опустить педа.
 			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
 			mappeds.erase(pick);
 		}
@@ -3600,6 +3657,13 @@ try {
 	catch (const char* x) { writelog(x); }
 	return 0;
 };
+int get_current_name_luascript(lua_State* L) {// получить имя текущего lua файла.
+    lua_pushlightuserdata(L, L);  /*отправить адрес, который является ключом в стек. */
+	lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
+	char const* luaname = lua_tostring(L, -1);//имя lua скрипта.
+	lua_pushstring(L, luaname);
+	return 1;
+};
 
 
 int restore_camera(lua_State* L) {// восстановить камеру.
@@ -3617,8 +3681,7 @@ int ped_atack(lua_State* L) {// пед бьет.
 
 		for (auto ped : CPools::ms_pPedPool) {
 			if (ped == p) {
-				
-				ped->Attack();
+				//ped->Attack();
 				this_thread::sleep_for(chrono::milliseconds(1));
 				//spite::active(true, ped);
 				//this_thread::sleep_for(chrono::milliseconds(1000));
@@ -3725,6 +3788,91 @@ int set_skin(lua_State* L) {// уст скин педа.
 			return 0;
 		}
 		else { throw "bad argument in function ped_atack"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int ped_anim(lua_State* L) {// анимация.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) 
+			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {//число.
+
+			const void* p = lua_topointer(L, 1);
+			int tipe = Stack<int>::get(L, 2);
+			int idanimation = Stack<int>::get(L, 3);
+			int time = Stack<int>::get(L, 4);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			RpClump* pe = ped->m_pRwClump;
+			CAnimManager::BlendAnimation(pe, tipe, idanimation, time);
+			return 0;
+		}
+		else { throw "bad argument in function ped_anim"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+int del_anim(lua_State* L) {// удалить анимацию.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {//число.
+			//const void* p = lua_topointer(L, 1);
+			//CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			//
+	        int tipe = Stack<int>::get(L,1);
+						
+			//CAnimManager::RemoveAnimBlockRef(tipe);
+		    //b->RemoveAnimBlockRefWithoutDelete(tipe);
+			return 0;
+		}
+		else { throw "bad argument in function del_anim"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+int star_mission_marker(lua_State* L) {// создать маркер для миссии.
+	static int point;	static int create = 0;
+	try {
+		if (LUA_TNUMBER == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3) &&
+			LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// значение число.
+
+			int t = Stack<int>::get(L, -4);// id метки на карте.
+			float x = Stack<float>::get(L, -3); float y = Stack<float>::get(L, -2);
+			float z = Stack<float>::get(L, -1);  CVector p = { x, y, z };
+			this_thread::sleep_for(chrono::milliseconds(10));
+			CPed* player = FindPlayerPed();
+			unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
+			bool getflagmission = (CTheScripts::ScriptSpace[OnAMissionFlag]);
+			bool arest = CWorld::Players[CWorld::PlayerInFocus].m_nPlayerState == PLAYERSTATE_HASBEENARRESTED;
+			this_thread::sleep_for(chrono::milliseconds(10));
+			if (player->m_bInVehicle  && create ==0 && !getflagmission) {// в авто игрок?
+				create = 1;
+				Command<COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_CONTACT_POINT>(p.x, p.y, p.z, t, &point);
+				Stack<bool>::push(L, false);
+				return 1;
+			}
+			if (!player->m_bInVehicle || getflagmission || (!player->m_fHealth > 0.10f) || (arest) && (create ==1) ) {// в авто игрок?
+				create = 0;
+				Command<COMMAND_REMOVE_BLIP>(point);// удалить метку на карте.>(p.x, p.y, p.z, t, size, &point);
+				Stack<bool>::push(L, false);
+				return 1;
+			}
+			if (player->m_bInVehicle && !getflagmission && (player->m_fHealth > 0.10f) && (!arest) && (create == 1)) {// в авто игрок?
+				CVehicle* car = player->m_pVehicle;
+				bool place = car->IsSphereTouchingVehicle(x, y, z, 3.0);
+				if (place) {
+					create = 0;
+					Command<COMMAND_REMOVE_BLIP>(point);// удалить метку на карте.>(p.x, p.y, p.z, t, size, &point);
+					CTheScripts::ScriptSpace[OnAMissionFlag] = 1;
+					Command<COMMAND_DO_FADE>(500, 0);// затенение.
+					player->SetObjective(OBJECTIVE_LEAVE_CAR); // выйти из авто.
+					while (player->m_bInVehicle) { 	this_thread::sleep_for(chrono::milliseconds(1));};
+					Command<COMMAND_SET_CAR_COORDINATES>(CPools::GetVehicleRef(car), 0.0f, 0.0f, 0.0f);// установить координаты авто.
+					Stack<bool>::push(L, true);
+					return 1;
+				}
+			}
+		}// int
+
+		else { throw "bad argument in function star_mission_marker"; }
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;
