@@ -366,12 +366,7 @@ ped= createped(m,t, x,y,z)
 releasemodel(m) 
 return ped
 end
--- function Create_spec_ped(m, slot, x,y,z)--создать спец пед.
--- idmodel, t = model_and_type(m, SPEC_PED_MODELS_AND_TYPES)-- модель и тип.
--- tipe = idmodel -108- slot
--- create_spec_ped(m,idmodel,tipe, t ,slot, x,y,z) 
- -- return ped
--- end
+
 function Giveweaponped(ped, ammo, ...)-- дать педу оружие и патроны.
     for m1, v in pairs({...}) do	    
         m, t = model_and_type(v, WEAPONS_MODELS_AND_TYPES)	
@@ -432,6 +427,14 @@ end
 -- end
 
 
+function is_ped_in_car(player)
+local  b, car = incar(player)
+return b
+end  
+function ped_car(player)
+local  b, car = incar(player)
+return car
+end  
 function Kill_ped_on_foot(ped, ped2)
  kill_ped_on_foot(ped)
  kill_ped_on_foot(ped2)
@@ -499,7 +502,21 @@ else
 return false
 end
 end 
-
+function ped_in_radius(player, x1, y1, z1, rx, ry, rz) 
+wait(50)
+local x,y,z=getpedcoordes(player)
+if rx == 0 and ry == 0 and x == x1 and y == y1
+then return true
+else r2 = rx * rx + ry * ry + rz * rz;
+x = x - x1 y = y - y1 z = z - z1
+end
+if x * x + y * y + z * z <= r2
+then
+return true
+else
+return false
+end
+end 
  Arrested1233 = coroutine.wrap(-- Проверка на арест.
  function ()
  coroutine.yield(true) 
@@ -515,7 +532,7 @@ end
  end
  
 function Keypress(key)
- if keypress(key)-- клавиша .
+ if keypress(key)-- клавиша.
  then
  wait(300)
  if not keypress(key) then 
@@ -525,56 +542,93 @@ function Keypress(key)
  end
 end
 
- function Create_obj(model, x,y,z) 
+function Create_obj(model, x,y,z) 
  loadmodel(model)
-load_requested_models() 
+ load_requested_models() 
 while not availablemodel(model) do wait(1) loadmodel(model) end
 obj =  create_obj(model, x,y,z) 
 releasemodel(model)  
 return obj
 end
 
-function miss(money)  text="mission passed $"..tostring(money)
- setflagmission(0) -- установить флаг миссии
- play_sound(1)  showtext(text, 2500,0) wait(900)-- вывод статуса миссии. 
- givemoney(money) 
- end
 function setcolorcar(car, first, second)
  setcarfirstcolor(car, first) -- уст первый цвет авто.
  setcarseconscolor(car, second) -- уст второй цвет авто.
 end
 function end_mission(text)
- setflagmission(0) -- установить флаг миссии
+ setflagmission(false) -- установить флаг миссии
+ wait(200)
  showtext(text, 2500,0)-- вывод статуса миссии.
- wait(900)
+ destroy()-- удалить все объекты, которые были созданы скриптом.	 
 end
+
+function miss(money)  text="mission passed $"..tostring(money)
+ play_sound(1) end_mission(text) wait(900)-- вывод статуса миссии. 
+ givemoney(money) 
+end
+
 function checkmission(player)
 while true == getflagmission() do wait()
  yield()
-if not player_defined(player) or  Arrested()
+if not player_defined(player) or arrested()
 then end_mission("mission failed!")
 break
  end 
 end
  end
+function check_defined_and_arest()
+wait(300)
+player = findplayer()-- получить игрока
+ if not player_defined(player) or arrested()
+  then end_mission("mission failed!")
+  end
+end
 
 function star_mission(player, cheat_word)
  statuscar, car = incar(player)
  if cheat(cheat_word) and false == statuscar and false == getflagmission()  -- получить статус миссии.
 and  player_defined(player) and not Arrested()
  then setflagmission(1) -- установить флаг миссии
- newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
+ --newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
 return true
  end
 end
 function Star_mission_marker(t,x,y,z)
  player = findplayer()-- получить игрока
  if star_mission_marker(t,x,y,z) -- чит-код 
- then newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
+ then --newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
+ ped_frozen(0)
+ while not 0 == getcarspeed(mycar) do wait(10) end
+ fade(0,1100) wait(1000) 
+ local mycar = ped_car(player)
+ setflagmission(true) -- установить флаг миссии
+ player = findplayer()-- получить игрока
+ exitcar(player) 
+while true do wait(500)
+ if not is_ped_in_car(player)
+ then break
+ end 
+ setcarcoordes(mycar,0.0,0.0,0.0)
+ remove_car(mycar)
+ ped_frozen(1)
+ wait(1000)
+end
+-- newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
 return true
 else return false
  end
 end
+
+function Getflagmission()
+player = findplayer()-- получить игрока
+if not player_defined(player) or arrested()
+then end_mission("mission failed!")
+end 
+wait(200)
+local flag = getflagmission()
+return flag
+end
+
 rotate_obj = coroutine.wrap(-- ехать по маршруту.
 function(obj)
 local i=1
@@ -748,7 +802,6 @@ end
 function Remove(e)
 if isped(e)
 then remove_ped(e)
-return m
 end
 if isvehicle(e)
 then remove_car(e)
@@ -757,7 +810,65 @@ if isobject(e)
 then remove_obj(e)
 end
 end
+function setcord(player,x,y,z)
+if isped(player)
+then setpedcoordes(player,x,y,z)
+end
+if isvehicle(player)
+then setcarcoordes(player,x,y,z)
+end
+if isobject(player)
+then setobjcoordes(player,x,y,z)
+end
+end
 
+function setangle(player,angle)
+if isped(player)
+then setpedangle(player,angle)
+end
+if isvehicle(player)
+then setcarangle(player,angle)
+end
+if isobject(player)
+then setobjangle(player,angle)
+end
+end
+function getcoordinates_on_y(ref,distance)
+if isped(ref)
+then local x,y,z = getpedcoordinates_on_y(ref,distance)
+return x,y,z
+end
+if isvehicle(ref)
+then local x,y,z = getcarcoordinates_on_y(ref,distance)
+return x,y,z
+end
+if isobject(ref)
+then local x,y,z = getobjcoordinates_on_y(ref,distance)
+return x,y,z
+end
+end
+function getcoordinates_on_x(ref,distance)
+if isped(ref)
+then local x,y,z = getpedcoordinates_on_x(ref,distance)
+return x,y,z
+end
+if isvehicle(ref)
+then local x,y,z = getcarcoordinates_on_x(ref,distance)
+return x,y,z
+end
+if isobject(ref)
+then local x,y,z = getobjcoordinates_on_x(ref,distance)
+return x,y,z
+end
+end
+
+function foel(model, player,weapon,x,y,z)
+ local ped = Createped(model, x,y,z)
+ Giveweaponped(ped,600, weapon)
+ local m  = create_marker(ped)
+ Kill_char_any_means(ped, player)
+ return ped, m
+end
 
 -- function in_point_actor_in_radius(ped, x1, y1, z1, rx, ry, rz)
   -- x,y,z=getcoordes(ped)
@@ -1044,6 +1155,11 @@ end
 
 --]
 
-
+-- function Create_spec_ped(m, slot, x,y,z)--создать спец пед.
+-- idmodel, t = model_and_type(m, SPEC_PED_MODELS_AND_TYPES)-- модель и тип.
+-- tipe = idmodel -108- slot
+-- create_spec_ped(m,idmodel,tipe, t ,slot, x,y,z) 
+ -- return ped
+-- endтрон 
 
 

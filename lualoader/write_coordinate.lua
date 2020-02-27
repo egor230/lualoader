@@ -11,7 +11,7 @@ while lualoader == nil do
  y = tonumber(string.format("%.1f", y))
  z = tonumber(string.format("%.1f", z))
  p = getpedangle(player)
- cord = tostring(x)..", "..tostring(y)..", " .. tostring(z).." -- "..i.."\n"
+ cord = tostring(x)..", "..tostring(y)..", " .. tostring(z).." angle = ".. p.." -- "..i.."\n"
   file = io.open('cordinat.txt', 'a') -- открыть файл для записи 
   file:write(cord)    
   file:close()
