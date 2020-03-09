@@ -407,7 +407,12 @@ pickup = create_weapon_pickup(model,typepickup, ammo,x,y,z)
 releasemodel(model) 
 return pickup
 end
-
+--[[
+ 1 - за деньги, регенерируется почти сразу 
+ 2 - бесплатно, регенерация за 30 минут игрового времени, надо отойти недалеко 
+ 3 - бесплатно, одноразовый 9,11 - бомба 
+ 15 - эти регенерируется за 6 часов игрового времени или за 6 минут по-нормальному
+]]-- 
 function Create_pickup(model, typepickup, x,y,z) 
  loadmodel(model)
 load_requested_models() 
@@ -481,8 +486,8 @@ local m, t = model_and_type(ped, PED_MODELS_AND_TYPES)
 load_requested_models() 
 while not availablemodel(m) do wait(1) loadmodel(m) end
 if place == nil 
-then driver = setcardrive(car,m,t)
-else driver = setcarpassenger(car,m,t,place)
+then  driver = setcardrive(car,m,t)
+else  driver = setcarpassenger(car,m,t,place)
 end 
 releasemodel(m) 
 return driver
@@ -598,9 +603,9 @@ function Star_mission_marker(t,x,y,z)
  if star_mission_marker(t,x,y,z) -- чит-код 
  then --newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
  ped_frozen(0)
+ local mycar = ped_car(player)
  while not 0 == getcarspeed(mycar) do wait(10) end
  fade(0,1100) wait(1000) 
- local mycar = ped_car(player)
  setflagmission(true) -- установить флаг миссии
  player = findplayer()-- получить игрока
  exitcar(player) 
@@ -608,10 +613,10 @@ while true do wait(500)
  if not is_ped_in_car(player)
  then break
  end 
- setcarcoordes(mycar,0.0,0.0,0.0)
- remove_car(mycar)
  ped_frozen(1)
  wait(1000)
+ setcarcoordes(mycar,0.0,0.0,0.0)
+ remove_car(mycar)
 end
 -- newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
 return true
@@ -869,6 +874,174 @@ function foel(model, player,weapon,x,y,z)
  Kill_char_any_means(ped, player)
  return ped, m
 end
+
+
+--[[
+метки
+0 Место назначения Маленький розовый квадрат, неиспользованный
+1 Увеличенная версия значка позиции игрока, сбой игры,
+если смотреть в карте паузы, не используется
+2Положение игрока
+Крошечная версия розовой стрелки позиции игрока, не
+используется
+3 Север, сбой игры, если смотреть в карте паузы, не
+используется
+4 RADAR_ SPRITE_ AVERY radar_avery LG_02 Эйвери Каррингтон
+5 RADAR_ SPRITE_ BIKER radar_biker LG_03 Контакт для байкеров
+Большой Митч Бейкер, неиспользуемый
+6 RADAR_ SPRITE_  CORTEZ radar_cortez LG_04 Полковник Кортес
+7 RADAR_ SPRITE_ DIAZ radar_diaz LG_05 Рикардо Диас
+8 RADAR_ SPRITE_ KENT radar_kent LG_06 Кент Пол
+9 RADAR_ SPRITE_ 
+ЮРИСТ
+radar_lawyer LG_07 Адвокат Кен Розенберг
+10 RADAR_ SPRITE_ PHIL radar_phil LG_08 Фил Кэссиди
+11 RADAR_ SPRITE_ 
+BIKERS
+байкеры LG_03
+Контакт для
+байкеров
+Большой Митч Бейкер
+12 RADAR_ SPRITE_ 
+BOATYARD
+катеростроительный
+завод
+LG_09 катеростроительный
+завод
+13 RADAR_ SPRITE_ 
+MALIBUCLUB
+клуб LG_10 Клуб Малибу
+14 RADAR_ SPRITE_ 
+CUBANS
+кубинцы LG_11 кубинцы Умберто Робин
+15 RADAR_ SPRITE_ FILM киностудия LG_12 Киностудия Стив Скотт
+16 RADAR_ SPRITE_ GUN пистолет LG_13 Амма­Nation
+17
+RADAR_ SPRITE_ 
+HAITIANS
+гаитян LG_14 гаитян Тетя Poulet
+18
+RADAR_ SPRITE_ 
+HARDWARE
+аппаратные
+средства
+LG_15
+Магазин
+оборудования
+19
+RADAR_ SPRITE_ 
+SAVEHOUSE
+radar_save LG_16 Безопасный дом
+20
+RADAR_ SPRITE_ 
+STRIPCLUB
+radar_strip LG_37 Стрип­клуб Поул­позиция
+21 RADAR_ SPRITE_ ICE мороженое LG_17 мороженое Черри Попперс
+22
+RADAR_ SPRITE_ 
+KCABS
+kcabs LG_18
+Кауфманские
+кабины
+Такси фирма
+23
+RADAR_ SPRITE_ 
+LOVEFIST
+кулак любви LG_19 Кулак любви
+24
+RADAR_ SPRITE_ 
+PRINTWORKS
+ситценабивная
+фабрика
+LG_20 Печатные работы
+25
+RADAR_ SPRITE_ 
+СОБСТВЕННОСТЬ
+­ ­ ­ ­ Без спрайта
+26
+RADAR_ SPRITE_ 
+SUNYARD
+Sunyard LG_36 Sun Yard Sunshine Autos
+27 RADAR_ SPRITE_ SPRAY спрей LG_22 Pay 'n' Spray
+28
+RADAR_ SPRITE_ 
+TSHIRT
+Футболка LG_23 Магазин одежды
+29
+RADAR_ SPRITE_ 
+TOMMY
+Томми LG_24 Особняк Томми
+30
+ТЕЛЕФОН RADAR_ 
+SPRITE_
+Телефон LG_25 телефон убийство
+31
+RADAR_ SPRITE_ 
+RADIO_WILDSTYLE
+RWildstyle LG_26
+Радиостанция
+Wildstyle
+неиспользуемый
+32
+RADAR_ SPRITE_ 
+RADIO_FLASH
+RFlash LG_27
+Flash FM­
+радиостанция
+неиспользуемый
+33
+RADAR_ SPRITE_ 
+RADIO_KCHAT
+RKchat LG_28
+Радиостанция
+KChat
+неиспользуемый
+34
+RADAR_ SPRITE_ 
+RADIO_FEVER
+RFever LG_29
+Лихорадка 105
+Радиостанция
+неиспользуемый
+35
+RADAR_ SPRITE_ 
+RADIO_VROCK
+RVRock LG_30
+Радиостанция
+VROK Radio Station
+Sic, unused
+36
+RADAR_ SPRITE_ 
+RADIO_VCPR
+RVCPR LG_31
+Радиостанция
+VCPR
+неиспользуемый
+37
+RADAR_ SPRITE_ 
+RADIO_ESPANTOSO
+REspantoso LG_32
+Радиостанция
+Эспаньозо
+неиспользуемый 21.07.2017 Blip ­ GTAModding
+38
+RADAR_ SPRITE_ 
+RADIO_EMOTION
+REmotion LG_33
+Эмоция 98.3
+Радиостанция
+неиспользуемый
+39
+RADAR_ SPRITE_ 
+RADIO_WAVE
+RWave LG_34
+Радиостанция Wave
+103
+неиспользуемый 
+
+]]--
+
+
 
 -- function in_point_actor_in_radius(ped, x1, y1, z1, rx, ry, rz)
   -- x,y,z=getcoordes(ped)

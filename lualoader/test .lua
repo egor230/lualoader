@@ -8,12 +8,19 @@ while lualoader == nil do
  then -- 
  x,y,z = getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.-- 
  printmessage("yes", 2000,1)-- 
- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
- Giveweaponped(player,600,"uzi")-- дать педу оружие.
+ for i=1, 6 do
+ set_wanted(i) 
+ wait(2500)
+ end
+-- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
+ --Giveweaponped(player,600,"uzi")-- дать педу оружие.
    -- set_widescreen(true)--
  -- setcord(player,0.0,0.0,0.0)
 -- givemoney(3000) setcarcoordes(mycar,0.0,0.0,0.0)
 end	-- 
+  if Keypress(VK_G) -- если клавиша H.
+ then setcord(player, 370.6, -1609.7, 16.7)
+end
 end
 end  
  -- while lualoader == nil do

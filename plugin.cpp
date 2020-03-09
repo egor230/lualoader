@@ -589,7 +589,7 @@ public: Message() {
 		CPed* player = FindPlayerPed();// найти педа.
 		if (player != NULL) {// проверка найден пед.
 
-			if (player != NULL && star_second_thread == false && CTimer::m_snTimeInMilliseconds - time > 136500) {
+			if ((Command<COMMAND_CAN_PLAYER_START_MISSION>(CWorld::PlayerInFocus)) && star_second_thread == false && CTimer::m_snTimeInMilliseconds - time > 136500) {
 				time = 0;// обнулить таймер.
 				bool k = true;// флаг, что уже запущен поток. 
 				star_thread::set(k);
@@ -2099,8 +2099,15 @@ int set_wanted(lua_State* L) {// уcтановить уровень розыск
 	try {
 		if (LUA_TNUMBER == lua_type(L, -1)) {// значение число.
 			int wanted = lua_tointeger(L, -1);// кол-во звезд розыска.
-			Command<COMMAND_ALTER_WANTED_LEVEL>(CWorld::PlayerInFocus, wanted);
-			return 0;
+			if (wanted < 5) {
+				Command<COMMAND_ALTER_WANTED_LEVEL>(CWorld::PlayerInFocus, wanted);
+				return 0;
+			}
+			else
+			{
+				Command<COMMAND_ALTER_WANTED_LEVEL_NO_DROP>(CWorld::PlayerInFocus, wanted);
+				return 0;
+			}
 		}
 		else { throw "bad argument in function set_wanted"; }
 	}
@@ -2822,13 +2829,15 @@ int setcardrive(lua_State* L) {// установить водителя для �
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {//строка.
 
-			CVehicle* car = (CVehicle*)Userdata::get<CVehicle>(L, 1, false);
+			const void* p = lua_topointer(L, 1);
+			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
+
 			int model = lua_tointeger(L, 2);// модель педа.
 			int type = lua_tointeger(L, 3);// тип педа.
 			CPed* ped = nullptr;
 			Command<COMMAND_CREATE_CHAR_INSIDE_CAR>(CPools::GetVehicleRef(car), type, model, &ped);
 			car->m_autoPilot.m_nCarMission = MISSION_NONE;
-			Stack<CPed*>::push(L, ped);
+			lua_pushlightuserdata(L, ped);// отправить в стек и получить из стека можно.
 			return 1;
 		}
 		else { throw "bad argument in function setcardrive"; }
