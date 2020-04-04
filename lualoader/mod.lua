@@ -116,7 +116,7 @@ SPEC_PED_MODELS_AND_TYPES = {
  SHOOTRB = {128,4,20}, SPANDXA = {128,5,20},SPANDXB = {128,5,20}, STRIPA = {128,5,20}
 }
 			 
-WEAPONS_MODELS_AND_TYPES = {brassknuckle = {259,1}, screwdriver = {260,2}, golfclub = {261,3},
+WEAPONS_MODELS_AND_TYPES = {unarmed = {0,0}, brassknuckle = {259,1}, screwdriver = {260,2}, golfclub = {261,3},
 nitestick = {262,4},knifecur = {263,5}, bat = {264,6}, hammer = {265,7}, cleaver = {266,8}, 
 machete = {267,9}, katana = {268,10}, chnsaw = {269,11}, grenade = {270,12}, teargas = {271,14},
 molotov = {272,15}, missile = {273,16}, colt45 = {274,17}, python = {275,18}, ruger = {276,27}, 
@@ -304,27 +304,27 @@ AMINATIONS_LIST ={
 -- 172 - висит на тросе
 }
 
-for k, v in pairs(KEYS) do 	_G[k] = v end	
-for k, v in pairs(MODEL_CARS) do _G[k] = v end
-for k, v in pairs(MODEL_WEAPONS) do _G[k] = v end
-for k, v in pairs(PED_MODELS_AND_TYPES) do _G[k] = v end
-for k, v in pairs(WEAPONS_MODELS_AND_TYPES) do _G[k] = v end
-for k, v in pairs(DOORS_CAR) do _G[k] = v end	
-for k, v in pairs(SPEC_PED_MODELS_AND_TYPES) do _G[k] = v end	
+for k, v in pairs(KEYS) do _G[k] = v end	
+--for k, v in pairs(MODEL_CARS) do _G[k] = v end
+--for k, v in pairs(MODEL_WEAPONS) do _G[k] = v end
+--for k, v in pairs(PED_MODELS_AND_TYPES) do _G[k] = v end
+--for k, v in pairs(WEAPONS_MODELS_AND_TYPES) do _G[k] = v end
+--for k, v in pairs(DOORS_CAR) do _G[k] = v end	
+--for k, v in pairs(SPEC_PED_MODELS_AND_TYPES) do _G[k] = v end	
 
 
 function delay()
 for i=1,100 do u= i end
 end
 
-function Openalldoorscar(car)--открыть все двери авто.
-opendoorcar(car, 0) opendoorcar(car, 1) opendoorcar(car, 2)
-opendoorcar(car, 3) opendoorcar(car, 4) opendoorcar(car, 5)
-end
+-- function Openalldoorscar(car)--открыть все двери авто.
+ -- opendoorcar(car, 0) opendoorcar(car, 1) opendoorcar(car, 2)
+ -- opendoorcar(car, 3) opendoorcar(car, 4) opendoorcar(car, 5)
+-- end
 function Ped_in_point_in_radius(ped, x,y,z, rx,ry,rz)
-wait(50)
-local res = ped_in_point_in_radius(ped, x,y,z, rx,ry,rz)
-return res
+ wait(50)
+ local res = ped_in_point_in_radius(ped, x,y,z, rx,ry,rz)
+ return res
 end
 function Car_in_point_in_radius(car, x,y,z, r)
 wait(50)
@@ -333,97 +333,131 @@ return res
 end
 
 function getworldcoordped(ped, x,y)
-x2,y2,z =getcoordes(ped)
+local x2,y2,z =getcoordes(ped)
     if x == nil and y == nil
     then x = 1.0 y = 1.0  
-local x1, y1= worldcoord(ped, x,y)
- return x1,y1,z
+     local x1, y1= worldcoord(ped, x,y)
+     return x1,y1,z
     end
  if x ~= nil and y == nil
    then y=1.0 
-local x1, y1= worldcoord(ped, x,y)
+    local x1, y1= worldcoord(ped, x,y)
     return x1,y1,z
   end
   if x ~= nil and y ~= nil
-   then   local x1, y1= worldcoord(ped, x,y)
+   then local x1, y1= worldcoord(ped, x,y)
     return x1,y1,z
     end
 end
-function model_and_type(model, list)
- for k,v in pairs(list) do
-        if model == k
-        then m = v[1] -- модель.
-            t =v[2] -- тип модель
-        end end
-   return m, t-- тип.
-end
---макросы
-function Createped(m,x,y,z)--создать педа.
-m, t = model_and_type(m, PED_MODELS_AND_TYPES)
-load_requested_models() 
-while not availablemodel(m) do wait(1) loadmodel(m) end
-ped= createped(m,t, x,y,z)
-releasemodel(m) 
-return ped
-end
+-- function model_and_type(model, list)
+-- local m,t
+ -- for k,v in pairs(list) do
+     -- if model == k
+      -- then m = k -- модель
+           -- t = v -- тип модели.
+      -- end end
+	-- m = tonumber(m)
+-- t = tonumber(t)
+-- givemoney(m)
+   -- return m, t-- тип.
+-- end
 
-function Giveweaponped(ped, ammo, ...)-- дать педу оружие и патроны.
-    for m1, v in pairs({...}) do	    
-        m, t = model_and_type(v, WEAPONS_MODELS_AND_TYPES)	
-        loadmodel(m)
-        load_requested_models()
-        while not availablemodel(m) do wait(1) loadmodel(m) end
-        giveweaponped(ped, m, t, ammo)
-        releasemodel(m) 
-    end
-end
-function Createcar(m,x,y,z)-- создать машину.
-loadmodel(m)
-load_requested_models()
-while not availablemodel(m) do  wait(1) loadmodel(m) end
-local car = createcar(m, x,y,z)
-releasemodel(m) 
-return car
-end
+--макросы.
 
-function Get_type_weapon_ped(ped)	
-for k,v in pairs(WEAPONS_MODELS_AND_TYPES) do
-if is_current_weapon_ped(ped,v[2])
-then t1 = v[2]
-    m1 = v[1]
-   t = t1-- тип.
-   m = m1
-   break
-end end
-return m, t
-end
+-- function Createped(m,x,y,z)--создать педа.
+   -- local m, t = model_and_type(m, PED_MODELS_AND_TYPES)
+   -- load_requested_models() 
+   -- while not availablemodel(m) do wait(1) loadmodel(m) end
+   -- local ped = createped(m,t, x,y,z)
+   -- releasemodel(m) 
+-- return ped
+-- end
 
-function Create_weapon_pickup(m, typepickup, ammo, x,y,z) 
-model, t = model_and_type(m, WEAPONS_MODELS_AND_TYPES)	
-loadmodel(model)
-load_requested_models() 
-while not availablemodel(model) do wait(1) loadmodel(model) end
-pickup = create_weapon_pickup(model,typepickup, ammo,x,y,z)
-releasemodel(model) 
-return pickup
-end
+-- function Giveweaponped(ped, ammo, ...)-- дать педу оружие и патроны.
+ -- for m1, v in pairs({...}) do	    
+  -- local m, t = model_and_type(v, WEAPONS_MODELS_AND_TYPES)	
+
+   -- loadmodel(m)
+   -- load_requested_models()
+   -- while not availablemodel(m) do wait(1) loadmodel(m) end
+   -- giveweaponped(ped, m, t, ammo)
+   -- releasemodel(m) 
+  -- end
+-- end
+-- function Createcar(m,x,y,z)-- создать машину.
+	-- loadmodel(m)
+	-- load_requested_models()
+	-- while not availablemodel(m) do  wait(1) loadmodel(m) end
+	-- local car = createcar(m, x,y,z)
+	-- releasemodel(m) 
+	-- return car
+-- end
+
+-- function Get_type_weapon_ped(ped) -- получить текущее оружие.	
+-- for k,v in pairs(WEAPONS_MODELS_AND_TYPES) do
+-- local model =tonumber(v[2])
+-- if is_current_weapon_ped(ped, model)
+-- then local m,t = v[1], v[2]
+   -- break
+-- end end
+-- m = tonumber(m)
+-- t = tonumber(t)
+-- givemoney(t)
+-- return m, t
+-- end
+
+-- function Create_weapon_pickup(m, typepickup, ammo, x,y,z)  -- создать пикап оружие.
+	-- local model, t = model_and_type(m, WEAPONS_MODELS_AND_TYPES)	
+	-- loadmodel(model)
+	-- load_requested_models() 
+	-- while not availablemodel(model) do wait(1) loadmodel(model) end
+	-- local pickup = create_weapon_pickup(model,typepickup, ammo,x,y,z)
+	-- releasemodel(model) 
+	-- return pickup
+-- end
+
+function getweaponslot(ped, nameweapon )-- получить номер слота оружие.
+local m, t = model_and_type(nameweapon, WEAPONS_MODELS_AND_TYPES)	
+ t = tonumber(t)
+local g = Getweaponslot(ped,t)
+  g = tonumber(g)
+return g  
+end  
 --[[
  1 - за деньги, регенерируется почти сразу 
  2 - бесплатно, регенерация за 30 минут игрового времени, надо отойти недалеко 
  3 - бесплатно, одноразовый 9,11 - бомба 
  15 - эти регенерируется за 6 часов игрового времени или за 6 минут по-нормальному
 ]]-- 
-function Create_pickup(model, typepickup, x,y,z) 
- loadmodel(model)
-load_requested_models() 
-while not availablemodel(model) do wait(1) loadmodel(model) end
-pickup = create_pickup(model,typepickup, x,y,z)
-releasemodel(model)  
-return pickup
-end
+-- function Create_pickup(model, typepickup, x,y,z) -- создать пикап.
+-- loadmodel(model)
+-- load_requested_models() 
+-- while not availablemodel(model) do wait(1) loadmodel(model) end
+-- local pickup = create_pickup(model,typepickup, x,y,z)
+-- releasemodel(model)  
+-- return pickup
+-- end
 
+function remove_current_weapon_ped(ped)	-- удалить текущее оружие.
+  local m = get_model_current_weapon_ped(ped) -- получить текущее оружие.
+ if m ~= 0
+ then Remove_weapon_model(ped, m)
+  end
+end
+function throw_current_weapon(ped)-- выбросить текущее оружие.	
+ local m = get_model_current_weapon_ped(ped) -- получить текущее оружие.	
+ local ammo = get_ammo_weapon_ped(ped) -- получить кол-во патронов текущего оружие.	
+ local x,y,z = getcoordinates_on_y(ped, 5)
+  Remove_weapon_model(ped, m)
+if m ~= 0
+ then 
+local p = Create_weapon_pickup(m,3, ammo, x,y,z)-- создать пикап оружие.
+return p
+end
+ end
+ 
 -- function Keypress(key)
- -- if keypress(key)-- клавиша .
+ -- if keypress(key)-- клавиша.
  -- then wait(200)
   -- while keypress(key) do wait(20) end
  -- return true 
@@ -432,37 +466,20 @@ end
 -- end
 
 
-function is_ped_in_car(player)
-local  b, car = incar(player)
-return b
-end  
-function ped_car(player)
-local  b, car = incar(player)
-return car
-end  
-function Kill_ped_on_foot(ped, ped2)
- kill_ped_on_foot(ped)
- kill_ped_on_foot(ped2)
-end
-function Kill_char_any_means(ped, ped2)
- kill_char_any_means(ped)
- kill_char_any_means(ped2)
-end
 function Draw_corona(...)
 local t = {...} 
 draw_corona(t) 
 t= nil
 end
 
-
 Co_Draw_corona= coroutine.wrap(
  function(radius, t, glow_flare, red, green, blue,x,y,z)
- while true do  Draw_corona(radius, t, glow_flare, red, green, blue,x,y,z)
- coroutine.yield()   end
- end
+  while true do  Draw_corona(radius, t, glow_flare, red, green, blue,x,y,z)
+   coroutine.yield()   end
+   end
  )
- function races()
- ped_frozen(0)
+function races()-- отсчет времени перед стартом.
+  ped_frozen(0)
   sound_coordinate(7, 0.0,0.0,0.0)
   show_text_styled("RACE2", 1500, 4)-- 3 для гонки
   wait(1700)
@@ -475,19 +492,19 @@ Co_Draw_corona= coroutine.wrap(
   sound_coordinate(7, 0.0,0.0,0.0)
   show_text_styled("RACE5", 1500, 4)-- go для гонки
   wait(1700)
- ped_frozen(1)
+  ped_frozen(1)
   timer_donw(0,"R_TIME",0)-- Таймер гонки.
   return "R_TIME"
  end 
  
 function set_ped_in_car(car, ped, place)  -- уст водителя авто.
-local place = place or nil
-local m, t = model_and_type(ped, PED_MODELS_AND_TYPES)
-load_requested_models() 
+ local place = place or nil
+ local m, t = model_and_type(ped, PED_MODELS_AND_TYPES)
+ load_requested_models() 
 while not availablemodel(m) do wait(1) loadmodel(m) end
-if place == nil 
-then  driver = setcardrive(car,m,t)
-else  driver = setcarpassenger(car,m,t,place)
+ if place == nil 
+  then local driver = setcardrive(car,m,t)
+  else local driver = setcarpassenger(car,m,t,place)
 end 
 releasemodel(m) 
 return driver
@@ -501,10 +518,8 @@ else r2 = rx * rx + ry * ry + rz * rz;
 x = x - x1 y = y - y1 z = z - z1
 end
 if x * x + y * y + z * z <= r2
-then
-return true
-else
-return false
+then return true
+else return false
 end
 end 
 function ped_in_radius(player, x1, y1, z1, rx, ry, rz) 
@@ -556,7 +571,7 @@ releasemodel(model)
 return obj
 end
 
-function setcolorcar(car, first, second)
+function setcolorcar(car, first, second)-- установить первый и второй цвет авто.
  setcarfirstcolor(car, first) -- уст первый цвет авто.
  setcarseconscolor(car, second) -- уст второй цвет авто.
 end
@@ -581,19 +596,20 @@ break
  end 
 end
  end
+ 
 function check_defined_and_arest()
-wait(300)
-player = findplayer()-- получить игрока
- if not player_defined(player) or arrested()
-  then end_mission("mission failed!")
+ wait(300)
+ player = findplayer()-- получить игрока
+  if not player_defined(player) or arrested()
+   then end_mission("mission failed!")
   end
 end
 
 function star_mission(player, cheat_word)
  statuscar, car = incar(player)
  if cheat(cheat_word) and false == statuscar and false == getflagmission()  -- получить статус миссии.
-and  player_defined(player) and not Arrested()
- then setflagmission(1) -- установить флаг миссии
+ and player_defined(player) and not Arrested()
+  then setflagmission(1) -- установить флаг миссии
  --newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
 return true
  end
@@ -625,13 +641,13 @@ else return false
 end
 
 function Getflagmission()
-player = findplayer()-- получить игрока
-if not player_defined(player) or arrested()
-then end_mission("mission failed!")
-end 
-wait(200)
-local flag = getflagmission()
-return flag
+ player = findplayer()-- получить игрока
+ if not player_defined(player) or arrested()
+ then end_mission("mission failed!")
+ end 
+ wait(200)
+ local flag = getflagmission()
+ return flag
 end
 
 rotate_obj = coroutine.wrap(-- ехать по маршруту.
@@ -874,7 +890,26 @@ function foel(model, player,weapon,x,y,z)
  Kill_char_any_means(ped, player)
  return ped, m
 end
+function getcameracoordes()
+ local x,y,z = Getcameracoordes() 
+ local x1=tostring(x) local y1=tostring(y) local z1=tostring(z)
 
+ return x1,y1,z1
+end
+
+
+function set_angle_camera(x,y,z,r, angle)
+local z = z +1.0
+local r = r *1.5
+angle1 = angle + 180
+if angle1 > 360
+then angle1 = angle1 - 360
+end  -- printmessage("angle = ".. tostring( angle1), 1300, 1)
+ x1=  tonumber(tonumber(x)+r*math.cos(angle))
+ y1 =  tonumber(tonumber(y)+r*math.sin(angle))
+ camera_at_point(x, y, z, 1)
+ set_camera_position(x1,y1,z, 0.0, 0.0, 0.0)
+end
 
 --[[
 метки

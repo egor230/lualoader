@@ -41,6 +41,10 @@
 #include "CUserDisplay.h"
 #include "CAnimManager.cpp"
 #include "CBaseModelInfo.cpp"
+#include "CCamera.h"
+#include "CWeapon.h"
+#include "CPlayerPed.h"
+#include "CWeaponInfo.h"
 
 using namespace plugin;
 using namespace std;
@@ -51,16 +55,103 @@ list<char*>listfile;//Список Lua файлов.
 list<lua_State*>luastate;// list для lua состояний.
 static map<int, lua_State*>markeron;// map для маркеров.
 static map<int, lua_State*>spheres;// map для маркеров кругов.
-
 static map<int, lua_State*>pickupsids;// map для пикапов.
+static map<int, lua_State*>firesids;// map для огня.
+
 static map<CPed*, lua_State*>mappeds;// map для педов.
 static map<CVehicle*, lua_State*>mapcars;// map для авто.
 static map<CObject*, lua_State*>mapobjs;// map для объектов.
+
 
 static map<int, CPed*>ptr_for_ped;//
 static string cheatstr;// символы введенные с клавиатуры.
 string getkey(int key);
 
+map<string, int> car_model_list = { {"MODEL_LANDSTAL", 130}, {"MODEL_IDAHO", 131}, {"MODEL_STINGER", 132}, {"MODEL_LINERUN", 133},
+	{"MODEL_PEREN", 134}, {"MODEL_SENTINEL", 135}, {"MODEL_RIO", 136}, {"MODEL_FIRETRUK", 137}, {"MODEL_TRASH", 138},
+	{"MODEL_STRETCH", 139}, {"MODEL_MANANA", 140}, {"MODEL_INFERNUS", 141}, {"MODEL_VOODOO", 142}, {"MODEL_PONY", 143},
+	{"MODEL_MULE", 144}, {"MODEL_CHEETAH", 145}, {"MODEL_AMBULAN", 146}, {"MODEL_FBICAR", 147}, {"MODEL_MOONBEAM", 148},
+	{"MODEL_ESPERANT", 149}, {"MODEL_TAXI", 150}, {"MODEL_WASHING", 151}, {"MODEL_BOBCAT", 152}, {"MODEL_MRWHOOP", 153},
+	{"MODEL_BFINJECT", 154}, {"MODEL_HUNTER", 155}, {"MODEL_POLICE", 156}, {"MODEL_ENFORCER", 157}, {"MODEL_SECURICA", 158},
+	{"MODEL_BANSHEE", 159}, {"MODEL_PREDATOR", 160}, {"MODEL_BUS", 161}, {"MODEL_RHINO", 162}, {"MODEL_BARRACKS", 163},
+	{"MODEL_CUBAN", 164}, {"MODEL_CHOPPER", 165}, {"MODEL_ANGEL", 166}, {"MODEL_COACH", 167}, {"MODEL_CABBIE", 168},
+	{"MODEL_STALLION", 169}, {"MODEL_RUMPO", 170}, {"MODEL_RCBANDIT", 171}, {"MODEL_ROMERO", 172}, {"MODEL_PACKER", 173},
+	{"MODEL_SENTXS", 174}, {"MODEL_ADMIRAL", 175}, {"MODEL_SQUALO", 176}, {"MODEL_SEASPAR", 177}, {"MODEL_PIZZABOY", 178},
+	{"MODEL_GANGBUR", 179}, {"MODEL_AIRTRAIN", 180}, {"MODEL_DEADDODO", 181}, {"MODEL_SPEEDER", 182}, {"MODEL_REEFER", 183},
+	{"MODEL_TROPIC", 184}, {"MODEL_FLATBED", 185}, {"MODEL_YANKEE", 186}, {"MODEL_CADDY", 187}, {"MODEL_ZEBRA", 188},
+	{"MODEL_TOPFUN", 189}, {"MODEL_SKIMMER", 190}, {"MODEL_PCJ600", 191}, {"MODEL_FAGGIO", 192}, {"MODEL_FREEWAY", 193},
+	{"MODEL_RCBARON", 194}, {"MODEL_RCRAIDER", 195}, {"MODEL_GLENDALE", 196}, {"MODEL_OCEANIC", 197}, {"MODEL_SANCHEZ", 198},
+	{"MODEL_SPARROW", 199}, {"MODEL_PATRIOT", 200}, {"MODEL_LOVEFIST", 201}, {"MODEL_COASTG", 202}, {"MODEL_DINGHY", 203},
+	{"MODEL_HERMES", 204}, {"MODEL_SABRE", 205}, {"MODEL_SABRETUR", 206}, {"MODEL_PHEONIX", 207}, {"MODEL_WALTON", 208},
+	{"MODEL_REGINA", 209}, {"MODEL_COMET", 210}, {"MODEL_DELUXO", 211}, {"MODEL_BURRITO", 212}, {"MODEL_SPAND", 213},
+	{"MODEL_MARQUIS", 214}, {"MODEL_BAGGAGE", 215}, {"MODEL_KAUFMAN", 216}, {"MODEL_MAVERICK", 217}, {"MODEL_VCNMAV", 218},
+	{"MODEL_RANCHER", 219}, {"MODEL_FBIRANCH", 220}, {"MODEL_VIRGO", 221}, {"MODEL_GREENWOO", 222}, {"MODEL_JETMAX", 223},
+	{"MODEL_HOTRING", 224}, {"MODEL_SANDKING", 225}, {"MODEL_BLISTAC", 226}, {"MODEL_POLMAV", 227}, {"MODEL_BOXVILLE", 228},
+	{"MODEL_BENSON", 229}, {"MODEL_MESA", 230}, {"MODEL_RCGOBLIN", 231}, {"MODEL_HOTRINA", 232}, {"MODEL_HOTRINB", 233},
+	{"MODEL_BLOODRA", 234}, {"MODEL_BLOODRB", 235}, {"MODEL_VICECHEE", 236} };
+
+map<string, int> name_weapon_list = { {"unarmed", 0}, {"brassknuckle", 259}, {"screwdriver", 260}, {"golfclub", 261},
+{"nitestick", 262}, {"knifecur", 263}, {"bat", 264}, {"hammer", 265}, {"cleaver", 266}, {"machete", 267}, {"katana", 268},
+{"chnsaw", 269}, {"grenade", 270}, {"teargas", 271}, {"molotov", 272}, {"missile", 273}, {"colt45", 274}, {"python", 275},
+{"ruger", 276}, {"chromegun", 277}, {"shotgspa", 278}, {"buddyshot", 279}, {"m4", 280}, {"tec9", 281}, {"uzi", 282},
+{"ingramsl", 283}, {"mp5lng", 284}, {"sniper", 285}, {"laser", 286}, {"rocketla", 287}, {"flame", 288}, {"M60", 289},
+{"minigun", 290}, {"bomb", 291}, {"camera", 292}, {"fingers", 293}, {"minigun2", 294} };
+map<string, int> types_weapon_list = { {"unarmed", 0}, {"brassknuckle", 1}, {"screwdriver", 2}, {"golfclub", 3}, {"nitestick", 4},
+{"knifecur", 5}, {"bat", 6}, {"hammer", 7}, {"cleaver", 8}, {"machete", 9}, {"katana", 10}, {"chnsaw", 11}, {"grenade", 12},
+{"bomb", 13}, {"teargas", 14}, {"molotov", 15}, {"missile", 16}, {"colt45", 17}, {"python", 18}, {"chromegun", 19}, {"shotgspa", 20},
+{"buddyshot", 21}, {"tec9", 22}, {"uzi", 23}, {"ingramsl", 24}, {"mp5lng", 25}, {"m4", 26}, {"ruger", 27}, {"laser", 29},
+{"rocketla", 30}, {"flame", 31}, {"M60", 32}, {"sniper", 32}, {"M60", 32}, {"sniper", 32}, {"minigun", 33}, {"fingers", 34},
+{"minigun2", 35}, {"camera", 36} };
+
+map<string, int> name_peds_list = { {"ARMY", 4}, {"BFOBE", 40}, {"BFORI", 36}, {"BFOST", 32}, {"BFOTR", 44}, {"BFYBE", 38},
+{"BFYPR", 43}, {"BFYRI", 35}, {"BFYST", 31}, {"BKA", 93}, {"BKB", 94}, {"BMOBE", 41}, {"BMODK", 29}, {"BMOST", 34}, {"BMOTR", 45},
+{"BMYBB", 47}, {"BMYBE", 39}, {"BMYBU", 42}, {"BMYCR", 30}, {"BMYPI", 46}, {"BMYRI", 37}, {"BMYST", 33}, {"CBA", 83}, {"CBB", 84},
+{"CLA", 89}, {"CLB", 90}, {"COP", 1}, {"FBI", 3}, {"FIREMAN", 6}, {"GDA", 91}, {"GDB", 92}, {"HFOBE", 18}, {"HFORI", 14},
+{"HFOST", 10}, {"HFOTR", 25}, {"HFYBE", 17}, {"HFYBU", 21}, {"HFYCG", 23}, {"HFYMD", 22}, {"HFYPR", 24}, {"HFYRI", 13}, {"HFYST", 9},
+{"HMOBE", 20}, {"HMOCA", 28}, {"HMORI", 16}, {"HMOST", 12}, {"HMOTR", 26}, {"HMYAP", 27}, {"HMYBE", 19}, {"HMYRI", 15}, {"HMYST", 11},
+{"HNA", 85}, {"HNB", 86}, {"JFOTO", 81}, {"JMOTO", 82}, {"MEDIC", 5}, {"PGA", 95}, {"PGB", 96}, {"SGA", 87}, {"SGB", 88}, {"SWAT", 2},
+{"VICE1", 97}, {"VICE2", 98}, {"VICE3", 99}, {"VICE4", 100}, {"VICE5", 101}, {"VICE6", 102}, {"VICE7", 103}, {"VICE8", 104},
+{"WFOBE", 59}, {"WFOGO", 63}, {"WFORI", 54}, {"WFOSH", 80}, {"WFOST", 50}, {"WFOTR", 71}, {"WFYBE", 57}, {"WFYBU", 67}, {"WFYG1", 105},
+{"WFYG2", 106}, {"WFYJG", 75}, {"WFYLG", 65}, {"WFYPR", 70}, {"WFYRI", 53}, {"WFYSH", 79}, {"WFYSK", 77}, {"WFYST", 49}, {"WMOBE", 60},
+{"WMOBU", 69}, {"WMOCA", 74}, {"WMOGO", 64}, {"WMORI", 56}, {"WMOST", 52}, {"WMOTR", 72}, {"WMYBE", 58}, {"WMYBU", 68}, {"WMYCR", 48},
+{"WMYCW", 61}, {"WMYGO", 62}, {"WMYJG", 76}, {"WMYLG", 66}, {"WMYPI", 73}, {"WMYRI", 55}, {"WMYSK", 78}, {"WMYST", 51} };
+
+map<string, int> type_peds_list = { {"ARMY", 6}, {"BFOBE", 5}, {"BFORI", 5}, {"BFOST", 5}, {"BFOTR", 5}, {"BFYBE", 5}, {"BFYPR", 5},
+{"BFYRI", 5}, {"BFYST", 5}, {"BKA", 12}, {"BKB", 12}, {"BMOBE", 4}, {"BMODK", 4}, {"BMOST", 4}, {"BMOTR", 4}, {"BMYBB", 4},
+{"BMYBE", 4}, {"BMYBU", 4}, {"BMYCR", 4}, {"BMYPI", 4}, {"BMYRI", 4}, {"BMYST", 4}, {"CBA", 7}, {"CBB", 7}, {"CLA", 10}, {"CLB", 10},
+{"COP", 6}, {"FBI", 6}, {"FIREMAN", 17}, {"GDA", 11}, {"GDB", 11}, {"HFOBE", 5}, {"HFORI", 5}, {"HFOST", 5}, {"HFOTR", 5}, {"HFYBE", 5},
+{"HFYBU", 5}, {"HFYCG", 5}, {"HFYMD", 5}, {"HFYPR", 5}, {"HFYRI", 5}, {"HFYST", 5}, {"HMOBE", 4}, {"HMOCA", 4}, {"HMORI", 4},
+{"HMOST", 4}, {"HMOTR", 4}, {"HMYAP", 4}, {"HMYBE", 4}, {"HMYRI", 4}, {"HMYST", 4}, {"HNA", 8}, {"HNB", 8}, {"JFOTO", 5}, {"JMOTO", 4},
+{"MEDIC", 16}, {"PGA", 13}, {"PGB", 13}, {"SGA", 9}, {"SGB", 9}, {"SWAT", 6}, {"VICE1", 18}, {"VICE2", 18}, {"VICE3", 18},
+{"VICE4", 18}, {"VICE5", 18}, {"VICE6", 18}, {"VICE7", 18}, {"VICE8", 18}, {"WFOBE", 5}, {"WFOGO", 5}, {"WFORI", 5}, {"WFOSH", 5},
+{"WFOST", 5}, {"WFOTR", 5}, {"WFYBE", 5}, {"WFYBU", 5}, {"WFYG1", 5}, {"WFYG2", 6}, {"WFYJG", 5}, {"WFYLG", 5}, {"WFYPR", 5},
+{"WFYRI", 5}, {"WFYSH", 5}, {"WFYSK", 5}, {"WFYST", 5}, {"WMOBE", 4}, {"WMOBU", 4}, {"WMOCA", 4}, {"WMOGO", 4}, {"WMORI", 4},
+{"WMOST", 4}, {"WMOTR", 4}, {"WMYBE", 4}, {"WMYBU", 4}, {"WMYCR", 4}, {"WMYCW", 4}, {"WMYGO", 4}, {"WMYJG", 4}, {"WMYLG", 4},
+{"WMYPI", 4}, {"WMYRI", 4}, {"WMYSK", 4}, {"WMYST", 4} };
+
+map<string, int> type_specpeds_list = { {"BGA", 4}, {"BGB", 4}, {"BOUNCA", 4}, {"BURGER", 4}, {"CGONA", 4}, {"CGONB", 4}, {"CGONC", 4},
+{"CHEF", 4}, {"CMRAMAN", 4}, {"COURIER", 4}, {"CREWA", 4}, {"CREWB", 4}, {"CSJUGGZ", 5}, {"DGOONA", 4}, {"DGOONB", 4}, {"DGOONC", 4},
+{"FLOOZYA", 5}, {"FLOOZYB", 5}, {"FLOOZYC", 5}, {"FSFA", 4}, {"IGALSCB", 4}, {"IGBUDDY", 4}, {"IGBUDY2", 4}, {"IGBUDY3", 4},
+{"IGCANDY", 5}, {"IGCOLON", 4}, {"IGDIAZ", 4}, {"IGDICK", 4}, {"IGGONZ", 4}, {"IGHLARY", 4}, {"IGHLRY2", 4}, {"IGJEZZ", 4},
+{"IGKEN", 4}, {"IGMERC", 5}, {"IGMERC2", 5}, {"IGMIKE", 4}, {"IGMIKE2", 4}, {"IGPERCY", 4}, {"IGPHIL", 4}, {"IGPHIL2", 4},
+{"IGPHIL3", 4}, {"IGSONNY", 4}, {"MBA", 4}, {"MBB", 4}, {"MGOONA", 4}, {"MPORNA", 4}, {"MSERVER", 4}, {"PLAY10", 4}, {"PLAY11", 4},
+{"PLAY12", 4}, {"PLAYER2", 4}, {"PLAYER3", 4}, {"PLAYER4", 4}, {"PLAYER5", 4}, {"PLAYER6", 4}, {"PLAYER7", 4}, {"PLAYER8", 4},
+{"PLAYER9", 4}, {"PRINTRA", 4}, {"PRINTRB", 4}, {"PRINTRC", 4}, {"PSYCHO", 4}, {"SAM", 4}, {"SGC", 4}, {"SGOONA", 4}, {"SGOONB", 4},
+{"SHOOTRA", 5}, {"SHOOTRB", 4}, {"SPANDXA", 5}, {"SPANDXB", 5}, {"STRIPA", 5}, {"S_KEEP", 4} };
+
+map<int, int> type_and_model = { {0, 0}, {1, 259}, {2, 260}, {3, 261}, {4, 262}, {5, 263}, {6, 264}, {7, 265},
+{8, 266}, {9, 267}, {10, 268}, {11, 269}, {12, 270}, {13, 291}, {14, 271}, {15, 272}, {16, 273}, {17, 274},
+{18, 275}, {19, 277}, {20, 278}, {21, 279}, {22, 281}, {23, 282}, {24, 283}, {25, 284}, {26, 280}, {27, 276},
+{29, 286}, {30, 287}, {31, 288}, {32, 289}, {32, 285}, {32, 289}, {32, 285}, {33, 290}, {34, 293}, {35, 294},
+{36, 292} };
+
+map<int, int> model_and_type = { {0, 0}, {259, 1}, {260, 2}, {261, 3}, {262, 4}, {263, 5}, {264, 6}, {265, 7}, 
+{266, 8}, {267, 9}, {268, 10}, {269, 11}, {270, 12}, {271, 14}, {272, 15}, {273, 16}, {274, 17}, {275, 18}, {276, 27}, 
+{277, 19}, {278, 20}, {279, 21}, {280, 26}, {281, 22}, {282, 23}, {283, 24}, {284, 25}, {285, 32}, {286, 29}, {287, 30},
+{288, 31}, {289, 32}, {290, 33}, {291, 13}, {292, 36}, {293, 34}, {294, 35} };
+
+int find_in_map(std::map<string, int>& carlist, const char* search);// найти id авто.
+int find_model_in_map(std::map<int, int>& type_and_model, int search);// найти модель авто.
 struct star_thread {
 	static bool star_second_thread;// запускать второй поток.
 
@@ -277,9 +368,9 @@ int giveweaponped(lua_State* L);// дать педу оружие.
 int ped_aim_at_ped(lua_State* L);// пед целиться в педе.
 int is_current_weapon_ped(lua_State* L);// проверить текущее оружие.
 int worldcoord(lua_State* L); // Перевод в мировые координаты.
-int getpedcoordinates_on_abscissa(lua_State* L); // Получить мировую координату по x для педа.
+int getpedcoordinates_on_x(lua_State* L); // Получить мировую координату по x для педа.
 
-int getpedcoordinates_on_ordinate(lua_State* L); // Получить мировую координату по y для педа.
+int getpedcoordinates_on_y(lua_State* L); // Получить мировую координату по y для педа.
 int kill_ped_on_foot(lua_State* L);// убить педа пешком.
 int kill_char_any_means(lua_State* L);// убить педа любыми средствами.
 
@@ -313,8 +404,8 @@ int randomfindcar(lua_State* L); //Найти случайное авто.
 int create_money_pickup(lua_State* L); //создать пачку денег.
 
 int getcarcoordes(lua_State* L); // получить координаты авто.
-int getcarcoordinates_on_abscissa(lua_State* L);// Получить мировую координату по x для авто.
-int getcarcoordinates_on_ordinate(lua_State* L); // Получить мировую координату по y для авто.
+int getcarcoordinates_on_x(lua_State* L);// Получить мировую координату по x для авто.
+int getcarcoordinates_on_y(lua_State* L); // Получить мировую координату по y для авто.
 int car_in_point_in_radius(lua_State* L); // проверить находится авто в координатах с радиусом.
 
 int setdrivingstyle(lua_State* L); // установить стиль езды авто.
@@ -333,11 +424,11 @@ int show_text_styled(lua_State* L); // вывести игровой текст.
 int setcarangle(lua_State* L); // установить угол авто.
 
 int createmarker(lua_State* L); // создать маркер на карте.
-int setsizemarker(lua_State* L); //установить размер отображение маркера на карте.
-int checkcheat(lua_State* L);//чит код введен?.
-int destroy(lua_State* L);// удаления объектов из памяти при перезагрузки скрипта. 
+int setsizemarker(lua_State* L); // установить размер отображение маркера на карте.
+int checkcheat(lua_State* L); // чит код введен?.
+int destroy(lua_State* L); // удаления объектов из памяти при перезагрузки скрипта. 
 
-int my_yield(lua_State* L);//приостановить выполнение скрипта.
+int my_yield(lua_State* L); // приостановить выполнение скрипта.
 int setcardrive(lua_State* L); //  установить водителя для авто.
 int setcarpassenger(lua_State* L); // установить пассажира для авто.
 int setcarfirstcolor(lua_State* L); // установить первый цвет авто.
@@ -422,12 +513,52 @@ int ped_anim(lua_State* L); // анимация.
 int del_anim(lua_State* L); // удалить анимацию.
 int get_current_name_luascript(lua_State* L); // получить имя текущего lua файла.
 int star_mission_marker(lua_State* L); // создать маркер для миссии.
-int getobjcoordinates_on_abscissa(lua_State* L); // Получить мировую координату по x для объекта.
+int getobjcoordinates_on_x(lua_State* L); // Получить мировую координату по x для объекта.
 
-int getobjcoordinates_on_ordinate(lua_State* L); // Получить мировую координату по y для объекта.
+int getobjcoordinates_on_y(lua_State* L); // Получить мировую координату по y для объекта.
 int set_widescreen(lua_State* L); // вкл/выкл широкий экран.
 int follow_the_leader(lua_State* L); //01DE / 01DF	следовать за лидером.
 int getcarspeed(lua_State* L); // получить скорость авто.
+
+int Getcameracoordes(lua_State* L);// получить координаты камеры.
+int remove_all_weapons_ped(lua_State* L); // удалить все оружия педа.
+int Getweaponslot(lua_State* L); // получить номер слота по типу оружия.
+int get_damage_weapon_ped(lua_State* L); // получить последний урон педа от оружия.
+
+int get_aimgun_ped(lua_State* L); // получить показатель цели педа.
+int get_ammo_weapon_ped(lua_State* L);// получить кол-во патроны текущего оружие педа.
+int createfireonped(lua_State* L);// создать огонь на педе.
+int createfireoncar(lua_State* L);// создать огонь на авто.
+
+int createfireoncords(lua_State* L); // создать огонь на координатах.
+int remove_fire(lua_State* L); // удалить огонь.
+int ped_shutdown(lua_State* L);
+int ped_damage_from_ped(lua_State* L); // получил ли пед урон от педа.
+
+int is_targetting_in_ped(lua_State* L); // игрок целиться в педа.
+int Remove_weapon_model(lua_State* L); // удалить оружие у педа.
+
+int Createped(lua_State* L); // макрос создать педа.
+int Createcar(lua_State* L); // макрос создать авто на координатах.
+
+int Giveweaponped(lua_State* L); // макрос дать педу оружие и патроны.
+int Opendoorcar(lua_State* L); // Макрос открыть все двери авто.
+int Create_weapon_pickup(lua_State* L); // макрос создать пикап оружие.
+int Create_pickup(lua_State* L); // макрос создать пикап.
+
+int Get_model_and_type_current_weapon_ped(lua_State* L); // макрос получить модель и тип текущего оружие педа.
+int is_ped_in_car(lua_State* L); // игрок в авто?
+int ped_car(lua_State* L); // авто педа.
+int wanted_level(lua_State* L); // получить уровень розыска.
+
+int get_model_current_weapon_ped(lua_State* L); // макрос получить модель текущего оружие педа.
+int get_type_current_weapon_ped(lua_State* L); // макрос получить тип текущего оружие педа.
+int set_camera_and_point(lua_State* L); // установить и переместить камеру в координатах.
+int get_damage_current_weapon(lua_State* L); // получить уровень урона текущего оружие.
+int set_damage_current_weapon(lua_State* L); // установить уровень урона текущего оружие педа.
+
+int ped_in_targetting(lua_State* L); // пед на прицеле.
+int Ped_in_targetting(lua_State* L); // Макрос пед на прицеле.
 
 int newthread(lua_State* L);// запуск функции в новом потоке.
 
@@ -454,14 +585,29 @@ lua_KFunction cont(lua_State* L) {// функция продолжения.
 	lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
 	return 0;
 };
+struct state {
+	lua_State* L = NULL;
+	state() {
+		lua_State* L1 = luaL_newstate();
+		luaL_openlibs(L1);
+		this->L = L1;
+	}
+	lua_State* get() {
+		this->L = L;
+		return L;
+	}
+	~state() {
+		//lua_close(L);
+	}
+};
 
 void startscipt(string res, char* luafile, list<lua_State*>& luastate) {
-	lua_State* L = luaL_newstate();	luaL_openlibs(L);
-	funs(L); // список функций.	
+
+	state Lua; lua_State* L = Lua.get(); funs(L); // список функций.	
 	int status = luaL_loadfile(L, luafile);// проверка есть ли ошибки в файле.
 	try {
 		if (status == 0) {// если нет ошибки в файле.	
-			//lua_gc(L, LUA_GCSTOP, 1);// отключить сборщик мусора.
+			lua_gc(L, LUA_GCSTOP, 1);// отключить сборщик мусора.
 			lua_pushlightuserdata(L, L);  /* ключ в реестр указатель на L. */
 			lua_pushstring(L, luafile);  /* отправить имя текущего lua файла в реестр.*/
 			lua_settable(L, LUA_REGISTRYINDEX);  /* установить ключа и значение таблице реестре.  */
@@ -489,6 +635,9 @@ void startscipt(string res, char* luafile, list<lua_State*>& luastate) {
 					if (LUA_OK == lua_status(L1)) {// если второй поток завершен.      
 						lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
 						lua_resume(L, NULL, 0);
+					}
+					if (LUA_YIELD == lua_status(L) || LUA_YIELD == lua_status(L1) && (!star_coroutine::get())) {
+						break;
 					}
 				}
 			}
@@ -536,20 +685,26 @@ void second() {
 	static unsigned int time = 0;// обнулить таймер.
 	while (true) {	this_thread::sleep_for(chrono::milliseconds(1));
 		if (KeyPressed(VK_CONTROL)) {// перезагрузка скрипта    
-			bool coroutine = false;
-			star_coroutine::set(coroutine);
 			break;
 		};
 	};
 	for (auto L : luastate) { 
 		if (LUA_TFUNCTION == lua_type(L, -1)) {
 			lua_setglobal(L, "lualoader");// установить значение переменной в lua.
-			lua_pushinteger(L, 110); 
-			//my_yield(L);//приостановить выполнение скрипта.
+			lua_pushinteger(L, 110);
+
 			destroy(L);
+			 //my_yield(L);//приостановить выполнение скрипта.
+
+			//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10;// дать денег  
+			//lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
 			//lua_close(L);
 		}
-		else {//destroy(L); 		//luastate.remove(L);
+		else {	//lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
+		destroy(L); 		
+		//luastate.remove(L);
+
+			//lua_close(L);
 		}
 	};
 	if (CTimer::m_snTimeInMilliseconds - time > 500) {	time = 0;// обнулить таймер
@@ -564,6 +719,8 @@ void second() {
     // cleanstl();// очистка всех массивов при перезагрузке скрипта.
 	this_thread::sleep_for(chrono::milliseconds(10));
 
+	bool coroutine = false;
+	star_coroutine::set(coroutine);
 	bool k = false;	star_thread::set(k); // флаг, что можно запускать новый поток.
 };
 bool getstatusmission() {// проверка флага миссии.
@@ -602,205 +759,193 @@ public: Message() {
 } message;
 
 void funs(lua_State* L) {// список функций.
-	getGlobalNamespace(L)//Пространства имен LuaBridge для регистрации функции и классов, видны только сценариям Lua.
 
-		.beginClass<CPed>("cped")// имя класса пед в lua.
-		.addFunction("atack", &CPed::Attack)
-		.endClass()// закрыть регистрацию класса.  
-		.beginClass<CVehicle>("CVehicle")// имя класса авто в lua.
-		.endClass()// закрыть регистрацию класса.
-		.beginClass<CObject>("CObject")// имя класса объекта в lua.
-		.endClass()// закрыть регистрацию класса.
-		.addCFunction("findplayer", findplayer)// возвращает указатель педа.
+	lua_register(L, "findplayer", findplayer); // 1 возвращает указатель педа.
+	lua_register(L, "setpedhealth", setpedhealth); // 2 установить здоровье педу.
+	lua_register(L, "setarmour", setarmour); // 3 установить броню педу.
+	lua_register(L, "wait", wait); // 4 задержка.
+	lua_register(L, "getpedhealth", getpedhealth); // 5 получить здоровье педа.
+	lua_register(L, "getpedangle", getpedangle); // 6 получить угол педа.
+	lua_register(L, "worldcoord", worldcoord); // 7 Перевод в мировые координаты.
+	lua_register(L, "getpedcoordinates_on_x", getpedcoordinates_on_x); // 8 Получить мировую координату по x для педа.
+	lua_register(L, "getpedcoordinates_on_y", getpedcoordinates_on_y); // 9 Получить мировую координату по y для педа.
+	lua_register(L, "setarmour", setarmour); // 10 получить броню.
+	lua_register(L, "givemoney", givemoney); // 11 дать денег педу.
+	lua_register(L, "keypress", key); // 12 проверка на нажатие клавиш.
+	lua_register(L, "printmessage", printmessage); // 13 вывод сообщение.
+	lua_register(L, "getpedcoordes", getpedcoordes); // 14 получить координаты педа.
+	lua_register(L, "randomfindped", randomfindped); // 15 получить рандомного педа.
+	lua_register(L, "incar", incar); // 16  проверка пед в авто?.
+	lua_register(L, "loadmodel", loadmodel); // 17 загрузить модель.
+	lua_register(L, "availablemodel", availablemodel); // 18 проверка на загруженность модели.
+	lua_register(L, "releasemodel", releasemodel); // 19 удалить модель из памяти.
+	lua_register(L, "createcar", createcar); // 20 создать авто на координатах на координатах.
+	lua_register(L, "createped", createped); // 21 создать педа на координатах.
+	lua_register(L, "load_requested_models", load_requested_models); // 22 поставить модель на загрузить вне очереди.
+	lua_register(L, "giveweaponped", giveweaponped); // 23 дать педу оружие.
+	lua_register(L, "ped_sprint_to_point", ped_sprint_to_point); // 24 пед делает спринт к точке.
+	lua_register(L, "ped_walk_to_point", ped_walk_to_point); // 25 Пед идет к точке.
+	lua_register(L, "kill_ped_on_foot", kill_ped_on_foot); // 26 убить педа пешком.
+	lua_register(L, "kill_char_any_means", kill_char_any_means); // 27 убить педа любыми средствами.
+	lua_register(L, "ped_aim_at_ped", ped_aim_at_ped); // 28 пед целиться в педе.
+	lua_register(L, "is_current_weapon_ped", is_current_weapon_ped); // 29 проверить текущее оружие.
+	lua_register(L, "create_marker_actor", create_marker_actor); // 30 создать маркер над педом.
+	lua_register(L, "removemarker", removemarker); // 31 удалить маркер.
+	lua_register(L, "setpedcoordes", setpedcoordes); // 32 установить координаты для педа.
+	lua_register(L, "remove_car", remove_car); // 33 удалить авто.
+	lua_register(L, "car_in_water", car_in_water); // 34 проверка авто в воде.
+	lua_register(L, "set_wanted", set_wanted); // 35 уcтановить уровень розыска.
+	lua_register(L, "ped_in_point_in_radius", ped_in_point_in_radius); // 36 проверить находится пед в координатах с радиусом.
+	lua_register(L, "create_sphere", create_sphere); // 37 создать сферу.
+	lua_register(L, "clear_wanted", clear_wanted); // 38 убрать уровень розыска.
+	lua_register(L, "getcarhealth", getcarhealth); // 39 получить кол-во здоровья авто.
+	lua_register(L, "setcarhealth", setcarhealth); // 40 установить здоровье авто.
+	lua_register(L, "remove_sphere", remove_sphere); // 41 удалить сферу.
+	lua_register(L, "remove_ped", remove_ped); // 42 удалить педа.
+	lua_register(L, "kill_ped", kill_ped); // 43 убить педа.
+	lua_register(L, "getflagmission", getflagmission); // 44 проверка флага миссии.
+	lua_register(L, "setflagmission", setflagmission); // 45 уcтановить флага миссии.
+	lua_register(L, "showtext", showtext); // 46 Вывод особого текста на экран.
+	lua_register(L, "remove_blip", remove_blip); // 47 удалить метку с карты.
+	lua_register(L, "createblip", createblip); // 48 создать метку карте.
+	lua_register(L, "play_sound", play_sound); // 49 проиграть мелодию.
+	lua_register(L, "isped", isped); // 50 проверка это пед?
+	lua_register(L, "isvehicle", isvehicle); // 51 проверка это транспорт?.
+	lua_register(L, "cardrive", cardrive); // 52 авто едет в точку.
+	lua_register(L, "setcarspeed", setcarspeed); // 53 установить скорость авто.
+	lua_register(L, "opendoorcar", opendoorcar); // 54 открыть дверь авто.
+	lua_register(L, "randomfindcar", randomfindcar); // 55 Найти случайное авто.
+	lua_register(L, "getcarcoordes", getcarcoordes); // 56 получить координаты авто.
+	lua_register(L, "create_money_pickup", create_money_pickup); // 57 создать пачку денег.
+	lua_register(L, "getcarcoordinates_on_x", getcarcoordinates_on_x); // 58 Получить мировую координату по x для авто.
+	lua_register(L, "getcarcoordinates_on_y", getcarcoordinates_on_y); // 59 Получить мировую координату по y для авто.
+	lua_register(L, "car_in_point_in_radius", car_in_point_in_radius); // 60 проверить находится авто в координатах с радиусом.
+	lua_register(L, "setdrivingstyle", setdrivingstyle); // 61 установить стиль езды авто.
+	lua_register(L, "findped", findped); // 62 найти педа в пуле.
+	lua_register(L, "create_weapon_pickup", create_weapon_pickup); // 63 создать пикап оружие.
+	lua_register(L, "create_pickup", create_pickup); // 64 создать пикап.
+	lua_register(L, "remove_pickup", remove_pickup); // 65 удалить пикап.
+	lua_register(L, "picked_up", picked_up); // 66 проверка пикап подобран.
+	lua_register(L, "play_voice", play_voice); // 67 Проиграть голос.
+	lua_register(L, "fade", fade); // 68 затенение, просветления.
+	lua_register(L, "draw_corona", draw_corona); // 69 создать корону(чекпойнт);.
+	lua_register(L, "sound_coordinate", sound_coordinate); // 70 Проиграть звук в координатах
+	lua_register(L, "show_text_styled", show_text_styled); // 71 Вывести игровой текст.
+	lua_register(L, "setcarangle", setcarangle); // 72 установить угол авто.
+	lua_register(L, "createmarker", createmarker); // 73 создать маркер на карте.
+	lua_register(L, "setsizemarker", setsizemarker); // 74установить размер маркера.
+	lua_register(L, "cheat", checkcheat); // 75 чит код введен.
+	lua_register(L, "destroy", destroy); // 76 удаления объектов из памяти при перезагрузки скрипта. 
+	lua_register(L, "yield", my_yield); // 77 приостановить выполнение скрипта.
+	lua_register(L, "setcardrive", setcardrive); // 78 установить водителя для авто.
+	lua_register(L, "setcarpassenger", setcarpassenger); // 79 установить пассажира для авто.
+	lua_register(L, "setcarfirstcolor", setcarfirstcolor); // 80 установить первый цвет авто.
+	lua_register(L, "setcarseconscolor", setcarseconscolor); // 81 установить второй цвет авто.
+	lua_register(L, "set_traffic", set_traffic); // 82 установить плотномть трафика транспорта.
+	lua_register(L, "create_marker_car", create_marker_car); // 83создать маркер над авто.
+	lua_register(L, "car_explode", car_explode); // 84 взрывать авто.
+	lua_register(L, "is_car_stopped", is_car_stopped); // 85 авто остановилось. 
+	lua_register(L, "create_explosion", create_explosion); // 86 Создать взрыв на координатах.
+	lua_register(L, "set_status_engine", set_status_engine); // 87 установить состояние двигателя авто.
+	lua_register(L, "player_defined", player_defined); // 88 пед существует.
+	lua_register(L, "setclock", setclock); // 89  задать время.
+	lua_register(L, "arrested", arrested); // 90 пед арестован?
+	lua_register(L, "lockstatus", lockstatus); // 91 статус двери авто.
+	lua_register(L, "create_marker_pickup", create_marker_pickup); // 92 создать маркер над пикапом.
+	lua_register(L, "create_obj", createobj); // 93 создать объект.
+	lua_register(L, "remove_obj", remove_obj); // 94 удалить объект.
+	lua_register(L, "setobjоcoordes", setobjоcoordes); // 95 установить координаты для объект.
+	lua_register(L, "getobjcoordes", getobjcoordes); // 96 получить координаты объекта.
+	lua_register(L, "create_marker_obj", create_marker_obj); // 97 создать маркер над объектом.
+	lua_register(L, "isobject", isobject); // 98 проверка это объект?.
+	lua_register(L, "setpedangle", setpedangle); // 99 установить угол педа.
+	lua_register(L, "setcaraction", setcaraction); // 100 установить поведение авто.
+	lua_register(L, "move_obj", move_obj); // 101 двигать объект.
+	lua_register(L, "move_rotate", move_rotate); // 102 вращать объект.
+	lua_register(L, "getobjangle", getobjangle); // 103 получить угол объекта.
+	lua_register(L, "findcar", findcar); // 104 Найти авто.
+	lua_register(L, "setcartask", setcartask); // 105 установить задачу авто.
+	lua_register(L, "setcarcoordes", setcarcoordes); // 106 установить координаты авто.
+	lua_register(L, "is_car_stuck", is_car_stuck); // 107 03CE: car 12@ stuck если машина застряла.
+	lua_register(L, "is_car_upsidedown", is_car_upsidedown); // 108 01F4: car 12@ flipped если машина перевернута.
+	lua_register(L, "is_car_upright", is_car_upright); // 109 020D: car 12@ flipped если указанный автомобиль перевернут.
+	lua_register(L, "find_road_for_car", find_road_for_car); // 110 найти дорогу.
+	lua_register(L, "setcarstrong", setcarstrong); // 111 сделать авто устойчивым.
+	lua_register(L, "putincar", putincar); // 112 переместить педа в авто.
+	lua_register(L, "print_front", game_font_print); // 113 вывести особенный игровой текст.
+	lua_register(L, "star_timer", star_timer); // 114 включить таймер.
+	lua_register(L, "stop_timer", stop_timer); // 115 остановить таймер.
+	lua_register(L, "timer_donw", timer_donw); // 116  таймер на уменьшение.
+	lua_register(L, "ped_attack_car", ped_attack_car); // 117 пед атакует авто.
+	lua_register(L, "ped_frozen", ped_frozen);  // 118 заморозить игpока.
+	lua_register(L, "hold_cellphone", hold_cellphone); // 119 поднять телефон.
+	lua_register(L, "car_lastweapondamage", car_lastweapondamage); // 120 номер оружие, которое нанесло урон авто.
+	lua_register(L, "car_currentgear", car_currentgear); // 121 текущая передача авто.
+	lua_register(L, "getcar_model", getcar_model); // 122 получить модель авто.
+	lua_register(L, "setcarsiren", setcarsiren); // 123 установить сирену для авто.
+	lua_register(L, "ped_car_as_driver", ped_car_as_driver); // 124 пед садится в авто как водитель.
+	lua_register(L, "ped_car_as_passenger", ped_car_as_passenger); // 125 пед садится в авто как пассажир.
+	lua_register(L, "ped_atack", ped_atack); // 126 пед бьет.
+	lua_register(L, "show_text_gtx", show_text_gtx); // 127 вывести игровой текст.
+	lua_register(L, "camera_at_point", camera_at_point); // 128 переместить камеру в координатах.
+	lua_register(L, "restore_camera", restore_camera); // 129 восстановить камеру.
+	lua_register(L, "is_wanted_level", is_wanted_level); // 130 проверить уровень розыска.
+	lua_register(L, "set_camera_position", set_camera_position); // 131 уст камеру в координатах.
+	lua_register(L, "flash_hud", flash_hud); // 132 Мигание элементов HUD.
+	lua_register(L, "set_radio", set_radio); // 133 уст радио.			
+	lua_register(L, "set_car_tires", set_car_tires); // 134 проколоть шину.
+	lua_register(L, "create_spec_ped", create_spec_ped); // 135 создать спец педа.
+	lua_register(L, "set_wheel_status", set_wheel_status); // 136 уст состояния шин авто.
+	lua_register(L, "set_skin", set_skin); // 137 уст скин педа.
+	lua_register(L, "remove_spec_ped", remove_spec_ped); // 138 удалить спец педа.
+	lua_register(L, "go_to_route", go_to_route); // 139 уст маршрут авто.
+	lua_register(L, "add_stuck_car_check", add_stuck_car_check); // 140 условия для того, чтобы авто считалась застрявшей.
+	lua_register(L, "load_scene", load_scene); // 141 загрузить модели на координатах заранее.
+	lua_register(L, "ped_anim", ped_anim); // 142 анимация.
+	lua_register(L, "del_anim", del_anim); // 143 удалить анимацию.
+	lua_register(L, "get_current_name_luascript", get_current_name_luascript); // 144 получить имя текущего lua файла.
+	lua_register(L, "star_mission_marker", star_mission_marker); // 145 создать маркер для миссии.
+	lua_register(L, "getobjcoordinates_on_x", getobjcoordinates_on_x); // 146 Получить мировую координату по x для объекта.
+	lua_register(L, "getobjcoordinates_on_y", getobjcoordinates_on_y); // 147 Получить мировую координату по y для объекта.
+	lua_register(L, "set_widescreen", set_widescreen); // вк// 148 вкл/выкл широкий экран.
+	lua_register(L, "follow_the_leader", follow_the_leader); //149 //01DE// 01DE / 01DF следовать за лидером.
+	lua_register(L, "getcarspeed", getcarspeed); // 150 получить скорость авто.
+	lua_register(L, "newthread", newthread); // 151 запуск функции в новом потоке.		
+	lua_register(L, "Getcameracoordes", Getcameracoordes); // 152 получить координаты камеры.
 
-		.addCFunction("setpedhealth", setpedhealth)//  установить здоровье педу.
-		.addCFunction("setarmour", setarmour)//  установить броню педу.
-		.addCFunction("wait", wait)//  задержка.
-		.addCFunction("getpedhealth", getpedhealth)// название функции в lua и c++. получить здоровье педа.
+	lua_register(L, "remove_all_weapons_ped", remove_all_weapons_ped); // 154 удалить все оружия педа.
+	lua_register(L, "Getweaponslot", Getweaponslot); // 155 получить номер слота по типу оружия.
+	lua_register(L, "get_damage_weapon_ped", get_damage_weapon_ped); // 156 получить последний урон педа от оружия.
+	lua_register(L, "get_aimgun_ped", get_aimgun_ped);// 157 получить показатель цели педа.
+	lua_register(L, "get_ammo_weapon_ped", get_ammo_weapon_ped);// 158 получить кол-во патроны текущего оружие педа.
+	lua_register(L, "createfireonped", createfireonped);// 159 создать огонь на педе.
+	lua_register(L, "createfireoncar", createfireoncar);// 160 создать огонь на авто.
+	lua_register(L, "createfireoncords", createfireoncords);// 161 создать огонь на координатах.
+	lua_register(L, "remove_fire", remove_fire); // 162 удалить огонь.
+	lua_register(L, "ped_shutdown", ped_shutdown);
+	lua_register(L, "ped_damage_from_ped", ped_damage_from_ped); // 164 получил ли пед урон от педа.
+	lua_register(L, "is_targetting_in_ped", is_targetting_in_ped); // 165 игрок целиться в педа.
+	lua_register(L, "Remove_weapon_model", Remove_weapon_model);// 166 удалить оружие у педа.
+	lua_register(L, "Createped", Createped);// 167 макрос создать педа.
+	lua_register(L, "Createcar", Createcar);// 168 макрос создать авто на координатах.
+	lua_register(L, "Giveweaponped", Giveweaponped); // 169 макрос дать педу оружие и патроны.
+	lua_register(L, "Opendoorcar", Opendoorcar); // 170 Макрос открыть все двери авто.
+	lua_register(L, "Create_weapon_pickup", Create_weapon_pickup); // 171 макрос создать пикап оружие.
+	lua_register(L, "Create_pickup", Create_pickup); // 172 макрос создать пикап.
+	lua_register(L, "Get_model_and_type_current_weapon_ped", Get_model_and_type_current_weapon_ped); // 173 макрос получить модель и тип текущего оружие педа.
+	lua_register(L, "is_ped_in_car", is_ped_in_car); // 174 игрок в авто?
+	lua_register(L, "ped_car", ped_car); // 175 авто педа.
+	lua_register(L, "wanted_level", wanted_level); // 176 получить уровень розыска.
+	lua_register(L, "get_model_current_weapon_ped", get_model_current_weapon_ped); // 177 макрос получить модель текущего оружие педа.
+	lua_register(L, "get_type_current_weapon_ped", get_type_current_weapon_ped); // 178 макрос получить тип текущего оружие педа.
+	lua_register(L, "set_camera_and_point", set_camera_and_point); // 179 установить и переместить камеру в координатах.
+	lua_register(L, "get_damage_current_weapon", get_damage_current_weapon); // 180 получить уровень урона текущего оружие.
+	lua_register(L, "set_damage_current_weapon", set_damage_current_weapon); // 181 установить уровень урона текущего оружие педа.
+	lua_register(L, "ped_in_targetting", ped_in_targetting); // 182 пед на прицеле.
+	lua_register(L, "Ped_in_targetting", Ped_in_targetting); // макрос 183 пед на прицеле.
 
-		.addCFunction("getpedangle", getpedangle)// получить угол педа.
-		.addCFunction("worldcoord", worldcoord)// Перевод в мировые координаты.
-		.addCFunction("getpedcoordinates_on_x", getpedcoordinates_on_abscissa)// Получить мировую координату по x для педа.
-		.addCFunction("getpedcoordinates_on_y", getpedcoordinates_on_ordinate) // Получить мировую координату по y для педа.
+	lua_register(L, "exitcar", exitcar); // 184 выйти из авто.
 
-		.addCFunction("setarmour", setarmour)//  получить броню.
-		.addCFunction("givemoney", givemoney)//  дать денег педу.
-		.addCFunction("keypress", key)//  проверка на нажатие клавиш.
-		.addCFunction("printmessage", printmessage)//  вывод сообщение.
-
-		.addCFunction("getpedcoordes", getpedcoordes)//  получить координаты педа.
-		.addCFunction("randomfindped", randomfindped)//  получить рандомного педа.
-		.addCFunction("incar", incar)//  проверка пед в авто?.
-		.addCFunction("loadmodel", loadmodel)// загрузить модель.
-
-		.addCFunction("availablemodel", availablemodel)// проверка на загруженность модели.
-		.addCFunction("releasemodel", releasemodel)// удалить модель из памяти.
-		.addCFunction("createcar", createcar)// создать авто на координатах на координатах.
-		.addCFunction("createped", &createped) // создать педа на координатах.
-
-		.addCFunction("load_requested_models", load_requested_models)// поставить модель на загрузить вне очереди.
-		.addCFunction("giveweaponped", giveweaponped)// дать педу оружие.
-		.addCFunction("ped_sprint_to_point", ped_sprint_to_point)// пед делает спринт к точке.
-		.addCFunction("ped_walk_to_point", ped_walk_to_point)//Пед идет к точке.
-
-		.addCFunction("kill_ped_on_foot", kill_ped_on_foot)// убить педа пешком.
-		.addCFunction("kill_char_any_means", kill_char_any_means)// убить педа любыми средствами.
-		.addCFunction("ped_aim_at_ped", ped_aim_at_ped)// пед целиться в педе.
-		.addCFunction("is_current_weapon_ped", is_current_weapon_ped)// проверить текущее оружие.
-
-		.addCFunction("create_marker_actor", create_marker_actor)// создать маркер над педом.
-		.addCFunction("removemarker", removemarker)// удалить маркер.
-		.addCFunction("setpedcoordes", setpedcoordes) // установить координаты для педа.
-		.addCFunction("remove_car", remove_car) // удалить авто.
-
-		.addCFunction("car_in_water", car_in_water) // проверка авто в воде.
-		.addCFunction("set_wanted", set_wanted) // уcтановить уровень розыска.
-		.addCFunction("ped_in_point_in_radius", ped_in_point_in_radius) // проверить находится пед в координатах с радиусом.
-		.addCFunction("create_sphere", &create_sphere) //создать сферу.
-
-		.addCFunction("clear_wanted", clear_wanted)// убрать уровень розыска.
-		.addCFunction("getcarhealth", getcarhealth) // получить кол-во здоровья авто.
-		.addCFunction("setcarhealth", setcarhealth) // установить здоровье авто.
-		.addCFunction("remove_sphere", remove_sphere) // удалить сферу.
-
-		.addCFunction("remove_ped", remove_ped) // удалить педа.
-		.addCFunction("kill_ped", kill_ped) // убить педа.
-		.addCFunction("getflagmission", getflagmission) // проверка флага миссии.
-		.addCFunction("setflagmission", setflagmission) // уcтановить флага миссии.
-
-		.addCFunction("showtext", showtext)// Вывод особого текста на экран.
-		.addCFunction("remove_blip", remove_blip)// удалить метку с карты.
-		.addCFunction("createblip", createblip) // создать метку карте.
-		.addCFunction("play_sound", play_sound)// проиграть мелодию.
-
-		.addCFunction("isped", isped)// проверка это пед?
-		.addCFunction("isvehicle", isvehicle) // проверка это транспорт?.
-		.addCFunction("cardrive", &cardrive) // авто едет в точку.
-		.addCFunction("setcarspeed", setcarspeed) // установить скорость авто.
-
-		.addCFunction("opendoorcar", opendoorcar) // открыть дверь авто.
-		.addCFunction("randomfindcar", randomfindcar) //Найти случайное авто.
-		.addCFunction("getcarcoordes", getcarcoordes) // получить координаты авто.
-		.addCFunction("create_money_pickup", create_money_pickup) //создать пачку денег.
-
-		.addCFunction("getcarcoordinates_on_x", getcarcoordinates_on_abscissa)// Получить мировую координату по x для авто.
-		.addCFunction("getcarcoordinates_on_y", getcarcoordinates_on_ordinate)// Получить мировую координату по y для авто.
-		.addCFunction("car_in_point_in_radius", car_in_point_in_radius) // проверить находится авто в координатах с радиусом.
-		.addCFunction("setdrivingstyle", setdrivingstyle)// установить стиль езды авто.
-
-		.addCFunction("findped", findped)// найти педа в пуле.
-		.addCFunction("create_weapon_pickup", create_weapon_pickup) //создать пикап оружие.
-		.addCFunction("create_pickup", create_pickup) //создать пикап.
-		.addCFunction("remove_pickup", remove_pickup) // удалить пикап.
-
-		.addCFunction("picked_up", picked_up)// проверка пикап подобран.
-		.addCFunction("play_voice", play_voice) // Проиграть голос.
-		.addCFunction("fade", fade) //затенение, просветления.
-		.addCFunction("draw_corona", draw_corona) // создать корону(чекпойнт).
-
-		.addCFunction("sound_coordinate", sound_coordinate) // Проиграть звук в координатах
-		.addCFunction("show_text_styled", show_text_styled) // Вывести игровой текст.
-		.addCFunction("setcarangle", setcarangle)// установить угол авто.
-		.addCFunction("createmarker", createmarker) // создать маркер на карте.
-
-		.addCFunction("setsizemarker", setsizemarker)//установить размер маркера.
-		.addCFunction("cheat", checkcheat) //чит код введен.
-		.addCFunction("destroy", destroy) // удаления объектов из памяти при перезагрузки скрипта. 
-		.addCFunction("yield", my_yield) //приостановить выполнение скрипта.
-
-		.addCFunction("setcardrive", setcardrive) // установить водителя для авто.
-		.addCFunction("setcarpassenger", setcarpassenger) // установить пассажира для авто.
-		.addCFunction("setcarfirstcolor", setcarfirstcolor) // установить первый цвет авто.
-		.addCFunction("setcarseconscolor", setcarseconscolor)// установить второй цвет авто.
-
-		.addCFunction("set_traffic", set_traffic) // установить плотномть трафика транспорта.
-		.addCFunction("create_marker_car", create_marker_car)//создать маркер над авто.
-		.addCFunction("car_explode", car_explode) // взрывать авто.
-		.addCFunction("is_car_stopped", is_car_stopped) // авто остановилось. 
-
-		.addCFunction("create_explosion", create_explosion) // Создать взрыв на координатах.
-		.addCFunction("set_status_engine", set_status_engine) // установить состояние двигателя авто.
-		.addCFunction("player_defined", player_defined) // пед существует.
-		.addCFunction("setclock", setclock) //  задать время.
-
-		.addCFunction("arrested", arrested) // пед арестован?
-		.addCFunction("lockstatus", lockstatus)// статус двери авто.
-		.addCFunction("create_marker_pickup", create_marker_pickup)// создать маркер над пикапом.
-		.addCFunction("create_obj", &createobj) // создать объект.
-
-		.addCFunction("remove_obj", remove_obj) // удалить объект.
-		.addCFunction("setobjоcoordes", setobjоcoordes) // установить координаты для объект.
-		.addCFunction("getobjcoordes", getobjcoordes) // получить координаты объекта.
-		.addCFunction("create_marker_obj", create_marker_obj) //создать маркер над объектом.
-
-		.addCFunction("isobject", isobject) // проверка это объект?.
-		.addCFunction("setpedangle", setpedangle) // установить угол педа.
-		.addCFunction("setcaraction", setcaraction)// установить поведение авто.
-		.addCFunction("move_obj", move_obj) //двигать объект.
-
-		.addCFunction("move_rotate", move_rotate) //вращать объект.
-		.addCFunction("getobjangle", getobjangle) // получить угол объекта.
-		.addCFunction("findcar", findcar)//Найти авто.
-		.addCFunction("setcartask", setcartask) // установить задачу авто.
-
-		.addCFunction("setcarcoordes", setcarcoordes)// установить координаты авто.
-		.addCFunction("is_car_stuck", is_car_stuck)//03CE: car 12@ stuck если машина застряла.
-		.addCFunction("is_car_upsidedown", is_car_upsidedown)//01F4: car 12@ flipped если машина перевернута.
-		.addCFunction("is_car_upright", is_car_upright) // 020D: car 12@ flipped если указанный автомобиль перевернут.
-
-		.addCFunction("find_road_for_car", find_road_for_car) // найти дорогу.
-		.addCFunction("setcarstrong", setcarstrong) // сделать авто устойчивым.
-		.addCFunction("putincar", putincar)// переместить педа в авто.
-		.addCFunction("print_front", game_font_print) // вывести особенный игровой текст.
-
-		.addCFunction("star_timer", star_timer) // включить таймер.
-		.addCFunction("stop_timer", stop_timer) // остановить таймер.
-		.addCFunction("timer_donw", timer_donw) //  таймер на уменьшение.
-		.addCFunction("ped_attack_car", ped_attack_car) // пед атакует авто.
-
-		.addCFunction("ped_frozen", ped_frozen)  // заморозить игpока.
-		.addCFunction("hold_cellphone", hold_cellphone) // поднять телефон.
-		.addCFunction("car_lastweapondamage", car_lastweapondamage)// номер оружие, которое нанесло урон авто.
-		.addCFunction("car_currentgear", car_currentgear) // текущая передача авто.
-
-		.addCFunction("getcar_model", getcar_model) // получить модель авто.
-		.addCFunction("setcarsiren", setcarsiren) // установить сирену для авто.
-		.addCFunction("ped_car_as_driver", ped_car_as_driver) // пед садится в авто как водитель.
-		.addCFunction("ped_car_as_passenger", ped_car_as_passenger) // пед садится в авто как пассажир.
-		.addCFunction("ped_atack", ped_atack) // пед бьет.
-
-		.addCFunction("show_text_gtx", show_text_gtx)// вывести игровой текст.
-		.addCFunction("camera_at_point", camera_at_point) //переместить камеру в координатах.
-		.addCFunction("restore_camera", restore_camera) // восстановить камеру.
-		.addCFunction("is_wanted_level", is_wanted_level) // проверить уровень розыска.
-
-		.addCFunction("set_camera_position", set_camera_position) //уст камеру в координатах.
-		.addCFunction("flash_hud", flash_hud) // Мигание элементов HUD.
-		.addCFunction("set_radio", set_radio) // уст радио.			
-		.addCFunction("set_car_tires", set_car_tires)// проколоть шину.
-
-		.addCFunction("create_spec_ped", create_spec_ped) // создать спец педа.
-		.addCFunction("set_wheel_status", set_wheel_status)// уст состояния шин авто.
-		.addCFunction("set_skin", set_skin) // уст скин педа.
-		.addCFunction("remove_spec_ped", remove_spec_ped) // удалить спец педа.
-
-		.addCFunction("go_to_route", go_to_route) //уст маршрут авто.
-		.addCFunction("add_stuck_car_check", add_stuck_car_check) // условия для того, чтобы авто считалась застрявшей.
-		.addCFunction("load_scene", load_scene)// загрузить модели на координатах заранее.
-		.addCFunction("ped_anim", ped_anim)// анимация.
-
-		.addCFunction("del_anim", del_anim)// удалить анимацию.
-		.addCFunction("get_current_name_luascript", get_current_name_luascript)// получить имя текущего lua файла.
-		.addCFunction("star_mission_marker", star_mission_marker) // создать маркер для миссии.
-		.addCFunction("getobjcoordinates_on_x", getobjcoordinates_on_abscissa) // Получить мировую координату по x для объекта.
-
-		.addCFunction("getobjcoordinates_on_y", getobjcoordinates_on_ordinate) // Получить мировую координату по y для объекта.
-		.addCFunction("set_widescreen", set_widescreen)// вкл/выкл широкий экран.
-		.addCFunction("follow_the_leader", follow_the_leader) //01DE / 01DF	следовать за лидером.
-		.addCFunction("getcarspeed", getcarspeed) // получить скорость авто.
-
-		.addCFunction("newthread", newthread)// запуск функции в новом потоке.
-		.addCFunction("exitcar", exitcar);// название функции в lua и c++. выйти из авто.
 };
 
 void writelog(const char x[]) {// запись ошибок в файл.
@@ -808,7 +953,7 @@ void writelog(const char x[]) {// запись ошибок в файл.
 	fstream f1; {f1.open(path, fstream::in | fstream::out | fstream::app);
 	f1 << x; time_t rawtime; struct tm* timeinfo;
 	char buffer[80]; time(&rawtime); timeinfo = localtime(&rawtime);
-	strftime(buffer, sizeof(buffer), " %I:%M:%S %d-%m-%Y", timeinfo);
+	strftime(buffer, sizeof(buffer), " %d-%m-%Y %I:%M:%S ", timeinfo);
 	string er2(buffer); f1 << er2 << "\n"; }
 	f1.close();
 };
@@ -883,7 +1028,6 @@ int setpedhealth(lua_State* L) {// установить здоровье пед�
 
 				health += 0.99f; ped->m_fHealth = health;
 				return 0;
-				//}
 			}// установить здоровье педа.
 			else { throw "bad argument in function setpedhealth option health"; }
 		}
@@ -917,7 +1061,7 @@ int getpedarmour(lua_State* L) {
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			float armour = ped->m_fArmour;
 
-			Stack<int>::push(L, armour);// отправить в стек.  
+			lua_pushinteger(L, armour);// отправить в стек.  
 			return 1;
 		}// получить броню педа.
 		else { throw "bad argument in function getpedarmour option of the player"; }
@@ -932,7 +1076,7 @@ int getpedhealth(lua_State* L) {
 
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			int health = ped->m_fHealth; // получить кол-во здоровья педа.
-			Stack<int>::push(L, health);// отправить в стек.  
+			lua_pushinteger(L, health);// отправить в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function getpedhealth option of the player"; }
@@ -944,11 +1088,10 @@ int getcarhealth(lua_State* L) { // получить кол-во здоровь�
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// указатель на авто.
 			const void* p = lua_topointer(L, -1);
-
 			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 
 			int health = car->m_fHealth; // получить кол-во здоровья авто.
-			Stack<int>::push(L, health);// отправить в стек.  
+			lua_pushinteger(L, health);// отправить в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function getpedhealth option of the vehicle"; }
@@ -1094,52 +1237,52 @@ int setcaraction(lua_State* L) {// установить поведение ав�
 					CVehicle* vehicle = CPools::ms_pVehiclePool->GetAt(i);
 					if (vehicle == car) {
 
-						if (style == 0) {
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_NONE, time);
-							return 0;
-						}
-						if (style == 1) {
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_WAIT, time);
-							return 0;
-						}
-						if (style == 2) {
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_REVERSE, time);
-							return 0;
-						}
-						if (style == 3) {
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_HANDBRAKETURNLEFT, time);
-							return 0;
-						}
-						if (style == 4) {
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_HANDBRAKETURNRIGHT, time);
-							return 0;
-						}
-						if (style == 5) {
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_HANDBRAKESTRAIGHT, time);
-							return 0;
-						}
-						if (style == 6) {//влево.
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_TURNLEFT, time);
-							return 0;
-						}
-						if (style == 7) {// вправо.
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_TURNRIGHT, time);
-							return 0;
-						}
-						if (style == 8) {// вперед.
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_GOFORWARD, time);
-							return 0;
-						}
-						if (style == 9) {
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_SWERVELEFT, time);
-							return 0;
-						}
-						if (style == 10) {
-							Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_SWERVERIGHT, time);
-							return 0;
-						}
+					if (style == 0) {
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_NONE, time);
+						return 0;
+					}
+					if (style == 1) {
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_WAIT, time);
+						return 0;
+					}
+					if (style == 2) {
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_REVERSE, time);
+						return 0;
+					}
+					if (style == 3) {
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_HANDBRAKETURNLEFT, time);
+						return 0;
+					}
+					if (style == 4) {
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_HANDBRAKETURNRIGHT, time);
+						return 0;
+					}
+					if (style == 5) {
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_HANDBRAKESTRAIGHT, time);
+						return 0;
+					}
+					if (style == 6) {//влево.
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_TURNLEFT, time);
+						return 0;
+					}
+					if (style == 7) {// вправо.
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_TURNRIGHT, time);
+						return 0;
+					}
+					if (style == 8) {// вперед.
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_GOFORWARD, time);
+						return 0;
+					}
+					if (style == 9) {
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_SWERVELEFT, time);
+						return 0;
+					}
+					if (style == 10) {
+						Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(vehicle), TEMPACT_SWERVERIGHT, time);
+						return 0;
 					}
 				}
+			}
 			}// установить стиль езды авто.
 			else { throw "bad argument in function setcaraction"; }
 		}
@@ -1334,7 +1477,7 @@ int lockstatus(lua_State* L) {// статус двери авто.
 int givemoney(lua_State* L) {
 	try {
 		if (LUA_TNUMBER == lua_type(L, -1)) {//кол-во денег.
-			int money = lua_tonumber(L, -1);
+			int money = lua_tointeger(L, -1);
 			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += money;// дать денег  
 		}
 		else { throw "bad argument in function givemoney"; }
@@ -1348,9 +1491,9 @@ int getpedcoordes(lua_State* L) {// получить координаты пед
 			const void* p = lua_topointer(L, -1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 
-			Stack<double>::push(L, ped->GetPosition().x);// отправить в стек.
-			Stack<double>::push(L, ped->GetPosition().y);// отправить в стек.
-			Stack<double>::push(L, ped->GetPosition().z);// отправить в стек.
+			lua_pushnumber(L, ped->GetPosition().x);// отправить в стек.
+			lua_pushnumber(L, ped->GetPosition().y);// отправить в стек.
+			lua_pushnumber(L, ped->GetPosition().z);// отправить в стек.
 			return 3;
 		}// получить координаты педа.
 
@@ -1365,9 +1508,9 @@ int getcarcoordes(lua_State* L) {// получить координаты авт
 			const void* p = lua_topointer(L, -1);
 			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 
-			Stack<double>::push(L, car->GetPosition().x);// отправить в стек.
-			Stack<double>::push(L, car->GetPosition().y);// отправить в стек.
-			Stack<double>::push(L, car->GetPosition().z);// отправить в стек.
+			lua_pushnumber(L, car->GetPosition().x);// отправить в стек.
+			lua_pushnumber(L, car->GetPosition().y);// отправить в стек.
+			lua_pushnumber(L, car->GetPosition().z);// отправить в стек.
 			return 3;
 		}// получить координаты авто.
 
@@ -1439,8 +1582,7 @@ int randomfindcar(lua_State* L) {//Найти случайное авто в р�
 			CVehicle* v = NULL;
 
 			if (p->m_bInVehicle && p->m_pVehicle != NULL) {// в авто пед?
-				CVehicle* v = p->m_pVehicle;
-			}// получить указатель на хенлд авто в котором сидит томии.
+				CVehicle* v = p->m_pVehicle;	}// получить указатель на хенлд авто в котором сидит томии.
 			for (auto car : CPools::ms_pVehiclePool) {
 				if (car != v && DistanceBetweenPoints(car->GetPosition(), p->GetPosition()) < radius && car->m_fHealth > 50) {
 
@@ -1590,7 +1732,6 @@ int createobj(lua_State* L) {// создать объект.
 			float z = lua_tonumber(L, -1); CVector pos = { x, y, z };
 			CObject* obj = nullptr;
 			Command<COMMAND_CREATE_OBJECT>(model, pos.x, pos.y, pos.z, &obj);
-			int obj1 = (int)& obj;
 			mapobjs.emplace(obj, L);// добавить в map для авто.
 			lua_pushlightuserdata(L, obj);// отправить в стек указатель на объект.
 			return 1;
@@ -1609,7 +1750,7 @@ int create_marker_actor(lua_State* L) {//создать маркер над пе
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			Command<COMMAND_ADD_BLIP_FOR_CHAR>(CPools::GetPedRef(ped), &marker);
 			markeron.emplace(marker, L);// добавить в map для маркеров.
-			Stack<int>::push(L, marker);// отправить в стек.  
+			lua_pushinteger(L, marker);// отправить в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function create_marker_actor"; }
@@ -1623,12 +1764,12 @@ int create_marker_car(lua_State* L) {//создать маркер над авт
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// указатель на авто.
 
 			const void* p = lua_topointer(L, -1);
-
+			
 			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 			Command<COMMAND_ADD_BLIP_FOR_CAR>(CPools::GetVehicleRef(car), &marker);
 
 			markeron.emplace(marker, L);// добавить в map для маркеров.
-			Stack<int>::push(L, marker);// отправить в стек.  
+			lua_pushinteger(L, marker);// отправить в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function create_marker_car"; }
@@ -1689,7 +1830,7 @@ int getobjangle(lua_State* L) {// получить угол объекта.
 			const void* p = lua_topointer(L, -1);
 			CObject* obj = findobjinpool(p);// получить указатель на педа.
 			Command<COMMAND_GET_OBJECT_HEADING>(CPools::GetObjectRef(obj), angle);
-			Stack<double>::push(L, angle);// отправить в стек.
+			lua_pushnumber(L, angle);// отправить в стек.
 			return 1;
 		}// получить угол объекта.
 
@@ -1705,17 +1846,20 @@ int getpedangle(lua_State* L) {// получить угол педа
 			const void* p = lua_topointer(L, -1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			float angle;// переменная хранить угол педа.
-			CPed* player = FindPlayerPed();// найти педа.
+			angle = ped->GetHeading();// получить угол педа
+			lua_pushinteger(L, angle);// отправить в стек.  
+			return 1;
+			/*CPed* player = FindPlayerPed();// найти педа.
 			if (ped == player) {
 				Command<COMMAND_GET_PLAYER_HEADING>(CWorld::PlayerInFocus, &angle);//  получить угол педа.
-				Stack<int>::push(L, angle);// отправить в стек.  
+				lua_pushinteger(L, angle);// отправить в стек.  
 				return 1;
 			}
 			else {
 				Command<COMMAND_GET_CHAR_HEADING>(CPools::GetPedRef(ped), &angle);//  получить угол педа.
-				Stack<int>::push(L, angle);// отправить в стек.  
+				lua_pushinteger(L, angle);// отправить в стек.  
 				return 1;
-			}
+			}*/
 		}
 		else { throw "bad argument in function getpedangle option of the player"; }
 	}
@@ -1723,7 +1867,7 @@ int getpedangle(lua_State* L) {// получить угол педа
 	return 0;
 };
 
-int getpedcoordinates_on_abscissa(lua_State* L) {// Получить мировую координату по x для педа.
+int getpedcoordinates_on_x(lua_State* L) {// Получить мировую координату по x для педа.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// указатель на педа.
 
@@ -1732,14 +1876,14 @@ int getpedcoordinates_on_abscissa(lua_State* L) {// Получить миров�
 			float x = lua_tonumber(L, -1);
 			CVector pos = ped->m_placement.pos;
 			pos += ped->m_placement.right * x;
-			Stack<float>::push(L, pos.x); Stack<float>::push(L, pos.y); Stack<float>::push(L, pos.z);
+			lua_pushnumber(L, pos.x); lua_pushnumber(L, pos.y); lua_pushnumber(L, pos.z);
 			return 3;
 		}
 		else { throw "bad argument in function getpedcoordinates_on_x"; }
 	}
 	catch (const char* x) { writelog(x); }
 };
-int getpedcoordinates_on_ordinate(lua_State* L) {// // Получить мировую координату по y для педа.
+int getpedcoordinates_on_y(lua_State* L) {// // Получить мировую координату по y для педа.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// указатель на педа.
 
@@ -1748,8 +1892,8 @@ int getpedcoordinates_on_ordinate(lua_State* L) {// // Получить миро
 
 			float y = lua_tonumber(L, -1);
 			CVector pos = ped->m_placement.pos;
-			pos += ped->m_placement.up * y;   Stack<float>::push(L, pos.x);
-			Stack<float>::push(L, pos.y);   Stack<float>::push(L, pos.z);
+			pos += ped->m_placement.up * y;   lua_pushnumber(L, pos.x);
+			lua_pushnumber(L, pos.y);   lua_pushnumber(L, pos.z);
 			return 3;
 		}
 		else { throw "bad argument in function getpedcoordinates_on_y"; }
@@ -1758,7 +1902,7 @@ int getpedcoordinates_on_ordinate(lua_State* L) {// // Получить миро
 		writelog(x);
 	}
 };
-int getcarcoordinates_on_abscissa(lua_State* L) {// Получить мировую координату по x для авто.
+int getcarcoordinates_on_x(lua_State* L) {// Получить мировую координату по x для авто.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// указатель на авто.
 
@@ -1768,16 +1912,16 @@ int getcarcoordinates_on_abscissa(lua_State* L) {// Получить миров�
 			float x = lua_tonumber(L, -1);
 			CVector pos = car->m_placement.pos;
 			pos += car->m_placement.right * x;
-			Stack<float>::push(L, pos.x); Stack<float>::push(L, pos.y); Stack<float>::push(L, pos.z);
+			lua_pushnumber(L, pos.x); lua_pushnumber(L, pos.y); lua_pushnumber(L, pos.z);
 			return 3;
 		}
-		else { throw "bad argument in function getcarcoordinates_on_abscissa"; }
+		else { throw "bad argument in function getcarcoordinates_on_x"; }
 	}
 	catch (const char* x) {
 		writelog(x);
 	}
 };
-int getcarcoordinates_on_ordinate(lua_State* L) {// // Получить мировую координату по y для авто.
+int getcarcoordinates_on_y(lua_State* L) {// // Получить мировую координату по y для авто.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// указатель на авто.
 
@@ -1786,8 +1930,8 @@ int getcarcoordinates_on_ordinate(lua_State* L) {// // Получить миро
 
 			float y = lua_tonumber(L, -1);
 			CVector pos = car->m_placement.pos;
-			pos += car->m_placement.up * y;   Stack<float>::push(L, pos.x);
-			Stack<float>::push(L, pos.y);   Stack<float>::push(L, pos.z);
+			pos += car->m_placement.up * y;   lua_pushnumber(L, pos.x);
+			lua_pushnumber(L, pos.y);   lua_pushnumber(L, pos.z);
 			return 3;
 		}
 		else { throw "bad argument in function getcarcoordinates_on_y"; }
@@ -1804,7 +1948,7 @@ int worldcoord(lua_State* L) {// Перевод в мировые координ
 
 			float x = lua_tonumber(L, -2); float y = lua_tonumber(L, -1);
 			CVector pos = ped->m_placement.pos + ped->m_placement.right * x + ped->m_placement.up * y;
-			Stack<float>::push(L, pos.x);   Stack<float>::push(L, pos.y);
+			lua_pushnumber(L, pos.x);   lua_pushnumber(L, pos.y);
 			return 2;
 		}
 		else { throw "bad argument in function worldcoord"; }
@@ -1819,10 +1963,10 @@ int giveweaponped(lua_State* L) {
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -4)) {// указатель на педа.
 			if (LUA_TNUMBER == lua_type(L, -1) && (LUA_TNUMBER == lua_type(L, -2))) {
-				unsigned int model = Stack<unsigned int>::get(L, -3);// модель оружие.
-				unsigned int WEAPONTYPE = Stack<unsigned int>::get(L, -2);// тип оружи.
+				unsigned int model = lua_tointeger(L, -3);// модель оружие.
+				unsigned int WEAPONTYPE = lua_tointeger(L, -2);// тип оружи.
 				int ammo = lua_tointeger(L, -1);// число патронов.
-
+				
 				const void* p = lua_topointer(L, -4);
 				CPed* ped = findpedinpool(p);// получить указатель на педа.
 				CPed* player = FindPlayerPed();// найти педа
@@ -1839,25 +1983,14 @@ int giveweaponped(lua_State* L) {
 	return 0;
 };
 int kill_ped_on_foot(lua_State* L) {
-	static int numberped;// счетчик педов для реализация атаки.
-	static CPed* pedfoe;// хранить указатель врага.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// указатель на педа.
-			if (numberped != 1) {
-				numberped = 1; // увеличить номер педа, чтобы работать с 2.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {//указатель на педа.
 
-				const void* p = lua_topointer(L, -1);
-				CPed* ped = findpedinpool(p);// получить указатель на педа.
-				pedfoe = ped;
-				return 0;
-			};
-			if (numberped == 1) {
-				const void* p = lua_topointer(L, -1);
-				CPed* ped2 = findpedinpool(p);// получить указатель на педа.
-				pedfoe->SetObjective(OBJECTIVE_KILL_CHAR_ON_FOOT, ped2);
-				numberped = NULL;
-				return 0;
-			}
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.	
+			const void* p1 = lua_topointer(L, 2);
+			CPed* ped1 = findpedinpool(p1);//  получить указатель на педа.
+			ped->SetObjective(OBJECTIVE_KILL_CHAR_ON_FOOT, ped1);
 		}
 		else { throw "bad argument in function kill_ped_on_foot option of the player"; }
 	}
@@ -1865,25 +1998,15 @@ int kill_ped_on_foot(lua_State* L) {
 	return 0;
 };
 int kill_char_any_means(lua_State* L) {
-	static int numberped;;// счетчик педов для реализация атаки.
-	static CPed* pedfoe;// хранить указатель врага.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// указатель на педа.
-			if (numberped != 1) {
-				numberped = 1; // увеличить номер педа, чтобы работать с 2.
-				const void* p = lua_topointer(L, -1);
-				CPed* ped = findpedinpool(p);// получить указатель на педа.
-				pedfoe = ped;
-				return 0;
-			};
-			if (numberped == 1) {
-				const void* p = lua_topointer(L, -1);
-				CPed* ped2 = findpedinpool(p);// получить указатель на педа.
-				pedfoe->SetObjective(OBJECTIVE_KILL_CHAR_ANY_MEANS, ped2);
-				numberped = NULL;
-				return 0;
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {//указатель на педа.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.	
+			const void* p1 = lua_topointer(L, 2);
+			CPed* ped1 = findpedinpool(p1);//  получить указатель на педа.
+			ped->SetObjective(OBJECTIVE_KILL_CHAR_ANY_MEANS, ped1);
 			}
-		}
 		else { throw "bad argument in function kill_char_any_means option of the ped"; }
 	}
 	catch (const char* x) { writelog(x); }
@@ -1907,12 +2030,13 @@ int ped_aim_at_ped(lua_State* L) {//Пед целиться в педа.
 };
 int is_current_weapon_ped(lua_State* L) {
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, -2) && (LUA_TNUMBER == lua_type(L, -1))) {// указатель на педа.
-			unsigned int weapon_type = Stack<unsigned int>::get(L, -1);// тип оружие.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, -2);
+			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			CPed* player = FindPlayerPed();// найти педа
+			int weapon_type = lua_tointeger(L, 2);// тип оружие.
+
 			if (ped != player) {
 				bool charweapontype = Command<COMMAND_IS_CURRENT_CHAR_WEAPON>(CPools::GetPedRef(ped), weapon_type);
 				lua_pushboolean(L, charweapontype);
@@ -1942,7 +2066,7 @@ int create_sphere(lua_State* L) {//создать сферу.
 			Command<COMMAND_ADD_SPHERE>(pos.x, pos.y, pos.z, radius, &sphere);
 			lua_settop(L, 0);// очистить стек.
 			spheres.emplace(sphere, L);
-			Stack<int>::push(L, sphere);// отправить id сферы в стек.  
+			lua_pushinteger(L, sphere);// отправить id сферы в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function create_sphere "; }
@@ -1961,7 +2085,7 @@ int create_money_pickup(lua_State* L) {//создать пачку денег.
 			CVector pos = { x, y, z };
 			Command<COMMAND_CREATE_MONEY_PICKUP>(pos.x, pos.y, pos.z, money, &idpickup);
 			pickupsids.emplace(idpickup, L);
-			Stack<int>::push(L, idpickup);// отправить id пикапа в стек.  
+			lua_pushinteger(L, idpickup);// отправить id пикапа в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function create_money_pickup"; }
@@ -1983,7 +2107,7 @@ int create_weapon_pickup(lua_State* L) {//создать пикап оружие
 			CVector pos = { x, y, z };
 			Command<COMMAND_CREATE_PICKUP_WITH_AMMO>(model, type, ammo, pos.x, pos.y, pos.z, &idpickup);
 			pickupsids.emplace(idpickup, L);// добавить в map пикапов.
-			Stack<int>::push(L, idpickup);// отправить id пикапа в стек.  
+			lua_pushinteger(L, idpickup);// отправить id пикапа в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function create_weapon_pickup"; }
@@ -2003,7 +2127,7 @@ int create_pickup(lua_State* L) {//создать пикап.
 			CVector pos = { x, y, z };
 			Command<COMMAND_CREATE_PICKUP>(model, type, pos.x, pos.y, pos.z, &idpickup);
 			pickupsids.emplace(idpickup, L);// добавить в map пикапов.
-			Stack<int>::push(L, idpickup);// отправить id пикапа в стек.  
+			lua_pushinteger(L, idpickup);// отправить id пикапа в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function create_weapon_pickup"; }
@@ -2099,16 +2223,13 @@ int set_wanted(lua_State* L) {// уcтановить уровень розыск
 	try {
 		if (LUA_TNUMBER == lua_type(L, -1)) {// значение число.
 			int wanted = lua_tointeger(L, -1);// кол-во звезд розыска.
-			if (wanted < 5) {
-				Command<COMMAND_ALTER_WANTED_LEVEL>(CWorld::PlayerInFocus, wanted);
-				return 0;
+			Command<COMMAND_SET_MAX_WANTED_LEVEL>(wanted);
+
+			CPlayerPed& player1 = *FindPlayerPed();
+			player1.SetWantedLevel(wanted);
+			player1.SetWantedLevelNoDrop(wanted);
+			return 0;
 			}
-			else
-			{
-				Command<COMMAND_ALTER_WANTED_LEVEL_NO_DROP>(CWorld::PlayerInFocus, wanted);
-				return 0;
-			}
-		}
 		else { throw "bad argument in function set_wanted"; }
 	}
 	catch (const char* x) { writelog(x); }
@@ -2150,8 +2271,19 @@ int is_wanted_level(lua_State* L) {// проверить уровень розы
 
 	return 0;
 };
+
+int wanted_level(lua_State* L) {// получить уровень розыска.
+
+	CPlayerPed& player1 = *FindPlayerPed();
+	int wanted = player1.GetWantedLevel();
+	lua_pushinteger(L, wanted);
+	return 1;			
+};
+
 int clear_wanted(lua_State* L) {// убрать уровень розыска.
-	Command<COMMAND_CLEAR_WANTED_LEVEL>(CWorld::PlayerInFocus);
+	CPlayerPed& player1 = *FindPlayerPed();
+	player1.SetWantedLevel(0);
+	//Command<COMMAND_CLEAR_WANTED_LEVEL>(CWorld::PlayerInFocus);
 	return 0;
 };
 
@@ -2251,7 +2383,7 @@ int create_marker_obj(lua_State* L) {//создать маркер над объ
 
 			Command<COMMAND_ADD_BLIP_FOR_OBJECT>(CPools::GetObjectRef(obj), &marker);//создать маркер над объектом.
 			markeron.emplace(marker, L);// добавить в map для маркеров.
-			Stack<int>::push(L, marker);// отправить в стек.  
+			lua_pushinteger(L, marker);// отправить в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function create_marker_obj"; }
@@ -2306,9 +2438,9 @@ int getobjcoordes(lua_State* L) {// получить координаты объ
 			const void* p = lua_topointer(L, -1);
 			CObject* obj = findobjinpool(p);// получить указатель на объект.
 
-			Stack<double>::push(L, obj->GetPosition().x);// отправить в стек.
-			Stack<double>::push(L, obj->GetPosition().y);// отправить в стек.
-			Stack<double>::push(L, obj->GetPosition().z);// отправить в стек.
+			lua_pushnumber(L, obj->GetPosition().x);// отправить в стек.
+			lua_pushnumber(L, obj->GetPosition().y);// отправить в стек.
+			lua_pushnumber(L, obj->GetPosition().z);// отправить в стек.
 			return 3;
 		}// получить координаты автоа.
 
@@ -2317,7 +2449,7 @@ int getobjcoordes(lua_State* L) {// получить координаты объ
 	catch (const char* x) { writelog(x); }
 };
 
-int getobjcoordinates_on_abscissa(lua_State* L) {// Получить мировую координату по x для объекта.
+int getobjcoordinates_on_x(lua_State* L) {// Получить мировую координату по x для объекта.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// указатель на объекта.
 
@@ -2327,17 +2459,17 @@ int getobjcoordinates_on_abscissa(lua_State* L) {// Получить миров�
 			float x = lua_tonumber(L, -1);
 			CVector pos = obj->m_placement.pos;
 			pos += obj->m_placement.right * x;
-			Stack<float>::push(L, pos.x); Stack<float>::push(L, pos.y); Stack<float>::push(L, pos.z);
+			lua_pushnumber(L, pos.x); lua_pushnumber(L, pos.y); lua_pushnumber(L, pos.z);
 			return 3;
 		}
-		else { throw "bad argument in function getobjcoordinates_on_abscissa"; }
+		else { throw "bad argument in function getobjcoordinates_on_x"; }
 	}
 	catch (const char* x) {
 		writelog(x);
 	}
 };
 
-int getobjcoordinates_on_ordinate(lua_State* L) {// Получить мировую координату по y для объекта.
+int getobjcoordinates_on_y(lua_State* L) {// Получить мировую координату по y для объекта.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// указатель на объект.
 
@@ -2346,11 +2478,11 @@ int getobjcoordinates_on_ordinate(lua_State* L) {// Получить миров�
 
 			float y = lua_tonumber(L, -1);
 			CVector pos = obj->m_placement.pos;
-			pos += obj->m_placement.up * y; Stack<float>::push(L, pos.x);
-			Stack<float>::push(L, pos.y);   Stack<float>::push(L, pos.z);
+			pos += obj->m_placement.up * y; lua_pushnumber(L, pos.x);
+			lua_pushnumber(L, pos.y);   lua_pushnumber(L, pos.z);
 			return 3;
 		}
-		else { throw "bad argument in function getobjcoordinates_on_ordinate"; }
+		else { throw "bad argument in function getobjcoordinates_on_y"; }
 	}
 	catch (const char* x) { writelog(x); }
 };
@@ -2434,13 +2566,16 @@ int cleanstl() {//удаления объектов из всех stl.
 	if (!pickupsids.empty()) {// если не пусть.
 		pickupsids.clear();//пикапы.
 	}
+	if (!firesids.empty()) {// если не пусть.
+		firesids.clear();//огонь.
+	}
 	if (!mapcars.empty()) {// если не пусть.
 		mapcars.clear();//авто.
 	}
 	if (!mapobjs.empty()) {// если не пусть.
 		mapobjs.clear();//объект.
 	}
-
+	
 	return 0;
 };
 
@@ -2501,7 +2636,7 @@ int createblip(lua_State* L) {// создать метку карте.
 			float x = lua_tonumber(L, -3); float y = lua_tonumber(L, -2);
 			float z = lua_tonumber(L, -1); CVector p = { x, y, z };
 			Command<COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_CONTACT_POINT>(p.x, p.y, p.z, t, &point);
-			Stack<int>::push(L, point);// отправить в стек и получить из стека можно
+			lua_pushinteger(L, point);// отправить в стек и получить из стека можно
 			markeron.emplace(point, L);// добавить в map для маркеров.
 			return 1;
 		}// int
@@ -2522,7 +2657,7 @@ int createmarker(lua_State* L) {// создать маркер на карте.
 			float z = lua_tonumber(L, 5); CVector p = { x, y, z };
 			Command<COMMAND_ADD_BLIP_FOR_COORD_OLD>(p.x, p.y, p.z, t, size, &point);
 			markeron.emplace(point, L);// добавить в map для маркеров.
-			Stack<int>::push(L, point);// отправить в стек и получить из стека можно
+			lua_pushinteger(L, point);// отправить в стек и получить из стека можно
 			return 1;
 		}// int
 
@@ -2550,7 +2685,7 @@ int create_marker_pickup(lua_State* L) {// создать маркер над п
 			int pickup = lua_tointeger(L, 1);// получить id пикапа.
 			Command<COMMAND_ADD_BLIP_FOR_PICKUP>(pickup, &marker);
 			markeron.emplace(marker, L);// добавить в map для маркеров.
-			Stack<int>::push(L, marker);// отправить в стек и получить из стека можно
+			lua_pushinteger(L, marker);// отправить в стек и получить из стека можно
 			return 1;
 		}
 		else { throw "bad argument in function play_sound"; }
@@ -3134,7 +3269,7 @@ int find_road_for_car(lua_State* L) {// найти дорогу.
 			float z1 = lua_tonumber(L, 3);
 			double x, y, z;
 			Command<COMMAND_GET_CLOSEST_CAR_NODE>(x1, y1, z1, x, y, z);// найти дорогу.
-			Stack<double>::push(L, x);	Stack<double>::push(L, y);	Stack<double>::push(L, z);
+			lua_pushnumber(L, x);	lua_pushnumber(L, y);	lua_pushnumber(L, z);
 			return 3;
 		}
 		else { throw "bad argument in function find_road_for_car"; }
@@ -3281,6 +3416,13 @@ int destroy(lua_State* L) {// удаления объектов из памят�
 			i = pick->first;
 			Command<COMMAND_REMOVE_PICKUP>(i);// удалить пикап.
 			pickupsids.erase(i);
+		}
+	}
+	for (auto it = firesids.begin(); it != firesids.end(); ++it) {
+		if (L == it->second) {
+			i = it->first;
+			Command<COMMAND_REMOVE_SCRIPT_FIRE>(i);// удалить огонь.
+			firesids.erase(i);
 		}
 	}
 
@@ -3475,7 +3617,7 @@ int car_lastweapondamage(lua_State* L) {// номер оружие, которо
 			unsigned char c = car->m_nLastWeaponDamage;
 
 			int d = (int)c;
-			Stack<int>::push(L, d);
+			lua_pushinteger(L, d);
 			return 1;
 		}
 		else { throw "bad argument in function car_lastweapondamage"; }
@@ -3492,7 +3634,7 @@ int car_currentgear(lua_State* L) {// текущая передача авто.
 
 			unsigned char c = car->m_nCurrentGear;
 			int d = (int)c;
-			Stack<int>::push(L, d);
+			lua_pushinteger(L, d);
 			return 1;
 
 		}
@@ -3510,7 +3652,7 @@ int getcar_model(lua_State* L) {// получить модель авто.
 
 			unsigned char c = car->m_nModelIndex;
 			int d = (int)c;
-			Stack<int>::push(L, d);
+			lua_pushinteger(L, d);
 			return 1;
 
 		}
@@ -3584,7 +3726,11 @@ int camera_at_point(lua_State* L) {//переместить камеру в ко
 			float x = lua_tonumber(L, 1);  float y = lua_tonumber(L, 2);
 			float z = lua_tonumber(L, 3);  int tipe = lua_tointeger(L, 4);
 			CVector pos = { x, y, z };
+			
 			Command<COMMAND_POINT_CAMERA_AT_POINT>(pos.x, pos.y, pos.z, tipe); //  
+/*			CCamera* cam;
+			cam = (CCamera*)0x7E4688;
+			cam->TakeControlNoEntity(pos, 1, tipe); */  //  POINT_CAMERA_AT_POINT   
 			return 0;
 		}
 		else { throw "bad argument in function camera_at_point"; }
@@ -3600,10 +3746,40 @@ int set_camera_position(lua_State* L) {//уст камеру в координа
 			float z = lua_tonumber(L, 3);  float rx = lua_tonumber(L, 4);
 			float ry = lua_tonumber(L, 5); float rz = lua_tonumber(L, 6);
 			CVector pos = { x, y, z };
-			Command<COMMAND_SET_FIXED_CAMERA_POSITION>(pos.x, pos.y, pos.z, rx, ry, rz); //  
+
+			CVector r = { rx, ry, rz };
+			//Command<COMMAND_SET_FIXED_CAMERA_POSITION>(pos.x, pos.y, pos.z, rx, ry, rz); //  
+			CCamera* cam;
+			cam = (CCamera*)0x7E4688; 
+			cam->SetCamPositionForFixedMode(pos, r); // SET_FIXED_CAMERA_POSITION opcode_015F
 			return 0;
 		}
 		else { throw "bad argument in function set_camera_position"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int set_camera_and_point(lua_State* L) {// установить и переместить камеру в координатах.
+	try {
+		if (LUA_TNUMBER == lua_type(L, -6) && LUA_TNUMBER == lua_type(L, -5) && LUA_TNUMBER == lua_type(L, -4)
+			&& LUA_TNUMBER == lua_type(L, -3) && LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {
+			float x = lua_tonumber(L, 1);  float y = lua_tonumber(L, 2);
+			float z = lua_tonumber(L, 3);  
+			float x1 = lua_tonumber(L, 4);  float y1 = lua_tonumber(L, 5);
+			float z1 = lua_tonumber(L, 6);
+
+			CVector pos = { x, y, z };
+			CVector pos1 = { x1, y1, z1 };
+			CVector r = { 0.0, 0.0, 0.0 };
+			CCamera* cam;
+			cam = (CCamera*)0x7E4688;
+			cam->SetCamPositionForFixedMode(pos, r); // SET_FIXED_CAMERA_POSITION opcode_015F
+			//Command<COMMAND_POINT_CAMERA_AT_POINT>(pos.x, pos.y, pos.z, tipe); //  
+			cam->TakeControlNoEntity(pos1, 1, 1); // POINT_CAMERA_AT_POINT   
+			return 0;
+		}
+		else { throw "bad argument in function set_camera_and_point"; }
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;
@@ -3670,8 +3846,13 @@ int get_current_name_luascript(lua_State* L) {// получить имя тек�
 };
 
 int restore_camera(lua_State* L) {// восстановить камеру.
-	Command<COMMAND_RESTORE_CAMERA>();
-	Command<COMMAND_RESTORE_CAMERA_JUMPCUT>();
+
+	CCamera* cam;
+	cam = (CCamera*)0x7E4688;
+	cam->Restore();
+	cam->RestoreWithJumpCut();
+	//Command<COMMAND_RESTORE_CAMERA>();
+	//Command<COMMAND_RESTORE_CAMERA_JUMPCUT>();
 	return 0;
 };
 int ped_atack(lua_State* L) {// пед бьет.
@@ -3836,7 +4017,7 @@ int getcarspeed(lua_State* L) {// получить скорость авто.
 			float speed;// переменная хранить скорость авто.
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			Command<COMMAND_GET_CAR_SPEED>(CPools::GetVehicleRef(car), &speed);//  получить скорость авто.
-			Stack<float>::push(L, speed);// отправить в стек.  
+			lua_pushnumber(L, speed);// отправить в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function getcarspeed"; }
@@ -3844,15 +4025,564 @@ int getcarspeed(lua_State* L) {// получить скорость авто.
 	catch (const char* x) { writelog(x); }
 	return 0;
 };
+int remove_all_weapons_ped(lua_State* L) {// удалить все оружия педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// указатель на педа.
+			const void* p = lua_topointer(L, -1);
 
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			ped->ClearWeapons();
+			return 0;
+		}
+		else { throw "bad argument in function remove_all_weapons_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int Getweaponslot(lua_State* L) {// получить номер слота по типу оружия.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {//число.
 
+			const void* p = lua_topointer(L, 1);
+			int weapontype = lua_tointeger(L, 2);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			eWeaponType w = (eWeaponType)weapontype;
+			int shot = ped->GetWeaponSlot(w);
+			lua_pushinteger(L, shot);
+			return 1;
+		}
+		else { throw "bad argument in function Getweaponslot"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int get_damage_weapon_ped(lua_State* L) {// получить последний урон педа от оружия.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {//число.
 
+			const void* p = lua_topointer(L, 1);
+			
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			int damageweapon = ped->m_nLastDamWep;
+			lua_pushinteger(L, damageweapon);
+			return 1;
+		}
+		else { throw "bad argument in function get_damage_weapon_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int get_aimgun_ped(lua_State* L) {// получить показатель цели педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {//число.
 
+			const void* p = lua_topointer(L, 1);
 
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			int aimgun = ped->AimGun();
+			lua_pushinteger(L, aimgun);
+			return 1;
+		}
+		else { throw "bad argument in function get_aimgun_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int get_ammo_weapon_ped(lua_State* L) {// получить кол-во патроны текущего оружие педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {//число.
 
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+
+			CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
+			int ammo = weapon.m_nTotalAmmo;
+			lua_pushinteger(L, ammo);
+			return 1;
+    		}
+		else { throw "bad argument in function get_ammo_weapon_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+}; 
+int createfireonped(lua_State* L) {// создать огонь на педе.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// указатель на педа.
+			const void* p = lua_topointer(L, -1);
+			int fire;// переменная хранить id огня.
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			Command<COMMAND_START_CHAR_FIRE>(CPools::GetPedRef(ped), &fire);// создать огонь на педе.
+			firesids.emplace(fire, L); // id map
+
+			lua_pushinteger(L, fire);// отправить в стек.  
+			return 1;
+		}
+		else { throw "bad argument in function createfireonped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int createfireoncar(lua_State* L) {// создать огонь на авто.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// указатель на авто.
+			const void* p = lua_topointer(L, -1);
+			int fire;// переменная хранить id огоня.
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			Command<COMMAND_START_CAR_FIRE>(CPools::GetVehicleRef(car), &fire);// создать огонь на авто.
+			firesids.emplace(fire, L); // id map
+			lua_pushinteger(L, fire);// отправить в стек.  
+			return 1;
+		}
+		else { throw "bad argument in function createfireoncar"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int createfireoncords(lua_State* L) {// создать огонь на координатах.
+	try {
+		if (LUA_TNUMBER == lua_type(L, -3) && LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {
+			float x = lua_tonumber(L, 1);
+			float y = lua_tonumber(L, 2); float z = lua_tonumber(L, 3);
+			int fire;// переменная хранить id огоня.
+			CVector pos = { x,y,z };
+	
+			Command<COMMAND_START_SCRIPT_FIRE>( pos.x, pos.y, pos.z, &fire);// создать огонь на координатах.
+			firesids.emplace(fire, L); // id map
+			lua_pushinteger(L, fire);// отправить в стек.  
+			return 1;
+		}
+		else { throw "bad argument in function createfireoncords"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int remove_fire(lua_State* L) {// удалить огонь.
+	try {
+		if (LUA_TNUMBER == lua_type(L, -1)) {// значение id огня.
+			int fire = lua_tointeger(L, 1);
+			Command<COMMAND_REMOVE_SCRIPT_FIRE>(fire);// удалить огонь.
+			return 0;
+		}
+		else { throw "bad argument in function remove_fire"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int ped_shutdown(lua_State* L) {// получить кол-во патроны текущего оружие педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {//число.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+
+			CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
+			//int ammo = 
+	/*		weapon.InitialiseWeapons();
+			weapon.Shutdown();*/
+			//weapon.ShutdownWeapons();
+			weapon.Reload();
+			//lua_pushinteger(L, ammo);
+			return 0;
+		}
+		else { throw "bad argument in function ped_shutdown"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int ped_damage_from_ped(lua_State* L) {// получил ли пед урон от педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {//указатель на педа.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.	
+			const void* p1 = lua_topointer(L, 2);
+			CPed* ped1 = findpedinpool(p1);//  получить указатель на педа.
+			bool check_damage = Command<COMMAND_HAS_CHAR_BEEN_DAMAGED_BY_CHAR>(CPools::GetPedRef(ped), CPools::GetPedRef(ped1));
+			lua_pushboolean(L, check_damage);
+			return 1;
+		}
+		else { throw "bad argument in function ped_damage_from_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int is_targetting_in_ped(lua_State* L) {// игрок целиться в педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {//указатель на педа.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.	
+			bool check_target = Command<COMMAND_IS_PLAYER_TARGETTING_CHAR>(CWorld::PlayerInFocus, CPools::GetPedRef(ped));
+			lua_pushboolean(L, check_target);
+			return 1;
+		}
+		else { throw "bad argument in function is_targetting_in_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int Remove_weapon_model(lua_State* L) {// удалить оружие у педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {//число.
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			int idweapon = lua_tointeger(L, 2);
+
+			int tipe = find_model_in_map(model_and_type, idweapon);// тип оружие.
+
+			ped->SetAmmo((eWeaponType)tipe, 0);
+    		CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
+			ped->RemoveWeaponModel(idweapon); 
+			weapon.Shutdown();
+			weapon.UpdateWeapons();
+			return 0;
+		}
+		else { throw "bad argument in function Remove_weapon_model"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+void load_model_before_avalible(int model){
+	Command<COMMAND_REQUEST_MODEL>(model);
+	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+	while (!Command<COMMAND_HAS_MODEL_LOADED>(model)) {
+		this_thread::sleep_for(chrono::milliseconds(1));// задержка
+		Command<COMMAND_REQUEST_MODEL>(model);
+	}
+};
+
+int Createped(lua_State* L) {// макрос создать педа.
+	try {
+		if (LUA_TSTRING == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3) &&
+			LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// значение число.
+			const char* name_ped = lua_tostring(L, -4);
+			
+			int model = find_in_map(name_peds_list, name_ped);// модель педа
+			int type = find_in_map(type_peds_list, name_ped);// тип педа.
+			float x = lua_tonumber(L, -3); float y = lua_tonumber(L, -2); float z = lua_tonumber(L, -1);
+			CVector pos = { x, y, z };
+			CPed* ped = nullptr; load_model_before_avalible(model);
+			Command<COMMAND_CREATE_CHAR>(type, model, pos.x, pos.y, pos.z, &ped);
+			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			mappeds.emplace(ped, L);// добавить map для педов.
+			lua_pushlightuserdata(L, ped);// отправить в стек и получить из стека можно.
+			return 1;
+		}// int
+
+		else { throw "bad argument in function createped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int Createcar(lua_State* L) {// макрос создать авто на координатах.
+	try {
+		if (LUA_TSTRING == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3)
+			&& LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// значение число.
+			const char* name_model = lua_tostring(L, -4);// модель авто.
+
+			int model = find_in_map(car_model_list, name_model);
+			float x = lua_tonumber(L, -3); float y = lua_tonumber(L, -2);
+			float z = lua_tonumber(L, -1); CVector pos = { x, y, z };
+			load_model_before_avalible(model);
+			CVehicle* vehicle = nullptr;
+			Command<COMMAND_CREATE_CAR>(model, pos.x, pos.y, pos.z, &vehicle);
+			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			mapcars.emplace(vehicle, L);// добавить в map для авто.
+			lua_pushlightuserdata(L, vehicle);// отправить в стек указатель на авто.
+			return 1;
+		}// int
+
+		else { throw "bad argument in function Createcar"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+//--function Giveweaponped(ped, ammo, ...)--дать педу оружие и патроны.
+void ped_weapon_give(CPed* ped, int model, int typemodel, int ammo){
+	eWeaponType name_model = eWeaponType(typemodel);
+	CStreaming::RequestModel(model, 0);// загрузить модель оружие
+	CStreaming::LoadAllRequestedModels(false);
+	ped->GiveWeapon(name_model, ammo, true);
+	ped->SetCurrentWeapon(name_model);
+	CStreaming::SetModelIsDeletable(model);// модели оружия смотрите eWeaponModel.h
+};
+int Giveweaponped(lua_State* L) {// макрос дать педу оружие и патроны.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TSTRING == lua_type(L, 3)) {
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			int ammo = lua_tointeger(L, 2);
+			lua_remove(L, 2); lua_remove(L, 1);
+			int size = lua_gettop(L); size++;
+
+			for (int i = 1; i < size; i++){
+				const char* name_weapon = lua_tostring(L, i);
+		    	int model = find_in_map(name_weapon_list, name_weapon);// модель оружие
+			    int type = find_in_map(types_weapon_list, name_weapon);// тип оружие.
+			    ped_weapon_give(ped, model, type, ammo);
+			}
+
+			lua_pop(L, lua_gettop(L));// удалить n элементы из стека.
+      		return 0;
+		}
+		else { throw "bad argument in function Giveweaponped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int Opendoorcar(lua_State* L) { // Макрос открыть все двери авто.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
+			const void* p = lua_topointer(L, 1);
+			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
+
+			CAutomobile* automobile = reinterpret_cast<CAutomobile*>(car); // опять же, приведение типов. Т.к. мы будет юзать damageManager, нам нужно убедиться, что транспорт - это автомобиль (CAutomobile)
+			DoorsExample::EnableDoorEvent(automobile, BONNET); // 0 капот
+			DoorsExample::EnableDoorEvent(automobile, BOOT); // 1 багажник
+			DoorsExample::EnableDoorEvent(automobile, DOOR_FRONT_LEFT); // 2 левая передняя дверь
+			DoorsExample::EnableDoorEvent(automobile, DOOR_FRONT_RIGHT); // 3 правая передняя дверь
+			DoorsExample::EnableDoorEvent(automobile, DOOR_REAR_LEFT); // 4 левая задняя дверь
+			DoorsExample::EnableDoorEvent(automobile, DOOR_REAR_RIGHT); // 5 правая задняя дверь
+			return 0;
+		}
+		else { throw "bad argument in function Opendoorcar option of the vehicle"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+//--function Create_weapon_pickup(m, typepickup, ammo, x, y, z)  --создать пикап оружие.
+int Create_weapon_pickup(lua_State* L) {// макрос создать пикап оружие.
+	try {
+		if (LUA_TSTRING == lua_type(L, -6) || LUA_TNUMBER == lua_type(L, -6) && LUA_TNUMBER == lua_type(L, -5)
+			&& LUA_TNUMBER == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3) &&
+			LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {
+
+			int typepick = lua_tointeger(L, 2);// тип пикапа. 
+			int ammo = lua_tointeger(L, 3); // начальное кол-во патронов в оружие.
+			float x = lua_tonumber(L, 4);
+			float y = lua_tonumber(L, 5); float z = lua_tonumber(L, 6);
+			int idpickup;// переменная, которая хранить id пикапа.  
+			CVector pos = { x, y, z };	int model;
+			if (LUA_TSTRING == lua_type(L, -6))	{	const char* name_weapon = lua_tostring(L, 1); // имя оружие
+				model = find_in_map(name_weapon_list, name_weapon);// модель оружие
+			}
+			else  {	if (LUA_TNUMBER == lua_type(L, -6)) { model = lua_tointeger(L, 1);
+				}
+			}
+			load_model_before_avalible(model);
+			Command<COMMAND_CREATE_PICKUP_WITH_AMMO>(model, typepick, ammo, pos.x, pos.y, pos.z, &idpickup);
+			pickupsids.emplace(idpickup, L);// добавить в map пикапов.
+			lua_pushinteger(L, idpickup);// отправить id пикапа в стек.  
+			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			return 1;
+		}
+		else { throw "bad argument in function Create_weapon_pickup"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+//function Create_pickup(model, typepickup, x, y, z) --создать пикап.
+
+int Create_pickup(lua_State* L) {// макрос создать пикап.
+	try {
+		if (LUA_TNUMBER == lua_type(L, -5) && LUA_TNUMBER == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3) &&
+			LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {
+			int model = lua_tointeger(L, 1); // модель пикапа. 
+
+			load_model_before_avalible(model);
+			int type = lua_tointeger(L, 2);// тип пикапа. 
+			float x = lua_tonumber(L, 3);	float y = lua_tonumber(L, 4);
+			float z = lua_tonumber(L, 5);
+			int idpickup;// переменная, которая хранить id пикапа.  
+			CVector pos = { x, y, z };
+			Command<COMMAND_CREATE_PICKUP>(model, type, pos.x, pos.y, pos.z, &idpickup);
+			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			pickupsids.emplace(idpickup, L);// добавить в map пикапов.
+			lua_pushinteger(L, idpickup);// отправить id пикапа в стек.  
+			return 1;
+		}
+		else { throw "bad argument in function Create_pickup"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int Get_model_and_type_current_weapon_ped(lua_State* L) {// макрос получить модель и тип текущего оружие педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {//число.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+	
+			CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
+			eWeaponType type = weapon.m_nType;
+			CWeaponInfo* winfo = CWeaponInfo::GetWeaponInfo(type);
+			int idweapon = winfo->m_nModelId;
+
+			lua_pushinteger(L, idweapon);
+			lua_pushinteger(L, type);
+			return 2;
+		}
+		else { throw "bad argument in function Get_model_and_type_current_weapon_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int is_ped_in_car(lua_State* L) {// игрок в авто?
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// указатель на педа.
+
+			const void* p = lua_topointer(L, -1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			if (ped->m_bInVehicle && ped->m_pVehicle != NULL) {// в авто пед?
+				lua_pushboolean(L, true);
+				return 1;
+			}
+			else {
+				lua_pushboolean(L, false);
+				return 1;// получить указатель на хенлд авто в котором сидит пед.
+			}
+		}
+		else { throw "bad argument in function is_ped_in_car"; }
+	}
+	catch (const char* x) { writelog(x); }
+};
+
+int ped_car(lua_State* L) {// авто педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// указатель на педа.
+
+			const void* p = lua_topointer(L, -1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			if (ped->m_bInVehicle && ped->m_pVehicle != NULL) {// в авто пед?
+				CVehicle* car = ped->m_pVehicle;
+				lua_pushlightuserdata(L, car);// отправить в стек true и указатель на авто.
+				return 1;
+			}
+			else {
+				CVehicle* car = NULL;//если пед не в авто вернуть null;
+				lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
+				return 1;// получить указатель на хенлд авто в котором сидит пед.
+			}
+		}
+		else { throw "bad argument in function ped_car"; }
+	}
+	catch (const char* x) { writelog(x); }
+};
+
+int get_model_current_weapon_ped(lua_State* L) {// макрос получить модель текущего оружие педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {//число.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			
+			CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
+			eWeaponType type = weapon.m_nType;
+			CWeaponInfo* winfo = CWeaponInfo::GetWeaponInfo(type);
+			int idweapon = winfo->m_nModelId;
+
+			lua_pushinteger(L, idweapon);
+			return 1;
+		}
+		else { throw "bad argument in function get_model_current_weapon_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+int get_type_current_weapon_ped(lua_State* L) {// макрос получить тип текущего оружие педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {//число.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+
+			CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
+			int type = weapon.m_nType;
+			lua_pushinteger(L, type);
+			return 1;
+		}
+		else { throw "bad argument in function get_type_current_weapon_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int get_damage_current_weapon(lua_State* L) {// получить уровень урона текущего оружие.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {//число.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+
+			CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
+			eWeaponType type = weapon.m_nType;
+			CWeaponInfo* w = CWeaponInfo::GetWeaponInfo(type);
+			int damage = w->m_nDamage;
+			lua_pushinteger(L, damage);
+			return 1;
+		}
+		else { throw "bad argument in function get_damage_current_weapon"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int set_damage_current_weapon(lua_State* L) {// установить уровень урона текущего оружие педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {//число.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			int damage = lua_tointeger(L, 2);
+			CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
+
+			eWeaponType type = weapon.m_nType;
+			CWeaponInfo* w = CWeaponInfo::GetWeaponInfo(type);
+			w->m_nDamage = damage;
+			return 0;
+		}
+		else { throw "bad argument in function set_damage_current_weapon"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int ped_in_targetting(lua_State* L) {// пед на прицеле.
+	CPed* player = FindPlayerPed();// найти игрока
+	for (auto ped1 : CPools::ms_pPedPool) {
+		if (Command<COMMAND_IS_PLAYER_TARGETTING_CHAR>(CWorld::PlayerInFocus, CPools::GetPedRef(ped1)) && ped1 != player) {
+			lua_pushlightuserdata(L, ped1);
+			return 1;
+		}
+	}
+};
+
+int Ped_in_targetting(lua_State* L) {// Макрос пед на прицеле.
+
+	CPed* player = FindPlayerPed();// найти игрока
+	for (auto ped1 : CPools::ms_pPedPool) {
+		if (Command<COMMAND_IS_PLAYER_TARGETTING_CHAR>(CWorld::PlayerInFocus, CPools::GetPedRef(ped1)) && ped1 != player) {
+			lua_pushboolean(L, true);
+			lua_pushlightuserdata(L, ped1);
+			return 2;
+		}
+	}
+
+	lua_pushboolean(L, false);
+	lua_pushnil(L);
+	return 2;
+};
 int check_defined_and_arest() {
-	CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10;// дать денег  
-		CPed* player = FindPlayerPed();// найти игрока
+	//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10;// дать денег  
+	CPed* player = FindPlayerPed();// найти игрока
 	while (true) {
 		this_thread::sleep_for(chrono::milliseconds(10));
 		bool arest = CWorld::Players[CWorld::PlayerInFocus].m_nPlayerState == PLAYERSTATE_HASBEENARRESTED;
@@ -3866,7 +4596,15 @@ int check_defined_and_arest() {
 	return 0;
 	//std::thread(check_defined_and_arest);
 };
-
+int Getcameracoordes(lua_State* L) {// получить координаты камеры.
+	float x = patch::GetFloat(0x7E46B8);
+	float y = patch::GetFloat(0x7E46BC);
+	float z = patch::GetFloat(0x7E46C0);
+	lua_pushnumber(L, x);// отправить в стек.
+	lua_pushnumber(L, y);// отправить в стек.
+	lua_pushnumber(L, z);// отправить в стек.
+	return 3;
+};
 int star_mission_marker(lua_State* L) {// создать маркер для миссии.
 	static int point;	static int create = 0;
 	try {
@@ -3948,6 +4686,28 @@ CObject* findobjinpool(const void* p) {// найти объект в пуле.
 	};
 	CObject* obj2 = NULL;
 	return obj2;
+};
+int find_in_map(std::map<string, int>& carlist, const char* search) {
+
+	auto it = carlist.find(search);
+	if (it == carlist.end()) {
+		return 0;
+	}
+	else {
+		int m = it->second;
+		return m;
+	}
+};
+int find_model_in_map(std::map<int, int>& type_and_model, int search) {
+
+	auto it = type_and_model.find(search);
+	if (it == type_and_model.end()) {
+		return 0;
+	}
+	else {
+		int m = it->second;
+		return m;
+	}
 };
 void showstack(lua_State* L) {
 	int i = lua_gettop(L);/* получаем количество элементов в стеке.*/
@@ -4223,371 +4983,527 @@ int newthread(lua_State* L) {// новый поток.
 
 
 /*		wchar_t* str = L"kjhb";
-		CVector pos = { x,y,z };
-		"Э.03C3: set_timer_with_text_to 16@ type 0 text L'R_TIME'  // pem¬ ?ohk?:
-		Command<COMMAND_DISPLAY_ONSCREEN_TIMER_WITH_STRING>(10, 0, L'R_TIME');*/
+CVector pos = { x,y,z };
+"Э.03C3: set_timer_with_text_to 16@ type 0 text L'R_TIME'  // pem¬ ?ohk?:
+Command<COMMAND_DISPLAY_ONSCREEN_TIMER_WITH_STRING>(10, 0, L'R_TIME');*/
 
 
 
-		//lua_State* copystack(lua_State* L); // Копирование стека и создания нового состояния.
-		//const char* newname(char* str) {
-			//
-			//	if (!std::experimental::filesystem::exists("./threads")) {// Если нет папки создаем
-			//		std::experimental::filesystem::create_directories("./threads");
-			//	}
-			//	char n[225] = "threads\\1.lua";
-			//	fstream f0;
-			//	f0.open(n, fstream::in | fstream::out | fstream::app);
-			//
-			//	if (f0.is_open()) {
-			//		f0.close();
-			//		remove(n);
-			//	};// удалим дубликат, если он есть.
-			//
-			//	fstream f;	f.open(str);
-			//	fstream f1;
-			//	f1.open(n, fstream::in | fstream::out | fstream::app);
-			//	vector<string>strf;
-			//	if (f.is_open() && f1.is_open()) {
-			//		string str10;
-			//		int number = 0;
-			//		while (!f.eof()) {
-			//			number++;
-			//			getline(f, str10);
-			//			strf.push_back(str10);
-			//		};
-			//		int lastst = number - 1;
-			//		for (int i = 0; i < number; i++)
-			//		{
-			//			if (i != lastst) { f1 << strf[i] + "\n"; }
-			//			else { f1 << strf[i]; }
-			//		}
-			//	}; f.close(); f1.close();
-			//	const char* wor = "threads\\1.lua";// (char*)newnane;
-			//	return wor;
-			//};
-			//
-			//void star(lua_State* L1) {
-			//	lua_pcall(L1, 1, 0, 0);
-			//};
-			//static int g = 1;
-			//		g++;
-			//
-			//void m(lua_State* L, const char* func, int args) {
-			//	lua_State* L1 = lua_newthread(L);
-			//
-			//	int ret, ret1;//	this_thread::sleep_for(chrono::milliseconds(100));  
-			//	lua_sethook(L, LUAHook, LUA_MASKCOUNT, 30);	// Добавить подсчет счетчика, который сработает после указания числа
-			//	lua_sethook(L1, LUAHook1, LUA_MASKCOUNT, 30);	// Добавить подсчет счетчика, который сработает после указания числа
-			//
-			//	lua_getglobal(L, "main");
-			//	ret1 = lua_resume(L, L1, 0);
-			//	CWorld::Players[CWorld::PlayerInFocus].m_nMoney += ret1;// дать денег 	
-			//	while (true) {
-			//		if (ret == LUA_YIELD) {//&& ret1 != LUA_YIELD
-			//	lua_getglobal(L1, func);
-			//	ret = lua_resume(L1, L, args);//запуск FUNC
-			//			this_thread::sleep_for(chrono::milliseconds(10));
-			//		}
-			//			if (ret1 == LUA_OK) {
-			//			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 100;// дать денег 	
-			//			this_thread::sleep_for(chrono::milliseconds(10));
-			//			break;
-			//			
-			//		}
-			//		else { continue; }
-			//		if (ret1 == LUA_YIELD) {
-			//		//.	CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// дать денег 	
-			//			lua_getglobal(L1, func);
-			//			ret = lua_resume(L1, L, args); //this_thread::sleep_for(chrono::milliseconds(100));
-			//		}
-			//		if (ret == LUA_OK) {// Успешно завершение функции.
-			//			break;
-			//		}
-			//
-			//	};
-			//};
-			//
-			//lua_State* cop(lua_State* L) {
-			//	lua_State* L1 = luaL_newstate();
-			//	luaL_openlibs(L1);// открыть допю. библиотеки.
-			//	funs(L1);// список весь функций.
-			//
-			//	int stacksize = lua_gettop(L);// кол-во элементов в  стек.	
-			//	stacksize++;
-			//	for (int i = 1; i < stacksize; i++) {
-			//		if (LUA_TLIGHTUSERDATA == lua_type(L, i)) {// значение число.
-			//			const void* value = lua_topointer(L, i);// получить неопределенный указатель на польз.данные.	
-			//			int value1 = (int)& value;
-			//			lua_pushinteger(L, value1);  /*отправить адрес, который является ключом в стек. */
-			//			lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
-			//			int type1 = lua_type(L, -1);
-			//			static char x[256];
-			//			snprintf(x, 256, "type1 = %.d", type1);
-			//			wchar_t* s1 = getwchat(x);
-			//			CMessages::AddMessageJumpQ(s1, 3000, 0);
-			//			if (LUA_TSTRING == lua_type(L, -1)) {
-			//				CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10000;// дать денег 
-			//				const char* clas = lua_tostring(L, -1);// имя класс польз.данных в индексе стека.
-			//				lua_pop(L, 1);		//wchar_t* str = getwchat(clas);
-			//				const char* st = "cped";//		CMessages::AddMessageJumpQ(str, 6000, 1);
-			//				if (strcmp(clas, st) == 0) {
-			//					CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// дать денег 
-			//					CPed* ped = (CPed*)Userdata::get<CPed>(L, i, false);
-			//					Stack<CPed*>::push(L1, ped);// отправить в стек указатель на педа.
-			//					lua_pop(L, 1);
-			//				}
-			//			}
-			//		}
-			//	}
-			//	return L1;
-			//};
-		//lua_pushlightuserdata(L, L);  /*отправить адрес, который является ключом в стек. */
-		//lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
-		//char const* luaname = lua_tostring(L, -1);//имя lua скрипта.
-		//wchar_t* str = getwchat(luaname);
+//lua_State* copystack(lua_State* L); // Копирование стека и создания нового состояния.
+//const char* newname(char* str) {
+	//
+	//	if (!std::experimental::filesystem::exists("./threads")) {// Если нет папки создаем
+	//		std::experimental::filesystem::create_directories("./threads");
+	//	}
+	//	char n[225] = "threads\\1.lua";
+	//	fstream f0;
+	//	f0.open(n, fstream::in | fstream::out | fstream::app);
+	//
+	//	if (f0.is_open()) {
+	//		f0.close();
+	//		remove(n);
+	//	};// удалим дубликат, если он есть.
+	//
+	//	fstream f;	f.open(str);
+	//	fstream f1;
+	//	f1.open(n, fstream::in | fstream::out | fstream::app);
+	//	vector<string>strf;
+	//	if (f.is_open() && f1.is_open()) {
+	//		string str10;
+	//		int number = 0;
+	//		while (!f.eof()) {
+	//			number++;
+	//			getline(f, str10);
+	//			strf.push_back(str10);
+	//		};
+	//		int lastst = number - 1;
+	//		for (int i = 0; i < number; i++)
+	//		{
+	//			if (i != lastst) { f1 << strf[i] + "\n"; }
+	//			else { f1 << strf[i]; }
+	//		}
+	//	}; f.close(); f1.close();
+	//	const char* wor = "threads\\1.lua";// (char*)newnane;
+	//	return wor;
+	//};
+	//
+	//void star(lua_State* L1) {
+	//	lua_pcall(L1, 1, 0, 0);
+	//};
+	//static int g = 1;
+	//		g++;
+	//
+	//void m(lua_State* L, const char* func, int args) {
+	//	lua_State* L1 = lua_newthread(L);
+	//
+	//	int ret, ret1;//	this_thread::sleep_for(chrono::milliseconds(100));  
+	//	lua_sethook(L, LUAHook, LUA_MASKCOUNT, 30);	// Добавить подсчет счетчика, который сработает после указания числа
+	//	lua_sethook(L1, LUAHook1, LUA_MASKCOUNT, 30);	// Добавить подсчет счетчика, который сработает после указания числа
+	//
+	//	lua_getglobal(L, "main");
+	//	ret1 = lua_resume(L, L1, 0);
+	//	CWorld::Players[CWorld::PlayerInFocus].m_nMoney += ret1;// дать денег 	
+	//	while (true) {
+	//		if (ret == LUA_YIELD) {//&& ret1 != LUA_YIELD
+	//	lua_getglobal(L1, func);
+	//	ret = lua_resume(L1, L, args);//запуск FUNC
+	//			this_thread::sleep_for(chrono::milliseconds(10));
+	//		}
+	//			if (ret1 == LUA_OK) {
+	//			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 100;// дать денег 	
+	//			this_thread::sleep_for(chrono::milliseconds(10));
+	//			break;
+	//			
+	//		}
+	//		else { continue; }
+	//		if (ret1 == LUA_YIELD) {
+	//		//.	CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// дать денег 	
+	//			lua_getglobal(L1, func);
+	//			ret = lua_resume(L1, L, args); //this_thread::sleep_for(chrono::milliseconds(100));
+	//		}
+	//		if (ret == LUA_OK) {// Успешно завершение функции.
+	//			break;
+	//		}
+	//
+	//	};
+	//};
+	//
+	//lua_State* cop(lua_State* L) {
+	//	lua_State* L1 = luaL_newstate();
+	//	luaL_openlibs(L1);// открыть допю. библиотеки.
+	//	funs(L1);// список весь функций.
+	//
+	//	int stacksize = lua_gettop(L);// кол-во элементов в  стек.	
+	//	stacksize++;
+	//	for (int i = 1; i < stacksize; i++) {
+	//		if (LUA_TLIGHTUSERDATA == lua_type(L, i)) {// значение число.
+	//			const void* value = lua_topointer(L, i);// получить неопределенный указатель на польз.данные.	
+	//			int value1 = (int)& value;
+	//			lua_pushinteger(L, value1);  /*отправить адрес, который является ключом в стек. */
+	//			lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
+	//			int type1 = lua_type(L, -1);
+	//			static char x[256];
+	//			snprintf(x, 256, "type1 = %.d", type1);
+	//			wchar_t* s1 = getwchat(x);
+	//			CMessages::AddMessageJumpQ(s1, 3000, 0);
+	//			if (LUA_TSTRING == lua_type(L, -1)) {
+	//				CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10000;// дать денег 
+	//				const char* clas = lua_tostring(L, -1);// имя класс польз.данных в индексе стека.
+	//				lua_pop(L, 1);		//wchar_t* str = getwchat(clas);
+	//				const char* st = "cped";//		CMessages::AddMessageJumpQ(str, 6000, 1);
+	//				if (strcmp(clas, st) == 0) {
+	//					CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// дать денег 
+	//					CPed* ped = (CPed*)Userdata::get<CPed>(L, i, false);
+	//					Stack<CPed*>::push(L1, ped);// отправить в стек указатель на педа.
+	//					lua_pop(L, 1);
+	//				}
+	//			}
+	//		}
+	//	}
+	//	return L1;
+	//};
+//lua_pushlightuserdata(L, L);  /*отправить адрес, который является ключом в стек. */
+//lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
+//char const* luaname = lua_tostring(L, -1);//имя lua скрипта.
+//wchar_t* str = getwchat(luaname);
 
-		//lua_State* L1 = luaL_newstate();
-		//luaL_openlibs(L1);
-		//funs(L1);// список весь функций.
+//lua_State* L1 = luaL_newstate();
+//luaL_openlibs(L1);
+//funs(L1);// список весь функций.
 
-		//int stacksize = lua_gettop(L);
-		//stacksize++;
-		//for (int i = 1; i < stacksize; i++) {
-		//	lua_pushvalue(L, i);// копировать на вершину стека.
-		//	lua_xmove(L, L1, 1);// Снимает с L1 элементов передает L.
-		//};
+//int stacksize = lua_gettop(L);
+//stacksize++;
+//for (int i = 1; i < stacksize; i++) {
+//	lua_pushvalue(L, i);// копировать на вершину стека.
+//	lua_xmove(L, L1, 1);// Снимает с L1 элементов передает L.
+//};
 
-		//luastate.push_back(L1);// добавить новое состояние в list
-		////int args = lua_gettop(L1);
-		//		if (0 == luaL_loadfile(L1, luaname)) {// Текущий lua файл.      
-		//			lua_pcall(L1, 0, 0, 0);// запуск файла.
-		//			lua_pushvalue(L1, 1);//скопировать имена функции, отправить на вершину стека.
-		//			std::thread t([=]() {lua_pcall(L1, args, 0, 0); });
-		//			t.detach();
+//luastate.push_back(L1);// добавить новое состояние в list
+////int args = lua_gettop(L1);
+//		if (0 == luaL_loadfile(L1, luaname)) {// Текущий lua файл.      
+//			lua_pcall(L1, 0, 0, 0);// запуск файла.
+//			lua_pushvalue(L1, 1);//скопировать имена функции, отправить на вершину стека.
+//			std::thread t([=]() {lua_pcall(L1, args, 0, 0); });
+//			t.detach();
 
-		//int timer(int time, int t) {
-		//	if (CTimer::m_snTimeInMilliseconds - time > t) {//t = 0; // обнулить таймер
-		//		return 0;
-		//	};
-		//	if (CTimer::m_snTimeInMilliseconds - time < t) {
-		//		this_thread::sleep_for(chrono::milliseconds(1));
-		//		timer(t, time);
-		//	}
-		//};
-		//int stacksize = lua_gettop(L);
-		//stacksize++;
-		//for (int i = 1; i < stacksize; i++) {
-		//	lua_pushvalue(L, i);// копировать на вершину стека.
-		//	lua_xmove(L, L1, 1);// Снимает с L1 элементов передает L.
-		//};
-		//luastate.push_back(L1);// добавить новое состояние в list
-		//int args = lua_gettop(L1);
-		//int args = lua_gettop(L); args++;
-		//lua_State* L1 = lua_newthread(L);
-		//lua_pushthread(L1);
-		//return lua_yield(L, args);/* Когда функция C вызывает lua_yield таким образом, запущенная сопрограмма приостанавливает
-		//свое выполнение, и вызов lua_resume этой запущенной процедуры возвращается.*/
-		//lua_insert(L, 1);//Перемещает поток в основание стека.
-		//int stacksize = lua_gettop(L);
-		//for (int i = 1; i < stacksize; i++) {
-		//	lua_xmove(L, L1, 1);// Снимает с L1 элементов передает L.
-		//}
-		//allstate.emplace(L1, L);// добавить в map.
-		//lua_State* L1 = luaL_newstate();
-		//luaL_openlibs(L1);// открыть допю. библиотеки.
-		//funs(L1);// список весь функций.
-		//lua_pushlightuserdata(L, L);  /*отправить адрес, который является ключом в стек. */
-		//lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
-		//char const* luaname = lua_tostring(L, -1);//имя lua скрипта.	
-		//lua_pop(L, 1);
-		//luastate.push_back(L1);// добавить новое состояние в list	
-		//char* name = (char*)luaname;//старое имя.
-		//const char* namelua = newname(name);
-		//	if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// значение число.
-		//		CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// дать денег 
-		//		CPed* ped = (CPed*)Userdata::get<CPed>(L, 1, false);
-		//		Stack<CPed*>::push(L1, ped);// отправить в стек указатель на педа.			
-		//	}
-		//};
-		//	int status = luaL_loadfile(L1, namelua);
-		//			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10;// дать денег 
-						//			lua_pushvalue(L1, 1);//скопировать имена функции, отправить на вершину стека.
+//int timer(int time, int t) {
+//	if (CTimer::m_snTimeInMilliseconds - time > t) {//t = 0; // обнулить таймер
+//		return 0;
+//	};
+//	if (CTimer::m_snTimeInMilliseconds - time < t) {
+//		this_thread::sleep_for(chrono::milliseconds(1));
+//		timer(t, time);
+//	}
+//};
+//int stacksize = lua_gettop(L);
+//stacksize++;
+//for (int i = 1; i < stacksize; i++) {
+//	lua_pushvalue(L, i);// копировать на вершину стека.
+//	lua_xmove(L, L1, 1);// Снимает с L1 элементов передает L.
+//};
+//luastate.push_back(L1);// добавить новое состояние в list
+//int args = lua_gettop(L1);
+//int args = lua_gettop(L); args++;
+//lua_State* L1 = lua_newthread(L);
+//lua_pushthread(L1);
+//return lua_yield(L, args);/* Когда функция C вызывает lua_yield таким образом, запущенная сопрограмма приостанавливает
+//свое выполнение, и вызов lua_resume этой запущенной процедуры возвращается.*/
+//lua_insert(L, 1);//Перемещает поток в основание стека.
+//int stacksize = lua_gettop(L);
+//for (int i = 1; i < stacksize; i++) {
+//	lua_xmove(L, L1, 1);// Снимает с L1 элементов передает L.
+//}
+//allstate.emplace(L1, L);// добавить в map.
+//lua_State* L1 = luaL_newstate();
+//luaL_openlibs(L1);// открыть допю. библиотеки.
+//funs(L1);// список весь функций.
+//lua_pushlightuserdata(L, L);  /*отправить адрес, который является ключом в стек. */
+//lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
+//char const* luaname = lua_tostring(L, -1);//имя lua скрипта.	
+//lua_pop(L, 1);
+//luastate.push_back(L1);// добавить новое состояние в list	
+//char* name = (char*)luaname;//старое имя.
+//const char* namelua = newname(name);
+//	if (LUA_TLIGHTUSERDATA == lua_type(L, -1)) {// значение число.
+//		CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// дать денег 
+//		CPed* ped = (CPed*)Userdata::get<CPed>(L, 1, false);
+//		Stack<CPed*>::push(L1, ped);// отправить в стек указатель на педа.			
+//	}
+//};
+//	int status = luaL_loadfile(L1, namelua);
+//			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10;// дать денег 
+				//			lua_pushvalue(L1, 1);//скопировать имена функции, отправить на вершину стека.
 
-				//if (LUA_TFUNCTION == lua_type(L1, 1)) {
-		//		}
-
-
-
-		//const void* value = lua_topointer(L, i);// получить неопределенный указатель на польз.данные.
-					//lua_pushinteger(L, (int)& value);  /*отправить адрес, который является ключом в стек. */
-					//lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
-					//if (LUA_TSTRING == lua_type(L, -1)) {//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10000;// дать денег 
-					//	const char* clas = lua_tostring(L, -1);// имя класс польз.данных в индексе стека.
-					//	lua_pop(L, 1);		//wchar_t* str = getwchat(clas);
-					//	const char* st = "cped";//		CMessages::AddMessageJumpQ(str, 6000, 1);
-					//	if (strcmp(clas, st) == 0) {
-					//		lua_pop(L, 1);
-					//	     }
-					//    }
-
-
-		//bool keyup(unsigned int key) {
-		//	if (!KeyCheck::CheckWithDelay(key, 200)) { return true; }
-		//	else { return false; }
-		//};
+		//if (LUA_TFUNCTION == lua_type(L1, 1)) {
+//		}
 
 
 
-
-
-
-
-		//lua_State* L1 = luaL_newstate();
-		//luaL_openlibs(L1);// открыть допю. библиотеки.
-		//funs(L1);// список весь функций.
-		//lua_pushlightuserdata(L, L);  /*отправить адрес, который является ключом в стек. */
-		//lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
-		//char const* luaname = lua_tostring(L, -1);//имя lua скрипта.	
-		//lua_pop(L, 1);
-		//int stacksize = lua_gettop(L);// кол-во элементов в  стек.	
-		//stacksize++;
-		//for (int i = 1; i < stacksize; i++) {
-		//	if (LUA_TLIGHTUSERDATA == lua_type(L, i)) {// значение число.
-		//		const void* value = lua_topointer(L, i);// получить неопределенный указатель на польз.данные.
-		//		lua_pushinteger(L, (int)& value);  /*отправить адрес, который является ключом в стек. */
-		//		lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
-		//		if (LUA_TSTRING == lua_type(L, -1)) {
-		//			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10000;// дать денег 
-		//			const char* clas = lua_tostring(L, -1);// имя класс польз.данных в индексе стека.
-		//			lua_pop(L, 1);		//wchar_t* str = getwchat(clas);
-		//			const char* st = "cped";//		CMessages::AddMessageJumpQ(str, 6000, 1);
-		//			if (strcmp(clas, st) == 0) {
-		//				CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// дать денег 
-		//				CPed* ped = (CPed*)Userdata::get<CPed>(L, i, false);
-		//				Stack<CPed*>::push(L1, ped);// отправить в стек указатель на педа.
-		//				lua_pop(L, 1);
-		//			}
-		//		}
-		//	}
-		//};
-		//luastate.push_back(L1);// добавить новое состояние в list	
-			//	if (res == LUA_YIELD) {
-			//		res = lua_resume(L, L1, 0); // main
-			//		lua_pop(L, 1);
-			//		if (res == 0) { break; }
-			//		else {res1 = lua_resume(L1, L, 0);// foo
-			//		}
-			//			/*L1 = lua_tothread(L, -1); lua_pop(L, 1); lua_xmove(L, L1, lua_gettop(L)); lua_remove(L1, 1); args = lua_gettop(L1);
-			//			for (int i = 1; i > args; i++) { lua_pushvalue(L1, i); }
-			//			args--;	res1 = lua_resume(L1, L, args);	lua_xmove(L, L1, 1);
-			//		lua_sethook(L, LUAHook, LUA_MASKCOUNT, 6);*/
-			//			for (mll it = allstate.begin(); it != allstate.end(); ++it) {
-			//				if (L == it->second) {	L1 = it->first;
-			//	if (LUA_TTHREAD == lua_type(L, -1) && LUA_TNUMBER == lua_type(L, -2)) {
-			//		args = lua_tointeger(L, -2);
-			//		showstack(L);
-			//		CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 100;
-			//		this_thread::sleep_for(chrono::milliseconds(5200));
-			//	}
-			//			lua_gettop(L1);//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;
-			//		if (LUA_TFUNCTION == lua_type(L1, -2)) {
-			//			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;
-			//					for (int i = 1; i < args; i++) { lua_insert(L1, i);	//	lua_pushvalue(L, i);
-			//					}//Перемещает поток в основание стека.
-			//					args--;/* Аргументы.*/  //lua_sethook(L1, LUAHook1, LUA_MASKCOUNT, 1);
-			//					res1 = lua_resume(L1, L, args); //lua_settop(L1, args++);;	
-			//					showstack1(L1);
-			//					args++;					} 					} 
-			//				}
-			//        }
-			//   if ( res1 == LUA_YIELD ||  res1 == LUA_OK ) {
-			//	   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;	
-			//	   lua_sethook(L, LUAHook, LUA_MASKCOUNT, 10);	
-			//	   lua_getglobal(L, "main");
-			//   res = lua_resume(L, L1, 0); //int li =  //  
-			//   lua_sethook(L, LUAHook, LUA_MASKCOUNT, 0);
-			//   showstack(L); lua_pop(L1, 1); 
-			//   this_thread::sleep_for(chrono::milliseconds(100));
-			//   break;
-			//   
-			// lua_pop(L1, 1); 
-			//   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// size =  args-size;   
-			//   lua_pop(L1, 1); if (LUA_TFUNCTION == lua_type(L1, -1)) {
-			//   int size;	
-			//   size = lua_gettop(L1); 
-			//   if (size > args) {
-			//	 if (size >5)		 {
-			//	 size = size- args;  
-			//	 size--;
-			//   lua_pop(L1, size);
-			//	 }
-			//   }
-			//  
-			//   args++;
-			//   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += args;
-			//    this_thread::sleep_for(chrono::milliseconds(5200));
-			//	   size++;
-			//	   size = size - args;
-			//	   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += size;
-			//   cout << "lkj " << endl;
-			//   lua_settop(L1, args);
-			//	   for (int i = 1; i > size; i++) {
-			//		    if (i > 2 )  {
-			//		  
-			//   }
-			//	   this_thread::sleep_for(chrono::milliseconds(5)); 
-			//	   size =  args-size;
-			//	   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += size;// дать денег size++;
-			//   args--;
-			//	   lua_pop(L1, 1);
-			//.	   this_thread::sleep_for(chrono::milliseconds(1));
-			//   }
-			//	}
-			//}
-
+//const void* value = lua_topointer(L, i);// получить неопределенный указатель на польз.данные.
 			//lua_pushinteger(L, (int)& value);  /*отправить адрес, который является ключом в стек. */
 			//lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
-			//if (LUA_TSTRING == lua_type(L, -1)) {
+			//if (LUA_TSTRING == lua_type(L, -1)) {//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10000;// дать денег 
 			//	const char* clas = lua_tostring(L, -1);// имя класс польз.данных в индексе стека.
-			//	lua_pop(L, 1);	const char* st = "cped";//	
+			//	lua_pop(L, 1);		//wchar_t* str = getwchat(clas);
+			//	const char* st = "cped";//		CMessages::AddMessageJumpQ(str, 6000, 1);
 			//	if (strcmp(clas, st) == 0) {
-				//CPed* p = (CPed*)Userdata::get<CPed>(L, 1, false);// получить указатель на педа.
-				//if (LUA_TSTRING == lua_type(L, -1)) {
-				//	string str  = lua_tostring(L, -1);
-				//	str.erase(0, 10);
-				//	
-				//	const char* x = strdup(str.c_str());
-				//	wchar_t* s1 = getwchat(x);
-				//	CMessages::AddMessageJumpQ(s1, 3000, 0);  
-				//		for (auto ped : CPools::ms_pPedPool) {
-				//			int p = (int)ped;
-				//			std::string sped = to_string(p);
-				//			if (str == sped) {
-				//				lua_pushboolean(L, true); Stack<CPed*>::push(L, ped);// отправить в стек и получить из стека можно
-				//				return 2;
-				//			}
-				//		}
-				//		CPed* p2 = nullptr;   lua_pushboolean(L, false);
-				//		Stack<CPed*>::push(L, p2);// отправить в стек и получить из стека можно
-				//		return 2;
-				//		}
+			//		lua_pop(L, 1);
+			//	     }
+			//    }
 
-		//Добавляет транспортное средство в массив застрявших автомобилей
-		//Синтаксис
-		//
-		//03CC: add_stuck_car_check[ручка автомобиля] расстояние[float] время[int]
-		//параметр
-		//
-		//ручка автомобиля
-		//Ручка транспортного средства
-		//поплавок
-		//Минимальное расстояние, которое автомобиль должен проехать в единицах
-		//ИНТ
-		//Продолжительность времени в мс
-		//Родной аналог
-		//
-		//ADD_STUCK_CAR_CHECK
-		//Этот код операции сохраняет дескриптор транспортного средства вместе с дополнительными параметрами в специальном массиве, чтобы проверить, не застрял ли он.Игра постоянно проверяет, все ли машины из этого массива соответствуют требованиям.Транспортное средство помечается как застрявшее, если оно не проезжает минимальное расстояние, установленное в качестве второго параметра в течение указанного периода времени, установленного в качестве третьего параметра.Если транспортное средство уничтожено, оно удаляется из массива застрявших автомобилей.Массив застрявших автомобилей может вместить до 6 ручек автомобиля.
-		//
-		// 
+
+//bool keyup(unsigned int key) {
+//	if (!KeyCheck::CheckWithDelay(key, 200)) { return true; }
+//	else { return false; }
+//};
+
+
+
+
+
+
+
+//lua_State* L1 = luaL_newstate();
+//luaL_openlibs(L1);// открыть допю. библиотеки.
+//funs(L1);// список весь функций.
+//lua_pushlightuserdata(L, L);  /*отправить адрес, который является ключом в стек. */
+//lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
+//char const* luaname = lua_tostring(L, -1);//имя lua скрипта.	
+//lua_pop(L, 1);
+//int stacksize = lua_gettop(L);// кол-во элементов в  стек.	
+//stacksize++;
+//for (int i = 1; i < stacksize; i++) {
+//	if (LUA_TLIGHTUSERDATA == lua_type(L, i)) {// значение число.
+//		const void* value = lua_topointer(L, i);// получить неопределенный указатель на польз.данные.
+//		lua_pushinteger(L, (int)& value);  /*отправить адрес, который является ключом в стек. */
+//		lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
+//		if (LUA_TSTRING == lua_type(L, -1)) {
+//			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10000;// дать денег 
+//			const char* clas = lua_tostring(L, -1);// имя класс польз.данных в индексе стека.
+//			lua_pop(L, 1);		//wchar_t* str = getwchat(clas);
+//			const char* st = "cped";//		CMessages::AddMessageJumpQ(str, 6000, 1);
+//			if (strcmp(clas, st) == 0) {
+//				CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// дать денег 
+//				CPed* ped = (CPed*)Userdata::get<CPed>(L, i, false);
+//				Stack<CPed*>::push(L1, ped);// отправить в стек указатель на педа.
+//				lua_pop(L, 1);
+//			}
+//		}
+//	}
+//};
+//luastate.push_back(L1);// добавить новое состояние в list	
+	//	if (res == LUA_YIELD) {
+	//		res = lua_resume(L, L1, 0); // main
+	//		lua_pop(L, 1);
+	//		if (res == 0) { break; }
+	//		else {res1 = lua_resume(L1, L, 0);// foo
+	//		}
+	//			/*L1 = lua_tothread(L, -1); lua_pop(L, 1); lua_xmove(L, L1, lua_gettop(L)); lua_remove(L1, 1); args = lua_gettop(L1);
+	//			for (int i = 1; i > args; i++) { lua_pushvalue(L1, i); }
+	//			args--;	res1 = lua_resume(L1, L, args);	lua_xmove(L, L1, 1);
+	//		lua_sethook(L, LUAHook, LUA_MASKCOUNT, 6);*/
+	//			for (mll it = allstate.begin(); it != allstate.end(); ++it) {
+	//				if (L == it->second) {	L1 = it->first;
+	//	if (LUA_TTHREAD == lua_type(L, -1) && LUA_TNUMBER == lua_type(L, -2)) {
+	//		args = lua_tointeger(L, -2);
+	//		showstack(L);
+	//		CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 100;
+	//		this_thread::sleep_for(chrono::milliseconds(5200));
+	//	}
+	//			lua_gettop(L1);//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;
+	//		if (LUA_TFUNCTION == lua_type(L1, -2)) {
+	//			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;
+	//					for (int i = 1; i < args; i++) { lua_insert(L1, i);	//	lua_pushvalue(L, i);
+	//					}//Перемещает поток в основание стека.
+	//					args--;/* Аргументы.*/  //lua_sethook(L1, LUAHook1, LUA_MASKCOUNT, 1);
+	//					res1 = lua_resume(L1, L, args); //lua_settop(L1, args++);;	
+	//					showstack1(L1);
+	//					args++;					} 					} 
+	//				}
+	//        }
+	//   if ( res1 == LUA_YIELD ||  res1 == LUA_OK ) {
+	//	   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;	
+	//	   lua_sethook(L, LUAHook, LUA_MASKCOUNT, 10);	
+	//	   lua_getglobal(L, "main");
+	//   res = lua_resume(L, L1, 0); //int li =  //  
+	//   lua_sethook(L, LUAHook, LUA_MASKCOUNT, 0);
+	//   showstack(L); lua_pop(L1, 1); 
+	//   this_thread::sleep_for(chrono::milliseconds(100));
+	//   break;
+	//   
+	// lua_pop(L1, 1); 
+	//   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// size =  args-size;   
+	//   lua_pop(L1, 1); if (LUA_TFUNCTION == lua_type(L1, -1)) {
+	//   int size;	
+	//   size = lua_gettop(L1); 
+	//   if (size > args) {
+	//	 if (size >5)		 {
+	//	 size = size- args;  
+	//	 size--;
+	//   lua_pop(L1, size);
+	//	 }
+	//   }
+	//  
+	//   args++;
+	//   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += args;
+	//    this_thread::sleep_for(chrono::milliseconds(5200));
+	//	   size++;
+	//	   size = size - args;
+	//	   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += size;
+	//   cout << "lkj " << endl;
+	//   lua_settop(L1, args);
+	//	   for (int i = 1; i > size; i++) {
+	//		    if (i > 2 )  {
+	//		  
+	//   }
+	//	   this_thread::sleep_for(chrono::milliseconds(5)); 
+	//	   size =  args-size;
+	//	   CWorld::Players[CWorld::PlayerInFocus].m_nMoney += size;// дать денег size++;
+	//   args--;
+	//	   lua_pop(L1, 1);
+	//.	   this_thread::sleep_for(chrono::milliseconds(1));
+	//   }
+	//	}
+	//}
+
+	//lua_pushinteger(L, (int)& value);  /*отправить адрес, который является ключом в стек. */
+	//lua_gettable(L, LUA_REGISTRYINDEX);  /* получить таблицу и значение ключа будет в -1 */
+	//if (LUA_TSTRING == lua_type(L, -1)) {
+	//	const char* clas = lua_tostring(L, -1);// имя класс польз.данных в индексе стека.
+	//	lua_pop(L, 1);	const char* st = "cped";//	
+	//	if (strcmp(clas, st) == 0) {
+		//CPed* p = (CPed*)Userdata::get<CPed>(L, 1, false);// получить указатель на педа.
+		//if (LUA_TSTRING == lua_type(L, -1)) {
+		//	string str  = lua_tostring(L, -1);
+		//	str.erase(0, 10);
+		//	
+		//	const char* x = strdup(str.c_str());
+		//	wchar_t* s1 = getwchat(x);
+		//	CMessages::AddMessageJumpQ(s1, 3000, 0);  
+		//		for (auto ped : CPools::ms_pPedPool) {
+		//			int p = (int)ped;
+		//			std::string sped = to_string(p);
+		//			if (str == sped) {
+		//				lua_pushboolean(L, true); Stack<CPed*>::push(L, ped);// отправить в стек и получить из стека можно
+		//				return 2;
+		//			}
+		//		}
+		//		CPed* p2 = nullptr;   lua_pushboolean(L, false);
+		//		Stack<CPed*>::push(L, p2);// отправить в стек и получить из стека можно
+		//		return 2;
+		//		}
+
+//Добавляет транспортное средство в массив застрявших автомобилей
+//Синтаксис
+//
+//03CC: add_stuck_car_check[ручка автомобиля] расстояние[float] время[int]
+//параметр
+//
+//ручка автомобиля
+//Ручка транспортного средства
+//поплавок
+//Минимальное расстояние, которое автомобиль должен проехать в единицах
+//ИНТ
+//Продолжительность времени в мс
+//Родной аналог
+//
+//ADD_STUCK_CAR_CHECK
+//Этот код операции сохраняет дескриптор транспортного средства вместе с дополнительными параметрами в специальном массиве, чтобы проверить, не застрял ли он.Игра постоянно проверяет, все ли машины из этого массива соответствуют требованиям.Транспортное средство помечается как застрявшее, если оно не проезжает минимальное расстояние, установленное в качестве второго параметра в течение указанного периода времени, установленного в качестве третьего параметра.Если транспортное средство уничтожено, оно удаляется из массива застрявших автомобилей.Массив застрявших автомобилей может вместить до 6 ручек автомобиля.
+//
+// 
+
+	//getGlobalNamespace(L)//Пространства имен LuaBridge для регистрации функции и классов, видны только сценариям Lua.
+	//	
+	//	.addCFunction("findplayer", findplayer) // 1 возвращает указатель педа.
+	//	.addCFunction("setpedhealth", setpedhealth) // 2 установить здоровье педу.
+	//	.addCFunction("setarmour", setarmour) // 3 установить броню педу.
+	//	.addCFunction("wait", wait) // 4 задержка.
+	//	.addCFunction("getpedhealth", getpedhealth) // 5 получить здоровье педа.
+	//	.addCFunction("getpedangle", getpedangle) // 6 получить угол педа.
+	//	.addCFunction("worldcoord", worldcoord) // 7 Перевод в мировые координаты.
+	//	.addCFunction("getpedcoordinates_on_x", getpedcoordinates_on_x) // 8 Получить мировую координату по x для педа.
+	//	.addCFunction("getpedcoordinates_on_y", getpedcoordinates_on_y) // 9 Получить мировую координату по y для педа.
+	//	.addCFunction("setarmour", setarmour) // 10 получить броню.
+	//	.addCFunction("givemoney", givemoney) // 11 дать денег педу.
+	//	.addCFunction("keypress", key) // 12 проверка на нажатие клавиш.
+	//	.addCFunction("printmessage", printmessage) // 13 вывод сообщение.
+	//	.addCFunction("getpedcoordes", getpedcoordes) // 14 получить координаты педа.
+	//	.addCFunction("randomfindped", randomfindped) // 15 получить рандомного педа.
+	//	.addCFunction("incar", incar) // 16  проверка пед в авто?.
+	//	.addCFunction("loadmodel", loadmodel) // 17 загрузить модель.
+	//	.addCFunction("availablemodel", availablemodel) // 18 проверка на загруженность модели.
+	//	.addCFunction("releasemodel", releasemodel) // 19 удалить модель из памяти.
+	//	.addCFunction("createcar", createcar) // 20 создать авто на координатах на координатах.
+	//	.addCFunction("createped", createped) // 21 создать педа на координатах.
+	//	.addCFunction("load_requested_models", load_requested_models) // 22 поставить модель на загрузить вне очереди.
+	//	.addCFunction("giveweaponped", giveweaponped) // 23 дать педу оружие.
+	//	.addCFunction("ped_sprint_to_point", ped_sprint_to_point) // 24 пед делает спринт к точке.
+	//	.addCFunction("ped_walk_to_point", ped_walk_to_point) // 25 Пед идет к точке.
+	//	.addCFunction("kill_ped_on_foot", kill_ped_on_foot) // 26 убить педа пешком.
+	//	.addCFunction("kill_char_any_means", kill_char_any_means) // 27 убить педа любыми средствами.
+	//	.addCFunction("ped_aim_at_ped", ped_aim_at_ped) // 28 пед целиться в педе.
+	//	.addCFunction("is_current_weapon_ped", is_current_weapon_ped) // 29 проверить текущее оружие.
+	//	.addCFunction("create_marker_actor", create_marker_actor) // 30 создать маркер над педом.
+	//	.addCFunction("removemarker", removemarker) // 31 удалить маркер.
+	//	.addCFunction("setpedcoordes", setpedcoordes) // 32 установить координаты для педа.
+	//	.addCFunction("remove_car", remove_car) // 33 удалить авто.
+	//	.addCFunction("car_in_water", car_in_water) // 34 проверка авто в воде.
+	//	.addCFunction("set_wanted", set_wanted) // 35 уcтановить уровень розыска.
+	//	.addCFunction("ped_in_point_in_radius", ped_in_point_in_radius) // 36 проверить находится пед в координатах с радиусом.
+	//	.addCFunction("create_sphere", create_sphere) // 37 создать сферу.
+	//	.addCFunction("clear_wanted", clear_wanted) // 38 убрать уровень розыска.
+	//	.addCFunction("getcarhealth", getcarhealth) // 39 получить кол-во здоровья авто.
+	//	.addCFunction("setcarhealth", setcarhealth) // 40 установить здоровье авто.
+	//	.addCFunction("remove_sphere", remove_sphere) // 41 удалить сферу.
+	//	.addCFunction("remove_ped", remove_ped) // 42 удалить педа.
+	//	.addCFunction("kill_ped", kill_ped) // 43 убить педа.
+	//	.addCFunction("getflagmission", getflagmission) // 44 проверка флага миссии.
+	//	.addCFunction("setflagmission", setflagmission) // 45 уcтановить флага миссии.
+	//	.addCFunction("showtext", showtext) // 46 Вывод особого текста на экран.
+	//	.addCFunction("remove_blip", remove_blip) // 47 удалить метку с карты.
+	//	.addCFunction("createblip", createblip) // 48 создать метку карте.
+	//	.addCFunction("play_sound", play_sound) // 49 проиграть мелодию.
+	//	.addCFunction("isped", isped) // 50 проверка это пед?
+	//	.addCFunction("isvehicle", isvehicle) // 51 проверка это транспорт?.
+	//	.addCFunction("cardrive", cardrive) // 52 авто едет в точку.
+	//	.addCFunction("setcarspeed", setcarspeed) // 53 установить скорость авто.
+	//	.addCFunction("opendoorcar", opendoorcar) // 54 открыть дверь авто.
+	//	.addCFunction("randomfindcar", randomfindcar) // 55 Найти случайное авто.
+	//	.addCFunction("getcarcoordes", getcarcoordes) // 56 получить координаты авто.
+	//	.addCFunction("create_money_pickup", create_money_pickup) // 57 создать пачку денег.
+	//	.addCFunction("getcarcoordinates_on_x", getcarcoordinates_on_x) // 58 Получить мировую координату по x для авто.
+	//	.addCFunction("getcarcoordinates_on_y", getcarcoordinates_on_y) // 59 Получить мировую координату по y для авто.
+	//	.addCFunction("car_in_point_in_radius", car_in_point_in_radius) // 60 проверить находится авто в координатах с радиусом.
+	//	.addCFunction("setdrivingstyle", setdrivingstyle) // 61 установить стиль езды авто.
+	//	.addCFunction("findped", findped) // 62 найти педа в пуле.
+	//	.addCFunction("create_weapon_pickup", create_weapon_pickup) // 63 создать пикап оружие.
+	//	.addCFunction("create_pickup", create_pickup) // 64 создать пикап.
+	//	.addCFunction("remove_pickup", remove_pickup) // 65 удалить пикап.
+	//	.addCFunction("picked_up", picked_up) // 66 проверка пикап подобран.
+	//	.addCFunction("play_voice", play_voice) // 67 Проиграть голос.
+	//	.addCFunction("fade", fade) // 68 затенение, просветления.
+	//	.addCFunction("draw_corona", draw_corona) // 69 создать корону(чекпойнт).
+	//	.addCFunction("sound_coordinate", sound_coordinate) // 70 Проиграть звук в координатах
+	//	.addCFunction("show_text_styled", show_text_styled) // 71 Вывести игровой текст.
+	//	.addCFunction("setcarangle", setcarangle) // 72 установить угол авто.
+	//	.addCFunction("createmarker", createmarker) // 73 создать маркер на карте.
+	//	.addCFunction("setsizemarker", setsizemarker) // 74установить размер маркера.
+	//	.addCFunction("cheat", checkcheat) // 75 чит код введен.
+	//	.addCFunction("destroy", destroy) // 76 удаления объектов из памяти при перезагрузки скрипта. 
+	//	.addCFunction("yield", my_yield) // 77 приостановить выполнение скрипта.
+	//	.addCFunction("setcardrive", setcardrive) // 78 установить водителя для авто.
+	//	.addCFunction("setcarpassenger", setcarpassenger) // 79 установить пассажира для авто.
+	//	.addCFunction("setcarfirstcolor", setcarfirstcolor) // 80 установить первый цвет авто.
+	//	.addCFunction("setcarseconscolor", setcarseconscolor) // 81 установить второй цвет авто.
+	//	.addCFunction("set_traffic", set_traffic) // 82 установить плотномть трафика транспорта.
+	//	.addCFunction("create_marker_car", create_marker_car) // 83создать маркер над авто.
+	//	.addCFunction("car_explode", car_explode) // 84 взрывать авто.
+	//	.addCFunction("is_car_stopped", is_car_stopped) // 85 авто остановилось. 
+	//	.addCFunction("create_explosion", create_explosion) // 86 Создать взрыв на координатах.
+	//	.addCFunction("set_status_engine", set_status_engine) // 87 установить состояние двигателя авто.
+	//	.addCFunction("player_defined", player_defined) // 88 пед существует.
+	//	.addCFunction("setclock", setclock) // 89  задать время.
+	//	.addCFunction("arrested", arrested) // 90 пед арестован?
+	//	.addCFunction("lockstatus", lockstatus) // 91 статус двери авто.
+	//	.addCFunction("create_marker_pickup", create_marker_pickup) // 92 создать маркер над пикапом.
+	//	.addCFunction("create_obj", createobj) // 93 создать объект.
+	//	.addCFunction("remove_obj", remove_obj) // 94 удалить объект.
+	//	.addCFunction("setobjоcoordes", setobjоcoordes) // 95 установить координаты для объект.
+	//	.addCFunction("getobjcoordes", getobjcoordes) // 96 получить координаты объекта.
+	//	.addCFunction("create_marker_obj", create_marker_obj) // 97 создать маркер над объектом.
+	//	.addCFunction("isobject", isobject) // 98 проверка это объект?.
+	//	.addCFunction("setpedangle", setpedangle) // 99 установить угол педа.
+	//	.addCFunction("setcaraction", setcaraction) // 100 установить поведение авто.
+	//	.addCFunction("move_obj", move_obj) // 101 двигать объект.
+	//	.addCFunction("move_rotate", move_rotate) // 102 вращать объект.
+	//	.addCFunction("getobjangle", getobjangle) // 103 получить угол объекта.
+	//	.addCFunction("findcar", findcar) // 104 Найти авто.
+	//	.addCFunction("setcartask", setcartask) // 105 установить задачу авто.
+	//	.addCFunction("setcarcoordes", setcarcoordes) // 106 установить координаты авто.
+	//	.addCFunction("is_car_stuck", is_car_stuck) // 107 03CE: car 12@ stuck если машина застряла.
+	//	.addCFunction("is_car_upsidedown", is_car_upsidedown) // 108 01F4: car 12@ flipped если машина перевернута.
+	//	.addCFunction("is_car_upright", is_car_upright) // 109 020D: car 12@ flipped если указанный автомобиль перевернут.
+	//	.addCFunction("find_road_for_car", find_road_for_car) // 110 найти дорогу.
+	//	.addCFunction("setcarstrong", setcarstrong) // 111 сделать авто устойчивым.
+	//	.addCFunction("putincar", putincar) // 112 переместить педа в авто.
+	//	.addCFunction("print_front", game_font_print) // 113 вывести особенный игровой текст.
+	//	.addCFunction("star_timer", star_timer) // 114 включить таймер.
+	//	.addCFunction("stop_timer", stop_timer) // 115 остановить таймер.
+	//	.addCFunction("timer_donw", timer_donw) // 116  таймер на уменьшение.
+	//	.addCFunction("ped_attack_car", ped_attack_car) // 117 пед атакует авто.
+	//	.addCFunction("ped_frozen", ped_frozen)  // 118 заморозить игpока.
+	//	.addCFunction("hold_cellphone", hold_cellphone) // 119 поднять телефон.
+	//	.addCFunction("car_lastweapondamage", car_lastweapondamage) // 120 номер оружие, которое нанесло урон авто.
+	//	.addCFunction("car_currentgear", car_currentgear) // 121 текущая передача авто.
+	//	.addCFunction("getcar_model", getcar_model) // 122 получить модель авто.
+	//	.addCFunction("setcarsiren", setcarsiren) // 123 установить сирену для авто.
+	//	.addCFunction("ped_car_as_driver", ped_car_as_driver) // 124 пед садится в авто как водитель.
+	//	.addCFunction("ped_car_as_passenger", ped_car_as_passenger) // 125 пед садится в авто как пассажир.
+	//	.addCFunction("ped_atack", ped_atack) // 126 пед бьет.
+	//	.addCFunction("show_text_gtx", show_text_gtx) // 127 вывести игровой текст.
+	//	.addCFunction("camera_at_point", camera_at_point) // 128 переместить камеру в координатах.
+	//	.addCFunction("restore_camera", restore_camera) // 129 восстановить камеру.
+	//	.addCFunction("is_wanted_level", is_wanted_level) // 130 проверить уровень розыска.
+	//	.addCFunction("set_camera_position", set_camera_position) // 131 уст камеру в координатах.
+	//	.addCFunction("flash_hud", flash_hud) // 132 Мигание элементов HUD.
+	//	.addCFunction("set_radio", set_radio) // 133 уст радио.			
+	//	.addCFunction("set_car_tires", set_car_tires) // 134 проколоть шину.
+	//	.addCFunction("create_spec_ped", create_spec_ped) // 135 создать спец педа.
+	//	.addCFunction("set_wheel_status", set_wheel_status) // 136 уст состояния шин авто.
+	//	.addCFunction("set_skin", set_skin) // 137 уст скин педа.
+	//	.addCFunction("remove_spec_ped", remove_spec_ped) // 138 удалить спец педа.
+	//	.addCFunction("go_to_route", go_to_route) // 139 уст маршрут авто.
+	//	.addCFunction("add_stuck_car_check", add_stuck_car_check) // 140 условия для того, чтобы авто считалась застрявшей.
+	//	.addCFunction("load_scene", load_scene) // 141 загрузить модели на координатах заранее.
+	//	.addCFunction("ped_anim", ped_anim) // 142 анимация.
+	//	.addCFunction("del_anim", del_anim) // 143 удалить анимацию.
+	//	.addCFunction("get_current_name_luascript", get_current_name_luascript) // 144 получить имя текущего lua файла.
+	//	.addCFunction("star_mission_marker", star_mission_marker) // 145 создать маркер для миссии.
+	//	.addCFunction("getobjcoordinates_on_x", getobjcoordinates_on_x) // 146 Получить мировую координату по x для объекта.
+	//	.addCFunction("getobjcoordinates_on_y", getobjcoordinates_on_y) // 147 Получить мировую координату по y для объекта.
+	//	.addCFunction("set_widescreen", set_widescreen) // вк// 148 вкл/выкл широкий экран.
+	//	.addCFunction("follow_the_leader", follow_the_leader) //149 //01DE// 01DE / 01DF следовать за лидером.
+	//	.addCFunction("getcarspeed", getcarspeed) // 150 получить скорость авто.
+	//	.addCFunction("newthread", newthread) // 151 запуск функции в новом потоке.		
+	//	.addCFunction("Getcameracoordes", Getcameracoordes)// 152 получить координаты камеры.
+	//	.addCFunction("exitcar", exitcar);// 153 выйти из авто.
