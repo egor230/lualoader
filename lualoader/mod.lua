@@ -304,17 +304,17 @@ AMINATIONS_LIST ={
 -- 172 - висит на тросе
 }
 
-for k, v in pairs(KEYS) do _G[k] = v end	
+--for k, v in pairs(KEYS) do _G[k] = v end	
 --for k, v in pairs(MODEL_CARS) do _G[k] = v end
 --for k, v in pairs(MODEL_WEAPONS) do _G[k] = v end
 --for k, v in pairs(PED_MODELS_AND_TYPES) do _G[k] = v end
 --for k, v in pairs(WEAPONS_MODELS_AND_TYPES) do _G[k] = v end
---for k, v in pairs(DOORS_CAR) do _G[k] = v end	
+for k, v in pairs(DOORS_CAR) do _G[k] = v end	
 --for k, v in pairs(SPEC_PED_MODELS_AND_TYPES) do _G[k] = v end	
 
 
 function delay()
-for i=1,100 do u= i end
+for i=1,1000000 do u= i end
 end
 
 -- function Openalldoorscar(car)--открыть все двери авто.
@@ -349,73 +349,6 @@ local x2,y2,z =getcoordes(ped)
     return x1,y1,z
     end
 end
--- function model_and_type(model, list)
--- local m,t
- -- for k,v in pairs(list) do
-     -- if model == k
-      -- then m = k -- модель
-           -- t = v -- тип модели.
-      -- end end
-	-- m = tonumber(m)
--- t = tonumber(t)
--- givemoney(m)
-   -- return m, t-- тип.
--- end
-
---макросы.
-
--- function Createped(m,x,y,z)--создать педа.
-   -- local m, t = model_and_type(m, PED_MODELS_AND_TYPES)
-   -- load_requested_models() 
-   -- while not availablemodel(m) do wait(1) loadmodel(m) end
-   -- local ped = createped(m,t, x,y,z)
-   -- releasemodel(m) 
--- return ped
--- end
-
--- function Giveweaponped(ped, ammo, ...)-- дать педу оружие и патроны.
- -- for m1, v in pairs({...}) do	    
-  -- local m, t = model_and_type(v, WEAPONS_MODELS_AND_TYPES)	
-
-   -- loadmodel(m)
-   -- load_requested_models()
-   -- while not availablemodel(m) do wait(1) loadmodel(m) end
-   -- giveweaponped(ped, m, t, ammo)
-   -- releasemodel(m) 
-  -- end
--- end
--- function Createcar(m,x,y,z)-- создать машину.
-	-- loadmodel(m)
-	-- load_requested_models()
-	-- while not availablemodel(m) do  wait(1) loadmodel(m) end
-	-- local car = createcar(m, x,y,z)
-	-- releasemodel(m) 
-	-- return car
--- end
-
--- function Get_type_weapon_ped(ped) -- получить текущее оружие.	
--- for k,v in pairs(WEAPONS_MODELS_AND_TYPES) do
--- local model =tonumber(v[2])
--- if is_current_weapon_ped(ped, model)
--- then local m,t = v[1], v[2]
-   -- break
--- end end
--- m = tonumber(m)
--- t = tonumber(t)
--- givemoney(t)
--- return m, t
--- end
-
--- function Create_weapon_pickup(m, typepickup, ammo, x,y,z)  -- создать пикап оружие.
-	-- local model, t = model_and_type(m, WEAPONS_MODELS_AND_TYPES)	
-	-- loadmodel(model)
-	-- load_requested_models() 
-	-- while not availablemodel(model) do wait(1) loadmodel(model) end
-	-- local pickup = create_weapon_pickup(model,typepickup, ammo,x,y,z)
-	-- releasemodel(model) 
-	-- return pickup
--- end
-
 function getweaponslot(ped, nameweapon )-- получить номер слота оружие.
 local m, t = model_and_type(nameweapon, WEAPONS_MODELS_AND_TYPES)	
  t = tonumber(t)
@@ -444,6 +377,7 @@ function remove_current_weapon_ped(ped)	-- удалить текущее ору�
  then Remove_weapon_model(ped, m)
   end
 end
+
 function throw_current_weapon(ped)-- выбросить текущее оружие.	
  local m = get_model_current_weapon_ped(ped) -- получить текущее оружие.	
  local ammo = get_ammo_weapon_ped(ped) -- получить кол-во патронов текущего оружие.	
@@ -499,7 +433,8 @@ function races()-- отсчет времени перед стартом.
  
 function set_ped_in_car(car, ped, place)  -- уст водителя авто.
  local place = place or nil
- local m, t = model_and_type(ped, PED_MODELS_AND_TYPES)
+ local m, t = Get_model_and_type_ped(ped)
+ loadmodel(m)
  load_requested_models() 
 while not availablemodel(m) do wait(1) loadmodel(m) end
  if place == nil 
@@ -537,6 +472,7 @@ else
 return false
 end
 end 
+
  Arrested1233 = coroutine.wrap(-- Проверка на арест.
  function ()
  coroutine.yield(true) 
@@ -552,6 +488,7 @@ end
  end
  
 function Keypress(key)
+local key = tostring(key)
  if keypress(key)-- клавиша.
  then
  wait(300)
@@ -620,8 +557,9 @@ function Star_mission_marker(t,x,y,z)
  then --newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
  ped_frozen(0)
  local mycar = ped_car(player)
- while not 0 == getcarspeed(mycar) do wait(10) end
- fade(0,1100) wait(1000) 
+ while not 0 == getcarspeed(mycar) and is_car_stopped(mycar) do wait(100) end
+ fade(0,1100) 
+ wait(1000) 
  setflagmission(true) -- установить флаг миссии
  player = findplayer()-- получить игрока
  exitcar(player) 
@@ -798,7 +736,7 @@ end
 
 function sethealth(e, n)
 if isped(e)
-then  setpedhealth(e, n)
+then setpedhealth(e, n)
 end
 if isvehicle(e)
 then setpedhealth(e, n)
@@ -854,6 +792,7 @@ if isobject(player)
 then setobjangle(player,angle)
 end
 end
+
 function getcoordinates_on_y(ref,distance)
 if isped(ref)
 then local x,y,z = getpedcoordinates_on_y(ref,distance)
@@ -868,6 +807,7 @@ then local x,y,z = getobjcoordinates_on_y(ref,distance)
 return x,y,z
 end
 end
+
 function getcoordinates_on_x(ref,distance)
 if isped(ref)
 then local x,y,z = getpedcoordinates_on_x(ref,distance)
@@ -887,9 +827,17 @@ function foel(model, player,weapon,x,y,z)
  local ped = Createped(model, x,y,z)
  Giveweaponped(ped,600, weapon)
  local m  = create_marker(ped)
- Kill_char_any_means(ped, player)
+ kill_char_any_means(ped, player)
  return ped, m
 end
+
+function foel1(model, player,weapon,x,y,z)
+ local ped = Createped(model, x,y,z)
+ Giveweaponped(ped,600, weapon)
+ kill_ped_on_foot(ped, player)
+ return ped
+end
+
 function getcameracoordes()
  local x,y,z = Getcameracoordes() 
  local x1=tostring(x) local y1=tostring(y) local z1=tostring(z)
@@ -897,6 +845,13 @@ function getcameracoordes()
  return x1,y1,z1
 end
 
+function create_marker_and_sphere(x,y,z, size, radius) -- создать метку на карте с размером и сферу с радиусом.
+
+ local blip = createmarker(1,2,x,y,z) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
+ setsizemarker(blip, size)--уст размер маркера. Принимает маркер, значение его размера
+ local sp = create_sphere(x,y,z, radius)-- создать сферу.
+return blip, sp
+end 
 
 function set_angle_camera(x,y,z,r, angle)
 local z = z +1.0
@@ -922,67 +877,27 @@ end
 3 Север, сбой игры, если смотреть в карте паузы, не
 используется
 4 RADAR_ SPRITE_ AVERY radar_avery LG_02 Эйвери Каррингтон
-5 RADAR_ SPRITE_ BIKER radar_biker LG_03 Контакт для байкеров
-Большой Митч Бейкер, неиспользуемый
+
+5 RADAR_ SPRITE_ BIKER radar_biker LG_03 Контакт для байкеров Большой Митч Бейкер, неиспользуемый
 6 RADAR_ SPRITE_  CORTEZ radar_cortez LG_04 Полковник Кортес
 7 RADAR_ SPRITE_ DIAZ radar_diaz LG_05 Рикардо Диас
 8 RADAR_ SPRITE_ KENT radar_kent LG_06 Кент Пол
-9 RADAR_ SPRITE_ 
-ЮРИСТ
-radar_lawyer LG_07 Адвокат Кен Розенберг
+9 RADAR_ SPRITE_ ЮРИСТ radar_lawyer LG_07 Адвокат Кен Розенберг
 10 RADAR_ SPRITE_ PHIL radar_phil LG_08 Фил Кэссиди
-11 RADAR_ SPRITE_ 
-BIKERS
-байкеры LG_03
-Контакт для
-байкеров
-Большой Митч Бейкер
-12 RADAR_ SPRITE_ 
-BOATYARD
-катеростроительный
-завод
-LG_09 катеростроительный
-завод
-13 RADAR_ SPRITE_ 
-MALIBUCLUB
-клуб LG_10 Клуб Малибу
-14 RADAR_ SPRITE_ 
-CUBANS
-кубинцы LG_11 кубинцы Умберто Робин
+11 RADAR_ SPRITE_ BIKERS байкеры LG_03 Контакт для байкеров Большой Митч Бейкер
+12 RADAR_ SPRITE_ BOATYARD катеростроительный завод LG_09 катеростроительный завод
+13 RADAR_ SPRITE_ MALIBUCLUB клуб LG_10 Клуб Малибу
+14 RADAR_ SPRITE_ CUBANS кубинцы LG_11 кубинцы Умберто Робин
 15 RADAR_ SPRITE_ FILM киностудия LG_12 Киностудия Стив Скотт
 16 RADAR_ SPRITE_ GUN пистолет LG_13 Амма­Nation
-17
-RADAR_ SPRITE_ 
-HAITIANS
-гаитян LG_14 гаитян Тетя Poulet
-18
-RADAR_ SPRITE_ 
-HARDWARE
-аппаратные
-средства
-LG_15
-Магазин
-оборудования
-19
-RADAR_ SPRITE_ 
-SAVEHOUSE
-radar_save LG_16 Безопасный дом
-20
-RADAR_ SPRITE_ 
-STRIPCLUB
-radar_strip LG_37 Стрип­клуб Поул­позиция
+17 RADAR_ SPRITE_ HAITIANS гаитян LG_14 гаитян Тетя Poulet
+18 RADAR_ SPRITE_HARDWARE аппаратные средства LG_15 Магазин оборудования
+19 RADAR_ SPRITE_SAVEHOUSE radar_save LG_16 Безопасный дом
+
+20 RADAR_ SPRITE_ STRIPCLUB radar_strip LG_37 Стрип­клуб Поул­позиция
 21 RADAR_ SPRITE_ ICE мороженое LG_17 мороженое Черри Попперс
-22
-RADAR_ SPRITE_ 
-KCABS
-kcabs LG_18
-Кауфманские
-кабины
-Такси фирма
-23
-RADAR_ SPRITE_ 
-LOVEFIST
-кулак любви LG_19 Кулак любви
+22 RADAR_ SPRITE_ KCABS kcabs LG_18 Кауфманские кабины Такси фирма
+23 RADAR_ SPRITE_ LOVEFIST кулак любви LG_19 Кулак любви
 24
 RADAR_ SPRITE_ 
 PRINTWORKS
@@ -1368,6 +1283,75 @@ RWave LG_34
 -- tipe = idmodel -108- slot
 -- create_spec_ped(m,idmodel,tipe, t ,slot, x,y,z) 
  -- return ped
--- endтрон 
+-- end
+
+
+-- function model_and_type(model, list)
+-- local m,t
+ -- for k,v in pairs(list) do
+     -- if model == k
+      -- then m = k -- модель
+           -- t = v -- тип модели.
+      -- end end
+	-- m = tonumber(m)
+-- t = tonumber(t)
+-- givemoney(m)
+   -- return m, t-- тип.
+-- end
+
+--макросы.
+
+-- function Createped(m,x,y,z)--создать педа.
+   -- local m, t = model_and_type(m, PED_MODELS_AND_TYPES)
+   -- load_requested_models() 
+   -- while not availablemodel(m) do wait(1) loadmodel(m) end
+   -- local ped = createped(m,t, x,y,z)
+   -- releasemodel(m) 
+-- return ped
+-- end
+
+-- function Giveweaponped(ped, ammo, ...)-- дать педу оружие и патроны.
+ -- for m1, v in pairs({...}) do	    
+  -- local m, t = model_and_type(v, WEAPONS_MODELS_AND_TYPES)	
+
+   -- loadmodel(m)
+   -- load_requested_models()
+   -- while not availablemodel(m) do wait(1) loadmodel(m) end
+   -- giveweaponped(ped, m, t, ammo)
+   -- releasemodel(m) 
+  -- end
+-- end
+-- function Createcar(m,x,y,z)-- создать машину.
+	-- loadmodel(m)
+	-- load_requested_models()
+	-- while not availablemodel(m) do  wait(1) loadmodel(m) end
+	-- local car = createcar(m, x,y,z)
+	-- releasemodel(m) 
+	-- return car
+-- end
+
+-- function Get_type_weapon_ped(ped) -- получить текущее оружие.	
+-- for k,v in pairs(WEAPONS_MODELS_AND_TYPES) do
+-- local model =tonumber(v[2])
+-- if is_current_weapon_ped(ped, model)
+-- then local m,t = v[1], v[2]
+   -- break
+-- end end
+-- m = tonumber(m)
+-- t = tonumber(t)
+-- givemoney(t)
+-- return m, t
+-- end
+
+-- function Create_weapon_pickup(m, typepickup, ammo, x,y,z)  -- создать пикап оружие.
+	-- local model, t = model_and_type(m, WEAPONS_MODELS_AND_TYPES)	
+	-- loadmodel(model)
+	-- load_requested_models() 
+	-- while not availablemodel(model) do wait(1) loadmodel(model) end
+	-- local pickup = create_weapon_pickup(model,typepickup, ammo,x,y,z)
+	-- releasemodel(model) 
+	-- return pickup
+-- end
+ 
 
 

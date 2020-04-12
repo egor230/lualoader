@@ -22,38 +22,39 @@ while lualoader == nil do
  wait()-- задержка.
   player = findplayer()-- получить игрока.
 
-    if Keypress(VK_H) -- если клавиша H.
+    if Keypress("VK_H") -- если клавиша H.
  then  x,y,z = getcoordinates_on_y(player, 5)
- -- car = Createcar("MODEL_SENTXS",x,y,z)
-   ped = Createped("BMOST",x,y,z) 
-  Giveweaponped(player,600,"uzi","colt45","chromegun")-- дать педу оружие.
+ 
+  car = Createcar("MODEL_PCJ600",x,y,z)
+ --  ped = Createped("BMOST",x,y,z) 
+  Giveweaponped(player,600,"colt45","chromegun","uzi")-- дать педу оружие.
+end	-- 
+
+ end
+ end 
+ 
   --set_camera_and_point(-248.9, -1304.0, 11.1, -234.6, -1301.8, 9.1 )
   
    -- x,y,z = getcoordinates_on_y(player, 10)
    -- ped1 = Createped("HMYST",x,y,z) 
    -- ped_aim_at_ped(ped, ped1)
-end	-- 
 
-
- if Keypress(VK_G) -- если клавиша G.
- then printmessage("fire bullets included", 3000,1)
- while true do wait(100)
- local b, p = Ped_in_targetting()
- if b 
- then m = create_marker_actor(p)
+ -- if Keypress(VK_G) -- если клавиша G.
+ -- then printmessage("fire bullets included", 3000,1)
+ -- while true do wait(100)
+ -- local b, p = Ped_in_targetting()
+ -- if b 
+ -- then m = create_marker_actor(p)
  
- while not ped_damage_from_ped(p, player) do wait(200) end
- f = createfireonped(p)
- wait(6600)
- removemarker(m)
- remove_fire(f)
--- break
- end
- end
- end  
- end
- end 
- 
+ -- while not ped_damage_from_ped(p, player) do wait(200) end
+ -- f = createfireonped(p)
+ -- wait(6600)
+ -- removemarker(m)
+ -- remove_fire(f)
+-- -- break
+ -- end
+ -- end
+ -- end  
  --printmessage("throw current weapon", 3000,1)
  -- if ped_targetting_in_ped(player, ped1)
  -- then

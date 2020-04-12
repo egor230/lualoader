@@ -5,7 +5,7 @@ i=1
 while lualoader == nil do
  wait()
  player = findplayer()-- получить игрока
- if Keypress(VK_L) 
+ if Keypress("VK_L") 
  then x,y,z = getpedcoordes(player)
  x = tonumber(string.format("%.1f", x))
  y = tonumber(string.format("%.1f", y))

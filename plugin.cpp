@@ -150,6 +150,40 @@ map<int, int> model_and_type = { {0, 0}, {259, 1}, {260, 2}, {261, 3}, {262, 4},
 {277, 19}, {278, 20}, {279, 21}, {280, 26}, {281, 22}, {282, 23}, {283, 24}, {284, 25}, {285, 32}, {286, 29}, {287, 30},
 {288, 31}, {289, 32}, {290, 33}, {291, 13}, {292, 36}, {293, 34}, {294, 35} };
 
+map<string, int> numbers_keys = { {"VK_A", 65}, {"VK_ABNT_C1", 193}, {"VK_ABNT_C2", 194}, {"VK_ACCEPT", 30},
+{"VK_ADD", 107}, {"VK_APPS", 93}, {"VK_ATTN", 246}, {"VK_B", 66}, {"VK_BACK", 8}, {"VK_BROWSER_BACK", 166},
+{"VK_BROWSER_FAVORITES", 171}, {"VK_BROWSER_FORWARD", 167}, {"VK_BROWSER_HOME", 172}, {"VK_BROWSER_REFRESH", 168},
+{"VK_BROWSER_SEARCH", 170}, {"VK_BROWSER_STOP", 169}, {"VK_C", 67}, {"VK_CANCEL", 3}, {"VK_CAPITAL", 20}, {"VK_CLEAR", 12},
+{"VK_CONTROL", 17}, {"VK_CONVERT", 28}, {"VK_CRSEL", 247}, {"VK_D", 68}, {"VK_DECIMAL", 110}, {"VK_DELETE", 46},
+{"VK_DIVIDE", 111}, {"VK_DOWN", 40}, {"VK_E", 69}, {"VK_END", 35}, {"VK_EREOF", 249}, {"VK_ESCAPE", 27}, {"VK_EXECUTE", 43},
+{"VK_EXSEL", 248}, {"VK_F", 70}, {"VK_F1", 112}, {"VK_F10", 121}, {"VK_F11", 122}, {"VK_F12", 123}, {"VK_F13", 124},
+{"VK_F14", 125}, {"VK_F15", 126}, {"VK_F16", 127}, {"VK_F17", 128}, {"VK_F18", 129}, {"VK_F19", 130}, {"VK_F2", 113},
+{"VK_F20", 131}, {"VK_F21", 132}, {"VK_F22", 133}, {"VK_F23", 134}, {"VK_F24", 135}, {"VK_F3", 114}, {"VK_F4", 115},
+{"VK_F5", 116}, {"VK_F6", 117}, {"VK_F7", 118}, {"VK_F8", 119}, {"VK_F9", 120}, {"VK_FINAL", 24}, {"VK_G", 71},
+{"VK_H", 72}, {"VK_HELP", 47}, {"VK_HOME", 36}, {"VK_I", 73}, {"VK_ICO_CLEAR", 230}, {"VK_ICO_HELP", 227},
+{"VK_INSERT", 45}, {"VK_J", 74}, {"VK_JUNJA", 23}, {"VK_K", 75}, {"VK_KANA", 21}, {"VK_KANJI", 25}, {"VK_L", 76},
+{"VK_LAUNCH_APP1", 182}, {"VK_LAUNCH_APP2", 183}, {"VK_LAUNCH_MAIL", 180}, {"VK_LAUNCH_MEDIA_SELECT", 181},
+{"VK_LBUTTON", 1}, {"VK_LCONTROL", 162}, {"VK_LEFT", 37}, {"VK_LMENU", 164}, {"VK_LSHIFT", 160}, {"VK_LWIN", 91},
+{"VK_M", 77}, {"VK_MBUTTON", 4}, {"VK_MEDIA_NEXT_TRACK", 176}, {"VK_MEDIA_PLAY_PAUSE", 179}, {"VK_MEDIA_PREV_TRACK", 177},
+{"VK_MEDIA_STOP", 178}, {"VK_MENU", 18}, {"VK_MODECHANGE", 31}, {"VK_MULTIPLY", 106}, {"VK_N", 78}, {"VK_NEXT", 34},
+{"VK_NONCONVERT", 29}, {"VK_NUMLOCK", 144}, {"VK_NUMPAD0", 96}, {"VK_NUMPAD1", 97}, {"VK_NUMPAD2", 98}, {"VK_NUMPAD3", 99},
+{"VK_NUMPAD4", 100}, {"VK_NUMPAD5", 101}, {"VK_NUMPAD6", 102}, {"VK_NUMPAD7", 103}, {"VK_NUMPAD8", 104}, {"VK_NUMPAD9", 105},
+{"VK_O", 79}, {"VK_OEM_1", 186}, {"VK_OEM_102", 226}, {"VK_OEM_2", 191}, {"VK_OEM_3", 192}, {"VK_OEM_4", 219},
+{"VK_OEM_5", 220}, {"VK_OEM_6", 221}, {"VK_OEM_7", 222}, {"VK_OEM_8", 223}, {"VK_OEM_ATTN", 240}, {"VK_OEM_AUTO", 243},
+{"VK_OEM_AX", 225}, {"VK_OEM_BACKTAB", 245}, {"VK_OEM_CLEAR", 254}, {"VK_OEM_COMMA", 188}, {"VK_OEM_COPY", 242},
+{"VK_OEM_CUSEL", 239}, {"VK_OEM_ENLW", 244}, {"VK_OEM_FINISH", 241}, {"VK_OEM_FJ_JISHO", 146}, {"VK_OEM_FJ_LOYA", 149},
+{"VK_OEM_FJ_MASSHOU", 147}, {"VK_OEM_FJ_ROYA", 150}, {"VK_OEM_FJ_TOUROKU", 148}, {"VK_OEM_JUMP", 234}, {"VK_OEM_MINUS", 189},
+{"VK_OEM_PA1", 235}, {"VK_OEM_PA2", 236}, {"VK_OEM_PA3", 237}, {"VK_OEM_PERIOD", 190}, {"VK_OEM_PLUS", 187},
+{"VK_OEM_RESET", 233}, {"VK_OEM_WSCTRL", 238}, {"VK_P", 80}, {"VK_PA1", 253}, {"VK_PACKET", 231}, {"VK_PAUSE", 19},
+{"VK_PLAY", 250}, {"VK_PRINT", 42}, {"VK_PRIOR", 33}, {"VK_PROCESSKEY", 229}, {"VK_Q", 81}, {"VK_R", 82},
+{"VK_RBUTTON", 2}, {"VK_RCONTROL", 163}, {"VK_RETURN", 13}, {"VK_RIGHT", 39}, {"VK_RMENU", 165}, {"VK_RSHIFT", 161},
+{"VK_RWIN", 92}, {"VK_S", 83}, {"VK_SCROLL", 145}, {"VK_SELECT", 41}, {"VK_SEPARATOR", 108}, {"VK_SHIFT", 16},
+{"VK_SLEEP", 95}, {"VK_SNAPSHOT", 44}, {"VK_SPACE", 32}, {"VK_SUBTRACT", 109}, {"VK_T", 84}, {"VK_TAB", 9},
+{"VK_U", 85}, {"VK_UP", 38}, {"VK_V", 86}, {"VK_VOLUME_DOWN", 174}, {"VK_VOLUME_MUTE", 173}, {"VK_VOLUME_UP", 175},
+{"VK_W", 87}, {"VK_X", 88}, {"VK_XBUTTON1", 5}, {"VK_XBUTTON2", 6}, {"VK_Y", 89}, {"VK_Z", 90}, {"VK_ZOOM", 251},
+{"VK_key0", 48}, {"VK_key1", 49}, {"VK_key2", 50}, {"VK_key3", 51}, {"VK_key4", 52}, {"VK_key5", 53}, {"VK_key6", 54},
+{"VK_key7", 55}, {"VK_key8", 56}, {"VK_key9", 57} };
+
 int find_in_map(std::map<string, int>& carlist, const char* search);// найти id авто.
 int find_model_in_map(std::map<int, int>& type_and_model, int search);// найти модель авто.
 struct star_thread {
@@ -560,6 +594,13 @@ int set_damage_current_weapon(lua_State* L); // установить урове�
 int ped_in_targetting(lua_State* L); // пед на прицеле.
 int Ped_in_targetting(lua_State* L); // Макрос пед на прицеле.
 
+int Get_model_and_type_ped(lua_State* L); // макрос получить модель и тип педа.
+int get_model_ped(lua_State* L); // получить модель педа.
+int get_type_ped(lua_State* L); // получить тип педа.
+
+int ped_clear_investigate_event(lua_State* L); // пед уходит, опустить педа.
+int ped_clear_objective(lua_State* L); // снять задачи с педа.
+
 int newthread(lua_State* L);// запуск функции в новом потоке.
 
 void reversestack(lua_State* L); // реверс стека.
@@ -601,7 +642,7 @@ struct state {
 	}
 };
 
-void startscipt(string res, char* luafile, list<lua_State*>& luastate) {
+int startscipt(string res, char* luafile, list<lua_State*>& luastate) {
 
 	state Lua; lua_State* L = Lua.get(); funs(L); // список функций.	
 	int status = luaL_loadfile(L, luafile);// проверка есть ли ошибки в файле.
@@ -616,37 +657,48 @@ void startscipt(string res, char* luafile, list<lua_State*>& luastate) {
 			writelog(x);// запись резуальтат проверки на ошибки.
 			lua_pcall(L, 0, 0, 0);// запуск файла.
 			lua_State* L1 = lua_newthread(L);// создать новый поток.
-			lua_getglobal(L, "main");
-			if (LUA_TFUNCTION == lua_type(L, -1)) {	bool coroutine = true; star_coroutine::set(coroutine);
+			lua_getglobal(L, "main"); bool coroutine = true; star_coroutine::set(coroutine);
+			if (LUA_TFUNCTION == lua_type(L, -1)) {
 				luastate.push_back(L);// добавить указатель на lua состояния в list.
 				lua_resume(L, NULL, 0);	//Основной поток
-				int args = lua_gettop(L);// получить аргументы для второго потока.
-				lua_xmove(L, L1, args);	args--;	reversestack(L1); //инвертировать содержимое стека.
-				while (LUA_OK != lua_status(L)) {// Пока основной поток не закончен.
-					this_thread::sleep_for(chrono::milliseconds(1)); // задержка.
-					if (LUA_TFUNCTION == lua_type(L1, -1) && LUA_YIELD == lua_status(L) && star_coroutine::get()){
+				if (!star_coroutine::get())// если нельзя запустить поток.
+				{
+					return 0;
+				}
+				else {
+					int args = lua_gettop(L);// получить аргументы для второго потока.
+					lua_xmove(L, L1, args);	args--;	reversestack(L1); //инвертировать содержимое стека.
+					while (LUA_OK != lua_status(L)) {// Пока основной поток не закончен.
+						this_thread::sleep_for(chrono::milliseconds(1)); // задержка.
+						if (LUA_TFUNCTION == lua_type(L1, -1) && LUA_YIELD == lua_status(L) && star_coroutine::get()) {
 
-						for (int i = 1; i <= args; i++) { lua_pushvalue(L1, i); }// расстановка аргументов для вызова функции.
-						lua_resume(L1, L, args);
-					}
-					if (LUA_YIELD == lua_status(L1)) { lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 800); //вызов функции с заданной паузой.
-						lua_resume(L, L1, 0);// возобновить основной поток.
-					}
-					if (LUA_OK == lua_status(L1)) {// если второй поток завершен.      
-						lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
-						lua_resume(L, NULL, 0);
-					}
-					if (LUA_YIELD == lua_status(L) || LUA_YIELD == lua_status(L1) && (!star_coroutine::get())) {
-						break;
+							for (int i = 1; i <= args; i++) { lua_pushvalue(L1, i); }// расстановка аргументов для вызова функции.
+							lua_resume(L1, L, args);
+						}
+						if (LUA_YIELD == lua_status(L1)) {
+							lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 800); //вызов функции с заданной паузой.
+							lua_resume(L, L1, 0);// возобновить основной поток.
+						}
+						if (LUA_OK == lua_status(L1)) {// если второй поток завершен.      
+							lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
+							lua_resume(L, NULL, 0);
+						}
+						if (LUA_YIELD == lua_status(L) || LUA_YIELD == lua_status(L1) && (!star_coroutine::get())) {
+							break;
+						}
 					}
 				}
 			}
 			else { /*lua_close(L);*/ }
+			}
+			else {
+				string er1 = lua_tostring(L, -1); string er0 = "could not load " + er1;
+				char* x = strdup(er1.c_str());  throw x;
+			}
 		}
-		else { string er1 = lua_tostring(L, -1); string er0 = "could not load " + er1;
-			char* x = strdup(er1.c_str());  throw x;	}
-	}
-	catch (const char* x) { writelog(x); }
+		catch (const char* x) { writelog(x); }
+		return 0;
+	
 };
 void search() {
 	for (auto const& de : std::experimental::filesystem::recursive_directory_iterator{
@@ -694,11 +746,12 @@ void second() {
 			lua_pushinteger(L, 110);
 
 			destroy(L);
+			bool coroutine = false; star_coroutine::set(coroutine);
 			 //my_yield(L);//приостановить выполнение скрипта.
 
 			//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10;// дать денег  
-			//lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
-			//lua_close(L);
+			lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
+			lua_close(L);
 		}
 		else {	//lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
 		destroy(L); 		
@@ -943,8 +996,13 @@ void funs(lua_State* L) {// список функций.
 	lua_register(L, "set_damage_current_weapon", set_damage_current_weapon); // 181 установить уровень урона текущего оружие педа.
 	lua_register(L, "ped_in_targetting", ped_in_targetting); // 182 пед на прицеле.
 	lua_register(L, "Ped_in_targetting", Ped_in_targetting); // макрос 183 пед на прицеле.
+	lua_register(L, "Get_model_and_type_ped", Get_model_and_type_ped); // 184 макрос получить модель и тип педа.
+	lua_register(L, "get_model_ped", get_model_ped); // 185 получить модель педа.
+	lua_register(L, "get_type_ped", get_type_ped); // 186 получить тип педа.
+	lua_register(L, "ped_clear_investigate_event", ped_clear_investigate_event); // 187 пед уходит, опустить педа.
+	lua_register(L, "ped_clear_objective", ped_clear_objective); // 188 снять задачи с педа.
 
-	lua_register(L, "exitcar", exitcar); // 184 выйти из авто.
+	lua_register(L, "exitcar", exitcar); // 189 выйти из авто.
 
 };
 
@@ -974,10 +1032,12 @@ int cardrive(lua_State* L) {// авто едет в точку.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
 			&& LUA_TNUMBER == lua_type(L, 4)) {// значение число.
-			CVehicle* vehicle = Stack<CVehicle*>::get(L, 1);// модель авто.
+
+			const void* p1 = lua_topointer(L, 1);
+			CVehicle* car = findcarinpool(p1);//  получить указатель на авто.
 			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
 			float z = lua_tonumber(L, 4); CVector pos = { x, y, z };
-			Command<COMMAND_CAR_GOTO_COORDINATES>(vehicle, pos.x, pos.y, pos.z);// авто едет на координаты.
+			Command<COMMAND_CAR_GOTO_COORDINATES>(car, pos.x, pos.y, pos.z);// авто едет на координаты.
 			return 0;
 		}// int
 
@@ -1293,10 +1353,10 @@ int setcaraction(lua_State* L) {// установить поведение ав�
 };
 int setcarspeed(lua_State* L) {// установить скорость авто.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, -2)) {// указатель на авто. 
-			if (LUA_TNUMBER == lua_type(L, -1)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто. 
+			if (LUA_TNUMBER == lua_type(L, 2)) {
 
-				const void* p = lua_topointer(L, -2);
+				const void* p = lua_topointer(L, 1);
 				CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 
 				float speed = lua_tonumber(L, 2);// если число.
@@ -1438,20 +1498,18 @@ int setcartask(lua_State* L) {// установить задачу авто.
 };
 int key(lua_State* L) {// проверка нажата ли клавиша?
 	try {
-		if (LUA_TNUMBER == lua_type(L, -1)) {// значение число.
-			double key = lua_tonumber(L, -1);
-			int x2 = (int)key;
-			if (key == x2) {
-				if (GetAsyncKeyState(key) == -32767) {
-					lua_pushboolean(L, true);// клавиша нажата.
-					return 1;
-				}
-				else {
-					lua_pushboolean(L, false);
-					return 1;
-				}
+		if (LUA_TSTRING == lua_type(L, -1)) {// значение число.
+			const char* namekey = lua_tostring(L, -1);
+			int key = find_in_map(numbers_keys, namekey);// номер клавиши.
+		
+			if (GetAsyncKeyState(key) == -32767) {
+				lua_pushboolean(L, true);// клавиша нажата.
+				return 1;
 			}
-			else { throw "bad argument in function key"; }
+			else {
+				lua_pushboolean(L, false);
+				return 1;
+				}
 		}
 		else { throw "bad argument in function key"; }
 	}
@@ -2055,8 +2113,8 @@ int is_current_weapon_ped(lua_State* L) {
 };
 int create_sphere(lua_State* L) {//создать сферу.
 	try { 
-		if (LUA_TNUMBER == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3) &&
-			LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {
+		if (LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 3) &&
+			LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 1)) {
 			float x = lua_tonumber(L, 1);  float y = lua_tonumber(L, 2);
 			float z = lua_tonumber(L, 3);  float radius = lua_tonumber(L, 4);// радиус.
 			int sphere;// переменная, которая хранить id сферы.  
@@ -2064,7 +2122,7 @@ int create_sphere(lua_State* L) {//создать сферу.
 			Command<COMMAND_ADD_SPHERE>(pos.x, pos.y, pos.z, radius, &sphere); //создать, удалить, создать сферу  
 			Command<COMMAND_REMOVE_SPHERE>(sphere);// нужно, чтобы обойти глюк.
 			Command<COMMAND_ADD_SPHERE>(pos.x, pos.y, pos.z, radius, &sphere);
-			lua_settop(L, 0);// очистить стек.
+			//lua_settop(L, 0);// очистить стек.
 			spheres.emplace(sphere, L);
 			lua_pushinteger(L, sphere);// отправить id сферы в стек.  
 			return 1;
@@ -2523,24 +2581,21 @@ int ped_in_point_in_radius(lua_State* L) {// проверить находитс
 	return 0;
 };
 int car_in_point_in_radius(lua_State* L) {// проверить находится авто в координатах с радиусом.
-	static int delay = 0;
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, -5) && LUA_TNUMBER == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3)
 			&& LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {//строка.
 
-			const void* p = lua_topointer(L, -5);
+			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 
 			float x = lua_tonumber(L, 2);
 			float y = lua_tonumber(L, 3);
 			float z = lua_tonumber(L, 4);
 			float radius = lua_tonumber(L, 5);// радиус.
-			lua_pop(L, lua_gettop(L));
+			//lua_pop(L, lua_gettop(L));
 			lua_pushboolean(L, car->IsSphereTouchingVehicle(x, y, z, radius));
 			//lua_pushboolean(L, Command<COMMAND_LOCATE_CAR_3D>(CPools::GetVehicleRef(car), x, y, z, rx, ry, rz));
 			return 1;
-			//	.}
-		//	}
 		}
 		else { throw "bad argument in function car_in_point_in_radius"; }
 	}
@@ -2736,24 +2791,29 @@ int createped(lua_State* L) {// создать педа.
 	return 0;
 };
 
+void load_model_before_avalible(int model) {
+	Command<COMMAND_REQUEST_MODEL>(model);
+	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+	while (!Command<COMMAND_HAS_MODEL_LOADED>(model)) {
+		this_thread::sleep_for(chrono::milliseconds(1));// задержка
+		Command<COMMAND_REQUEST_MODEL>(model);
+	}
+};
+
 int create_spec_ped(lua_State* L) {// создать спец педа.
 	try {
-		if (LUA_TSTRING == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3) &&
-			LUA_TNUMBER == lua_type(L, -2) && LUA_TNUMBER == lua_type(L, -1)) {// значение число.
+		if (LUA_TSTRING == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {// значение число.
 			CPed* ped;
 			//int idmodel = lua_tointeger(L, -7);// спец id пед.
 			//int specmodel = lua_tointeger(L, -6);// модель педа.
 			//int type = lua_tointeger(L, -5);// тип педа.
 			//int slot  = lua_tointeger(L, -4);// слот педа.
-			char const* model = lua_tostring(L, -4);// модель, например, "sam".
-			float x = lua_tonumber(L, -3); float y = lua_tonumber(L, -2);
-			float z = lua_tonumber(L, -1);
+			char const* model = lua_tostring(L, 1);// модель, например, "sam".
+			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
+			float z = lua_tonumber(L, 1);
 			int idped = 0;
-			Command<COMMAND_REQUEST_MODEL>(idped);
-			while (!Command<COMMAND_HAS_MODEL_LOADED>(idped)) {
-
-				this_thread::sleep_for(chrono::milliseconds(1));
-			}
+			load_model_before_avalible(0);
 			Command<COMMAND_CREATE_CHAR>(4, idped, x, y, z, &ped);
 			CPed* p = findpedinpool(ped);// получить указатель на педа.
 			Command<COMMAND_UNDRESS_CHAR>(CPools::GetPedRef(p), model);
@@ -2838,6 +2898,10 @@ int fade(lua_State* L) {//затенение, просветления.
 			int lihgt = lua_tointeger(L, 1);// Время.
 			int time = lua_tointeger(L, 2);// свет = 1 тьма = 0.
 			Command<COMMAND_DO_FADE>(time, lihgt);// затенение.
+
+			//CCamera* cam;
+			//cam = (CCamera*)0x7E4688;
+			//cam->Fade(time, lihgt);// затенение.
 			return 0;
 		}
 		else { throw "bad argument in function fade"; }
@@ -3429,6 +3493,8 @@ int destroy(lua_State* L) {// удаления объектов из памят�
 	for (auto pick = mappeds.begin(); pick != mappeds.end(); ++pick) {
 		if (L == pick->second) {
 			CPed* ped = pick->first; ped->ClearInvestigateEvent();// пед уходит, опустить педа.
+
+			ped->ClearObjective(); // снять задачи с педа.
 			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
 			mappeds.erase(pick);
 		}
@@ -4232,11 +4298,11 @@ int Remove_weapon_model(lua_State* L) {// удалить оружие у пед�
 
 			int tipe = find_model_in_map(model_and_type, idweapon);// тип оружие.
 
-			ped->SetAmmo((eWeaponType)tipe, 0);
-    		CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
-			ped->RemoveWeaponModel(idweapon); 
-			weapon.Shutdown();
-			weapon.UpdateWeapons();
+			ped->SetAmmo((eWeaponType)tipe, 0);// обнулить кол-во патронов.
+    		CWeapon weapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];// получить оружие из текущего слота.
+			ped->RemoveWeaponModel(idweapon); // удалить модель оружие.
+			weapon.Shutdown();// отключить оружие.
+			weapon.UpdateWeapons();//
 			return 0;
 		}
 		else { throw "bad argument in function Remove_weapon_model"; }
@@ -4244,15 +4310,6 @@ int Remove_weapon_model(lua_State* L) {// удалить оружие у пед�
 	catch (const char* x) { writelog(x); }
 	return 0;
 };
-void load_model_before_avalible(int model){
-	Command<COMMAND_REQUEST_MODEL>(model);
-	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
-	while (!Command<COMMAND_HAS_MODEL_LOADED>(model)) {
-		this_thread::sleep_for(chrono::milliseconds(1));// задержка
-		Command<COMMAND_REQUEST_MODEL>(model);
-	}
-};
-
 int Createped(lua_State* L) {// макрос создать педа.
 	try {
 		if (LUA_TSTRING == lua_type(L, -4) && LUA_TNUMBER == lua_type(L, -3) &&
@@ -4301,13 +4358,12 @@ int Createcar(lua_State* L) {// макрос создать авто на коо
 	return 0;
 };
 //--function Giveweaponped(ped, ammo, ...)--дать педу оружие и патроны.
-void ped_weapon_give(CPed* ped, int model, int typemodel, int ammo){
-	eWeaponType name_model = eWeaponType(typemodel);
-	CStreaming::RequestModel(model, 0);// загрузить модель оружие
-	CStreaming::LoadAllRequestedModels(false);
-	ped->GiveWeapon(name_model, ammo, true);
-	ped->SetCurrentWeapon(name_model);
-	CStreaming::SetModelIsDeletable(model);// модели оружия смотрите eWeaponModel.h
+void ped_weapon_give(CPed* ped, int typemodel, int ammo){
+	CPed* player = FindPlayerPed();// найти педа
+	if (ped == player) { Command<COMMAND_GIVE_WEAPON_TO_PLAYER>(CWorld::PlayerInFocus, typemodel, ammo); }
+	else {
+		Command<COMMAND_GIVE_WEAPON_TO_CHAR>(CPools::GetPedRef(ped), typemodel, ammo);// Дать оружие педу.
+	}
 };
 int Giveweaponped(lua_State* L) {// макрос дать педу оружие и патроны.
 	try {
@@ -4322,8 +4378,10 @@ int Giveweaponped(lua_State* L) {// макрос дать педу оружие 
 			for (int i = 1; i < size; i++){
 				const char* name_weapon = lua_tostring(L, i);
 		    	int model = find_in_map(name_weapon_list, name_weapon);// модель оружие
+				load_model_before_avalible(model); 
 			    int type = find_in_map(types_weapon_list, name_weapon);// тип оружие.
-			    ped_weapon_give(ped, model, type, ammo);
+			    ped_weapon_give(ped, type, ammo);
+				Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
 			}
 
 			lua_pop(L, lua_gettop(L));// удалить n элементы из стека.
@@ -4372,8 +4430,7 @@ int Create_weapon_pickup(lua_State* L) {// макрос создать пика�
 			if (LUA_TSTRING == lua_type(L, -6))	{	const char* name_weapon = lua_tostring(L, 1); // имя оружие
 				model = find_in_map(name_weapon_list, name_weapon);// модель оружие
 			}
-			else  {	if (LUA_TNUMBER == lua_type(L, -6)) { model = lua_tointeger(L, 1);
-				}
+			else  {	if (LUA_TNUMBER == lua_type(L, -6)) { model = lua_tointeger(L, 1);	}
 			}
 			load_model_before_avalible(model);
 			Command<COMMAND_CREATE_PICKUP_WITH_AMMO>(model, typepick, ammo, pos.x, pos.y, pos.z, &idpickup);
@@ -4580,6 +4637,88 @@ int Ped_in_targetting(lua_State* L) {// Макрос пед на прицеле.
 	lua_pushnil(L);
 	return 2;
 };
+
+int Get_model_and_type_ped(lua_State* L) {// макрос получить модель и тип педа.
+	try {
+		if (LUA_TSTRING == lua_type(L, -1)) {
+			const char* name_ped = lua_tostring(L, 1); // имя педа
+			int	model = find_in_map(name_peds_list, name_ped);// модель педа.
+			int	type = find_in_map(type_peds_list, name_ped);// тип педа.
+			lua_pushinteger(L, model);//
+			lua_pushinteger(L, type);//
+
+			return 2;
+		}
+		else { throw "bad argument in function Get_model_and_type_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int get_model_ped(lua_State* L) {// получить модель педа.
+	try {
+		if (LUA_TSTRING == lua_type(L, -1)) {
+			const char* name_ped = lua_tostring(L, 1); // имя педа
+			int	model = find_in_map(name_peds_list, name_ped);// модель педа.
+			lua_pushinteger(L, model);//
+			return 1;
+		}
+		else { throw "bad argument in function get_model_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int get_type_ped(lua_State* L) {// получить тип педа.
+	try {
+		if (LUA_TSTRING == lua_type(L, -1)) {
+			const char* name_ped = lua_tostring(L, 1); // имя педа.
+			int	type = find_in_map(type_peds_list, name_ped);// тип педа.
+			lua_pushinteger(L, type);//
+
+			return 1;
+		}
+		else { throw "bad argument in function get_type_ped"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int ped_clear_investigate_event(lua_State* L) {// пед уходит, опустить педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+
+			ped->ClearInvestigateEvent();// пед уходит, опустить педа.
+			return 0;
+		}
+		else { throw "bad argument in function ped_clear_investigate_event"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int ped_clear_objective(lua_State* L) {// снять задачи с педа.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			ped->ClearObjective(); // снять задачи с педа.
+			return 0;
+		}
+		else { throw "bad argument in function ped_clear_objective"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+
+
+
+
 int check_defined_and_arest() {
 	//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10;// дать денег  
 	CPed* player = FindPlayerPed();// найти игрока
