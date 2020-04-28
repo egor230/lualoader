@@ -1,7 +1,4 @@
---local mymod = {}
--- function pri()
--- printmessage("yes", 3000, 3)
--- end
+
 local KEYS = {VK_LBUTTON = 0x01,VK_RBUTTON = 0x02,VK_CANCEL = 0x03,VK_MBUTTON = 0x04,VK_XBUTTON1 = 0x05,
 VK_XBUTTON2 = 0x06,VK_BACK = 0x08,VK_TAB = 0x09,VK_CLEAR = 0x0C,VK_RETURN = 0x0D,VK_SHIFT = 0x10,
 VK_CONTROL = 0x11,VK_MENU = 0x12,VK_PAUSE = 0x13,VK_CAPITAL = 0x14,VK_KANA = 0x15,VK_JUNJA = 0x17,
@@ -431,19 +428,19 @@ function races()-- отсчет времени перед стартом.
   return "R_TIME"
  end 
  
-function set_ped_in_car(car, ped, place)  -- уст водителя авто.
- local place = place or nil
- local m, t = Get_model_and_type_ped(ped)
- loadmodel(m)
- load_requested_models() 
-while not availablemodel(m) do wait(1) loadmodel(m) end
- if place == nil 
-  then local driver = setcardrive(car,m,t)
-  else local driver = setcarpassenger(car,m,t,place)
-end 
-releasemodel(m) 
-return driver
-end
+-- function set_ped_in_car(car, ped, place)  -- уст водителя авто.
+ -- local place = place or nil
+ -- local m, t = Get_model_and_type_ped(ped)
+ -- loadmodel(m)
+ -- load_requested_models() 
+-- while not availablemodel(m) do wait(1) loadmodel(m) end
+ -- if place == nil 
+  -- then local driver = setcardrive(car,m,t)
+  -- else local driver = setcarpassenger(car,m,t,place)
+-- end 
+-- releasemodel(m) 
+-- return driver
+-- end
 
 function car_in_radius(car, x1, y1, z1, rx, ry, rz)
 local x,y,z=getcarcoordes(car)
@@ -457,6 +454,7 @@ then return true
 else return false
 end
 end 
+
 function ped_in_radius(player, x1, y1, z1, rx, ry, rz) 
 wait(50)
 local x,y,z=getpedcoordes(player)
@@ -512,6 +510,7 @@ function setcolorcar(car, first, second)-- установить первый и 
  setcarfirstcolor(car, first) -- уст первый цвет авто.
  setcarseconscolor(car, second) -- уст второй цвет авто.
 end
+
 function end_mission(text)
  setflagmission(false) -- установить флаг миссии
  wait(200)
@@ -546,43 +545,42 @@ function star_mission(player, cheat_word)
  statuscar, car = incar(player)
  if cheat(cheat_word) and false == statuscar and false == getflagmission()  -- получить статус миссии.
  and player_defined(player) and not Arrested()
-  then setflagmission(1) -- установить флаг миссии
+  then setflagmission(true) -- установить флаг миссии
  --newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
 return true
  end
 end
+
 function Star_mission_marker(t,x,y,z)
  player = findplayer()-- получить игрока
- if star_mission_marker(t,x,y,z) -- чит-код 
- then --newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
- ped_frozen(0)
- local mycar = ped_car(player)
- while not 0 == getcarspeed(mycar) and is_car_stopped(mycar) do wait(100) end
- fade(0,1100) 
- wait(1000) 
- setflagmission(true) -- установить флаг миссии
- player = findplayer()-- получить игрока
- exitcar(player) 
-while true do wait(500)
- if not is_ped_in_car(player)
- then break
+   if star_mission_marker(t,x,y,z) -- чит-код 
+    then ped_frozen(0)
+    local mycar = ped_car(player)
+    while not 0 == getcarspeed(mycar) and is_car_stopped(mycar) do wait(100) end
+    fade(0,1100) 
+      wait(1000) 
+      setflagmission(true) -- установить флаг миссии
+      exitcar(player) 
+      while true do wait(500)
+       if not is_ped_in_car(player)
+        then break    end 
+          end
+          ped_frozen(1)
+          wait(1000)
+          setcarcoordes(mycar,0.0,0.0,0.0)
+          remove_car(mycar)
+   return true
  end 
- ped_frozen(1)
- wait(1000)
- setcarcoordes(mycar,0.0,0.0,0.0)
- remove_car(mycar)
-end
--- newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
-return true
-else return false
+   if not star_mission_marker(t,x,y,z) -- чит-код 
+   then return false
  end
 end
 
 function Getflagmission()
  player = findplayer()-- получить игрока
  if not player_defined(player) or arrested()
- then end_mission("mission failed!")
- end 
+  then end_mission("mission failed!")
+  end 
  wait(200)
  local flag = getflagmission()
  return flag
@@ -616,6 +614,7 @@ local rx = 3.0  ry = 4.0 rz = 2.0
  end
  return true
  end )
+ 
 follow_route_for_corona_for_playercar  = coroutine.wrap(-- ехать по маршруту.
 function(mycar, road)
 local iter = 1
@@ -644,6 +643,7 @@ local t = {false, 4.5, 6, 0, 255, 0, 0, x,y,z}
  return true
 end 
  )
+ 
 function finish_road(car, road)
 local x= road[#road-2] 
 local y=road[#road-1] 
@@ -654,7 +654,6 @@ local z=road[#road] --
   else return false
  end
  end
- 
  
 function turn_default_timer(turn, str_timer)
 if turn == true
@@ -693,13 +692,13 @@ clocktimer = coroutine.wrap(
              print_front(t) 
 			 local t ={true,newtime,1267,270, 1,1, 2.0, 2.0, 101, 193, 244}--
              print_front(t)
-		    old = newtime 
-           coroutine.yield()
-		   --end
-          end
+		     old = newtime 
+            coroutine.yield()
+		  end
         end
      end
 )
+
 countdown = coroutine.wrap(
   function(time_count)
 	 clock_time = time_count * -1 -- агрумент от сколько секундах отсчет время в - например 60 в -60.
@@ -726,6 +725,7 @@ countdown = coroutine.wrap(
 	 return false		
      end
 )
+
 function Hold_cellphone(ped, status)
 	loadmodel(258)
 	load_requested_models()
@@ -743,6 +743,7 @@ then setpedhealth(e, n)
 end
 
 end
+
 function create_marker(e)
 if isped(e)
 then local m= create_marker_actor(e)
@@ -769,6 +770,7 @@ if isobject(e)
 then remove_obj(e)
 end
 end
+
 function setcord(player,x,y,z)
 if isped(player)
 then setpedcoordes(player,x,y,z)
@@ -836,6 +838,13 @@ function foel1(model, player,weapon,x,y,z)
  Giveweaponped(ped,600, weapon)
  kill_ped_on_foot(ped, player)
  return ped
+end
+
+function Create_ped_and_give_weapon(model,weapon,x,y,z)
+ local ped = Createped(model, x,y,z)
+ Giveweaponped(ped,600, weapon)
+ local m = create_marker(ped)
+ return ped, m
 end
 
 function getcameracoordes()
@@ -990,8 +999,6 @@ RWave LG_34
 неиспользуемый 
 
 ]]--
-
-
 
 -- function in_point_actor_in_radius(ped, x1, y1, z1, rx, ry, rz)
   -- x,y,z=getcoordes(ped)
@@ -1353,5 +1360,37 @@ RWave LG_34
 	-- return pickup
 -- end
  
+--local mymod = {}
+--function f()
+-- printmessage("yes", 3000, 3)
+--end
 
+-- function ty()
+-- local file ="test.txt"-- путь к файлу
+ -- f = io.open(file, "w")-- дозапись в файл.
+ -- f:write(package.path )
+ -- f:close()
+-- end
+-- ty()
+
+-- function isModuleAvailable(name)
+  -- if package.loaded[name] then
+    -- return true
+  -- else
+    -- for _, searcher in ipairs(package.searchers or package.loaders) do
+      -- local loader = searcher(name)
+      -- if type(loader) == 'function' then
+        -- package.preload[name] = loader
+        -- return true
+      -- end
+    -- end
+    -- return false
+  -- end
+-- end
+-- if isModuleAvailable("lualoader/mod")
+-- then local file ="t.txt"-- путь к файлу
+ -- f = io.open(file, "w")-- запись в файл.
+ -- f:write(package.path)
+ -- f:close()
+-- end
 

@@ -1,30 +1,27 @@
 require("lualoader/mod")
- -- ..", " .. tostring(p)
-function main()
-i=1
-while true do wait()
- player = findplayer()-- получить игрока
- if Keypress("VK_L") 
- then x,y,z = getpedcoordes(player)
- x = tonumber(string.format("%.1f", x))
- y = tonumber(string.format("%.1f", y))
- z = tonumber(string.format("%.1f", z))
- p = getpedangle(player)
- cord = tostring(x)..", "..tostring(y)..", " .. tostring(z).." angle = ".. p.." -- "..i.."\n"
-  file = io.open('cordinat.txt', 'a') -- открыть файл для записи 
-  file:write(cord)    
-  file:close()
-  printmessage("write cordinat", 3000, 1)
- wait(600)
- i=i+1
- end  
- end   
-end
 
- -- if Keypress(VK_P) 
- -- then sethealth(player, 1)
- -- setarmour(player, 1)
- -- end
+function main()
+while true do wait() player = findplayer()-- получить игрока
+ if Star_mission_marker(8, 526.6, 370.1, 10.9) -- создать маркер миссии на карте.
+ then showtext("kill the man in the red shirt.", 500,1)-- вывод названия миссии. 
+  Giveweaponped(player,300, "uzi")-- дать педу оружие. 
+  fade(1,5500) --просветления, 600 время.
+  wait(3600)
+  p1, m1 = Create_ped_and_give_weapon("BMYBB", "uzi", 548.1, 365.5, 16.8)-- создать врага.
+  setangle(p1, 76)
+  set_camera_and_point(526.6, 370.1, 16.8, 548.1, 365.5, 16.9 )-- направить камеру.
+  wait(2500)
+  restore_camera()-- восстановить камеру.
+  kill_ped_on_foot(p1, player)-- пед хочет убить игрока.
+  printmessage("~r~kill him!.",3000,1)
+  while true == Getflagmission() do wait(10) -- цикл пока статус миссии не изменится.  
+    if not player_defined(p1) then miss(100) --break 
+	end
+	 end
+	 end   
+	 end
+	 end 
+ 
  --newthread(
 -- x,y,z =getcoordinates_on_y(player,30)-- получить координаты на 5 м впереди.
  -- if Ped_in_point_in_radius(player, 541.96, 367.94, 15,4, 1.0, 1.0, 2.0)
