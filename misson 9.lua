@@ -81,7 +81,7 @@ while true do Getflagmission() -- цикл пока статус миссии н
   ped_maintain_position_when_attacked(ped3, 1)
   set_timer_ped_attack(ped3, 1500)
   setpedhealth(ped3, 300)
-  --kill_ped_on_foot(ped3, player)
+  kill_ped_on_foot(ped3, player)
   wait(500)
    step= 1
  
@@ -121,8 +121,8 @@ if step == 3 and ped_in_point_in_radius(player, -1353.6, 1153.2, 8.7, 2.0,2.0,2.
  then  remove_blip(blip) remove_sphere(sp) 
   heli_to_fly(helicopter,-1353.6, 1153.2, 10.7, 60  )
    setdrivingstyle(helicopter, 1) 
+   wait(4600)
   set_camera_on_car(helicopter, 18, 2)
- wait(600)
  step =4
  end  
   if step == 4 and car_in_point_in_radius(helicopter, -1353.6, 1153.2, 13.7,2)
