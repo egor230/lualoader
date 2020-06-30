@@ -1,74 +1,86 @@
 require("lualoader/mod")
 
 function main()
-while lualoader == nil do wait() player = findplayer()-- получить игрока
- if Star_mission_marker(5,-73.5, -1538.0, 10.5) -- создать маркер миссии на карте. 
- then showtext("kill a vacationer", 700,1)-- вывод названия миссии. 
-  setcord(player, -74.4, -1532.8, 12.8 ) setangle(player, 209)
+while lualoader == nil do wait()
+ player = findplayer()-- получить игрока
+ if Star_mission_marker(5,-73.5, -1538.0, 10.5) -- создать маркер миссии на карте и проверить встал он на него на авто. 
+ then -- 1 этап миссии, когда игрок встал на маркер.  
+  showtext("kill a vacationer", 700,1)-- вывод названия миссии. 
+  setcord(player, -74.4, -1532.8, 12.8 )-- установить координаты игрока.
+  setangle(player, 209)-- установить угол игрока.  
   fade(1,5500) --просветления, 600 время.
-  wait(3300)
+  wait(3300)-- задержка.
   blip, sp = create_marker_and_sphere(-209.1, -1204.3, 10.5, 3,3.0)-- создать метку на карте с размером и сферу с радиусом.
   printmessage("~r~go to the location, wait for Cortez to leave the hotel.",3000,1)
   step = 0 
-  end--
-while true == Getflagmission() do wait(10) -- цикл пока статус миссии не изменится.  
- if step == 0 and ped_in_point_in_radius(player, -209.1, -1204.3, 10.5, 2.0,2.0,2.0 )
-  then remove_blip(blip) remove_sphere(sp) 
-  ped_frozen(0)
+while true == Getflagmission() do wait(10) -- цикл пока статус миссии не изменится. 
+-- 1 этап миссии, когда игрок встал на маркер. 
+ if step == 0 and ped_in_point_in_radius(player, -209.1, -1204.3, 10.5, 2.0,2.0,2.0 )-- если игрок в точке.
+  then remove_blip(blip) remove_sphere(sp) -- удалить маркер и сферу.
+  ped_frozen(0)-- заморзить игрока.
  
-  load_scene(-142.9, -1145.5, 13.5)
+  load_scene(-142.9, -1145.5, 13.5)-- прогрузить координаты.
   set_camera_and_point(-176.5, -1118.4, 13.6, -165.7, -1127.5, 13.5 )
-  p =  create_spec_ped("IGCOLON", -142.9, -1145.5, 13.5)-- создать спец педа.
-  mp = create_marker(p)
-  setangle(p, 48.0) -- установить угол для педа.
-  set_camera_and_point(-176.5, -1118.4, 13.6, -165.7, -1127.5, 13.5 )
-  load_scene(-175.8, -1118.9, 9.9) car = Createcar("MODEL_SENTXS", -175.8, -1118.9, 9.9 ) setangle(car, 309)
+  Cortez =  create_spec_ped("IGCOLON", -142.9, -1145.5, 13.5)-- создать спец педа.
+  mp = create_marker(Cortez)-- создать маркер над педом.
+  setangle(Cortez, 48.0) -- установить угол для педа.
+  set_camera_and_point(-176.5, -1118.4, 13.6, -165.7, -1127.5, 13.5 )-- 1 координаты камеры, куда она будет смотреть.
+  load_scene(-175.8, -1118.9, 9.9) -- прогрузить координаты.
+  car = Createcar("MODEL_SENTXS", -175.8, -1118.9, 9.9 )-- создать авто на координатах.
+  setangle(car, 309)-- установить угол авто. 
   ped1 = set_ped_in_car(car, "HFORI") -- уст водителя авто.
-  ped_walk_to_point(p, -171.8, -1121.8, 10.5)
+  ped_walk_to_point(Cortez, -171.8, -1121.8, 10.5)-- кортес идет к авто.
   printmessage("~r~he gets in the car and drives off to the Malibu club, kill him before he gets to the club, he has 2 security guards, they want to kill you!",
-  8000,1)
-  setcord(p,-159.8, -1134.1, 13.5)
-  wait(12000) 
+  8000,1)-- вывод сообщение.
+  setcord(Cortez,-159.8, -1134.1, 13.5)-- установить координаты педа.
+  wait(8000) -- задержка.
  
   p1 = foel1("HMOBE", player,"m4", -154.8, -1121.5, 13.5)-- создать врага.
   p2 = foel1("HFOST", player,"m4", -170.1, -1132.0, 13.5)-- создать врага.
-  ped_sprint_to_point(p1,-182.3, -1129.3, 10.3 )
+  ped_sprint_to_point(p1,-182.3, -1129.3, 10.3 )-- враг бежит к точке.
   ped_sprint_to_point(p2,-182.3, -1129.3, 10.3 )
   wait(3000)
-  kill_ped_on_foot(p1, player)
+  kill_ped_on_foot(p1, player)-- пед хочет игрока.
   kill_ped_on_foot(p2, player)
-  ped_frozen(1)
-  restore_camera()
+  ped_frozen(1) -- разморозить игрока.
+  restore_camera()-- восстановить камеру.  
+  ped_sprint_to_point(Cortez, -171.8, -1121.8, 10.5)-- кортес бежит к авто
   step = 1
  end
  if step > 0 -- проверка кортес убит?
- then if not player_defined(p)
- then miss(3000) step= -1
+ then if not player_defined(Cortez)-- если он мертв.
+ then miss(3000)-- награда за выполнение миссии.
+ step= -1 -- сброс счетчика этапа миссии. 
  break
  end
  end
- if step == 1
- then if ped_in_point_in_radius(p, -171.8, -1121.8, 10.5, 2.0,2.0,2.0 )
- then ped_car_as_passenger(p, car)-- кортес садится как пассажир.
+ if step == 1-- этап 1 миссии кортес не сел в авто.
+ then if ped_in_point_in_radius(Cortez, -171.8, -1121.8, 10.5, 2.0,2.0,2.0 )
+ then ped_car_as_passenger(Cortez, car)-- кортес садится как пассажир.
  step = 2
  end
  end
- if step == 2 
-  then if is_ped_in_car(p)-- если он в авто.
-   then setcarspeed(car, 50) setdrivingstyle(car, 3) setcarstrong(car, 1) cardrive(car, 489.1, -93.9, 10.0)-- ехать в Малибу.
+ if step == 2 -- этап 2 миссии кортес сел в авто поехал в пункт назначения.
+  then if is_ped_in_car(Cortez)-- если он в авто.
+   then setcarspeed(car, 50) -- установить скорость авто.
+   setdrivingstyle(car, 3) -- установить стиль вождения.
+   setcarstrong(car, 1) -- установить устойчивость авто.
+   cardrive(car, 489.1, -93.9, 10.0)-- ехать в Малибу.
    step = 3
    end
  end 
- if step == 3
+ if step == 3 -- этап 3 миссии кортес едет в пункт назначения.
   then if car_in_point_in_radius(car, 489.1, -93.9, 10.0, 4.0 )-- кортес приехал в Малибу. 
-   then end_mission("mission failed!") step = -1
+   then end_mission("mission failed!")-- миссия провалена. 
+   step = -1 -- сброс счетчика этапа миссии. 
   end
   end
  end   
  end
  end 
+ end
 
- --++pickup = Create_pickup(335,3,x,y,z) -- создать пикап 
+  --++pickup = Create_pickup(335,3,x,y,z) -- создать пикап 
  --m = create_marker_pickup(pickup) -- создать маркер над пикапом.
 -- car1 = Createcar(MODEL_DELUXO, -244.0, -1221.4, 8.1) setangle(car1, 184.0) -- установить угол для авто.
  -- function Create_foes_in_car()

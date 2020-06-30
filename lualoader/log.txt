@@ -1,4 +1,4 @@
-loaded F:\games\GTA Vice City\lualoader\mission 1.lua 29-04-2020 02:02:39 
-loaded F:\games\GTA Vice City\lualoader\test.lua 29-04-2020 02:02:39 
-loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 29-04-2020 02:02:39 
-loaded F:\games\GTA Vice City\lualoader\mod.lua 29-04-2020 02:02:39 
+loaded F:\games\GTA Vice City\lualoader\mod.lua 30-06-2020 11:00:55 
+loaded F:\games\GTA Vice City\lualoader\test.lua 30-06-2020 11:00:55 
+5 
+loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 30-06-2020 11:00:55 

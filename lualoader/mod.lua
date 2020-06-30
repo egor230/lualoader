@@ -428,19 +428,6 @@ function races()-- отсчет времени перед стартом.
   return "R_TIME"
  end 
  
--- function set_ped_in_car(car, ped, place)  -- уст водителя авто.
- -- local place = place or nil
- -- local m, t = Get_model_and_type_ped(ped)
- -- loadmodel(m)
- -- load_requested_models() 
--- while not availablemodel(m) do wait(1) loadmodel(m) end
- -- if place == nil 
-  -- then local driver = setcardrive(car,m,t)
-  -- else local driver = setcarpassenger(car,m,t,place)
--- end 
--- releasemodel(m) 
--- return driver
--- end
 
 function car_in_radius(car, x1, y1, z1, rx, ry, rz)
 local x,y,z=getcarcoordes(car)
@@ -512,6 +499,9 @@ function setcolorcar(car, first, second)-- установить первый и 
 end
 
 function end_mission(text)
+
+  set_traffic(1)
+  set_ped_traffic(1) 
  setflagmission(false) -- установить флаг миссии
  wait(200)
  showtext(text, 2500,0)-- вывод статуса миссии.
@@ -1000,6 +990,19 @@ RWave LG_34
 
 ]]--
 
+-- function set_ped_in_car(car, ped, place)  -- уст водителя авто.
+ -- local place = place or nil
+ -- local m, t = Get_model_and_type_ped(ped)
+ -- loadmodel(m)
+ -- load_requested_models() 
+-- while not availablemodel(m) do wait(1) loadmodel(m) end
+ -- if place == nil 
+  -- then local driver = setcardrive(car,m,t)
+  -- else local driver = setcarpassenger(car,m,t,place)
+-- end 
+-- releasemodel(m) 
+-- return driver
+-- end
 -- function in_point_actor_in_radius(ped, x1, y1, z1, rx, ry, rz)
   -- x,y,z=getcoordes(ped)
 -- if rx == 0 and ry == 0 and x == x1 and y == y1

@@ -3,11 +3,27 @@ require("lualoader/mod")
 function main()
 while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
--- if is_button_pressed(17)
  if Keypress("VK_H") -- если клавиша H.
-  then setcord(player, 529.6, 370.1, 10.9)
-  x,y,z = getcoordinates_on_y(player, 5)
+  then  x,y,z = getcoordinates_on_y(player, 5)
 	car = Createcar("MODEL_PCJ600",x,y,z)
+  Giveweaponped(player,600,"uzi")-- дать педу оружие.
+   wait(300)
+ end
+
+ end
+ end 
+  -- if Keypress("VK_J") -- если клавиша H.
+  -- then  setcord(player, -853.4, 1169.1, 11.0)
+  -- setpedhealth(player, 300)
+  -- -- set_camera_on_car(car, 18, 2)
+  -- -- set_camera_on_car(car, 18, 2)
+   -- -- set_cops_ignored(1)
+ -- end
+ 
+ 
+ --setcord(player, 529.6, 370.1, 10.9)
+ 
+-- if is_button_pressed(17)
      -- --wait(300)	
    -- ped1 = set_ped_in_car(car, "HFORI") -- уст водителя авто.
   -- ped2 = set_ped_in_car(car, "HFORI",0) -- уст пассажира авто.
@@ -16,19 +32,15 @@ while true do wait()-- задержка.
   --ped = Createped("BMYBB", x,y,z)
 --  p1, m1 = Create_ped_and_give_weapon("BMYBB", "uzi", x,y,z)-- создать врага.
 --   remove_car(car)
-   wait(300)
- end
- if Keypress("VK_J") -- если клавиша H.
-  then x,y,z = getcoordinates_on_y(player, 15)
-  -- Giveweaponped(ped,600,"m4")-- дать педу оружие.
-  Giveweaponped(player,600,"uzi")-- дать педу оружие.
-  wait(200)
-  --addmoney_ped(ped,100)
- --  create_shots_on_car(car,1,100 )
- --create_shots(ped, x, y, z)  
- end 
- end
- end 
+  -- if Keypress("VK_J") -- если клавиша H.
+  -- then x,y,z = getcoordinates_on_y(player, 15)
+  -- -- Giveweaponped(ped,600,"m4")-- дать педу оружие.
+  -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
+  -- wait(200)
+  -- --addmoney_ped(ped,100)
+ -- --  create_shots_on_car(car,1,100 )
+ -- --create_shots(ped, x, y, z)  
+ -- end 
 	-- x,y,z = getcoordinates_on_y(player, 10) 
 	--car = Createcar("MODEL_PCJ600",x,y,z) 
 	--remove_car(car)
