@@ -5,24 +5,24 @@ while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
  if Keypress("VK_H") -- если клавиша H.
   then  x,y,z = getcoordinates_on_y(player, 5)
-	-- car = Createcar("MODEL_SECURICA",x,y,z)
-	-- setcarangle(car, getpedangle(player)) 
-    -- ped = Createped("HFORI",x,y,z)
-    -- Giveweaponped(ped,600,"m4")-- дать педу оружие.
-    -- ped_in_turret_on_car(ped, car, -0.324, -3.067, 0.53, 0, 360, get_type_current_weapon_ped(ped))
-    -- setpedcrouch(ped, true, 999999)
-	-- wait(1500)
-	  -- opendoorcar(car, DRL) 
-	  -- opendoorcar(car, DRR)
-	  -- wait(500)
-	  -- x,y,z = getcoordinates_on_y(car, 45)
-	  -- cardrive(car,x,y,z)
-	  -- wait(1500)
-	  -- kill_ped_on_foot(ped, player)
-	  -- wait(5000)
-	  -- ped_from_turret_on_car(ped)--убрать педа из турели авто.
-      -- destroy()-- удалить все объекты, которые были созданы скриптом.	
-	  -- printmessage("~r~end script 1", 3400,1 )
+	car = Createcar("MODEL_SECURICA",x,y,z)
+	setcarangle(car, getpedangle(player)) 
+    ped = Createped("HFORI",x,y,z)
+    Giveweaponped(ped,600,"m4")-- дать педу оружие.
+    ped_in_turret_on_car(ped, car, -0.324, -3.067, 0.53, 0, 360, get_type_current_weapon_ped(ped))
+    setpedcrouch(ped, true, 999999)-- пед присел.
+	wait(1500)
+	  opendoorcar(car, DRL) 
+	  opendoorcar(car, DRR)
+	  wait(500)
+	  x,y,z = getcoordinates_on_y(car, 45)
+	  cardrive(car,x,y,z)
+	  wait(1500)
+	  kill_ped_on_foot(ped, player)
+	  wait(5000)
+	  ped_from_turret_on_car(ped)--убрать педа из турели авто.
+      destroy()-- удалить все объекты, которые были созданы скриптом.	
+	  printmessage("~r~end script 1", 3400,1 )
  end
 		
   end

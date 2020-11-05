@@ -1,4 +1,3 @@
-loaded F:\games\GTA Vice City\lualoader\mod.lua 30-06-2020 11:00:55 
-loaded F:\games\GTA Vice City\lualoader\test.lua 30-06-2020 11:00:55 
-5 
-loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 30-06-2020 11:00:55 
+loaded F:\games\GTA Vice City\lualoader\mission collection car.lua 06-11-2020 04:19:37 
+loaded F:\games\GTA Vice City\lualoader\mod.lua 06-11-2020 04:19:48 
+loaded F:\games\GTA Vice City\lualoader\test.lua 06-11-2020 04:19:48 
