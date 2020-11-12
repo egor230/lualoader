@@ -3,7 +3,8 @@
 
 using namespace plugin;
 using namespace std;
- 
+
+int setobjоcoordes(lua_State* L); // установить координаты для объект.
 struct star_thread {
 	static bool star_second_thread;// запускать второй поток.
 
@@ -12,6 +13,15 @@ struct star_thread {
 	static bool get() { return star_second_thread; };//
 };
 bool star_thread::star_second_thread;
+
+
+struct star_scripts {
+	static bool star_scripts_thread ;// запускать все скрипты поток.
+	static void set(bool star_scripts_thread1) { star_scripts_thread = star_scripts_thread1; }
+
+	static bool get() { return star_scripts_thread; };//
+};
+bool star_scripts::star_scripts_thread = false;
 
 struct star_coroutine {
 	static bool coroutine;// выкл/вкл корутин.
@@ -186,36 +196,60 @@ struct state {	lua_State* L = NULL;
 	//~state() {	lua_close(L);}
 };
 
+void writelog3(const char x[]) {// запись ошибок в файл.
+	string path = "log.txt";// куда пишем ошибки.
+	fstream f1; {f1.open(path, fstream::in | fstream::out | fstream::app);
+	f1 << x; time_t rawtime; struct tm* timeinfo;
+	char buffer[120]; time(&rawtime); timeinfo = localtime(&rawtime);
+	strftime(buffer, sizeof(buffer), " %d-%m-%Y %I:%M:%S ", timeinfo);// датируем загрузки скриптов.
+	string er2(buffer); f1 << er2 << "\n"; }
+	f1.close();
+};
+void writelog3(int x) {// запись ошибок в файл.
+	string path = "log.txt";// куда пишем ошибки.
+	fstream f1; {f1.open(path, fstream::in | fstream::out | fstream::app);
+	f1 << x; time_t rawtime; struct tm* timeinfo;
+	char buffer[120]; time(&rawtime); timeinfo = localtime(&rawtime);
+	strftime(buffer, sizeof(buffer), " %d-%m-%Y %I:%M:%S ", timeinfo);// датируем загрузки скриптов.
+	string er2(buffer); f1 << er2 << "\n"; }
+	f1.close();
+};
 int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// запуска скрипта.
 	state Lua; lua_State* L = Lua.get();
 
 	lua_gc(L, LUA_GCSTOP, 1);// отключить сборщик мусора.
-	char str123[255];
-	auto j = std::experimental::filesystem::current_path();
+	char str123[255]; auto j = std::experimental::filesystem::current_path();
 	string c1 = j.string();	c1 = c1 + "\\?.lua"; strcpy(str123, c1.c_str());
-	lua_pushstring(L, str123);	lua_setglobal(L, "fullpath");
-	luaL_dostring(L, "package.path = fullpath");
+	lua_pushstring(L, str123);	lua_setglobal(L, "fullpath");	luaL_dostring(L, "package.path = fullpath");
 
 	funs(L); // список функций.	
 	int status = luaL_loadfile(L, luafile);// проверка есть ли ошибки в файле.
-	//try {
 		if (status == 0) {// если нет ошибки в файле.	
-			lua_pushlightuserdata(L, L); // ключ в реестр указатель на L. 
+			mtx.lock();// заблок.
+			string er0 = "loaded " + res;// перед имени текущего lua файла добавить loaded.
+			char* x = strdup(er0.c_str());// преобразовать строку в char*.
+			writelog(x);// запись резуальтат проверки на ошибки.
+
+			mtx.unlock();// разблок.
+		    lua_pushlightuserdata(L, L); // ключ в реестр указатель на L. 
 			lua_pushstring(L, luafile); // отправить имя текущего lua файла в реестр.
 			lua_settable(L, LUA_REGISTRYINDEX); // установить ключа и значение таблице реестре. 
 
-			string er0 = "loaded " + res;// перед имени текущего lua файла добавить loaded.
-			char* x = strdup(er0.c_str());// преобразовать строку в char*.
+			lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
+			CPed* player = FindPlayerPed();// найти игрока
 			lua_pcall(L, 0, 0, 0);// запуск файла.
-			lua_State* L1 = lua_newthread(L);// создать новый поток.
-			writelog(x);// запись резуальтат проверки на ошибки.
+			while (!star_scripts::get() && !player) {
+				this_thread::sleep_for(chrono::milliseconds(1));
+			};
+			lua_pcall(L, 0, 0, 0);// запуск файла.
 			lua_getglobal(L, "main");
 			if (LUA_TFUNCTION == lua_type(L, -1)) {
 				luastate.push_back(L);// добавить указатель на lua состояния в list.
-				bool coroutine = true; star_coroutine::set(coroutine);
-				lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
-				lua_resume(L, NULL, 0);	//Основной поток.
-				if (!star_coroutine::get())// если нельзя запустить поток.
+				lua_resume(L, NULL, 0);	// запуск файла.
+				lua_State* L1 = lua_newthread(L);// создать новый поток.
+
+				bool coroutine = true; star_coroutine::set(coroutine);// разрешить запускать второй поток в скрипте.
+				if (!star_coroutine::get())// если нельзя запустить второой поток в скрипте.
 				{
 					return 0;
 				}
@@ -229,7 +263,7 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 							for (int i = 1; i <= args; i++) { lua_pushvalue(L1, i); }// расстановка аргументов для вызова функции.
 							lua_resume(L1, L, args);
 						}
-						if (LUA_YIELD == lua_status(L1)) {
+						if (LUA_YIELD == lua_status(L1)) {// если второй на паузе.
 							lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 800); //вызов функции с заданной паузой.
 							lua_resume(L, L1, 0);// возобновить основной поток.
 						}
@@ -240,15 +274,16 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 						if (LUA_YIELD == lua_status(L) || LUA_YIELD == lua_status(L1) && (!star_coroutine::get())) {
 							break;
 		}   }	}	}	else { /*lua_close(L);*/ }
+
 		}
 		else {	string er1 = lua_tostring(L, -1); string er0 = "could not load " + er1;
-			char* x = strdup(er1.c_str());  //throw x;	//}	}	catch (const char* x) {
-    writelog(x);}// записать ошибку в файл.
+			char* x = strdup(er1.c_str());    writelog(x);}// записать ошибку в файл.
 	return 0;
 };
 
 void search() {// поиск всех lua файлов для запуска.
-	dellod();
+    dellod();
+
 	for (auto const& de : std::experimental::filesystem::recursive_directory_iterator{
 		std::experimental::filesystem::current_path() / "lualoader" }) { // папка для поиска
 		if (de.path().extension() == ".lua" || de.path().extension() == ".LUA") {
@@ -256,83 +291,130 @@ void search() {// поиск всех lua файлов для запуска.
 			char* luafile = strdup(res.c_str());// Текущий lua файл.
 			listfile.push_back(luafile);// добавить текущий lua файл в list.
 
-			//mtx.lock();
 			std::thread(startscipt, res, luafile, std::ref(luastate)).detach();// независимым поток для запуска lua файла.
 			
-			//mtx.unlock();
 		}
 	};
 };
-int start_lualoder() { //search(); // найти все lua файлы. меню 32,	старт новой игры 1
-    std::thread(search).detach();
-	std::thread(getkeyenvent).detach();// считывания символов клавиатуры.
 
-	// Новая игра 7	 загрузка 8 точно загрузка 10 не в меню 12.
-	// 8, 1, 10 загрузка. // 1, 7	новая игра.
-	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
-	bool ex = false;
-	while (!ex ) {	this_thread::sleep_for(chrono::milliseconds(1));
-		int m = MenuManager.m_nCurrentPage; //|| m == 7 || m == 10
-		if (KeyPressed(VK_CONTROL) || (m == 10) || (m == 7)) {// перезагрузка скрипта.	//writelog1(200);
-			while (true) {	//writelog1(MenuManager.m_nCurrentPage);
-				if (KeyPressed(VK_CONTROL) || MenuManager.m_nCurrentPage == 12) {
-					//writelog1(200);
-				ex = true; break;			}
-				}
-			bool coroutine = false;
-			star_coroutine::set(coroutine);
-			unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
-			CTheScripts::ScriptSpace[OnAMissionFlag] = coroutine;
-			for (auto L : luastate) {	lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 10);// отключить хук.
-				while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) {	this_thread::sleep_for(chrono::milliseconds(1));}
-				destroy(L);// удалить все объекты.
-				lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
-			};
+int final_scripts() { bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
+	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
+	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии.
+	for (auto L : luastate) {	lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 10);// отключить хук.
+		while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }
+		destroy(L);// удалить все объекты.
+		lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
+	};
+	for (auto L : luastate) { luastate.pop_front(); };	cleanstl();	//
+	std::thread(timerstar).detach();
+	 
+	return 0;
+};
+int start_lualoder();
+int reload() {
+	while (true) {
+		this_thread::sleep_for(chrono::milliseconds(1));
+		if (KeyPressed(VK_CONTROL)) {
 			break;
-		};
-	}; for (auto L : luastate) { luastate.pop_front(); };
-	cleanstl();
-	if (KeyPressed(VK_CONTROL)) {	CMessages::AddMessageJumpQ(L"Script reloaded", 2000, 3);
+		}
+	};
+	while (true) {
+		this_thread::sleep_for(chrono::milliseconds(1)); //|| m == 7 || m == 10
+		if (!KeyPressed(VK_CONTROL)) {// перезагрузка скрипта.
+			CMessages::AddMessageJumpQ(L"Script reloaded", 2000, 1);
 
-		while (true) {	this_thread::sleep_for(chrono::milliseconds(1));
-			if (!KeyPressed(VK_CONTROL)) {	bool k = false;	star_thread::set(k); // флаг, что можно запускать новый поток.
-				break;		}
-		};
-	}
-	else {	iters = 0;	std::thread(timerstar).detach();  //bool k = false;	star_thread::set(k);
-		return 0;
+			final_scripts();// завершить скрипты.
+			break;
+		}
 	};
 
+	//CPed* player = FindPlayerPed();// найти игрока
+	//while (star_scripts::get() && !player) {
+	//	this_thread::sleep_for(chrono::milliseconds(1));
+	//}
+	//bool flag_script = true;
+	//star_scripts::set(flag_script);// запретить запускать скрипты.
+	//writelog3("reload key");
+
+	//std::thread(start_lualoder).detach();
 	return 0;
 };
 
+int start_lualoder() { // найти все lua файлы. меню 32,	старт новой игры 1.
+	bool s = true;	star_thread::set(s);
+    std::thread(search).detach();// поиск и запуск lua файлов.
+	std::thread(reload).detach(); // перегрузка скрипта по нажатию клавиши.
+
+	std::thread(getkeyenvent).detach();// считывания символов клавиатуры.
+	// Новая игра 7	 загрузка 8 точно загрузка 10 не в меню 12.
+	// 8, 1, 10 загрузка. // 1, 7	новая игра.
+
+	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
+
+	while (MenuManager.m_nCurrentPage !=1 ) { this_thread::sleep_for(chrono::milliseconds(1));	}// пока скрипты запущены.
+
+	while (true) {	this_thread::sleep_for(chrono::milliseconds(1)); //|| m == 7 || m == 10
+		if ((MenuManager.m_nCurrentPage == 10) || (MenuManager.m_nCurrentPage == 7)) {// перезагрузка скрипта.
+			break;	}
+	};
+
+	while (true) {	this_thread::sleep_for(chrono::milliseconds(1));
+		if ((MenuManager.m_nCurrentPage == 8) || (MenuManager.m_nCurrentPage == 1)) {// точно загрузка и новая игра.
+	
+			//writelog3("load save");
+			 final_scripts();
+		     break;		}
+		};
+
+	return 0;
+}; 
+
+bool s = true;
 class Message {//имя класса.
-   public: Message() {	Events::gameProcessEvent += [] {//обработчик событий игры.
-	CPed* player = FindPlayerPed();// найти игрока.
-	Events::gameProcessEvent += spite::draw; Events::gameProcessEvent += corona::draw; Events::vehicleRenderEvent += DoorsExample::ProcessDoors; // Тут обрабатываем события, а также выключаем их
-		int number_save_slot = patch::GetUShort(0x9B5F08);
+public: Message() {
+	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
+
+	if (MenuManager.m_nCurrentPage == 0 && !star_thread::get() && !star_scripts::get()){
+        // меню 0, второго потока нет, запуск скриптов запрещен.
+		bool off_scripts = false;  star_scripts::set(off_scripts);// нельзя запустить скрипты.
+		std::thread(start_lualoder).detach();   //  writelog3("star");	
+	};	//	независимый поток.		
+
+	Events::gameProcessEvent += [] {//обработчик событий игры.
+		CPed* player = FindPlayerPed();// найти игрока.
+		Events::gameProcessEvent += spite::draw; Events::gameProcessEvent += corona::draw; Events::vehicleRenderEvent += DoorsExample::ProcessDoors; // Тут обрабатываем события, а также выключаем их
+		int number_save_slot = patch::GetUShort(0x9B5F08);// номер слота.
 		int gtg = patch::GetUShort(0x974B2C);// глобальный таймер.
-		if (number_save_slot == 9 && !star_thread::get()) {
+		if (number_save_slot == 9 && !star_scripts::get() && star_thread::get()) {// скрипты запрещены и второй поток запущен.
+
 			if ((Command<COMMAND_CAN_PLAYER_START_MISSION>(CWorld::PlayerInFocus)) && gtg < 1000) { // новая игра
-				bool k = true; // флаг, что уже запущен поток. 
-				star_thread::set(k);	//thread th(second); th.detach();// независимый поток.    
-				std::thread(start_lualoder).detach();
+				   star_scripts::set(s);// разрешить запускать скрипты.
+				   //writelog3("new");
 			}
 
-			else {// загруженая
-				if ( gtg > 1000) {	bool k = true; // флаг, что уже запущен поток. 
-					star_thread::set(k);	    
-					std::thread(start_lualoder).detach();	}// независимый поток.
-		}	}
+			else {// загруженая игра.
+				if (gtg > 1000) { //writelog3("load"); 
+					star_scripts::set(s);	}// разрешить запускать скрипты.
+			}
+		}
+	
+
+		//if (!star_thread::get() && !star_scripts::get() && (iters = 20)) {	 
+			//writelog3("kj");
+			 //std::thread(start_lualoder).detach();	//	независимый поток.
+			 //star_scripts::set(s);
+		//}
 
 		if (iters > 4294967200) { iters = 300; }
 		iters++;
+
 	};
-}
+   }
+
 		~Message() {	}
 } message;
 
-void funs(lua_State* L) {// список функций.
+int funs(lua_State* L) {// список функций.
 
 	//set_path_to_module(L); // уст путь к модулю.
 	lua_register(L, "findplayer", findplayer); // 1 возвращает указатель педа.
@@ -578,8 +660,11 @@ void funs(lua_State* L) {// список функций.
 	lua_register(L, "set_timer_ped_attack", set_timer_ped_attack); // 241 установить таймер атаки педа.		
 	lua_register(L, "set_cops_ignored", set_cops_ignored); // 242 установить игнор копов.
    	lua_register(L, "set_camera_near_clip", set_camera_near_clip); // 243 установить обрезку камеры.
+	lua_register(L, "setpedcrouch", setpedcrouch); //244 пед сел.
 
-	lua_register(L, "exitcar", exitcar); // 244 выйти из авто.
+	lua_register(L, "exitcar", exitcar); // 245 выйти из авто.
+
+	return 0;
 };
 
 int star_mission_marker(lua_State* L) {// создать маркер для миссии.
@@ -795,11 +880,34 @@ void getkeyenvent() {// считывания символов клавиатур
 	}
 };
 
-int timerstar() { while (iters < 280) {this_thread::sleep_for(chrono::milliseconds(1));}
-	bool k = false;	star_thread::set(k);
+int timerstar() {iters = 0;	
+    while (iters < 280) {this_thread::sleep_for(chrono::milliseconds(1));}
+
+	bool flag_script = false;
+	star_scripts::set(flag_script);// запретить запускать скрипты.
 	return 0;
 };
 
+
+int setobjоcoordes(lua_State* L) {// установить координаты для объект.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 1)) {//указатель на объект и координаты.
+
+			const void* p = lua_topointer(L, 1);
+			CObject* obj = findobjinpool(p);// получить указатель на объект.
+
+			float x = lua_tonumber(L, 2);
+			float y = lua_tonumber(L, 3);
+			float z = lua_tonumber(L, 4);
+			Command<COMMAND_SET_OBJECT_COORDINATES>(CPools::GetObjectRef(obj), x, y, z);
+			return 0;
+		}
+		else { throw "bad argument in function setobjоcoordes"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 
 //if ((iters < 1) && (star_thread::get())) { //bool k = false;	star_thread::set(k);
 //}
@@ -1260,159 +1368,3 @@ Command<COMMAND_DISPLAY_ONSCREEN_TIMER_WITH_STRING>(10, 0, L'R_TIME');*/
 //Этот код операции сохраняет дескриптор транспортного средства вместе с дополнительными параметрами в специальном массиве, чтобы проверить, не застрял ли он.Игра постоянно проверяет, все ли машины из этого массива соответствуют требованиям.Транспортное средство помечается как застрявшее, если оно не проезжает минимальное расстояние, установленное в качестве второго параметра в течение указанного периода времени, установленного в качестве третьего параметра.Если транспортное средство уничтожено, оно удаляется из массива застрявших автомобилей.Массив застрявших автомобилей может вместить до 6 ручек автомобиля.
 //
 // 
-
-	//getGlobalNamespace(L)//Пространства имен LuaBridge для регистрации функции и классов, видны только сценариям Lua.
-	//	
-	//	.addCFunction("findplayer", findplayer) // 1 возвращает указатель педа.
-	//	.addCFunction("setpedhealth", setpedhealth) // 2 установить здоровье педу.
-	//	.addCFunction("setarmour", setarmour) // 3 установить броню педу.
-	//	.addCFunction("wait", wait) // 4 задержка.
-	//	.addCFunction("getpedhealth", getpedhealth) // 5 получить здоровье педа.
-	//	.addCFunction("getpedangle", getpedangle) // 6 получить угол педа.
-	//	.addCFunction("worldcoord", worldcoord) // 7 Перевод в мировые координаты.
-	//	.addCFunction("getpedcoordinates_on_x", getpedcoordinates_on_x) // 8 Получить мировую координату по x для педа.
-	//	.addCFunction("getpedcoordinates_on_y", getpedcoordinates_on_y) // 9 Получить мировую координату по y для педа.
-	//	.addCFunction("setarmour", setarmour) // 10 получить броню.
-	//	.addCFunction("givemoney", givemoney) // 11 дать денег педу.
-	//	.addCFunction("keypress", key) // 12 проверка на нажатие клавиш.
-	//	.addCFunction("printmessage", printmessage) // 13 вывод сообщение.
-	//	.addCFunction("getpedcoordes", getpedcoordes) // 14 получить координаты педа.
-	//	.addCFunction("randomfindped", randomfindped) // 15 получить рандомного педа.
-	//	.addCFunction("incar", incar) // 16  проверка пед в авто?.
-	//	.addCFunction("loadmodel", loadmodel) // 17 загрузить модель.
-	//	.addCFunction("availablemodel", availablemodel) // 18 проверка на загруженность модели.
-	//	.addCFunction("releasemodel", releasemodel) // 19 удалить модель из памяти.
-	//	.addCFunction("createcar", createcar) // 20 создать авто на координатах на координатах.
-	//	.addCFunction("createped", createped) // 21 создать педа на координатах.
-	//	.addCFunction("load_requested_models", load_requested_models) // 22 поставить модель на загрузить вне очереди.
-	//	.addCFunction("giveweaponped", giveweaponped) // 23 дать педу оружие.
-	//	.addCFunction("ped_sprint_to_point", ped_sprint_to_point) // 24 пед делает спринт к точке.
-	//	.addCFunction("ped_walk_to_point", ped_walk_to_point) // 25 Пед идет к точке.
-	//	.addCFunction("kill_ped_on_foot", kill_ped_on_foot) // 26 убить педа пешком.
-	//	.addCFunction("kill_char_any_means", kill_char_any_means) // 27 убить педа любыми средствами.
-	//	.addCFunction("ped_aim_at_ped", ped_aim_at_ped) // 28 пед целиться в педе.
-	//	.addCFunction("is_current_weapon_ped", is_current_weapon_ped) // 29 проверить текущее оружие.
-	//	.addCFunction("create_marker_actor", create_marker_actor) // 30 создать маркер над педом.
-	//	.addCFunction("removemarker", removemarker) // 31 удалить маркер.
-	//	.addCFunction("setpedcoordes", setpedcoordes) // 32 установить координаты для педа.
-	//	.addCFunction("remove_car", remove_car) // 33 удалить авто.
-	//	.addCFunction("car_in_water", car_in_water) // 34 проверка авто в воде.
-	//	.addCFunction("set_wanted", set_wanted) // 35 уcтановить уровень розыска.
-	//	.addCFunction("ped_in_point_in_radius", ped_in_point_in_radius) // 36 проверить находится пед в координатах с радиусом.
-	//	.addCFunction("create_sphere", create_sphere) // 37 создать сферу.
-	//	.addCFunction("clear_wanted", clear_wanted) // 38 убрать уровень розыска.
-	//	.addCFunction("getcarhealth", getcarhealth) // 39 получить кол-во здоровья авто.
-	//	.addCFunction("setcarhealth", setcarhealth) // 40 установить здоровье авто.
-	//	.addCFunction("remove_sphere", remove_sphere) // 41 удалить сферу.
-	//	.addCFunction("remove_ped", remove_ped) // 42 удалить педа.
-	//	.addCFunction("kill_ped", kill_ped) // 43 убить педа.
-	//	.addCFunction("getflagmission", getflagmission) // 44 проверка флага миссии.
-	//	.addCFunction("setflagmission", setflagmission) // 45 уcтановить флага миссии.
-	//	.addCFunction("showtext", showtext) // 46 Вывод особого текста на экран.
-	//	.addCFunction("remove_blip", remove_blip) // 47 удалить метку с карты.
-	//	.addCFunction("createblip", createblip) // 48 создать метку карте.
-	//	.addCFunction("play_sound", play_sound) // 49 проиграть мелодию.
-	//	.addCFunction("isped", isped) // 50 проверка это пед?
-	//	.addCFunction("isvehicle", isvehicle) // 51 проверка это транспорт?.
-	//	.addCFunction("cardrive", cardrive) // 52 авто едет в точку.
-	//	.addCFunction("setcarspeed", setcarspeed) // 53 установить скорость авто.
-	//	.addCFunction("opendoorcar", opendoorcar) // 54 открыть дверь авто.
-	//	.addCFunction("randomfindcar", randomfindcar) // 55 Найти случайное авто.
-	//	.addCFunction("getcarcoordes", getcarcoordes) // 56 получить координаты авто.
-	//	.addCFunction("create_money_pickup", create_money_pickup) // 57 создать пачку денег.
-	//	.addCFunction("getcarcoordinates_on_x", getcarcoordinates_on_x) // 58 Получить мировую координату по x для авто.
-	//	.addCFunction("getcarcoordinates_on_y", getcarcoordinates_on_y) // 59 Получить мировую координату по y для авто.
-	//	.addCFunction("car_in_point_in_radius", car_in_point_in_radius) // 60 проверить находится авто в координатах с радиусом.
-	//	.addCFunction("setdrivingstyle", setdrivingstyle) // 61 установить стиль езды авто.
-	//	.addCFunction("findped", findped) // 62 найти педа в пуле.
-	//	.addCFunction("create_weapon_pickup", create_weapon_pickup) // 63 создать пикап оружие.
-	//	.addCFunction("create_pickup", create_pickup) // 64 создать пикап.
-	//	.addCFunction("remove_pickup", remove_pickup) // 65 удалить пикап.
-	//	.addCFunction("picked_up", picked_up) // 66 проверка пикап подобран.
-	//	.addCFunction("play_voice", play_voice) // 67 Проиграть голос.
-	//	.addCFunction("fade", fade) // 68 затенение, просветления.
-	//	.addCFunction("draw_corona", draw_corona) // 69 создать корону(чекпойнт).
-	//	.addCFunction("sound_coordinate", sound_coordinate) // 70 Проиграть звук в координатах
-	//	.addCFunction("show_text_styled", show_text_styled) // 71 Вывести игровой текст.
-	//	.addCFunction("setcarangle", setcarangle) // 72 установить угол авто.
-	//	.addCFunction("createmarker", createmarker) // 73 создать маркер на карте.
-	//	.addCFunction("setsizemarker", setsizemarker) // 74установить размер маркера.
-	//	.addCFunction("cheat", checkcheat) // 75 чит код введен.
-	//	.addCFunction("destroy", destroy) // 76 удаления объектов из памяти при перезагрузки скрипта. 
-	//	.addCFunction("yield", my_yield) // 77 приостановить выполнение скрипта.
-	//	.addCFunction("setcardrive", setcardrive) // 78 установить водителя для авто.
-	//	.addCFunction("setcarpassenger", setcarpassenger) // 79 установить пассажира для авто.
-	//	.addCFunction("setcarfirstcolor", setcarfirstcolor) // 80 установить первый цвет авто.
-	//	.addCFunction("setcarseconscolor", setcarseconscolor) // 81 установить второй цвет авто.
-	//	.addCFunction("set_traffic", set_traffic) // 82 установить плотномть трафика транспорта.
-	//	.addCFunction("create_marker_car", create_marker_car) // 83создать маркер над авто.
-	//	.addCFunction("car_explode", car_explode) // 84 взрывать авто.
-	//	.addCFunction("is_car_stopped", is_car_stopped) // 85 авто остановилось. 
-	//	.addCFunction("create_explosion", create_explosion) // 86 Создать взрыв на координатах.
-	//	.addCFunction("set_status_engine", set_status_engine) // 87 установить состояние двигателя авто.
-	//	.addCFunction("player_defined", player_defined) // 88 пед существует.
-	//	.addCFunction("setclock", setclock) // 89  задать время.
-	//	.addCFunction("arrested", arrested) // 90 пед арестован?
-	//	.addCFunction("lockstatus", lockstatus) // 91 статус двери авто.
-	//	.addCFunction("create_marker_pickup", create_marker_pickup) // 92 создать маркер над пикапом.
-	//	.addCFunction("create_obj", createobj) // 93 создать объект.
-	//	.addCFunction("remove_obj", remove_obj) // 94 удалить объект.
-	//	.addCFunction("setobjоcoordes", setobjоcoordes) // 95 установить координаты для объект.
-	//	.addCFunction("getobjcoordes", getobjcoordes) // 96 получить координаты объекта.
-	//	.addCFunction("create_marker_obj", create_marker_obj) // 97 создать маркер над объектом.
-	//	.addCFunction("isobject", isobject) // 98 проверка это объект?.
-	//	.addCFunction("setpedangle", setpedangle) // 99 установить угол педа.
-	//	.addCFunction("setcaraction", setcaraction) // 100 установить поведение авто.
-	//	.addCFunction("move_obj", move_obj) // 101 двигать объект.
-	//	.addCFunction("move_rotate", move_rotate) // 102 вращать объект.
-	//	.addCFunction("getobjangle", getobjangle) // 103 получить угол объекта.
-	//	.addCFunction("findcar", findcar) // 104 Найти авто.
-	//	.addCFunction("setcartask", setcartask) // 105 установить задачу авто.
-	//	.addCFunction("setcarcoordes", setcarcoordes) // 106 установить координаты авто.
-	//	.addCFunction("is_car_stuck", is_car_stuck) // 107 03CE: car 12@ stuck если машина застряла.
-	//	.addCFunction("is_car_upsidedown", is_car_upsidedown) // 108 01F4: car 12@ flipped если машина перевернута.
-	//	.addCFunction("is_car_upright", is_car_upright) // 109 020D: car 12@ flipped если указанный автомобиль перевернут.
-	//	.addCFunction("find_road_for_car", find_road_for_car) // 110 найти дорогу.
-	//	.addCFunction("setcarstrong", setcarstrong) // 111 сделать авто устойчивым.
-	//	.addCFunction("putincar", putincar) // 112 переместить педа в авто.
-	//	.addCFunction("print_front", game_font_print) // 113 вывести особенный игровой текст.
-	//	.addCFunction("star_timer", star_timer) // 114 включить таймер.
-	//	.addCFunction("stop_timer", stop_timer) // 115 остановить таймер.
-	//	.addCFunction("timer_donw", timer_donw) // 116  таймер на уменьшение.
-	//	.addCFunction("ped_attack_car", ped_attack_car) // 117 пед атакует авто.
-	//	.addCFunction("ped_frozen", ped_frozen)  // 118 заморозить игpока.
-	//	.addCFunction("hold_cellphone", hold_cellphone) // 119 поднять телефон.
-	//	.addCFunction("car_lastweapondamage", car_lastweapondamage) // 120 номер оружие, которое нанесло урон авто.
-	//	.addCFunction("car_currentgear", car_currentgear) // 121 текущая передача авто.
-	//	.addCFunction("getcar_model", getcar_model) // 122 получить модель авто.
-	//	.addCFunction("setcarsiren", setcarsiren) // 123 установить сирену для авто.
-	//	.addCFunction("ped_car_as_driver", ped_car_as_driver) // 124 пед садится в авто как водитель.
-	//	.addCFunction("ped_car_as_passenger", ped_car_as_passenger) // 125 пед садится в авто как пассажир.
-	//	.addCFunction("ped_atack", ped_atack) // 126 пед бьет.
-	//	.addCFunction("show_text_gtx", show_text_gtx) // 127 вывести игровой текст.
-	//	.addCFunction("camera_at_point", camera_at_point) // 128 переместить камеру в координатах.
-	//	.addCFunction("restore_camera", restore_camera) // 129 восстановить камеру.
-	//	.addCFunction("is_wanted_level", is_wanted_level) // 130 проверить уровень розыска.
-	//	.addCFunction("set_camera_position", set_camera_position) // 131 установить камеру в координатах.
-	//	.addCFunction("flash_hud", flash_hud) // 132 Мигание элементов HUD.
-	//	.addCFunction("set_radio", set_radio) // 133 установить радио.			
-	//	.addCFunction("set_car_tires", set_car_tires) // 134 проколоть шину.
-	//	.addCFunction("create_spec_ped", create_spec_ped) // 135 создать спец педа.
-	//	.addCFunction("set_wheel_status", set_wheel_status) // 136 установить состояния шин авто.
-	//	.addCFunction("set_skin", set_skin) // 137 установить скин педа.
-	//	.addCFunction("remove_spec_ped", remove_spec_ped) // 138 удалить спец педа.
-	//	.addCFunction("go_to_route", go_to_route) // 139 установить маршрут авто.
-	//	.addCFunction("add_stuck_car_check", add_stuck_car_check) // 140 условия для того, чтобы авто считалась застрявшей.
-	//	.addCFunction("load_scene", load_scene) // 141 загрузить модели на координатах заранее.
-	//	.addCFunction("ped_anim", ped_anim) // 142 анимация.
-	//	.addCFunction("del_anim", del_anim) // 143 удалить анимацию.
-	//	.addCFunction("get_current_name_luascript", get_current_name_luascript) // 144 получить имя текущего lua файла.
-	//	.addCFunction("star_mission_marker", star_mission_marker) // 145 создать маркер для миссии.
-	//	.addCFunction("getobjcoordinates_on_x", getobjcoordinates_on_x) // 146 Получить мировую координату по x для объекта.
-	//	.addCFunction("getobjcoordinates_on_y", getobjcoordinates_on_y) // 147 Получить мировую координату по y для объекта.
-	//	.addCFunction("set_widescreen", set_widescreen) // вк// 148 вкл/выкл широкий экран.
-	//	.addCFunction("follow_the_leader", follow_the_leader) //149 //01DE// 01DE / 01DF следовать за лидером.
-	//	.addCFunction("getcarspeed", getcarspeed) // 150 получить скорость авто.
-	//	.addCFunction("newthread", newthread) // 151 запуск функции в новом потоке.		
-	//	.addCFunction("Getcameracoordes", Getcameracoordes)// 152 получить координаты камеры.
-	//	.addCFunction("exitcar", exitcar);// 153 выйти из авто.

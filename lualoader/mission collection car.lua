@@ -1,71 +1,80 @@
 require("lualoader/mod")
-local road = {239.2, -1338.6, 10.6, -- 1
-296.1, -997.9, 10.6, -- 2
-490.5, -545.5, 10.6, -- 3
-520.0, -81.6, 10.2, -- 4
-526.5, 1264.8, 15.8 -- 5
+local road = {295.6, -1018.6, 10.9, -- 1
+390.4, -769.2, 10.9, -- 2
+503.6, -451.0, 10.9, -- 3
+464.2, -351.8, 10.1, -- 4
+489.9, -110.0, 10.6, -- 5
+518.7, -64.6, 10.7, -- 6
+526.5, 1264.8, 15.8 -- 7
 }
 overspend = coroutine.wrap(
  function()
-		 -- for i = 1, 20 do x,y,z = getcarcoordinates_on_y(car,-3)
-		  -- wait(600)  z = z -0.9 create_money_pickup(2000, x,y,z)
-           -- health = getcarhealth(car)
-            -- if health < 1500
-			 -- then break
-			   -- end
-                   			 
-		   -- coroutine.yield()
-		  -- end
-		  -- else
-		  -- coroutine.yield()
-        -- end
---		  coroutine.yield()
-    end
+  while true do wait()
+  if status ==1
+    then for i = 1, 20 do x,y,z = getcarcoordinates_on_y(car,-3)
+       givemoney(1)
+	   wait(600)  z = z -0.9 create_money_pickup(2000, x,y,z)
+	  status = 2 
+	  coroutine.yield()
+      end
+     
+	  end
+	  coroutine.yield()
+	  end
+   end 	
 )
 function main()
 while true do wait()
  player = findplayer()-- получить игрока.
  if Star_mission_marker(5, 97.1, -1520.8, 10.0) -- создать маркер миссии на карте. 
-  then fade(1,600) -- затенение, 600 время.
-    showtext("collection car", 500,1)-- вывод названия миссии.
+  then fade(1,2600) -- затенение, 600 время.
+    showtext("collection car", 900,1)-- вывод названия миссии.
     Giveweaponped(player,600,"uzi")-- дать педу оружие.  -- setpedcoordes(player, -212.4, -1433.0, 8.1)-- переместить игрока в координаты.
     setpedangle(player, 220.0)-- уст угол педа.
     mycar = Createcar("MODEL_PCJ600", 97.1, -1520.8, 10.0) -- создать авто 
 	putincar(player, mycar)-- переместить игрока в авто
   
+	set_radio(9,1)-- выключить радио.
     setcarangle(mycar, 169)--[[ уст угол авто]] 
-    car = Createcar("MODEL_SECURICA", 86.4, -1590.9, 10.0, 265) -- создать авто 
-    setcarangle(car, 270)  setcarspeed(car, 5) setdrivingstyle(car, 2) setcarstrong(car, 1)
+    car = Createcar("MODEL_SECURICA", 86.4, -1590.9, 10.0) -- создать авто 
+    x,y,z = getcoordinates_on_y(car, 35)
+	ped1 = Createped("HFYBE", x,y,z)
+	set_ped_immunities(ped1, 0, 0, 0, 1, 0)-- уст иммунитет педу от падения.
+    setcarangle(car, 270)  setcarspeed(car, 15) setdrivingstyle(car, 2) setcarstrong(car, 1)
     m = create_marker_car(car)-- создать маркер над машиной
     ped = set_ped_in_car(car, "WMYSK" ) -- создать педа в авто
     go_to_route(car, road) -- ехать по маршруту.
     status = nil-- флаг выкидывания денег из авто.
-    wait(1900)-- задержка.
-   --fade(1,2600) --просветления, 600 время.
+    Giveweaponped(ped1,600,"m4")-- дать педу оружие.
+    ped_in_turret_on_car(ped1, car, -0.324, -2.567, 0.53, 0, 360, 26)
+	b = true
+    setpedcrouch(ped1, b, 999999)
+    wait(3900)-- задержка.
     printmessage("~r~kill driver and car!",4000,1)
  while true == Getflagmission()  do wait() 
-   --overspend()-- инкасатор выкидывает деньги.
+    health = getcarhealth(car)
+    overspend()-- инкасатор выкидывает деньги.
+   if health < 800  and status == nil
+      then   printmessage("open doors car", 3500,1)
+	   opendoorcar(car, DRL) opendoorcar(car, DRR)
+	   status = 1		   
+	   kill_ped_on_foot(ped1, player)
+	  end
    if car_in_point_in_radius(car, 526.5, 1264.8, 15.8, 2.0)
 	then  end_mission("mission failed!")
 	 break
 	 end
-		
-    health = getcarhealth(car)
-      if health < 800  and status == nil
-		 then 
-		 printmessage("open doors car", 3500,1)
-		 opendoorcar(car, DRL) opendoorcar(car, DRR)
-		 status = 1		 
-	  end	
    if 0 == getcarhealth(car) or 0 == getpedhealth(ped)
 	then miss(100) -- миссия выполнена дать 100$
 	 break
 	 end 
   end
-destroy()-- удалить все объекты
+  
 end end
 end
 
+	   -- ped_from_turret_on_car(ped1)--убрать педа из турели авто.
+      -- destroy()-- удалить все объекты
 
  -- end
  -- end

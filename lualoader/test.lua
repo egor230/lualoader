@@ -7,32 +7,25 @@ while true do wait()-- задержка.
   then  x,y,z = getcoordinates_on_y(player, 5)
 	-- car = Createcar("MODEL_SECURICA",x,y,z)
 	-- setcarangle(car, getpedangle(player)) 
-    -- ped = Createped("HFORI",x,y,z)
-    -- Giveweaponped(ped,600,"m4")-- дать педу оружие.
-    -- ped_in_turret_on_car(ped, car, -0.324, -3.067, 0.53, 0, 360, get_type_current_weapon_ped(ped))
-    -- setpedcrouch(ped, true, 999999)
-	-- wait(1500)
-	  -- opendoorcar(car, DRL) 
-	  -- opendoorcar(car, DRR)
-	  -- wait(500)
-	  -- x,y,z = getcoordinates_on_y(car, 45)
-	  -- cardrive(car,x,y,z)
-	  -- wait(1500)
-	  -- kill_ped_on_foot(ped, player)
-	  -- wait(5000)
-	  -- ped_from_turret_on_car(ped)--убрать педа из турели авто.
-      -- destroy()-- удалить все объекты, которые были созданы скриптом.	
-	  -- printmessage("~r~end script 1", 3400,1 )
+car = Createcar("MODEL_PCJ600",x,y,z)
+	set_radio(9,1)-- выключить радио.
+	remove_car(car)
  end
-		
+		  if Keypress("VK_J") -- если клавиша H.
+   then  setcord(player, 97.1, -1520.8, 10.0)
+  
+  end 
   end
  
 end
  
  
+	  -- ped_from_turret_on_car(ped)--убрать педа из турели авто.
+      -- destroy()-- удалить все объекты, которые были созданы скриптом.	
+	  -- printmessage("~r~end script 1", 3400,1 )
 -- local ped1 = set_ped_in_car(car, "HFORI",1) -- уст пассажира авто.
 	-- car = Createcar("MODEL_PCJ600",x,y,z)
-	-- set_radio(9,1)
+	-- 
 -- local 
 -- m2 = create_marker(car)
   -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
@@ -41,10 +34,7 @@ end
 -- if isvehicle(car)
 -- then  m = create_marker_car(car)
 -- end
-  -- if Keypress("VK_J") -- если клавиша H.
-   -- then  setcord(player, 97.1, -1520.8, 10.0)
-  
-  -- end 
+
  -- -- pickup = Create_pickup(335,3,606.5, -255.9, 13.8) -- создать пикап 
  
  -- restore_camera()
