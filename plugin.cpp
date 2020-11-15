@@ -14,15 +14,6 @@ struct star_thread {
 };
 bool star_thread::star_second_thread;
 
-
-struct star_scripts {
-	static bool star_scripts_thread ;// запускать все скрипты поток.
-	static void set(bool star_scripts_thread1) { star_scripts_thread = star_scripts_thread1; }
-
-	static bool get() { return star_scripts_thread; };//
-};
-bool star_scripts::star_scripts_thread = false;
-
 struct star_coroutine {
 	static bool coroutine;// выкл/вкл корутин.
 
@@ -196,6 +187,10 @@ struct state {	lua_State* L = NULL;
 	//~state() {	lua_close(L);}
 };
 
+int reload(); // перегрузка по нажатию клавиши.
+int start_lualoder(); // запуск скриптов.
+int final_scripts();// завершить скрипты.
+
 void writelog3(const char x[]) {// запись ошибок в файл.
 	string path = "log.txt";// куда пишем ошибки.
 	fstream f1; {f1.open(path, fstream::in | fstream::out | fstream::app);
@@ -215,6 +210,9 @@ void writelog3(int x) {// запись ошибок в файл.
 	f1.close();
 };
 int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// запуска скрипта.
+
+
+	mtx.lock();// заблок.
 	state Lua; lua_State* L = Lua.get();
 
 	lua_gc(L, LUA_GCSTOP, 1);// отключить сборщик мусора.
@@ -225,32 +223,28 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 	funs(L); // список функций.	
 	int status = luaL_loadfile(L, luafile);// проверка есть ли ошибки в файле.
 		if (status == 0) {// если нет ошибки в файле.	
-			mtx.lock();// заблок.
 			string er0 = "loaded " + res;// перед имени текущего lua файла добавить loaded.
 			char* x = strdup(er0.c_str());// преобразовать строку в char*.
 			writelog(x);// запись резуальтат проверки на ошибки.
 
-			mtx.unlock();// разблок.
+			bool coroutine = true; star_coroutine::set(coroutine);// разрешить запускать второй поток в скрипте.
 		    lua_pushlightuserdata(L, L); // ключ в реестр указатель на L. 
 			lua_pushstring(L, luafile); // отправить имя текущего lua файла в реестр.
 			lua_settable(L, LUA_REGISTRYINDEX); // установить ключа и значение таблице реестре. 
 
 			lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
-			CPed* player = FindPlayerPed();// найти игрока
 			lua_pcall(L, 0, 0, 0);// запуск файла.
-			while (!star_scripts::get() && !player) {
-				this_thread::sleep_for(chrono::milliseconds(1));
-			};
-			lua_pcall(L, 0, 0, 0);// запуск файла.
+
+			mtx.unlock();// разблок.
 			lua_getglobal(L, "main");
 			if (LUA_TFUNCTION == lua_type(L, -1)) {
 				luastate.push_back(L);// добавить указатель на lua состояния в list.
 				lua_resume(L, NULL, 0);	// запуск файла.
 				lua_State* L1 = lua_newthread(L);// создать новый поток.
 
-				bool coroutine = true; star_coroutine::set(coroutine);// разрешить запускать второй поток в скрипте.
 				if (!star_coroutine::get())// если нельзя запустить второой поток в скрипте.
 				{
+					//writelog3("exit");
 					return 0;
 				}
 				else {
@@ -277,7 +271,9 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 
 		}
 		else {	string er1 = lua_tostring(L, -1); string er0 = "could not load " + er1;
-			char* x = strdup(er1.c_str());    writelog(x);}// записать ошибку в файл.
+			char* x = strdup(er1.c_str());
+			mtx.unlock();// разблок.
+			writelog(x);}// записать ошибку в файл.
 	return 0;
 };
 
@@ -297,62 +293,36 @@ void search() {// поиск всех lua файлов для запуска.
 	};
 };
 
-int final_scripts() { bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
-	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии.
-	for (auto L : luastate) {	lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 10);// отключить хук.
-		while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }
-		destroy(L);// удалить все объекты.
-		lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
-	};
-	for (auto L : luastate) { luastate.pop_front(); };	cleanstl();	//
-	std::thread(timerstar).detach();
-	 
-	return 0;
-};
-int start_lualoder();
-int reload() {
-	while (true) {
-		this_thread::sleep_for(chrono::milliseconds(1));
-		if (KeyPressed(VK_CONTROL)) {
-			break;
-		}
-	};
-	while (true) {
-		this_thread::sleep_for(chrono::milliseconds(1)); //|| m == 7 || m == 10
-		if (!KeyPressed(VK_CONTROL)) {// перезагрузка скрипта.
-			CMessages::AddMessageJumpQ(L"Script reloaded", 2000, 1);
-
-			final_scripts();// завершить скрипты.
-			break;
-		}
-	};
-
-	//CPed* player = FindPlayerPed();// найти игрока
-	//while (star_scripts::get() && !player) {
-	//	this_thread::sleep_for(chrono::milliseconds(1));
-	//}
-	//bool flag_script = true;
-	//star_scripts::set(flag_script);// запретить запускать скрипты.
-	//writelog3("reload key");
-
-	//std::thread(start_lualoder).detach();
-	return 0;
-};
-
-int start_lualoder() { // найти все lua файлы. меню 32,	старт новой игры 1.
-	bool s = true;	star_thread::set(s);
+int start_lualoder() { // найти все lua файлы. меню 12,	старт новой игры 1.	
     std::thread(search).detach();// поиск и запуск lua файлов.
 	std::thread(reload).detach(); // перегрузка скрипта по нажатию клавиши.
 
 	std::thread(getkeyenvent).detach();// считывания символов клавиатуры.
-	// Новая игра 7	 загрузка 8 точно загрузка 10 не в меню 12.
-	// 8, 1, 10 загрузка. // 1, 7	новая игра.
+	// Новая игра 7	 загрузка 8 точно загрузка 10 в игре 32.
+	// 8, 1, 10 загрузка. // 1, 7	новая игра. 32 в игр
+	CPed* player = FindPlayerPed();// найти игрока
 
 	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
+   while (true) {	this_thread::sleep_for(chrono::milliseconds(1));
+		if (MenuManager.m_nCurrentPage = 32) {
+			break;
+		}
 
-	while (MenuManager.m_nCurrentPage !=1 ) { this_thread::sleep_for(chrono::milliseconds(1));	}// пока скрипты запущены.
+	};
+   while (true) {
+	   this_thread::sleep_for(chrono::milliseconds(1));
+	   if (MenuManager.m_nCurrentPage = 12) {
+		   break;
+	   }
 
+   };
+   while (true) {
+	   this_thread::sleep_for(chrono::milliseconds(1));
+	   if (MenuManager.m_nCurrentPage = 32) {
+		   break;
+	   }
+
+   };
 	while (true) {	this_thread::sleep_for(chrono::milliseconds(1)); //|| m == 7 || m == 10
 		if ((MenuManager.m_nCurrentPage == 10) || (MenuManager.m_nCurrentPage == 7)) {// перезагрузка скрипта.
 			break;	}
@@ -360,51 +330,47 @@ int start_lualoder() { // найти все lua файлы. меню 32,	ста�
 
 	while (true) {	this_thread::sleep_for(chrono::milliseconds(1));
 		if ((MenuManager.m_nCurrentPage == 8) || (MenuManager.m_nCurrentPage == 1)) {// точно загрузка и новая игра.
-	
-			//writelog3("load save");
 			 final_scripts();
 		     break;		}
-		};
+		}; 
+	while (true) {
+		this_thread::sleep_for(chrono::milliseconds(1));
+		int m = MenuManager.m_nCurrentPage;
+		writelog3(m);
+		if (MenuManager.m_nCurrentPage = 12) {
+			break;
+		}
+	};
+	writelog3("reload");
+	this_thread::sleep_for(chrono::milliseconds(100));
 
+	  std::thread(timerstar).detach(); // запуск через загрузку сэйва.
 	return 0;
 }; 
 
 bool s = true;
 class Message {//имя класса.
-public: Message() {
-	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
-
-	if (MenuManager.m_nCurrentPage == 0 && !star_thread::get() && !star_scripts::get()){
-        // меню 0, второго потока нет, запуск скриптов запрещен.
-		bool off_scripts = false;  star_scripts::set(off_scripts);// нельзя запустить скрипты.
-		std::thread(start_lualoder).detach();   //  writelog3("star");	
-	};	//	независимый поток.		
+public: Message() {	
 
 	Events::gameProcessEvent += [] {//обработчик событий игры.
 		CPed* player = FindPlayerPed();// найти игрока.
 		Events::gameProcessEvent += spite::draw; Events::gameProcessEvent += corona::draw; Events::vehicleRenderEvent += DoorsExample::ProcessDoors; // Тут обрабатываем события, а также выключаем их
 		int number_save_slot = patch::GetUShort(0x9B5F08);// номер слота.
 		int gtg = patch::GetUShort(0x974B2C);// глобальный таймер.
-		if (number_save_slot == 9 && !star_scripts::get() && star_thread::get()) {// скрипты запрещены и второй поток запущен.
+		if (number_save_slot == 9 && !star_thread::get()) {// скрипты запрещены и второй поток запущен.
 
 			if ((Command<COMMAND_CAN_PLAYER_START_MISSION>(CWorld::PlayerInFocus)) && gtg < 1000) { // новая игра
-				   star_scripts::set(s);// разрешить запускать скрипты.
-				   //writelog3("new");
+				star_thread::set(s);
+				std::thread(start_lualoder).detach();
+				  //writelog3("new");
 			}
 
 			else {// загруженая игра.
-				if (gtg > 1000) { //writelog3("load"); 
-					star_scripts::set(s);	}// разрешить запускать скрипты.
+				if (gtg > 1000) { writelog3("load gtg > 1000");
+				star_thread::set(s);
+				std::thread(start_lualoder).detach();	}// разрешить запускать скрипты.
 			}
 		}
-	
-
-		//if (!star_thread::get() && !star_scripts::get() && (iters = 20)) {	 
-			//writelog3("kj");
-			 //std::thread(start_lualoder).detach();	//	независимый поток.
-			 //star_scripts::set(s);
-		//}
-
 		if (iters > 4294967200) { iters = 300; }
 		iters++;
 
@@ -414,6 +380,20 @@ public: Message() {
 		~Message() {	}
 } message;
 
+//if ( star_scripts::get() && !star_thread::get()) {// скрипты запрещены и второй поток запущен.
+//					writelog3("reload load gtg > 1000");
+//	if ((Command<COMMAND_CAN_PLAYER_START_MISSION>(CWorld::PlayerInFocus)) && gtg < 1000) { // новая игра
+//		//.std::thread(start_lualoder).detach();
+//		//star_scripts::set(s);// разрешить запускать скрипты.			   //writelog3("new");
+//	}
+
+//	else {// загруженая игра.
+//		if (gtg > 1000) {
+//			//std::thread(start_lualoder).detach();
+//			//star_scripts::set(s);
+//		}// разрешить запускать скрипты.
+//	}
+//}
 int funs(lua_State* L) {// список функций.
 
 	//set_path_to_module(L); // уст путь к модулю.
@@ -667,6 +647,65 @@ int funs(lua_State* L) {// список функций.
 	return 0;
 };
 
+int final_scripts() {
+	bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
+	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
+	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии.
+	for (auto L : luastate) {
+		lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 100);// отключить хук.
+		while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }
+		destroy(L);// удалить все объекты.
+		lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
+		cleanstl();	//
+	};
+	for (auto L : luastate) { luastate.pop_front(); };
+	   
+	return 0;
+};
+
+int reload() {// перегрузка по нажатию клавиши.
+	while (true) {
+		this_thread::sleep_for(chrono::milliseconds(1));
+		if (KeyPressed(VK_CONTROL)) {
+			break;
+		}
+	};
+	while (true) {
+		this_thread::sleep_for(chrono::milliseconds(1)); //|| m == 7 || m == 10
+		if (!KeyPressed(VK_CONTROL)) {// перезагрузка скрипта.
+			CMessages::AddMessageJumpQ(L"Script reloaded", 2000, 1);
+
+			bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
+			unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
+			CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии.
+			for (auto L : luastate) {
+				lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 100);// отключить хук.
+				while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }
+				destroy(L);// удалить все объекты.
+				lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
+				cleanstl();	//
+			};
+			for (auto L : luastate) { luastate.pop_front(); };
+
+			this_thread::sleep_for(chrono::milliseconds(100));
+			//writelog3("reload");
+			std::thread(start_lualoder).detach();
+
+			break;
+		}
+	};
+
+	//CPed* player = FindPlayerPed();// найти игрока
+	//while (star_scripts::get() && !player) {
+	//	this_thread::sleep_for(chrono::milliseconds(1));
+	//}
+	//bool flag_script = true;
+	//star_scripts::set(flag_script);// запретить запускать скрипты.
+	//writelog3("reload key");
+
+	return 0;
+};
+
 int star_mission_marker(lua_State* L) {// создать маркер для миссии.
 	static int point;	static int create = 0;
 	try {
@@ -880,11 +919,13 @@ void getkeyenvent() {// считывания символов клавиатур
 	}
 };
 
-int timerstar() {iters = 0;	
-    while (iters < 280) {this_thread::sleep_for(chrono::milliseconds(1));}
-
-	bool flag_script = false;
-	star_scripts::set(flag_script);// запретить запускать скрипты.
+int timerstar() {
+	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
+	writelog3("reload");	
+	while (iters < 280) {
+		this_thread::sleep_for(chrono::milliseconds(1));
+	}
+	bool k = false;	star_thread::set(k);
 	return 0;
 };
 
