@@ -234,11 +234,12 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 
 			lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
 			lua_pcall(L, 0, 0, 0);// запуск файла.
-
-			mtx.unlock();// разблок.
 			lua_getglobal(L, "main");
+			//writelog3("star scpipt");
 			if (LUA_TFUNCTION == lua_type(L, -1)) {
 				luastate.push_back(L);// добавить указатель на lua состояния в list.
+
+			    mtx.unlock();// разблок.
 				lua_resume(L, NULL, 0);	// запуск файла.
 				lua_State* L1 = lua_newthread(L);// создать новый поток.
 
@@ -274,6 +275,7 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 			char* x = strdup(er1.c_str());
 			mtx.unlock();// разблок.
 			writelog(x);}// записать ошибку в файл.
+		mtx.unlock();// разблок.
 	return 0;
 };
 
@@ -291,26 +293,16 @@ void search() {// поиск всех lua файлов для запуска.
 			
 		}
 	};
-};
-
-int start_lualoder() { // найти все lua файлы. меню 12,	старт новой игры 1.	
-    std::thread(search).detach();// поиск и запуск lua файлов.
 	std::thread(reload).detach(); // перегрузка скрипта по нажатию клавиши.
 
 	std::thread(getkeyenvent).detach();// считывания символов клавиатуры.
+};
+
+int start_lualoder() { // найти все lua файлы. меню 12,	старт новой игры 1.	
 	// Новая игра 7	 загрузка 8 точно загрузка 10 в игре 32.
 	// 8, 1, 10 загрузка. // 1, 7	новая игра. 32 в игр
-	CPed* player = FindPlayerPed();// найти игрока
-
 	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
-   while (true) {	this_thread::sleep_for(chrono::milliseconds(1));
-		if (MenuManager.m_nCurrentPage = 32) {
-			break;
-		}
-
-	};
-   while (true) {
-	   this_thread::sleep_for(chrono::milliseconds(1));
+   while (true) {  this_thread::sleep_for(chrono::milliseconds(1));
 	   if (MenuManager.m_nCurrentPage = 12) {
 		   break;
 	   }
@@ -323,27 +315,18 @@ int start_lualoder() { // найти все lua файлы. меню 12,	ста�
 	   }
 
    };
+   std::thread(search).detach();// поиск и запуск lua файлов.
 	while (true) {	this_thread::sleep_for(chrono::milliseconds(1)); //|| m == 7 || m == 10
 		if ((MenuManager.m_nCurrentPage == 10) || (MenuManager.m_nCurrentPage == 7)) {// перезагрузка скрипта.
 			break;	}
 	};
 
 	while (true) {	this_thread::sleep_for(chrono::milliseconds(1));
-		if ((MenuManager.m_nCurrentPage == 8) || (MenuManager.m_nCurrentPage == 1)) {// точно загрузка и новая игра.
+		if ((MenuManager.m_nCurrentPage == 8) || (MenuManager.m_nCurrentPage == 10)) {// точно загрузка и новая игра.
 			 final_scripts();
 		     break;		}
 		}; 
-	while (true) {
-		this_thread::sleep_for(chrono::milliseconds(1));
-		int m = MenuManager.m_nCurrentPage;
-		writelog3(m);
-		if (MenuManager.m_nCurrentPage = 12) {
-			break;
-		}
-	};
-	writelog3("reload");
-	this_thread::sleep_for(chrono::milliseconds(100));
-
+	
 	  std::thread(timerstar).detach(); // запуск через загрузку сэйва.
 	return 0;
 }; 
@@ -366,7 +349,7 @@ public: Message() {
 			}
 
 			else {// загруженая игра.
-				if (gtg > 1000) { writelog3("load gtg > 1000");
+				if (gtg > 1000) { //writelog3("load gtg > 1000");
 				star_thread::set(s);
 				std::thread(start_lualoder).detach();	}// разрешить запускать скрипты.
 			}
@@ -921,11 +904,18 @@ void getkeyenvent() {// считывания символов клавиатур
 
 int timerstar() {
 	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
-	writelog3("reload");	
+	while (true) {
+		this_thread::sleep_for(chrono::milliseconds(1));
+		if (MenuManager.m_nCurrentPage = 32) {
+			break;
+		}
+
+	};
+	iters = 0;
 	while (iters < 280) {
 		this_thread::sleep_for(chrono::milliseconds(1));
 	}
-	bool k = false;	star_thread::set(k);
+	std::thread(start_lualoder).detach();
 	return 0;
 };
 

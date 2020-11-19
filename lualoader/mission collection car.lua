@@ -12,7 +12,6 @@ overspend = coroutine.wrap(
   while true do wait()
   if status ==1
     then for i = 1, 20 do x,y,z = getcarcoordinates_on_y(car,-3)
-       givemoney(1)
 	   wait(600)  z = z -0.9 create_money_pickup(2000, x,y,z)
 	  status = 2 
 	  coroutine.yield()
@@ -27,7 +26,7 @@ function main()
 while true do wait()
  player = findplayer()-- получить игрока.
  if Star_mission_marker(5, 97.1, -1520.8, 10.0) -- создать маркер миссии на карте. 
-  then fade(1,2600) -- затенение, 600 время.
+  then fade(1,5600) -- затенение, 600 время.
     showtext("collection car", 900,1)-- вывод названия миссии.
     Giveweaponped(player,600,"uzi")-- дать педу оружие.  -- setpedcoordes(player, -212.4, -1433.0, 8.1)-- переместить игрока в координаты.
     setpedangle(player, 220.0)-- уст угол педа.
