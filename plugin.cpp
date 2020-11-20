@@ -624,8 +624,9 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_cops_ignored", set_cops_ignored); // 242 установить игнор копов.
    	lua_register(L, "set_camera_near_clip", set_camera_near_clip); // 243 установить обрезку камеры.
 	lua_register(L, "setpedcrouch", setpedcrouch); //244 пед сел.
+	lua_register(L, "is_ped_incar", is_ped_incar); // 245 пед в авто или нет?
 
-	lua_register(L, "exitcar", exitcar); // 245 выйти из авто.
+	lua_register(L, "exitcar", exitcar); // 246 выйти из авто.
 
 	return 0;
 };

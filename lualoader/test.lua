@@ -7,18 +7,28 @@ while true do wait()-- задержка.
   then  x,y,z = getcoordinates_on_y(player, 5)
 	-- car = Createcar("MODEL_SECURICA",x,y,z)
 	-- setcarangle(car, getpedangle(player)) 
-car = Createcar("MODEL_PCJ600",x,y,z)
+
 	set_radio(9,1)-- выключить радио.
-	remove_car(car)
+	car = Createcar("MODEL_PCJ600",x,y,z) 
+--	set_skin(player, "IGMIKE") 
+	-- wait(3100)
+	remove_car(car) 
+	Giveweaponped(player,1600,"uzi")-- дать педу оружие.
+  -- set_skin(player, "PLAYER")-- восстановить скин.
  end
 		  if Keypress("VK_J") -- если клавиша H.
-   then  setcord(player, 97.1, -1520.8, 10.0)
+   then  setcord(player, 61.4, -1059.6, 10.5 )
   
   end 
   end
  
 end
  
+	-- 
+	-- set_skin("IGKEN")  
+-- printmessage("jhgfc",2000,3)
+	--ped1 = create_spec_ped("SAM",x,y,z)
+      --p =	  Createped("HMYST", x,y,z)	
  
 	  -- ped_from_turret_on_car(ped)--убрать педа из турели авто.
       -- destroy()-- удалить все объекты, которые были созданы скриптом.	

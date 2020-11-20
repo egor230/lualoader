@@ -897,20 +897,9 @@ end
 21 RADAR_ SPRITE_ ICE мороженое LG_17 мороженое Черри Попперс
 22 RADAR_ SPRITE_ KCABS kcabs LG_18 Кауфманские кабины Такси фирма
 23 RADAR_ SPRITE_ LOVEFIST кулак любви LG_19 Кулак любви
-24
-RADAR_ SPRITE_ 
-PRINTWORKS
-ситценабивная
-фабрика
-LG_20 Печатные работы
-25
-RADAR_ SPRITE_ 
-СОБСТВЕННОСТЬ
-­ ­ ­ ­ Без спрайта
-26
-RADAR_ SPRITE_ 
-SUNYARD
-Sunyard LG_36 Sun Yard Sunshine Autos
+24 RADAR_ SPRITE_ PRINTWORKS ситценабивная фабрика LG_20 Печатные работы 
+25 RADAR_ SPRITE_  СОБСТВЕННОСТЬ­ ­ ­ ­ Без спрайта
+26 RADAR_ SPRITE_ SUNYARD Sunyard LG_36 Sun Yard Sunshine Autos
 27 RADAR_ SPRITE_ SPRAY спрей LG_22 Pay 'n' Spray
 28
 RADAR_ SPRITE_ 
