@@ -11,13 +11,16 @@ while true do wait()-- задержка.
 	set_radio(9,1)-- выключить радио.
 	car = Createcar("MODEL_PCJ600",x,y,z) 
 --	set_skin(player, "IGMIKE") 
-	-- wait(3100)
+	 -- wait(3100)
+	-- delete_entity(car)
 	remove_car(car) 
 	Giveweaponped(player,1600,"uzi")-- дать педу оружие.
   -- set_skin(player, "PLAYER")-- восстановить скин.
+
+
  end
 		  if Keypress("VK_J") -- если клавиша H.
-   then  setcord(player, 61.4, -1059.6, 10.5 )
+   then  setcord(player, 118.0, -825.9, 10.5)
   
   end 
   end

@@ -1,16 +1,17 @@
 require("lualoader/mod")
  -- ..", " .. tostring(p)
+
 function main()
-i=1
-while true do wait()
- player = findplayer()-- получить игрока
+i = 1
+while true do wait()-- задержка.
+  player = findplayer()-- получить игрока.
  if Keypress("VK_L") 
  then x,y,z = getpedcoordes(player)
  x = tonumber(string.format("%.1f", x))
  y = tonumber(string.format("%.1f", y))
  z = tonumber(string.format("%.1f", z))
  p = getpedangle(player)
- cord = tostring(x)..", "..tostring(y)..", " .. tostring(z).." angle = ".. p.." -- "..i.."\n"
+ cord = tostring(x)..", "..tostring(y)..", " .. tostring(z)..", " .. tostring(p).." -- "..i.."\n"
   file = io.open('cordinat.txt', 'a') -- открыть файл для записи 
   file:write(cord)    
   file:close()
@@ -20,7 +21,7 @@ while true do wait()
  end  
  end   
 end
-
+--[[" angle = ".. p..]]
  -- if Keypress(VK_P) 
  -- then sethealth(player, 1)
  -- setarmour(player, 1)

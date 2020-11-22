@@ -212,7 +212,6 @@ void writelog3(int x) {// запись ошибок в файл.
 int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// запуска скрипта.
 
 
-	mtx.lock();// заблок.
 	state Lua; lua_State* L = Lua.get();
 
 	lua_gc(L, LUA_GCSTOP, 1);// отключить сборщик мусора.
@@ -239,8 +238,7 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 			if (LUA_TFUNCTION == lua_type(L, -1)) {
 				luastate.push_back(L);// добавить указатель на lua состояния в list.
 
-			    mtx.unlock();// разблок.
-				lua_resume(L, NULL, 0);	// запуск файла.
+			    lua_resume(L, NULL, 0);	// запуск файла.
 				lua_State* L1 = lua_newthread(L);// создать новый поток.
 
 				if (!star_coroutine::get())// если нельзя запустить второой поток в скрипте.
@@ -273,10 +271,8 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 		}
 		else {	string er1 = lua_tostring(L, -1); string er0 = "could not load " + er1;
 			char* x = strdup(er1.c_str());
-			mtx.unlock();// разблок.
 			writelog(x);}// записать ошибку в файл.
-		mtx.unlock();// разблок.
-	return 0;
+		return 0;
 };
 
 void search() {// поиск всех lua файлов для запуска.
@@ -302,12 +298,12 @@ int start_lualoder() { // найти все lua файлы. меню 12,	ста�
 	// Новая игра 7	 загрузка 8 точно загрузка 10 в игре 32.
 	// 8, 1, 10 загрузка. // 1, 7	новая игра. 32 в игр
 	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
-   while (true) {  this_thread::sleep_for(chrono::milliseconds(1));
-	   if (MenuManager.m_nCurrentPage = 12) {
-		   break;
-	   }
+   //while (true) {  this_thread::sleep_for(chrono::milliseconds(1));
+	  // if (MenuManager.m_nCurrentPage = 12) {
+		 //  break;
+	  // }
 
-   };
+   //};
    while (true) {
 	   this_thread::sleep_for(chrono::milliseconds(1));
 	   if (MenuManager.m_nCurrentPage = 32) {
@@ -625,8 +621,10 @@ int funs(lua_State* L) {// список функций.
    	lua_register(L, "set_camera_near_clip", set_camera_near_clip); // 243 установить обрезку камеры.
 	lua_register(L, "setpedcrouch", setpedcrouch); //244 пед сел.
 	lua_register(L, "is_ped_incar", is_ped_incar); // 245 пед в авто или нет?
+	lua_register(L, "delete_entity", delete_entity); // 246 удалить сущность сразу.
+	lua_register(L, "clean_leader", clean_leader); // 247 перестать следовать за лидером.
 
-	lua_register(L, "exitcar", exitcar); // 246 выйти из авто.
+	lua_register(L, "exitcar", exitcar); // 248 выйти из авто.
 
 	return 0;
 };

@@ -1,3 +1,3 @@
-loaded F:\games\GTA Vice City\lualoader\mission guardianship.lua 20-11-2020 11:35:58 
-loaded F:\games\GTA Vice City\lualoader\mod.lua 20-11-2020 11:35:58 
-loaded F:\games\GTA Vice City\lualoader\test.lua 20-11-2020 11:35:58 
+loaded F:\games\GTA Vice City\lualoader\test.lua 22-11-2020 04:56:57 
+loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 22-11-2020 04:56:57 
+loaded F:\games\GTA Vice City\lualoader\misson party.lua 22-11-2020 04:56:57 

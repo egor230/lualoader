@@ -510,7 +510,8 @@ int set_camera_near_clip(lua_State* L); // установить обрезку �
 
 int setpedcrouch(lua_State* L); // пед сел.
 int is_ped_incar(lua_State* L);  // пед в авто или нет?
-
+int delete_entity(lua_State* L); // удалить сущность сразу.
+int clean_leader(lua_State* L); // перестать следовать за лидером.
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -3932,11 +3933,23 @@ int Createped(lua_State* L) {// макрос создать педа.
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
 };
+int expectations(int model, CVehicle* car) {
+	while (true){
+		this_thread::sleep_for(chrono::milliseconds(1000)) ;// задержка
+		if (car->IsVehicleNormal()) {
+
+			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			break;
+		}
+	}
+	return 0;
+};
 
 int Createcar(lua_State* L) {// макрос создать авто на координатах.
 	try {
 		if (LUA_TSTRING == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
 			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {// значение число.
+			CVehicle* car = NULL;
 			const char* name_model = lua_tostring(L, 1);// модель авто.
 
 			int model = find_in_map(car_model_list, name_model);
@@ -3944,11 +3957,11 @@ int Createcar(lua_State* L) {// макрос создать авто на коо
 			float z = lua_tonumber(L, 4); CVector pos = { x, y, z };
 			load_model_before_avalible(model); // загрузить модель полносттью. 
 
-			CVehicle* car = NULL;
-			Command<COMMAND_CREATE_CAR>(model, pos.x, pos.y, pos.z, &car);
+   			Command<COMMAND_CREATE_CAR>(model, pos.x, pos.y, pos.z, &car);
+			std::thread(expectations, model, std::ref(car)).detach();
+
 
 			car->m_nLockStatus = 1;
-			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
 			mapcars.emplace(car, L);// добавить в map для авто.
 			lua_pushlightuserdata(L, car);// отправить в стек указатель на авто.
 			return 1;
@@ -4890,7 +4903,7 @@ int ped_save_pos_attack(lua_State* L) {// пед сохраняет ли сво�
 
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			int status = lua_tointeger(L, 2);
+			int status = lua_tointeger(L, 2);// 0 или 1.
 			Command<COMMAND_SET_CHAR_STAY_IN_SAME_PLACE>(CPools::GetPedRef(ped), status);// сохранять свою позицию при атаке.						 
 			return 0;
 
@@ -5458,7 +5471,36 @@ int is_ped_incar(lua_State* L) {// пед в авто или нет?
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 };
+int delete_entity(lua_State* L) {// удалить сущность сразу.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// значение объект.
+			const void* p = lua_topointer(L, 1);
+			CEntity* p1 = (CEntity*)p;
+			if (p1 != NULL) {//obj->Remove();
+				CWorld::Remove(p1);
+			}
+			return 0;
+		}
+		else { throw "bad argument in function remove_obj"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 
+int clean_leader(lua_State* L) {// перестать следовать за лидером.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);//  получить указатель на авто.
+			Command<COMMAND_LEAVE_GROUP>(CPools::GetPedRef(ped));
+			return 0;
+		}
+		else { throw "bad argument in function clean_leader"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 
 //setstatusmission(true);
 //CTheScripts::ScriptSpace[OnAMissionFlag] = 1;
