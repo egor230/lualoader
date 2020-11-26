@@ -4,29 +4,37 @@ function main()
 while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
  if Keypress("VK_H") -- если клавиша H.
-  then  x,y,z = getcoordinates_on_y(player, 5)
-	-- car = Createcar("MODEL_SECURICA",x,y,z)
-	-- setcarangle(car, getpedangle(player)) 
-
+  then  
+  x,y,z = getcoordinates_on_y(player, 5)
 	set_radio(9,1)-- выключить радио.
 	car = Createcar("MODEL_PCJ600",x,y,z) 
---	set_skin(player, "IGMIKE") 
-	 -- wait(3100)
-	-- delete_entity(car)
-	remove_car(car) 
-	Giveweaponped(player,1600,"uzi")-- дать педу оружие.
-  -- set_skin(player, "PLAYER")-- восстановить скин.
-
+	-- Giveweaponped(player,600,"m4")-- дать педу оружие.
 
  end
 		  if Keypress("VK_J") -- если клавиша H.
-   then  setcord(player, 118.0, -825.9, 10.5)
+   then  setcord(player, 495.7, -1734.3, 13.7)
   
   end 
   end
  
 end
  
+		  -- if Keypress("VK_J") -- если клавиша H.
+   -- then  setcord(player, 495.7, -1734.3, 13.7)
+  
+  -- end 
+  -- x,y,z = getcoordinates_on_y(player, 5)
+	-- -- car = Createcar("MODEL_SECURICA",x,y,z)
+	-- -- setcarangle(car, getpedangle(player)) 
+
+	-- set_radio(9,1)-- выключить радио.
+	-- car = Createcar("MODEL_PCJ600",x,y,z) 
+-- --	set_skin(player, "IGMIKE") 
+	 -- -- wait(3100)
+	-- -- delete_entity(car)
+	-- remove_car(car) 
+  -- -- set_skin(player, "PLAYER")-- восстановить скин.
+
 	-- 
 	-- set_skin("IGKEN")  
 -- printmessage("jhgfc",2000,3)

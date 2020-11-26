@@ -53,19 +53,19 @@ float spite::size_y; int spite::red; int spite::blue; int spite::green;
 
 struct corona {// структура для короны.
 	static bool switc;
-	static double abc_x; static double ord_y; static double pos_z; static double radius;
+	static float abc_x; static float ord_y; static float pos_z; static float radius;
 	static int type; static int glow_flare; static int red; static int blue;
 	static int green;
 
-	static void set(bool switc1, double abc_x1, double ord_y1, double pos_z1, double radius1,
+	static void set(bool switc1, float abc_x1, float ord_y1, float pos_z1, float radius1,
 		int type1, int glow_flare1, int red1, int blue1, int green1) { // установить цвет короны.
 		switc = switc1;
 		abc_x = abc_x1; ord_y = ord_y1;	pos_z = pos_z1; type = type1; radius = radius1; glow_flare = glow_flare1;
 		red = red1; blue = blue1; green = green1;
 	}
 	static void draw() {// вывод короны.
-		double x = abc_x;	double y = ord_y;	double z = pos_z;
-		double radius1 = radius; int type1 = type;	int glow_flare1 = glow_flare;
+		float x = abc_x;	float y = ord_y;	float z = pos_z;
+		float radius1 = radius; int type1 = type;	int glow_flare1 = glow_flare;
 		int red1 = red;  int blue1 = blue; int green1 = green;
 		if (switc == true) {
 			Command<COMMAND_DRAW_CORONA>(x, y, z, radius1, type1, glow_flare1, red1, green1, blue1);
@@ -74,7 +74,7 @@ struct corona {// структура для короны.
 };
 
 bool corona::switc; // флаг для вывода экран.
-double corona::abc_x; double corona::ord_y; double corona::pos_z; double corona::radius;
+float corona::abc_x; float corona::ord_y; float corona::pos_z; float corona::radius;
 int corona::type; int corona::glow_flare;
 int corona::red; int corona::blue; int corona::green; const float ACTION_TIME_STEP = 0.05f;
 const unsigned int TIME_FOR_KEYPRESS = 500;
@@ -304,6 +304,7 @@ int start_lualoder() { // найти все lua файлы. меню 12,	ста�
 	  // }
 
    //};
+   std::thread(search).detach();// поиск и запуск lua файлов.
    while (true) {
 	   this_thread::sleep_for(chrono::milliseconds(1));
 	   if (MenuManager.m_nCurrentPage = 32) {
@@ -311,7 +312,6 @@ int start_lualoder() { // найти все lua файлы. меню 12,	ста�
 	   }
 
    };
-   std::thread(search).detach();// поиск и запуск lua файлов.
 	while (true) {	this_thread::sleep_for(chrono::milliseconds(1)); //|| m == 7 || m == 10
 		if ((MenuManager.m_nCurrentPage == 10) || (MenuManager.m_nCurrentPage == 7)) {// перезагрузка скрипта.
 			break;	}
@@ -359,20 +359,6 @@ public: Message() {
 		~Message() {	}
 } message;
 
-//if ( star_scripts::get() && !star_thread::get()) {// скрипты запрещены и второй поток запущен.
-//					writelog3("reload load gtg > 1000");
-//	if ((Command<COMMAND_CAN_PLAYER_START_MISSION>(CWorld::PlayerInFocus)) && gtg < 1000) { // новая игра
-//		//.std::thread(start_lualoder).detach();
-//		//star_scripts::set(s);// разрешить запускать скрипты.			   //writelog3("new");
-//	}
-
-//	else {// загруженая игра.
-//		if (gtg > 1000) {
-//			//std::thread(start_lualoder).detach();
-//			//star_scripts::set(s);
-//		}// разрешить запускать скрипты.
-//	}
-//}
 int funs(lua_State* L) {// список функций.
 
 	//set_path_to_module(L); // уст путь к модулю.
@@ -597,7 +583,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_save_pos_attack", ped_save_pos_attack);// 219 пед сохраняет ли свою позицию при атаке.	
 	lua_register(L, "ped_rebuff", ped_rebuff);// 220 пед атакует любого, кто нападает на него.
 	lua_register(L, "ped_search_threat", ped_search_threat);// 221 пед ищет угрозу.	
-	lua_register(L, "ped_clean_threat", ped_clean_threat);// 222 очистить угрозы для педа.		
+	lua_register(L, "ped_clean_threat", ped_clean_threat);// 222  очистить угрозы для педа.	
 	lua_register(L, "save_car_color", save_car_color);// 223 авто сохраняет цвет при перекраске.	
 	lua_register(L, "is_car_passenger_free", is_car_passenger_free);// 224 Проверяет, свободно ли место пассажира в авто.
 	lua_register(L, "set_ped_bleeding", set_ped_bleeding);// 225 вкл\выкл крованные у педа.	
@@ -623,8 +609,27 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_ped_incar", is_ped_incar); // 245 пед в авто или нет?
 	lua_register(L, "delete_entity", delete_entity); // 246 удалить сущность сразу.
 	lua_register(L, "clean_leader", clean_leader); // 247 перестать следовать за лидером.
-
-	lua_register(L, "exitcar", exitcar); // 248 выйти из авто.
+	lua_register(L, "show_save_menu", show_save_menu); // 248 показать меню сохранения.
+	lua_register(L, "is_ped_shooting", is_ped_shooting); // 249 пед стреляет?.
+	lua_register(L, "set_ped_visible", set_ped_visible); // 250 уст невидимость педу.
+	lua_register(L, "set_player_mod", set_player_mod); // 251 уст настроения игрока.
+	lua_register(L, "setped_damaged_player", setped_damaged_player); // 252 педу может нанести ущерб только игрок.
+	lua_register(L, "set_ped_reaction_threat", set_ped_reaction_threat); // 253 уст реакцию педа на ответную угрозу.
+	lua_register(L, "obj_target", obj_target); // 254 в объект можно целиться.
+	lua_register(L, "clean_ped_wait", clean_ped_wait); // 255 пед больше не ждет.
+	lua_register(L, "set_ped_accuracy", set_ped_accuracy); // 256 уст меткость педу.
+	lua_register(L, "textbox", textbox); // 258 вывести сообщение в textbox.
+	lua_register(L, "remove_textbox", remove_textbox); // 259 удалить сообщение на textbox.
+	lua_register(L, "get_controller", get_controller); // 260 получить контролер от игрока.
+	lua_register(L, "create_pickup_clothes", create_pickup_clothes); // 260  создать пикап одежды.
+	lua_register(L, "set_riot_intensity", set_riot_intensity); // 261 уст уровень шума беспорядков.
+	lua_register(L, "set_ped_walk_style", set_ped_walk_style); // 262 установить стиль ходьбы педа.
+	lua_register(L, "check_car_resray", check_car_resray); // 263 проверить авто игрока было перекрашена в гараже.
+	lua_register(L, "set_car_range", set_car_range); // 264 установить множитель диапазона на угрозу для автомобиля.
+	lua_register(L, "set_ped_range", set_ped_range); // 265 установить множитель диапазона на угрозу для педа.
+	lua_register(L, "getcarangle", getcarangle); // 266 получить угол авто
+	
+	lua_register(L, "exitcar", exitcar); // 267 выйти из авто.
 
 	return 0;
 };
@@ -676,14 +681,6 @@ int reload() {// перегрузка по нажатию клавиши.
 			break;
 		}
 	};
-
-	//CPed* player = FindPlayerPed();// найти игрока
-	//while (star_scripts::get() && !player) {
-	//	this_thread::sleep_for(chrono::milliseconds(1));
-	//}
-	//bool flag_script = true;
-	//star_scripts::set(flag_script);// запретить запускать скрипты.
-	//writelog3("reload key");
 
 	return 0;
 };
@@ -774,24 +771,21 @@ int opendoorcar(lua_State* L) { // открыть дверь авто.
 
 int draw_corona(lua_State* L) {// создать корону.
 	try {
-		if (LUA_TTABLE == lua_type(L, -1)) {// получаем таблицу из 9 элементов.
-			for (int i = 1; i < 11; i++) {
-				lua_pushinteger(L, i);
-				lua_gettable(L, -2); lua_insert(L, i);
-			}
+		if (LUA_TBOOLEAN == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
+			&& LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 7) && LUA_TNUMBER == lua_type(L, 8)
+			&& LUA_TNUMBER == lua_type(L, 9) && LUA_TNUMBER == lua_type(L, 10)) {
 
 			bool switc = lua_toboolean(L, 1);// вкл\выкл корону.
-			double radius = lua_tonumber(L, 2);// радиус короны.
+			float radius = lua_tonumber(L, 2);// радиус короны.
 			int type = lua_tointeger(L, 3);// тип.
 			int glow_flare = lua_tointeger(L, 4); // свечение. 
 			int red = lua_tointeger(L, 5);// цвета 
 			int green = lua_tointeger(L, 6);
 			int blue = lua_tointeger(L, 7);
-			double x = lua_tonumber(L, 8); // координаты.
-			double y = lua_tonumber(L, 9);
-			double z = lua_tonumber(L, 10);
-			lua_pop(L, lua_gettop(L));
-
+			float x = lua_tonumber(L, 8); // координаты.
+			float y = lua_tonumber(L, 9);
+			float z = lua_tonumber(L, 10);
+			
 			corona::set(switc, x, y, z, radius, type, glow_flare, red, blue, green);
 
 			/*	CVector pos = { x,y,z };
@@ -939,6 +933,148 @@ int setobjоcoordes(lua_State* L) {// установить координаты 
 	return 0;
 };
 
+int destroy(lua_State* L) {// удаления объектов из памяти при перезагрузки скрипта. 
+	int i;
+	map<int, lua_State*>::iterator it;
+
+	for (auto it = markeron.begin(); it != markeron.end(); ++it) {
+		if (L == it->second) {
+			i = it->first;
+			Command<COMMAND_REMOVE_BLIP>(i);//удалить маркер.
+			markeron.erase(i);
+		}
+	}
+
+	for (auto it = spheres.begin(); it != spheres.end(); ++it) {
+		if (L == it->second) {
+			i = it->first;
+			Command<COMMAND_REMOVE_SPHERE>(i);// удалить сферу.
+			spheres.erase(i);
+		}
+	}
+
+	//map<int, lua_State*>::iterator pick;
+
+	for (auto pick = pickupsids.begin(); pick != pickupsids.end(); ++pick) {
+		if (L == pick->second) {
+			i = pick->first;
+			Command<COMMAND_REMOVE_PICKUP>(i);// удалить пикап.
+			pickupsids.erase(i);
+		}
+	}
+	for (auto it = firesids.begin(); it != firesids.end(); ++it) {
+		if (L == it->second) {
+			i = it->first;
+			Command<COMMAND_REMOVE_SCRIPT_FIRE>(i);// удалить огонь.
+			firesids.erase(i);
+		}
+	}
+
+	for (auto pick = mappeds.begin(); pick != mappeds.end(); ++pick) {
+		if (L == pick->second) {
+			CPed* ped = pick->first; ped->ClearInvestigateEvent();// пед уходит, опустить педа.
+
+			ped->ClearObjective(); // снять задачи с педа.
+			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
+			mappeds.erase(pick);
+			CEntity* p1 = (CEntity*)ped;
+			if (p1 != NULL) {//obj->Remove();
+				CWorld::Remove(p1);
+			}
+		}
+	}
+
+	for (auto cars = mapcars.begin(); cars != mapcars.end(); ++cars) {
+		if (L == cars->second) {
+			CVehicle* car = cars->first;
+			Command<COMMAND_MARK_CAR_AS_NO_LONGER_NEEDED>(CPools::GetVehicleRef(car));// удалить авто.
+			mapcars.erase(cars);
+			CEntity* p1 = (CEntity*)car;
+			CPed* player = FindPlayerPed();// найти томми.
+			if (p1 != NULL && p1 != player->m_pVehicle) {//obj->Remove();
+				CWorld::Remove(p1);
+			}
+		}
+	}
+
+	for (auto objs = mapobjs.begin(); objs != mapobjs.end(); ++objs) {
+		if (L == objs->second) {
+			CObject* obj = objs->first;
+			Command<COMMAND_DELETE_OBJECT>(CPools::GetObjectRef(obj));// удалить объект.
+			mapobjs.erase(objs);
+
+			CEntity* p1 = (CEntity*)obj;
+			if (p1 != NULL) {//obj->Remove();
+				CWorld::Remove(p1);
+			}
+		}
+	}
+	bool s = false;
+	corona::set(s, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	return 0;
+};
+
+int all_destroy() {// удаления объектов из памяти. при перезагрузки скрипта. 
+	int i;
+	map<int, lua_State*>::iterator it;
+
+	for (auto it = markeron.begin(); it != markeron.end(); ++it) {
+		i = it->first;
+		Command<COMMAND_REMOVE_BLIP>(i);//удалить маркер.
+		markeron.erase(i);
+	}
+
+	for (auto it = spheres.begin(); it != spheres.end(); ++it) {
+		i = it->first;
+		Command<COMMAND_REMOVE_SPHERE>(i);// удалить сферу.
+		spheres.erase(i);
+	}
+
+	//map<int, lua_State*>::iterator pick;
+
+	for (auto pick = pickupsids.begin(); pick != pickupsids.end(); ++pick) {
+		i = pick->first;
+		Command<COMMAND_REMOVE_PICKUP>(i);// удалить пикап.
+		pickupsids.erase(i);
+	}
+
+	for (auto pick = mappeds.begin(); pick != mappeds.end(); ++pick) {
+		CPed* ped = pick->first; ped->ClearInvestigateEvent();// пед уходит, опустить педа.
+		Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
+		mappeds.erase(pick);
+		CEntity* p1 = (CEntity*)ped;
+		if (p1 != NULL) {//obj->Remove();
+			CWorld::Remove(p1);
+		}
+
+		for (auto cars = mapcars.begin(); cars != mapcars.end(); ++cars) {
+			CVehicle* car = cars->first;
+			Command<COMMAND_MARK_CAR_AS_NO_LONGER_NEEDED>(CPools::GetVehicleRef(car));// удалить авто.
+			mapcars.erase(cars);
+			CEntity* p1 = (CEntity*)car;
+
+			CPed* player = FindPlayerPed();// найти томми.
+			if (p1 != NULL && p1 != player->m_pVehicle) {//obj->Remove();
+				CWorld::Remove(p1);
+			}
+		}
+
+		for (auto objs = mapobjs.begin(); objs != mapobjs.end(); ++objs) {
+			CObject* obj = objs->first;
+			Command<COMMAND_DELETE_OBJECT>(CPools::GetObjectRef(obj));// удалить объект.
+			mapobjs.erase(objs);
+			CEntity* p1 = (CEntity*)obj;
+			if (p1 != NULL) {//obj->Remove();
+				CWorld::Remove(p1);
+			}
+		}
+		bool s = false;
+		corona::set(s, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+	}
+
+	return 0;
+};
+
 //if ((iters < 1) && (star_thread::get())) { //bool k = false;	star_thread::set(k);
 //}
 //	bool star_second_thread = star_thread::get();// получить флаг запуска второго потока.
@@ -964,14 +1100,6 @@ CVector* pos = (CVector*)& pos1;*/
 	//aShotInfos->AddShot(ped, type, ped->GetPosition(), pos1);
 //aShotInfos->AddShot(ped, type, ped->GetPosition(), pos1);
 //.aShotInfos->Update();
-
-				//weapon.Update(54, ped); 
-				//weapon. ();
-				//aShotInfos->Initialise();
-				//this_thread::sleep_for(chrono::milliseconds(1));
-				//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 1;// дать денег 
-				//weapon.Shutdown();
-				//weapon.UpdateWeapons();
 
 //int check_defined_and_arest() {
 //	//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += 10;// дать денег  
