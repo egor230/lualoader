@@ -536,6 +536,10 @@ int check_car_resray(lua_State* L); // проверить авто игрока 
 int set_car_range(lua_State* L); // установить множитель диапазона на угрозу для автомобиля.
 int set_ped_range(lua_State* L); // установить множитель диапазона на угрозу для педа.
 int getcarangle(lua_State* L); // получить угол авто.
+int cleanarea(lua_State* L); //очистить арену.
+
+int set_brakes_car(lua_State* L); //уст тормоза авто игрока.
+int setmarker_brightness(lua_State* L); // уст яркость маркера.
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -2247,6 +2251,14 @@ int remove_blip(lua_State* L) {// удалить метку с карты.
 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
 			int blip = lua_tointeger(L, 1);// получить id метки.
 			Command<COMMAND_REMOVE_BLIP>(blip);// удалить метку на карте.
+			map<int, lua_State*>::iterator it;
+
+			for (auto it = markeron.begin(); it != markeron.end(); ++it) {
+				if (L == it->second && blip== it->first) {
+					markeron.erase(blip);
+				}
+			}
+
 			return 0;
 		}
 		else { throw "bad argument in function remove_blip"; }
@@ -2392,9 +2404,11 @@ int create_spec_ped(lua_State* L) {// создать спец педа.
 			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
 			float z = lua_tonumber(L, 4);
 			CVector pos = { x, y, z };
-			int idped = 11;
+			int idped = 0;
 			load_model_before_avalible(idped);
 			Command<COMMAND_CREATE_CHAR>(4, idped, pos.x, pos.y, pos.z, &ped);
+			//Command<COMMAND_CREATE_PLAYER>(0, pos.x, pos.y, pos.z, &ped);
+			
 			CPed* p = findpedinpool(ped);// получить указатель на педа.
 
 			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(idped);
@@ -5760,6 +5774,73 @@ int getcarangle(lua_State* L) {// получить угол авто
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
 };
+
+int cleanarea(lua_State* L) {//очистить арену.
+	try {
+		//0395: clear_area 0 at 473.713 - 149.895 10.546 range 1.0
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TBOOLEAN == lua_type(L, 5)) {
+			/*	Очищает область с указанными координатами, удаляя все транспортные средства и пешеходов.
+			Если первый логический параметр установлен на 1, все снаряды и частицы удаляются, даже если они не находятся в указанной области.
+Параметры (v2)	1) Координата X (Float) (FLOAT)
+2) Координата Y (Float) (FLOAT)
+3) Координата Z (Float) (FLOAT)
+4) Радиус (Float) (FLOAT)
+5) Логическое значение (1 или 0) (INT)*/ 
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);
+			float z = lua_tonumber(L, 3);
+			float r = lua_tonumber(L, 4);
+			bool s = lua_toboolean(L, 5);  
+			CVector pos = { x, y, z };
+			Command<COMMAND_CLEAR_AREA>(s, r, pos.x, pos.y, pos.z);
+			return 0;
+		}
+		else { throw "bad argument in function cleanarea"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int set_brakes_car(lua_State* L) {//уст тормоза авто игрока.
+	try {
+		//0221: set_player $PLAYER_CHAR apply_brakes_to_car 1 
+		if (LUA_TBOOLEAN == lua_type(L, 1)) {
+			/*	Описание	Применяет тормоза к машине игрока.
+Параметры (v2)	1) Дескриптор игрока (целое число) (INT)
+2) логическое значение (1 или 0) (INT)
+Игры	са vc iii
+*/
+			bool s = lua_toboolean(L, 1);
+			Command<COMMAND_APPLY_BRAKES_TO_PLAYERS_CAR>(CWorld::PlayerInFocus, s);
+			return 0;
+		}
+		else { throw "bad argument in function set_brakes_car"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int setmarker_brightness(lua_State* L) {// уст яркость маркера.
+	try {//	0166: set_marker $4082 brightness_to 1.
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// значение число.
+			/* Описание	Устанавливает, должна ли метка отображаться затемненной.
+Параметры (v2)	1) Дескриптор метки (целое число) (INT)
+2) логическое значение (1 или 0) (INT)
+			*/
+			int marker = lua_tointeger(L, 1);// маркер.
+			bool s = lua_toboolean(L, 2);// размер маркера на карте.
+			
+			Command<COMMAND_DIM_BLIP>(s, marker);
+			return 0;
+		}// int
+
+		else { throw "bad argument in function setmarker_brightness"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+
 
 
 //	catch (const char* x) { writelog(x); }// записать ошибку в файл.

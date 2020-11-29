@@ -1,5 +1,8 @@
 require("lualoader/mod")
-
+function f(n)
+givemoney(n)
+printmessage("~r~end script 1", 3400,1 )
+end
 function main()
 while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
@@ -9,10 +12,10 @@ while true do wait()-- задержка.
 	set_radio(9,1)-- выключить радио.
 	car = Createcar("MODEL_PCJ600",x,y,z) 
 	-- Giveweaponped(player,600,"m4")-- дать педу оружие.
-
+      --create_newthread(f,1000)
  end
 		  if Keypress("VK_J") -- если клавиша H.
-   then  setcord(player, 495.7, -1734.3, 13.7)
+   then  setcord(player, 478.2, -117.4, 10.1)
   
   end 
   end

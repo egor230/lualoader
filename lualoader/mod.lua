@@ -397,18 +397,6 @@ end
 -- end
 
 
-function Draw_corona(...)
-local t = {...} 
-draw_corona(t) 
-t= nil
-end
-
-Co_Draw_corona= coroutine.wrap(
- function(radius, t, glow_flare, red, green, blue,x,y,z)
-  while true do  Draw_corona(radius, t, glow_flare, red, green, blue,x,y,z)
-   coroutine.yield()   end
-   end
- )
 function races()-- отсчет времени перед стартом.
   ped_frozen(0)
   sound_coordinate(7, 0.0,0.0,0.0)
@@ -502,6 +490,7 @@ function end_mission(text)
 
   set_traffic(1)
   set_ped_traffic(1) 
+ draw_corona(false, 4.5, 6, 0, 255, 0, 0, 0,0, 0)
  setflagmission(false) -- установить флаг миссии
  wait(200)
  showtext(text, 2500,0)-- вывод статуса миссии.
@@ -605,34 +594,34 @@ local rx = 3.0  ry = 4.0 rz = 2.0
  return true
  end )
  
-follow_route_for_corona_for_playercar  = coroutine.wrap(-- ехать по маршруту.
-function(mycar, road)
-local iter = 1
-for i, v in pairs(road) do
-    if i == iter
-    then x = road[i] y= road[i+1] z = road[i+2]  iter= iter+3   
-   	blip = createmarker(1,2, x,y,z) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
-	setsizemarker(blip,2)--уст размер маркера. Принимает маркер, значение его размера
-local t = {true, 4.5, 6, 0, 255, 0, 0, x,y,z}
-  draw_corona(t) -- вкл корону
-while lualoader == nil  do  wait(10)
- player = findplayer()-- получить игрока
- local b, mycar= incar(player) 
- coroutine.yield(false) 
- if b == true
- then  if car_in_point_in_radius(mycar, x, y, z, 4.0  )
-  then	sound_coordinate(7, 0.0,0.0,0.0)
-local t = {false, 4.5, 6, 0, 255, 0, 0, x,y,z}
-  draw_corona(t) -- выкл корону
-  remove_blip(blip)
-	break end
-	 end 
-	 end 
- end
- end
- return true
-end 
- )
+-- follow_route_for_corona_for_playercar  = coroutine.wrap(-- ехать по маршруту.
+-- function(mycar, road)
+-- local iter = 1
+-- for i, v in pairs(road) do
+    -- if i == iter
+    -- then x = road[i] y= road[i+1] z = road[i+2]  iter= iter+3   
+   	-- blip = createmarker(1,2, x,y,z) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
+	-- setsizemarker(blip,2)--уст размер маркера. Принимает маркер, значение его размера
+-- local t = {true, 4.5, 6, 0, 255, 0, 0, x,y,z}
+  -- draw_corona(t) -- вкл корону
+-- while lualoader == nil  do  wait(10)
+ -- player = findplayer()-- получить игрока
+ -- local b, mycar= incar(player) 
+ -- coroutine.yield(false) 
+ -- if b == true
+ -- then  if car_in_point_in_radius(mycar, x, y, z, 4.0  )
+  -- then	sound_coordinate(7, 0.0,0.0,0.0)
+-- local t = {false, 4.5, 6, 0, 255, 0, 0, x,y,z}
+  -- draw_corona(t) -- выкл корону
+  -- remove_blip(blip)
+	-- break end
+	 -- end 
+	 -- end 
+ -- end
+ -- end
+ -- return true
+-- end 
+ -- )
  
 function finish_road(car, road)
 local x= road[#road-2] 
