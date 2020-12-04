@@ -1,15 +1,33 @@
 require("lualoader/mod")
-function f(n)
-givemoney(n)
-printmessage("~r~end script 1", 3400,1 )
-end
+p={}-- пустая таблица.
 function main()
 while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
- if Keypress("VK_H") -- если клавиша H.
-  then  
-  x,y,z = getcoordinates_on_y(player, 5)
-  -- ped = Createped("HMYST", x,y,z)
+ if Keypress("VK_G") -- если клавиша H.
+  then  x,y,z = getcoordinates_on_y(player, 3)
+  a = getpedangle(player)
+  printmessage("~r~Create array peds", 3400,1 )
+  for i= 1, 30 do  
+  ped = Createped("HMYRI", x,y,z)
+  while isped_in_air(ped) do wait(10) end -- ждать пока пед в воздухе
+  setpedangle(ped, a)-- уст угол педу.
+  x,y,z = getcoordinates_on_y(ped, 1)
+  a = getpedangle(ped)-- получить угол.
+  p[i] = ped 
+    end 
+  end
+   if Keypress("VK_N") -- если клавиша N.
+  then printmessage("~r~ Delete array peds", 3400,1 )
+  for i= 1, 30 do ped = p[i]
+     kill_ped(p[i])-- взоврать голову педу.
+	 remove_ped(p[i])-- удалить педа.
+	 wait(200) end 
+end
+end
+end
+
+
+
 -- ped_rebuff(ped, 1)-- отвечать на атаки.
 -- set_ped_stats_to(ped,16)-- уст враждебность педа.
 -- ped_search_threat(ped,1)-- пед ищет угрозу.  
@@ -17,14 +35,6 @@ while true do wait()-- задержка.
 	-- car = Createcar("MODEL_PCJ600",x,y,z) 
 	-- Giveweaponped(player,600,"m4")-- дать педу оружие.
       --create_newthread(f,1000)
- end
-		  if Keypress("VK_J") -- если клавиша H.
-   then  setcord(player, 478.2, -117.4, 10.1)
-  
-  end 
-  end
- 
-end
  
 		  -- if Keypress("VK_J") -- если клавиша H.
    -- then  setcord(player, 495.7, -1734.3, 13.7)

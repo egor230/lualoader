@@ -540,6 +540,23 @@ int cleanarea(lua_State* L); //очистить арену.
 
 int set_brakes_car(lua_State* L); //уст тормоза авто игрока.
 int setmarker_brightness(lua_State* L); // уст яркость маркера.
+int Createobj(lua_State* L); // макрос создать объект.
+int setpednode_seek(lua_State* L); // пед игнорирорует пути педов. 
+
+int ispedscreen(lua_State* L); // пед виден.
+int iscarscreen(lua_State* L); // авто видно.
+int isobjscreen(lua_State* L); // объект виден.
+int ped_follow_ped(lua_State* L); // пед следует за педом.
+
+int set_cars_damaged(lua_State* L); // Все авто повреждены.
+int set_ped_targetted(lua_State* L); // запрет целиться в педа.
+int set_ped_friend(lua_State* L); // уст дружественное отношения педа.
+int set_ped_running(lua_State* L); // пед может бежать.
+
+int set_ped_damaged_gang(lua_State* L); // уст педа уязвимым для членов банды.
+int is_ped_damaged_weapon(lua_State* L); // пед получает от определенного вида оружие.
+int is_car_damaged_weapon(lua_State* L); // авто получает от определенного вида оружие.
+int isped_in_air(lua_State* L); // пед в воздухе.
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -1448,7 +1465,7 @@ int getobjangle(lua_State* L) {// получить угол объекта.
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на объект.
 
 			const void* p = lua_topointer(L, 1);
-			CObject* obj = findobjinpool(p);// получить указатель на педа.
+			CObject* obj = findobjinpool(p);// получить указатель на объект.
 			angle = obj->GetHeading();
 			//Command<COMMAND_GET_OBJECT_HEADING>(CPools::GetObjectRef(obj), angle);
 			lua_pushnumber(L, angle);// отправить в стек.
@@ -3913,6 +3930,28 @@ int Createcar(lua_State* L) {// макрос создать авто на коо
 	return 0;
 };
 
+int Createobj(lua_State* L) {// макрос создать объект.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4)) {// значение число.
+			int model = lua_tointeger(L, 1);// модель авто.
+			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
+			float z = lua_tonumber(L, 4); CVector pos = { x, y, z };
+			CObject* obj = NULL;
+			load_model_before_avalible(model); // загрузить модель полносттью. 
+			Command<COMMAND_CREATE_OBJECT>(model, pos.x, pos.y, pos.z, &obj);
+			this_thread::sleep_for(chrono::milliseconds(20));// задержка
+			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			mapobjs.emplace(obj, L);// добавить в map для авто.
+			lua_pushlightuserdata(L, obj);// отправить в стек указатель на объект.
+			return 1;
+		}// int
+
+		else { throw "bad argument in function Createobj"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 //--function Giveweaponped(ped, ammo, ...)--дать педу оружие и патроны.
 void ped_weapon_give(CPed* ped, int typemodel, int ammo) {
 	CPed* player = FindPlayerPed();// найти педа
@@ -5267,7 +5306,64 @@ int select_interiour(lua_State* L) {// уcтановить интерьер.
 int set_ped_stats_to(lua_State* L) {// уст поведения педа.		
 	try {//	0243: set_actor $1374 ped_stats_to 16.
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			/*
+			Описание
+				Устанавливает статистику педа персонажа
+				Синтаксис
+				0243: set_actor [ char handle ] ped_stats_to [ int ]
+				Параметр
+				[ дескриптор символа ]
+				Ручка персонажа
+				[ int ]
+				Статистика педалей ( см. Ниже )
+				Этот код операции устанавливает значение педа персонажа. 
+				Значение ped stat соответствует номеру строки (начиная с 0) в pedstats.dat файле. В оригинальных сценариях
+				GTA III и Vice City в основном использовались слова «крутой парень» и «компьютерщик».
 
+				Статистика педов
+				Пед стат	Игры	Enum [1]
+				0	GTA III Vice City	PEDSTAT_PLAYER
+				1	GTA III Vice City	PEDSTAT_COP
+				2	GTA III Vice City	PEDSTAT_MEDIC
+				3	GTA III Vice City	PEDSTAT_FIRE
+				4	GTA III Vice City	PEDSTAT_GANG1
+				5	GTA III Vice City	PEDSTAT_GANG2
+				6	GTA III Vice City	PEDSTAT_GANG3
+				7	GTA III Vice City	PEDSTAT_GANG4
+				8	GTA III Vice City	PEDSTAT_GANG5
+				9	GTA III Vice City	PEDSTAT_GANG6
+				10	GTA III Vice City	PEDSTAT_GANG7
+				11	GTA III Vice City	PEDSTAT_STREET_GUY
+				12	GTA III Vice City	PEDSTAT_SUIT_GUY
+				13	GTA III Vice City	PEDSTAT_SENSIBLE_GUY
+				14	GTA III Vice City	PEDSTAT_GEEK_GUY
+				15	GTA III Vice City	PEDSTAT_OLD_GUY
+				16	GTA III Vice City	PEDSTAT_TOUGH_GUY
+				17	GTA III Vice City	PEDSTAT_STREET_GIRL
+				18	GTA III Vice City	PEDSTAT_SUIT_GIRL
+				19	GTA III Vice City	PEDSTAT_SENSIBLE_GIRL
+				20	GTA III Vice City	PEDSTAT_GEEK_GIRL
+				21 год	GTA III Vice City	PEDSTAT_OLD_GIRL
+				22	GTA III Vice City	PEDSTAT_TOUGH_GIRL
+				23	GTA III Vice City	PEDSTAT_TRAMP_MALE
+				24	GTA III Vice City	PEDSTAT_TRAMP_FEMALE
+				25	GTA III Vice City	PEDSTAT_TOURIST
+				26	GTA III Vice City	PEDSTAT_PROSTITUTE
+				27	GTA III Vice City	PEDSTAT_CRIMINAL
+				28	GTA III Vice City	PEDSTAT_BUSKER
+				29	GTA III Vice City	PEDSTAT_TAXIDRIVER
+				30	GTA III Vice City	PEDSTAT_PSYCHO
+				31 год	GTA III Vice City	PEDSTAT_STEWARD
+				32	GTA III Vice City	PEDSTAT_SPORTSFAN
+				33	GTA III Vice City	PEDSTAT_SHOPPER
+				34	GTA III Vice City	PEDSTAT_OLDSHOPPER
+				35 год	Vice City	PEDSTAT_BEACH_GUY
+				36	Vice City	PEDSTAT_BEACH_GIRL
+				37	Vice City	PEDSTAT_SKATER
+				38	Vice City	PEDSTAT_STD_MISSION
+				39	Vice City	PEDSTAT_COWARD
+                  ^ Перечисления для GTA III взяты из перечислений Vice City.
+			*/
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			int status = lua_tointeger(L, 2);
@@ -5763,9 +5859,9 @@ int getcarangle(lua_State* L) {// получить угол авто
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
 
 			const void* p = lua_topointer(L, 1);
-			CVehicle* car= findcarinpool(p);// получить указатель на авто.
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			float angle;// переменная хранить угол авто.
-			angle = car->GetHeading();// получить угол авто
+			angle = car->GetHeading();// получить угол авто.
 			lua_pushinteger(L, angle);// отправить в стек.  
 			return 1;
 		}
@@ -5840,17 +5936,305 @@ int setmarker_brightness(lua_State* L) {// уст яркость маркера.
 	return 0;
 };
 
+int setpednode_seek(lua_State* L) {// пед игнорирорует пути педов.
+	try {// 0411: set_actor 0@ use_pednode_seek 0 .
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на педа.
 
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			bool sw = lua_toboolean(L, 2);
+			Command<COMMAND_SET_CHAR_USE_PEDNODE_SEEK>(CPools::GetPedRef(ped), sw);
+			return 0;
+			
+		}
+		else { throw "bad argument in function setpednode_seek"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 
+int ispedscreen(lua_State* L) {// пед виден.
+	try {// 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
 
-//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-//	return 0;
-//};
-//COMMAND_SET_ANIM_GROUP_FOR_CHAR 
-//
-//
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			bool sw = Command<COMMAND_IS_CHAR_ON_SCREEN>(CPools::GetPedRef(ped));
+			lua_pushboolean(L, sw);
+			return 1;
 
+		}
+		else { throw "bad argument in function ispedscreen"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 
+int iscarscreen(lua_State* L) {// авто видно.
+	try {// 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			bool sw = Command<COMMAND_IS_CAR_ON_SCREEN>(CPools::GetVehicleRef(car));
+			lua_pushboolean(L, sw);
+			return 1;
+		}
+		else { throw "bad argument in function iscarscreen"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int isobjscreen(lua_State* L) {// объект виден.
+	try {// 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на объект.
+
+			const void* p = lua_topointer(L, 1);
+			CObject* obj = findobjinpool(p);// получить указатель на объект.
+
+			bool sw = Command<COMMAND_IS_OBJECT_ON_SCREEN>(CPools::GetObjectRef(obj));
+			lua_pushboolean(L, sw);
+			return 1;
+		}
+		else { throw "bad argument in function isobjscreen"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int ispeddead(lua_State* L) {// пед мертв.
+	try {// 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			bool sw = Command<COMMAND_IS_CHAR_DEAD>(CPools::GetPedRef(ped));
+			lua_pushboolean(L, sw);
+			return 1;
+
+		}
+		else { throw "bad argument in function ispeddead"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int iscardead(lua_State* L) {// авто уничтожено.
+	try {// 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			bool sw = Command<COMMAND_IS_CAR_DEAD>(CPools::GetVehicleRef(car));
+			lua_pushboolean(L, sw);
+			return 1;
+		}
+		else { throw "bad argument in function iscardead"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int ped_follow_ped(lua_State* L) {// пед следует за педом.
+	try {// 01D2: actor 0@ follow_player $PLAYER_CHAR 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.	
+			p = lua_topointer(L, 1);
+			CPed* ped1 = findpedinpool(p);// получить указатель на педа.
+
+			CPed* player = FindPlayerPed();// найти педа
+			bool cheack;
+			if (ped1 != player) {
+				cheack = Command<COMMAND_SET_CHAR_OBJ_GOTO_CHAR_ON_FOOT>(CPools::GetPedRef(ped), CPools::GetPedRef(ped1));
+				lua_pushboolean(L, cheack);
+				return 1;
+			}
+			else {
+				cheack = Command<COMMAND_SET_CHAR_OBJ_GOTO_PLAYER_ON_FOOT>(CWorld::PlayerInFocus, CPools::GetPedRef(ped1));
+				lua_pushboolean(L, cheack);// отправить булевое значение.
+				return 1;
+			}
+
+		}
+		else { throw "bad argument in function ped_follow_ped"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int set_cars_damaged(lua_State* L) {// Все авто повреждены.
+	try {// 03F4: set_all_vehicles_apply_damage_rules 0 
+		if (LUA_TNUMBER == lua_type(L, 1)) {
+			int status = lua_tointeger(L, 1);// если число
+
+			Command<COMMAND_SET_ALL_CARS_CAN_BE_DAMAGED>(status);
+			return 0;
+		}
+		else { throw "bad argument in function set_cars_damaged"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int set_ped_targetted(lua_State* L) {// запрет целиться в педа.
+	try {//	0568: set_actor $2291 untargetable 1 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			int s = lua_tonumber(L, 2);// да или нет.
+			Command<COMMAND_SET_CHAR_NEVER_TARGETTED>(CPools::GetPedRef(ped), s);
+			return 0;
+		}
+		else { throw "bad argument in function set_ped_targetted"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int set_ped_friend(lua_State* L) {// уст дружественное отношения педа.
+	try {//	04F5: set_actor $2291 as_player_friend $PLAYER_CHAR flag 1 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			int s = lua_tonumber(L, 2);// да или нет.
+			Command<COMMAND_SET_CHAR_AS_PLAYER_FRIEND>(CPools::GetPedRef(ped), s);
+			return 0;
+		}
+		else { throw "bad argument in function set_ped_friend"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int set_ped_running(lua_State* L) {// пед может бежать.
+	try {//0319: set_actor $2291 running 1 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			int s = lua_tonumber(L, 2);// да или нет.
+			Command<COMMAND_SET_CHAR_RUNNING>(CPools::GetPedRef(ped), s);
+			return 0;
+		}
+		else { throw "bad argument in function set_ped_running"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int set_ped_damaged_gang(lua_State* L) {// уст педа уязвимым для членов банды.
+	try {//0514: set_actor $2293 can_be_damaged_by_members_of_gang 3 0 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
+			&& LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			/*Делает персонажа уязвимым для членов банды
+Синтаксис
+0514: set_actor [идентификатор символа ] can_be_damaged_by_members_of_gang [ int1 ] [ int2 ]
+Параметр [ дескриптор символа ] Ручка персонажа [ int1 ]
+Номер банды [ int2 ]
+0 = невозможно повредить, 1 = можно повредить (по умолчанию)
+Этот код операции позволяет персонажу быть невосприимчивым к огнестрельному оружию со стороны членов банды, 
+в том числе любых персонажей, порожденных как пед-тип этой банды. Персонаж все еще может быть поврежден кулаками и эффектами области. 
+Из-за ошибки все персонажи постоянно невосприимчивы к огнестрельному оружию членов неиспользуемой банды номер 8 (тип педа GANG9).
+			
+			*/
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			int s = lua_tonumber(L, 2);//
+			int s1 = lua_tonumber(L, 3);//
+
+			Command<COMMAND_SET_CHAR_CAN_BE_DAMAGED_BY_MEMBERS_OF_GANG>(CPools::GetPedRef(ped), s, s1);
+			return 0;
+		}
+		else { throw "bad argument in function set_ped_damaged_gang"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int is_ped_damaged_weapon(lua_State* L) {// пед получает от определенного вида оружие.
+	try {//031D: actor $2291 hit_by_weapon 22 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+			/*
+				Описание Проверяет, был ли персонаж поврежден указанным оружием или средой
+				Синтаксис	031D: актер [ дескриптор символа ] hit_by_weapon [ int ]
+				Параметр	[ дескриптор символа ]
+				Ручка персонажа		[ int ]
+				Тип оружия (или тип урона окружающей среды, указанный ниже)
+				Родной аналог		HAS_CHAR_BEEN_DAMAGED_BY_WEAPON
+				Этот условный код операции возвращает истину, если персонаж был поврежден указанным оружием или окружающей средой. 
+				Последний урон, нанесенный персонажу, можно очистить с помощью кода операции 0467 . Значения за пределами диапазона
+				типов оружия поддерживаются для различных повреждений окружающей среды. Типы оружия для снарядов не распознаются, 
+				поэтому вместо них следует использовать типы повреждений окружающей среды.
+
+				Значения экологического ущерба
+				GTA III	Vice City	Enum	Примечания
+				-	28	WEAPONTYPE_SNIPERRIFLE	код операции 0321 или 0322 (разнести голову)
+				9	31 год	WEAPONTYPE_FLAMETHROWER	любой огонь, а не только огнемет
+				16	39	WEAPONTYPE_RAMMEDBYCAR	поврежден, но не убит автомобилем
+				17	40	WEAPONTYPE_RUNOVERBYCAR	мгновенно убит автомобилем, включает лопасти вертолета
+				18	41 год	WEAPONTYPE_EXPLOSION	взрыв
+				19	42	WEAPONTYPE_UZI_DRIVEBY	проезжающий мимо
+				20	43	WEAPONTYPE_DROWNING	вода
+				21 год	44	WEAPONTYPE_FALL	повреждение земли
+				-	46	WEAPONTYPE_ANYMELEE	любой рукопашный бой
+				-	47	WEAPONTYPE_ANYWEAPON	любое оружие (рукопашный бой, огонь, ружье, взрыв)
+		
+			*/
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			int s = lua_tonumber(L, 2);// да или нет.
+			bool check = Command<COMMAND_HAS_CHAR_BEEN_DAMAGED_BY_WEAPON>(CPools::GetPedRef(ped), s);
+			lua_pushboolean(L, check);
+			return 1;
+		}
+		else { throw "bad argument in function is_ped_damaged_weapon"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int is_car_damaged_weapon(lua_State* L) {// авто получает от определенного вида оружие.
+	try {//031E: vehicle $2467 hit_by_weapon 39  
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+			/*
+			Описание	Возвращает истину, если указанная машина повреждена указанным оружием.
+Параметры (v2)	1) Ручка машины (целое число) (INT)
+2) ID оружия (целое число) (INT)
+			*/
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			int s = lua_tonumber(L, 2);// да или нет.
+			bool check = Command<COMMAND_HAS_CAR_BEEN_DAMAGED_BY_WEAPON>(CPools::GetVehicleRef(car), s);
+			lua_pushboolean(L, check);
+			return 1;
+		}
+		else { throw "bad argument in function is_car_damaged_weapon"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int isped_in_air(lua_State* L) {// пед в воздухе.
+	try {// 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			bool sw = ped->CheckIfInTheAir();
+			lua_pushboolean(L, sw);
+			return 1;
+
+		}
+		else { throw "bad argument in function isped_in_air"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 
 
 CPed* findpedinpool(const void* p) {// найти педа в пуле.

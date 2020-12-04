@@ -472,15 +472,6 @@ local key = tostring(key)
  end
 end
 
-function Create_obj(model, x,y,z) 
- loadmodel(model)
- load_requested_models() 
-while not availablemodel(model) do wait(1) loadmodel(model) end
-obj =  create_obj(model, x,y,z) 
-releasemodel(model)  
-return obj
-end
-
 function setcolorcar(car, first, second)-- установить первый и второй цвет авто.
  setcarfirstcolor(car, first) -- уст первый цвет авто.
  setcarseconscolor(car, second) -- уст второй цвет авто.
