@@ -546,17 +546,21 @@ int setpednode_seek(lua_State* L); // пед игнорирорует пути �
 int ispedscreen(lua_State* L); // пед виден.
 int iscarscreen(lua_State* L); // авто видно.
 int isobjscreen(lua_State* L); // объект виден.
-int ped_follow_ped(lua_State* L); // пед следует за педом.
+int ispeddead(lua_State* L); // пед мертв.
 
+int iscardead(lua_State* L); // авто уничтожено.
+int ped_follow_ped(lua_State* L); // пед следует за педом.
 int set_cars_damaged(lua_State* L); // Все авто повреждены.
 int set_ped_targetted(lua_State* L); // запрет целиться в педа.
+
 int set_ped_friend(lua_State* L); // уст дружественное отношения педа.
 int set_ped_running(lua_State* L); // пед может бежать.
-
 int set_ped_damaged_gang(lua_State* L); // уст педа уязвимым для членов банды.
 int is_ped_damaged_weapon(lua_State* L); // пед получает от определенного вида оружие.
+
 int is_car_damaged_weapon(lua_State* L); // авто получает от определенного вида оружие.
 int isped_in_air(lua_State* L); // пед в воздухе.
+
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -2184,7 +2188,8 @@ int car_in_point_in_radius(lua_State* L) {// проверить находитс
 			float y = lua_tonumber(L, 3);
 			float z = lua_tonumber(L, 4);
 			float radius = lua_tonumber(L, 5);// радиус.		//lua_pop(L, lua_gettop(L));
-			lua_pushboolean(L, car->IsSphereTouchingVehicle(x, y, z, radius));		//lua_pushboolean(L, Command<COMMAND_LOCATE_CAR_3D>(CPools::GetVehicleRef(car), x, y, z, rx, ry, rz));
+			bool check = car->IsSphereTouchingVehicle(x, y, z, radius);
+			lua_pushboolean(L, check);		//lua_pushboolean(L, Command<COMMAND_LOCATE_CAR_3D>(CPools::GetVehicleRef(car), x, y, z, rx, ry, rz));
 			return 1;
 		}
 		else { throw "bad argument in function car_in_point_in_radius"; }
@@ -3032,8 +3037,8 @@ int ped_attack_car(lua_State* L) {// пед атакует авто.
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 
 			const void* p1 = lua_topointer(L, 2);
-			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
-
+			CVehicle* car = findcarinpool(p1);//  получить указатель на авто.
+			//Command<COMMAND_SET_CHAR_OBJ_DESTROY_CAR>(CPools::GetPedRef(ped), CPools::GetVehicleRef(car));
 			ped->SetObjective(OBJECTIVE_DESTROY_CAR, car); //уничтожить машину 01D9
 			return 0;
 
@@ -3760,7 +3765,7 @@ int ped_shutdown(lua_State* L) {// отключение текущего ору�
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
-};
+}; 
 
 int is_ped_damage_from_ped(lua_State* L) {// получил ли пед урон от педа.
 	try {
@@ -3884,6 +3889,7 @@ int Createped(lua_State* L) {// макрос создать педа.
 	return 0;
 };
 int expectations(int model, CVehicle* car) {
+
 	while (true) {
 		this_thread::sleep_for(chrono::milliseconds(10));// задержка
 		if (car->IsVisible()) {
@@ -3908,16 +3914,8 @@ int Createcar(lua_State* L) {// макрос создать авто на коо
 			load_model_before_avalible(model); // загрузить модель полносттью. 
 
    			Command<COMMAND_CREATE_CAR>(model, pos.x, pos.y, pos.z, &car);
-			//std::thread(expectations, model, std::ref(car)).detach();
+			std::thread(expectations, model, std::ref(car)).detach();
 
-			while (true) {
-				this_thread::sleep_for(chrono::milliseconds(10));// задержка
-				if (car->IsVisible()) {
-
-					Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
-					break;
-				}
-			};
 			car->m_nLockStatus = 1;
 			mapcars.emplace(car, L);// добавить в map для авто.
 			lua_pushlightuserdata(L, car);// отправить в стек указатель на авто.
@@ -6544,7 +6542,7 @@ int setstatusmission(bool flag) { // уcтановить флага миссии
 };
 
 void writelog(const char x[]) {// запись ошибок в файл.
-	
+	mtx.lock();
 	string path = "lualoader\\log.txt";// куда пишем ошибки.
 	fstream f1; {f1.open(path, fstream::in | fstream::out | fstream::app);
 	f1 << x; time_t rawtime; struct tm* timeinfo;
@@ -6552,4 +6550,5 @@ void writelog(const char x[]) {// запись ошибок в файл.
 	strftime(buffer, sizeof(buffer), " %d-%m-%Y %I:%M:%S ", timeinfo);// датируем загрузки скриптов.
 	string er2(buffer); f1 << er2 << "\n"; }
 	f1.close();
+	mtx.unlock();
 };

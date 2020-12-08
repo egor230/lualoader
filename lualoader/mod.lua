@@ -417,7 +417,7 @@ function races()-- отсчет времени перед стартом.
  end 
  
 
-function car_in_radius(car, x1, y1, z1, rx, ry, rz)
+function car_in_radius_mod(car, x1, y1, z1, rx, ry, rz)
 local x,y,z=getcarcoordes(car)
 if rx == 0 and ry == 0 and x == x1 and y == y1
 then return true
@@ -430,7 +430,7 @@ else return false
 end
 end 
 
-function ped_in_radius(player, x1, y1, z1, rx, ry, rz) 
+function ped_in_radius_mod(player, x1, y1, z1, rx, ry, rz) 
 wait(50)
 local x,y,z=getpedcoordes(player)
 if rx == 0 and ry == 0 and x == x1 and y == y1
@@ -527,9 +527,9 @@ function Star_mission_marker(t,x,y,z)
     then ped_frozen(0)
     local mycar = ped_car(player)
     while not 0 == getcarspeed(mycar) and is_car_stopped(mycar) do wait(100) end
-    fade(0,1100) 
-      wait(1000) 
       setflagmission(true) -- установить флаг миссии
+      fade(0,1100) 
+      wait(1000) 
       exitcar(player) 
       while true do wait(500)
        if not is_ped_in_car(player)

@@ -619,7 +619,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "textbox", textbox); // 258 вывести сообщение в textbox.
 	lua_register(L, "remove_textbox", remove_textbox); // 259 удалить сообщение на textbox.
 	lua_register(L, "get_controller", get_controller); // 260 получить контролер от игрока.
-	lua_register(L, "create_pickup_clothes", create_pickup_clothes); // 260  создать пикап одежды.
+	lua_register(L, "create_pickup_clothes", create_pickup_clothes); // 260 создать пикап одежды.
 	lua_register(L, "set_riot_intensity", set_riot_intensity); // 261 уст уровень шума беспорядков.
 	lua_register(L, "set_ped_walk_style", set_ped_walk_style); // 262 установить стиль ходьбы педа.
 	lua_register(L, "check_car_resray", check_car_resray); // 263 проверить авто игрока было перекрашена в гараже.
@@ -635,17 +635,19 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ispedscreen", ispedscreen); // 273 пед виден.
 	lua_register(L, "iscarscreen", iscarscreen); // 274 авто видно.
 	lua_register(L, "isobjscreen", isobjscreen); // 276 объект виден.
-	lua_register(L, "ped_follow_ped", ped_follow_ped); // 277 пед следует за педом.
-	lua_register(L, "set_cars_damaged", set_cars_damaged); // 278 Все авто повреждены.
-	lua_register(L, "set_ped_targetted", set_ped_targetted); // 279 запрет целиться в педа.
-	lua_register(L, "set_ped_friend", set_ped_friend); // 280 уст дружественное отношения педа.
-	lua_register(L, "set_ped_running", set_ped_running); // 281 пед может бежать.
-	lua_register(L, "set_ped_damaged_gang", set_ped_damaged_gang); // 282 уст педа уязвимым для членов банды.
-	lua_register(L, "is_ped_damaged_weapon", is_ped_damaged_weapon); // 283 пед получает от определенного вида оружие.
-	lua_register(L, "is_car_damaged_weapon", is_car_damaged_weapon); // 284 авто получает от определенного вида оружие.
-	lua_register(L, "isped_in_air", isped_in_air); // 285 пед в воздухе.
+	lua_register(L, "ispeddead", ispeddead); // 277 пед мертв.
+	lua_register(L, "iscardead", iscardead); // 278 авто уничтожено.
+	lua_register(L, "ped_follow_ped", ped_follow_ped); // 279 пед следует за педом.
+	lua_register(L, "set_cars_damaged", set_cars_damaged); // 280 Все авто повреждены.
+	lua_register(L, "set_ped_targetted", set_ped_targetted); // 281 запрет целиться в педа.
+	lua_register(L, "set_ped_friend", set_ped_friend); // 282 уст дружественное отношения педа.
+	lua_register(L, "set_ped_running", set_ped_running); // 283 пед может бежать.
+	lua_register(L, "set_ped_damaged_gang", set_ped_damaged_gang); // 284 уст педа уязвимым для членов банды.
+	lua_register(L, "is_ped_damaged_weapon", is_ped_damaged_weapon); // 285 пед получает от определенного вида оружие.
+	lua_register(L, "is_car_damaged_weapon", is_car_damaged_weapon); // 286 авто получает от определенного вида оружие.
+	lua_register(L, "isped_in_air", isped_in_air); // 287 пед в воздухе.
 
-	lua_register(L, "exitcar", exitcar); // 286 выйти из авто.
+	lua_register(L, "exitcar", exitcar); // 288 выйти из авто.
 
 	return 0;
 };

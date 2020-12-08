@@ -1,3 +1,4 @@
-loaded F:\games\GTA Vice City\lualoader\test.lua 04-12-2020 04:49:09 
-loaded F:\games\GTA Vice City\lualoader\mod.lua 04-12-2020 04:49:09 
-loaded F:\games\GTA Vice City\lualoader\array.lua 04-12-2020 04:49:09 
+loaded F:\games\GTA Vice City\lualoader\test.lua 09-12-2020 12:39:24 
+loaded F:\games\GTA Vice City\lualoader\mod.lua 09-12-2020 12:39:24 
+loaded F:\games\GTA Vice City\lualoader\mission hijack a taxi.lua 09-12-2020 12:39:24 
+bad argument in function remove_obj 09-12-2020 12:40:29 

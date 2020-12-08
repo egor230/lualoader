@@ -13,15 +13,20 @@ while true do wait()-- задержка.
 -- ped_rebuff(ped, 1)-- отвечать на атаки.
 -- set_ped_stats_to(ped,16)-- уст враждебность педа.
 -- ped_search_threat(ped,1)-- пед ищет угрозу.  
-	-- set_radio(9,1)-- выключить радио.
-	-- car = Createcar("MODEL_PCJ600",x,y,z) 
-	-- Giveweaponped(player,600,"m4")-- дать педу оружие.
+	set_radio(9,1)-- выключить радио.
+  x,y,z = getcoordinates_on_y(player, 10)
+	car = Createcar("MODEL_PCJ600",x,y,z) 
+	-- wait(1000)
+ -- ped_attack_car(ped, car)
+	remove_car(car)
+	Giveweaponped(player,600,"uzi")-- дать педу оружие.
       --create_newthread(f,1000)
  end
-		  if Keypress("VK_J") -- если клавиша H.
-   then  setcord(player, 478.2, -117.4, 10.1)
+	if Keypress("VK_J") -- если клавиша H.
+     then -- show_save_menu()
+	setcord(player, 325.5, 1199.1, 27.6)
   
-  end 
+   end 
   end
  
 end
