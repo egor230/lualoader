@@ -1,36 +1,34 @@
 require("lualoader/mod")
-function f(n)
-givemoney(n)
-printmessage("~r~end script 1", 3400,1 )
-end
 function main()
 while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
- if Keypress("VK_H") -- если клавиша H.
-  then  
-  -- x,y,z = getcoordinates_on_y(player, 5)
-  -- ped = Createped("HMYST", x,y,z)
--- ped_rebuff(ped, 1)-- отвечать на атаки.
--- set_ped_stats_to(ped,16)-- уст враждебность педа.
--- ped_search_threat(ped,1)-- пед ищет угрозу.  
-	-- set_radio(9,1)-- выключить радио.
-  -- x,y,z = getcoordinates_on_y(player, 10)
-	-- car = Createcar("MODEL_PCJ600",x,y,z) 
-	-- wait(1000)
- -- ped_attack_car(ped, car)
-	-- remove_car(car)
-	-- Giveweaponped(player,600,"uzi")-- дать педу оружие.
-      -- create_newthread(f,1000)
+ if Keypress("VK_G") -- если клавиша H.
+  then mod_autoaim("M40", "on")  printmessage("~r~on autoaim", 3400,1 )
  end
+
+ if Keypress("VK_H") -- если клавиша H.
+  then  mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
+ end
+ 
+	if Keypress("VK_J") -- если клавиша H.
+     then Giveweaponped(player,600,"M40")-- дать педу оружие.
+    end 
+  end
+ 
+end
+
+  --Giveweaponped(player,600,"sniper")-- дать педу оружие.
+   -- wait(1000)
+   
 	-- if Keypress("VK_J") -- если клавиша H.
      -- then -- show_save_menu()
 	-- setcord(player, 325.5, 1199.1, 27.6)
   
    -- end 
-  end
- 
-end
- 
+ -- printmessage("value = "..tostring(string.format("%.d", res)), 3400,1 ) 
+  -- file = io.open('autoaim.txt', 'a') -- открыть файл для записи 
+  -- file:write(tostring(string.format("%.d", res)))    
+  -- file:close()
 		  -- if Keypress("VK_J") -- если клавиша H.
    -- then  setcord(player, 495.7, -1734.3, 13.7)
   

@@ -103,8 +103,8 @@ map<string, int> name_weapon_list = { {"unarmed", 0}, {"brassknuckle", 259}, {"s
 map<string, int> types_weapon_list = { {"unarmed", 0}, {"brassknuckle", 1}, {"screwdriver", 2}, {"golfclub", 3}, {"nitestick", 4},
 {"knifecur", 5}, {"bat", 6}, {"hammer", 7}, {"cleaver", 8}, {"machete", 9}, {"katana", 10}, {"chnsaw", 11}, {"grenade", 12},
 {"bomb", 13}, {"teargas", 14}, {"molotov", 15}, {"missile", 16}, {"colt45", 17}, {"python", 18}, {"chromegun", 19}, {"shotgspa", 20},
-{"buddyshot", 21}, {"tec9", 22}, {"uzi", 23}, {"ingramsl", 24}, {"mp5lng", 25}, {"m4", 26}, {"ruger", 27}, {"laser", 29},
-{"rocketla", 30}, {"flame", 31}, {"M60", 32}, {"sniper", 32}, {"M60", 32}, {"sniper", 32}, {"minigun", 33}, {"fingers", 34},
+{"buddyshot", 21}, {"tec9", 22}, {"uzi", 23}, {"ingramsl", 24}, {"mp5lng", 25}, {"m4", 26}, {"ruger", 27},  {"sniper", 28}, 
+{"laser", 29}, {"rocketla", 30}, {"flame", 31}, {"M60", 32}, {"M60", 32}, {"minigun", 33}, {"fingers", 34},
 {"minigun2", 35}, {"camera", 36} };
 
 map<string, int> name_peds_list = { {"ARMY", 4}, {"BFOBE", 40}, {"BFORI", 36}, {"BFOST", 32}, {"BFOTR", 44}, {"BFYBE", 38},
@@ -560,7 +560,15 @@ int is_ped_damaged_weapon(lua_State* L); // пед получает от опр�
 
 int is_car_damaged_weapon(lua_State* L); // авто получает от определенного вида оружие.
 int isped_in_air(lua_State* L); // пед в воздухе.
+int set_threat_for_ped_type(lua_State* L); // уст враждебность типа педа к другим типам педа.
+int clean_threat_for_ped_type(lua_State* L); // Убрать враждебность типа педа к другим типам педа.
 
+int create_phone(lua_State* L); // создать телефон на координатах.
+int on_phone(lua_State* L); // вкл телефон.
+int off_phone(lua_State* L); // выкл телефон.
+int read_memory(lua_State* L); // читать адрес памяти.
+
+int write_memory(lua_State* L); // записать адрес памяти.
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -3559,16 +3567,16 @@ int set_skin(lua_State* L) {// установить скин педа.
 };
 
 int del_anim(lua_State* L) {// удалить анимацию.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {//число.
-			//const void* p = lua_topointer(L, 1);
-			//CPed* ped = findpedinpool(p);//  получить указатель на педа.
-			//
-			int tipe = lua_tointeger(L, 1);
+	try {// CAnimManager::BlendAnimation(PlayerPed->rwObject, 0, 14, 10000.0f);.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) ) {//число.
 
-			//CAnimManager::RemoveAnimBlockRef(tipe);
-			//b->RemoveAnimBlockRefWithoutDelete(tipe);
-			return 0;
+			const void* p = lua_topointer(L, 1);
+			int tipe = 0;
+			int idanimation = 3;
+			int time = 100;
+			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			RpClump* pe = ped->m_pRwClump;
+			CAnimManager::BlendAnimation(pe, tipe, idanimation, time);
 		}
 		else { throw "bad argument in function del_anim"; }
 	}
@@ -4931,6 +4939,46 @@ int ped_search_threat(lua_State* L) {// пед ищет угрозу.
 Угроза педа в представлении поля флага
 Этот код операции устанавливает враждебность персонажа по отношению к другим типам педов 
 и атакует опасный тип педа при появлении. Действие этого кода операции можно очистить с помощью кода операции 01ED .
+
+Threat - это что-то типа реакции на всё, не только на людей (в случае с людьми - агрессия в их сторону). Есть, например, 
+реакция (страх) на оружие (1048576), на трупы (33554432) и т.п. Т.е. по сути - то же самое, что в файле data/ped.dat в строке 
+threat для каждого типа педов.
+Как и в том файле, актеру можно выдать несколько threat к разным типам "угроз". В случае того опкода 011A, такие цифры(флаги) 
+будут просто суммироваться. Т.е. если нужна агрессия и к игроку (1), и к прохожим (16) и 
+к полиции (64) - итоговый флаг будет 81 (1+16+64).
+Все эти виды threat можно посмотреть тут:
+https://gtamods.com/wiki/03F1#Ped_threats
+Еще добавлю, что по опыту, эти threat иногда могут работать странно или некорректно с созданными актерами. Не знаю, мои ли 
+это косяки были или ошибка в исходном коде игры. Но готовься к странностям, в общем.
+Flag	Binary	Enum
+GTA III	Vice City
+1	00 0000 0000 0000 0000 0000 0001	THREAT_PLAYER1
+2	00 0000 0000 0000 0000 0000 0010	THREAT_PLAYER2
+4	00 0000 0000 0000 0000 0000 0100	THREAT_PLAYER3
+8	00 0000 0000 0000 0000 0000 1000	THREAT_PLAYER4
+16	00 0000 0000 0000 0000 0001 0000	THREAT_CIVMALE
+32	00 0000 0000 0000 0000 0010 0000	THREAT_CIVFEMALE
+64	00 0000 0000 0000 0000 0100 0000	THREAT_COP
+128	00 0000 0000 0000 0000 1000 0000	THREAT_GANG_MAFIA	THREAT_GANG_CUBAN
+256	00 0000 0000 0000 0001 0000 0000	THREAT_GANG_TRIAD	THREAT_GANG_HAITIAN
+512	00 0000 0000 0000 0010 0000 0000	THREAT_GANG_DIABLO	THREAT_GANG_STREET
+1024	00 0000 0000 0000 0100 0000 0000	THREAT_GANG_YAKUZA	THREAT_GANG_DIAZ
+2048	00 0000 0000 0000 1000 0000 0000	THREAT_GANG_YARDIE	THREAT_GANG_SECURITY
+4096	00 0000 0000 0001 0000 0000 0000	THREAT_GANG_COLOMBIAN	THREAT_GANG_BIKER
+8192	00 0000 0000 0010 0000 0000 0000	THREAT_GANG_HOOD	THREAT_GANG_PLAYER
+16384	00 0000 0000 0100 0000 0000 0000		THREAT_GANG_GOLFER
+32768	00 0000 0000 1000 0000 0000 0000		THREAT_GANG9
+65536	00 0000 0001 0000 0000 0000 0000	THREAT_EMERGENCY
+131072	00 0000 0010 0000 0000 0000 0000	THREAT_PROSTITUTE
+262144	00 0000 0100 0000 0000 0000 0000	THREAT_CRIMINAL
+524288	00 0000 1000 0000 0000 0000 0000	THREAT_SPECIAL
+1048576	00 0001 0000 0000 0000 0000 0000	THREAT_GUN
+2097152	00 0010 0000 0000 0000 0000 0000	THREAT_COP_CAR
+4194304	00 0100 0000 0000 0000 0000 0000	THREAT_FAST_CAR
+8388608	00 1000 0000 0000 0000 0000 0000	THREAT_EXPLOSION
+16777216	01 0000 0000 0000 0000 0000 0000	THREAT_FIREMAN
+33554432	10 0000 0000 0000 0000 0000 0000	THREAT_DEADPEDS
+Example
 */
 			return 0;
 
@@ -6234,6 +6282,208 @@ int isped_in_air(lua_State* L) {// пед в воздухе.
 	return 0;
 };
 
+int set_threat_for_ped_type(lua_State* L) {// уст враждебность типа педа к другим типам педа.
+	try {// 03F1: pedtype 9 add_threat 1.
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {//числа.
+
+			int t1 = lua_tointeger(L, 1);// тип педа агрессор.
+			int t2 = lua_tointeger(L, 2);// жертва.
+
+			Command<COMMAND_SET_THREAT_FOR_PED_TYPE>(t1, t2);
+			return 0;
+		}
+		else { throw "bad argument in function set_threat_for_ped_type"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int clean_threat_for_ped_type(lua_State* L) {// Убрать враждебность типа педа к другим типам педа.
+	try {//03F2: pedtype 9 remove_threat 1. 
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {//числа.
+			
+			int t1 = lua_tointeger(L, 1);// тип педа агрессор.
+			int t2 = lua_tointeger(L, 2);// жертва.
+
+			Command<COMMAND_CLEAR_THREAT_FOR_PED_TYPE>(t1, t2);
+			return 0;
+		}
+		else { throw "bad argument in function clean_threat_for_ped_type"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+}; 
+
+int create_phone(lua_State* L) {// создать телефон на координатах.
+	try {// 024A: $292 = get_phone_at 36.90385 -1023.3 
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {//числа.
+
+			float x = lua_tonumber(L, 1);// координата x.
+			float y = lua_tonumber(L, 2);// координата y.
+
+/*Получает таксофон в точке координат
+Синтаксис 024A: [ var ] = get_phone_at [ flt1 ] [ flt2 ]
+[ var ] Переменная для хранения ручки телефона
+[ flt1 ] X-координата
+[ flt2 ] Координата Y
+Этот код операции получает объект таксофона, соответствующий названию модели phonebooth1, который может быть помещен в мир через файл IPL,
+ближайший к точке координат, и назначает ему дескриптор. В игре можно сохранить до 49 телефонов. Если таксофон уже взят, он берет
+следующий ближайший таксофон. Сам по себе этот код операции не создает объект таксофона. Точка с координатами не должна быть точной,
+но ее расстояние от телефона-автомата должно быть в пределах 100 единиц, иначе игра может вылететь.*/
+			int fhone;// id телефона.
+			Command<COMMAND_GRAB_PHONE>(x, y, fhone);
+			lua_pushinteger(L, fhone);
+			return 1;
+		}
+		else { throw "bad argument in function create_phone"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int on_phone(lua_State* L) {// вкл телефон.
+	try {// 0405: enable_phone $292
+		if (LUA_TNUMBER == lua_type(L, 1)) {//числа.
+
+			int phone = lua_tonumber(L, 1);// координата x.
+/* Включает таксофон
+0405: enable_phone [ телефонный номер ]
+Параметр [ телефонный номер ]
+Ручка телефона Этот код операции включает таксофон путем звонка и увеличения движения объекта таксофона. 
+Телефон можно выключить с помощью кода операции 024E. */
+			Command<COMMAND_TURN_PHONE_ON>(phone);
+			return 0;
+		}
+		else { throw "bad argument in function on_phone"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int off_phone(lua_State* L) {// выкл телефон.
+	try {//024E: disable_phone $292 Выключает таксофон
+		if (LUA_TNUMBER == lua_type(L, 1)) {//числа.
+
+			int phone = lua_tonumber(L, 1);// id телефона.
+/*  024E: disable_phone [ телефонный номер ]
+Параметр [ телефонный номер ]
+Ручка телефона Этот код операции выключает телефон-автомат. Все эффекты, связанные с активным телефоном-автоматом, 
+удаляются: звонки, чрезмерные движения и любые телефонные сообщения.*/
+			Command<COMMAND_TURN_PHONE_OFF>(phone);
+			return 0;
+		}
+		else { throw "bad argument in function off_phone"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int read_memory(lua_State* L) {// читать адрес памяти.
+	try {// 0A8D: $result = read_memory 1@ size 4 virtual_protect 0
+
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {//числа.
+			int address = lua_tointeger(L, 1);// адрес памяти.
+			int size = lua_tointeger(L, 2);// размер ячейки памяти.
+			if (size == 1)	{
+				char res = patch::GetChar(address);
+				lua_pushinteger(L, res);
+				return 1;
+			};
+
+			if (size == 2)	{
+				int res1 = patch::GetInt(address);
+				lua_pushinteger(L, res1);
+				return 1;
+			};
+
+			if (size == 4)	{
+				float res1 = patch::GetFloat(address);
+				lua_pushinteger(L, res1);
+				return 1;
+			};
+		}
+		else { throw "bad argument in function read_memory"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int write_memory(lua_State* L) {// записать адрес памяти.
+	try {//0A8C: write_memory 0xC0BC15 size 1 value 1 virtual_protect 0
+
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {//числа.
+			int address = lua_tointeger(L, 1);// адрес памяти.
+			int size = lua_tointeger(L, 2);// размер ячейки памяти.
+			int value = lua_tointeger(L, 3);// значение памяти.
+			if (size == 1)	{
+				patch::SetChar(address, value);
+				return 0;
+			};
+
+			if (size == 2)	{
+
+				patch::SetShort(address, value);
+				return 0;
+			};
+
+			if (size == 4)	{
+
+				float value1 = lua_tonumber(L, 3);// значение памяти.
+				patch::SetFloat(address, value1);
+				return 0;
+			};			
+		}
+		else { throw "bad argument in function write_memory"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int is_car_model(lua_State* L) {// проверить на конкретную модель авто.
+	try {// 0137: car $5651 id == #YARDIE 
+		if (LUA_TSTRING == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {// строка и указатель на авто.
+			const char* name_model = lua_tostring(L, 1);// модель авто.
+
+			int model = find_in_map(car_model_list, name_model);
+			const void* p = lua_topointer(L, 2);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			
+			bool check = Command<COMMAND_IS_CAR_MODEL>(CPools::GetVehicleRef(car), model);
+			lua_pushboolean(L, check);
+			return 1;
+			}// int
+
+		else { throw "bad argument in function is_car_model"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+ 
+int set_player_control(lua_State* L) {// выкл телефон.
+	try {//01B4: set_player $player_char can_move 1
+		if (LUA_TNUMBER == lua_type(L, 1)) {//числа.
+
+			int mod = lua_tonumber(L, 1);// координата x.
+
+			Command<COMMAND_SET_PLAYER_CONTROL>(mod);
+			return 0;
+
+			/*	Устанавливает контроль над персонажем игрока 01B4: set_player[игрок ручка] can_move[INT]
+	Параметр [ручка игрока]	Ручка игрока [int]	0 = неконтролируемый, 1 = управляемый(по умолчанию)
+	SET_PLAYER_CONTROL
+	Этот код операции устанавливает контроль над персонажем игрока.Отключение управления предотвратит влияние любых входных сигналов
+	на персонажа игрока и камеру, которая следует за персонажем игрока.Многие эффекты в окружающей среде происходят, когда персонаж
+	заморожен, в том числе тушение всех пожаров, игнорирование всеми пешеходами игрока и мгновенная остановка транспортного средства
+	игрока, если игрок ведет машину.
+	Command<COMMAND_SET_PLAYER_CONTROL>(CWorld::PlayerInFocus, angle); 
+			*/
+		}
+		else { throw "bad argument in function off_phone"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 
 CPed* findpedinpool(const void* p) {// найти педа в пуле.
 	for (auto ped : CPools::ms_pPedPool) {

@@ -581,7 +581,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_save_pos_attack", ped_save_pos_attack);// 219 пед сохраняет ли свою позицию при атаке.	
 	lua_register(L, "ped_rebuff", ped_rebuff);// 220 пед атакует любого, кто нападает на него.
 	lua_register(L, "ped_search_threat", ped_search_threat);// 221 пед ищет угрозу.	
-	lua_register(L, "ped_clean_threat", ped_clean_threat);// 222  очистить угрозы для педа.	
+	lua_register(L, "ped_clean_threat", ped_clean_threat);// 222 очистить угрозы для педа.	
 	lua_register(L, "save_car_color", save_car_color);// 223 авто сохраняет цвет при перекраске.	
 	lua_register(L, "is_car_passenger_free", is_car_passenger_free);// 224 Проверяет, свободно ли место пассажира в авто.
 	lua_register(L, "set_ped_bleeding", set_ped_bleeding);// 225 вкл\выкл крованные у педа.	
@@ -646,8 +646,15 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_ped_damaged_weapon", is_ped_damaged_weapon); // 285 пед получает от определенного вида оружие.
 	lua_register(L, "is_car_damaged_weapon", is_car_damaged_weapon); // 286 авто получает от определенного вида оружие.
 	lua_register(L, "isped_in_air", isped_in_air); // 287 пед в воздухе.
+	lua_register(L, "set_threat_for_ped_type", set_threat_for_ped_type); // 288 уст враждебность типа педа к другим типам педа.
+	lua_register(L, "clean_threat_for_ped_type", clean_threat_for_ped_type); // 289 Убрать враждебность типа педа к другим типам педа.
+	lua_register(L, "create_phone", create_phone); // 290 создать телефон на координатах.
+	lua_register(L, "on_phone", on_phone); // 291 вкл телефон.
+	lua_register(L, "off_phone", off_phone); // 292 выкл телефон.
+	lua_register(L, "read_memory", read_memory); // 293 читать адрес памяти.
+	lua_register(L, "write_memory", write_memory); // 294 записать адрес памяти.
 
-	lua_register(L, "exitcar", exitcar); // 288 выйти из авто.
+	lua_register(L, "exitcar", exitcar); // 295 выйти из авто.
 
 	return 0;
 };
@@ -884,7 +891,7 @@ int Opendoorcar(lua_State* L) { // Макрос открыть все двери
 };
 
 int ped_anim(lua_State* L) {// анимация.
-	try {
+	try {// CAnimManager::BlendAnimation(PlayerPed->rwObject, 0, 14, 10000.0f);
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
 			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {//число.
 

@@ -845,6 +845,40 @@ end  -- printmessage("angle = ".. tostring( angle1), 1300, 1)
  set_camera_position(x1,y1,z, 0.0, 0.0, 0.0)
 end
 
+function mod_autoaim(weapon, switch)
+ if weapon =="M4"
+   then if switch =="on"
+        then write_memory(0x5349DB, 2, 0x9090)
+		end
+		if switch =="off"
+        then write_memory(0x5349DB, 2, -125627532)
+		end
+	end
+	 if weapon =="ruger"
+     then if switch =="on"
+        then write_memory(0x5349E0, 2, 0x9090)
+		end
+		if switch =="off"
+        then write_memory(0x5349E0, 2, -125628812)
+		end
+	end
+	 if weapon =="M90"
+     then if switch =="on"
+        then write_memory(0x5349D1, 2, 0x9090)
+		end
+		if switch =="off"
+        then write_memory(0x5349D1, 2,  -108852876)
+		end
+	end
+end
+-- res = read_memory(adres,2)
+-- write_memory(adres, 2, 0x9090)
+-- 05DF: write_memory 0x5349DB size 2 value 0x9090 virtual_protect 1 //M4 -125627532
+-- 05DF: write_memory 0x5349E0 size 2 value 0x9090 virtual_protect 1 //ruger -125628812
+-- 05DF: write_memory 0x5349E5 size 2 value 0x9090 virtual_protect 1 //M60 -108852876
+-- 05DF: write_memory 0x5349D1 size 2 value 0x9090 virtual_protect 1 //sniper rifle (29)--125626252
+-- 05DF: write_memory 0x5349D6 size 2 value 0x9090 virtual_protect 1 //sniper rifle (28)-125627532
+-- 05DF: write_memory 0x5349C8 size 2 value 0x9090 virtual_protect 1 //rocket launcher-125627532 	
 --[[
 метки
 0 Место назначения Маленький розовый квадрат, неиспользованный
