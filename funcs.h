@@ -569,6 +569,13 @@ int off_phone(lua_State* L); // выкл телефон.
 int read_memory(lua_State* L); // читать адрес памяти.
 
 int write_memory(lua_State* L); // записать адрес памяти.
+int is_sphere_onscreen(lua_State* L); // видна точка на радаре.
+int set_ped_can_shot_in_car(lua_State* L); // водитель авто может получить пули.
+int iscarfire(lua_State* L); // авто горит?
+
+int is_car_damage_by_car(lua_State* L); // Если авто получило урон от другого авто.
+int show_text_gtx_table(lua_State* L); // вывести текст из таблицы.
+
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -725,7 +732,6 @@ int getcarhealth(lua_State* L) { // получить кол-во здоровь�
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
 };
-
 
 int setcarhealth(lua_State* L) {// установить здоровье авто.
 	try {
@@ -920,7 +926,11 @@ int setcartask(lua_State* L) {// установить задачу авто.
 				const void* p = lua_topointer(L, 1);
 
 				CVehicle* car = findcarinpool(p);//  получить указатель на авто.
-
+/*0 - авто игрока(управляется на расстоянии через жопу/альтернативное управление)
+1 - авто бота(игрок не может зайти/выйти из машины)
+2 - езда по трафику
+3- машина тормозит
+5 - авто превращается в физический обьект, как например взорванное*/
 				int task = lua_tointeger(L, 2);// задача авто.
 				if (task == 0) {
 					car->m_autoPilot.m_nCarMission = MISSION_NONE;
@@ -1550,9 +1560,7 @@ int getpedcoordinates_on_y(lua_State* L) {// // Получить мировую 
 		}
 		else { throw "bad argument in function getpedcoordinates_on_y"; }
 	}
-	catch (const char* x) {
-		writelog(x);
-	}
+	catch (const char* x) {	writelog(x);}
 };
 
 int getcarcoordinates_on_x(lua_State* L) {// Получить мировую координату по x для авто.
@@ -2195,7 +2203,8 @@ int car_in_point_in_radius(lua_State* L) {// проверить находитс
 			float x = lua_tonumber(L, 2);
 			float y = lua_tonumber(L, 3);
 			float z = lua_tonumber(L, 4);
-			float radius = lua_tonumber(L, 5);// радиус.		//lua_pop(L, lua_gettop(L));
+			float radius = lua_tonumber(L, 5);// радиус.		
+			lua_pop(L, lua_gettop(L));
 			bool check = car->IsSphereTouchingVehicle(x, y, z, radius);
 			lua_pushboolean(L, check);		//lua_pushboolean(L, Command<COMMAND_LOCATE_CAR_3D>(CPools::GetVehicleRef(car), x, y, z, rx, ry, rz));
 			return 1;
@@ -2968,7 +2977,7 @@ int add_stuck_car_check(lua_State* L) {// условия для того, что
 			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 			float distance = lua_tonumber(L, 2);// дистанция. 
 			int time = lua_tointeger(L, 3);// время.
-			Command<COMMAND_ADD_STUCK_CAR_CHECK>(time, distance, CPools::GetVehicleRef(car));// условия для того, чтобы авто считалась застрявшей.
+			Command<COMMAND_ADD_STUCK_CAR_CHECK>(CPools::GetVehicleRef(car), distance, time);// условия для того, чтобы авто считалась застрявшей.
 			return 0;
 		}
 		else { throw "bad argument in function add_stuck_car_check"; }
@@ -3983,6 +3992,7 @@ int Giveweaponped(lua_State* L) {// макрос дать педу оружие 
 				load_model_before_avalible(model); // загрузить модель полносттью. 
 				int type = find_in_map(types_weapon_list, name_weapon);// тип оружие.
 				ped_weapon_give(ped, type, ammo);
+				this_thread::sleep_for(chrono::milliseconds(1));// задержка
 				Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
 			}
 
@@ -4377,7 +4387,7 @@ int is_ped_in_this_car(lua_State* L) {// игрок в этом авто?
 
 			const void* p1 = lua_topointer(L, 2);
 			CVehicle* car = findcarinpool(p1);//  получить указатель на авто.
-			if (ped->m_pVehicle == car) {// в авто пед?
+			if (ped  == car->m_pDriver ||  car->IsPassenger(ped)) {// в авто пед?
 				lua_pushboolean(L, true);
 				return 1;
 			}
@@ -5272,7 +5282,6 @@ int set_ped_immunities(lua_State* L) {// уст иммунитеты педу.
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
 };
-
 int set_car_immunities(lua_State* L) {// уст иммунитеты авто.
 	try {// 02AC: set_car 0@ immunities 1 1 1 1 1 
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
@@ -5921,7 +5930,7 @@ int cleanarea(lua_State* L) {//очистить арену.
 	try {
 		//0395: clear_area 0 at 473.713 - 149.895 10.546 range 1.0
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
-			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TBOOLEAN == lua_type(L, 5)) {
+			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5)) {
 			/*	Очищает область с указанными координатами, удаляя все транспортные средства и пешеходов.
 			Если первый логический параметр установлен на 1, все снаряды и частицы удаляются, даже если они не находятся в указанной области.
 Параметры (v2)	1) Координата X (Float) (FLOAT)
@@ -5932,7 +5941,7 @@ int cleanarea(lua_State* L) {//очистить арену.
 			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);
 			float z = lua_tonumber(L, 3);
 			float r = lua_tonumber(L, 4);
-			bool s = lua_toboolean(L, 5);  
+			int s = lua_tointeger(L, 5);
 			CVector pos = { x, y, z };
 			Command<COMMAND_CLEAR_AREA>(s, r, pos.x, pos.y, pos.z);
 			return 0;
@@ -6306,6 +6315,15 @@ int clean_threat_for_ped_type(lua_State* L) {// Убрать враждебно�
 			int t2 = lua_tointeger(L, 2);// жертва.
 
 			Command<COMMAND_CLEAR_THREAT_FOR_PED_TYPE>(t1, t2);
+/* 03F2: pedtype 4 remove_threat 1048576
+3)...PROFIT!
+
+UPD:
+Пардон, это не исправит проблему - педы лишь перестанут "бояться" стрельбы, 
+а от самих пуль по-прежнему отпрыгивают...
+
+*/
+
 			return 0;
 		}
 		else { throw "bad argument in function clean_threat_for_ped_type"; }
@@ -6479,12 +6497,144 @@ int set_player_control(lua_State* L) {// выкл телефон.
 	Command<COMMAND_SET_PLAYER_CONTROL>(CWorld::PlayerInFocus, angle); 
 			*/
 		}
-		else { throw "bad argument in function off_phone"; }
+		else { throw "bad argument in function set_player_control"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+int is_ped_sitting_in_car(lua_State* L) {// Возвращает истину, если пед находится в указанной машине.
+	try {// 0448: actor $6312 sitting_in_car $6313.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {//число.
+
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+
+			const void* p1 = lua_topointer(L, 2);
+
+			CVehicle* car = findcarinpool(p1);//  получить указатель на авто.
+			bool check = Command<COMMAND_IS_CHAR_SITTING_IN_CAR>(CPools::GetPedRef(ped), CPools::GetVehicleRef(car)); //пед садится в авто как водитель.
+			lua_pushboolean(L, check);
+			return 1;
+		}
+		else { throw "bad argument in function is_ped_sitting_in_car"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
 };
 
+int is_sphere_onscreen(lua_State* L) {// видна точка на радаре.
+	try {// 00C2: sphere_onscreen $6330 $6331 $6332 3.0 .
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+			float x = lua_tonumber(L, 1);  float y = lua_tonumber(L, 2);
+			float z = lua_tonumber(L, 3);  float radius = lua_tonumber(L, 4);// радиус.
+			CVector pos = { x, y, z };
+			bool check = Command<COMMAND_IS_POINT_ON_SCREEN>(pos.x, pos.y, pos.z, radius); //пед садится в авто как водитель.
+			lua_pushboolean(L, check);
+			return 1;
+			/*
+			Возвращает истину, если на экране видна любая часть радиуса указанной точки.
+             Полезно для тестирования, когда игрок находится или не смотрит на что-то.
+			*/
+		}
+		else { throw "bad argument in function is_sphere_onscreen "; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int set_ped_can_shot_in_car(lua_State* L) {// водитель авто может получить пули.
+	try {// 054A: set_actor $6312 can_be_shot_in_a_car 0  
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+			/*
+Описание	Используется для предотвращения повреждений персонажа в транспортном средстве.
+Параметры (v2)	1) Дескриптор актера (Целое число) (INT)
+2) Логическое значение (1 или 0) (INT)
+			*/
+			const void* p = lua_topointer(L, 1);
+
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			int s = lua_tointeger(L, 2);// да или нет.
+			 Command<COMMAND_SET_CHAR_CAN_BE_SHOT_IN_VEHICLE>(CPools::GetPedRef(ped), s);
+			return 0;
+		}
+		else { throw "bad argument in function set_ped_can_shot_in_car"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int iscarfire(lua_State* L) {// авто горит?
+	try {// 0495: vehicle $6313 burning 
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			bool sw = Command<COMMAND_IS_CAR_ON_FIRE>(CPools::GetVehicleRef(car));
+			lua_pushboolean(L, sw);
+			return 1;
+		}
+		else { throw "bad argument in function iscarfire"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int is_car_damage_by_car(lua_State* L) {// Если авто получило урон от другого авто.
+	try {// 051D:   car 57@ damaged_by_car 40@
+
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {//указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
+
+			const void* p1 = lua_topointer(L, 2);
+
+			CVehicle* car1 = findcarinpool(p1);//  получить указатель на авто.
+
+			bool check = Command<COMMAND_HAS_CAR_BEEN_DAMAGED_BY_CAR>(CPools::GetVehicleRef(car), CPools::GetVehicleRef(car1)); //пед садится в авто как водитель.
+			lua_pushboolean(L, check);
+			return 1;
+		}
+		else { throw "bad argument in function is_car_damage_by_car"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int show_text_gtx_table(lua_State* L) {// вывести текст из таблицы.
+	try {
+		if (LUA_TSTRING == lua_type(L, 1) && LUA_TSTRING == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4)) {// значение число.
+			const char* table = lua_tostring(L, 1);// таблица.
+			const char* text = lua_tostring(L, 2);// текст.
+			int time = lua_tointeger(L, 3);	int type = lua_tointeger(L, 4);
+			Command<COMMAND_LOAD_MISSION_TEXT>(table);
+			Command<COMMAND_PRINT_NOW>(text, time, type);// .
+			lua_settop(L, 0);// очистить стек.	
+			return 0;
+		}
+
+		else { throw "bad argument in function show_text_gtx_table"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+}; 
+int load_gtx_table(lua_State* L) {// вывести текст из таблицы.
+	try {
+		if (LUA_TSTRING == lua_type(L, 1)) {// значение число.
+			const char* table = lua_tostring(L, 1);// таблицу.
+			Command<COMMAND_LOAD_MISSION_TEXT>(table);
+			lua_settop(L, 0);// очистить стек.	
+			return 0;
+		}
+
+		else { throw "bad argument in function load_gtx_table"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 CPed* findpedinpool(const void* p) {// найти педа в пуле.
 	for (auto ped : CPools::ms_pPedPool) {
 		if (ped == p) {

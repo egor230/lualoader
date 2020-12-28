@@ -871,6 +871,20 @@ function mod_autoaim(weapon, switch)
 		end
 	end
 end
+
+
+function mod_distance_between_cars(player,car, d )
+ local x,y,z = getpedcoordes(player)
+ local x1,y1,z1 = getcarcoordes(car)
+ local rx =d ry=d rz= d
+ local r2 = rx * rx + ry * ry + rz * rz;
+   x = x - x1 y = y - y1 z = z - z1
+
+if x * x + y * y + z * z <= r2
+then return false
+else return true
+end
+end
 -- res = read_memory(adres,2)
 -- write_memory(adres, 2, 0x9090)
 -- 05DF: write_memory 0x5349DB size 2 value 0x9090 virtual_protect 1 //M4 -125627532
@@ -915,18 +929,9 @@ end
 25 RADAR_ SPRITE_  СОБСТВЕННОСТЬ­ ­ ­ ­ Без спрайта
 26 RADAR_ SPRITE_ SUNYARD Sunyard LG_36 Sun Yard Sunshine Autos
 27 RADAR_ SPRITE_ SPRAY спрей LG_22 Pay 'n' Spray
-28
-RADAR_ SPRITE_ 
-TSHIRT
-Футболка LG_23 Магазин одежды
-29
-RADAR_ SPRITE_ 
-TOMMY
-Томми LG_24 Особняк Томми
-30
-ТЕЛЕФОН RADAR_ 
-SPRITE_
-Телефон LG_25 телефон убийство
+28 RADAR_ SPRITE_TSHIRT Футболка LG_23 Магазин одежды
+29 RADAR_ SPRITE_TOMMY Томми LG_24 Особняк Томми
+30 ТЕЛЕФОН RADAR_SPRITE_ Телефон LG_25 телефон убийство
 31
 RADAR_ SPRITE_ 
 RADIO_WILDSTYLE

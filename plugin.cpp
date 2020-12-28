@@ -468,7 +468,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "setcarcoordes", setcarcoordes); // 106 установить координаты авто.
 	lua_register(L, "is_car_stuck", is_car_stuck); // 107 03CE: car 12@ stuck если машина застряла.
 	lua_register(L, "is_car_upsidedown", is_car_upsidedown); // 108 01F4: car 12@ flipped если машина перевернута.
-	lua_register(L, "is_car_upright", is_car_upright); // 109 020D: car 12@ flipped если указанный автомобиль перевернут.
+	lua_register(L, "is_car_upright", is_car_upright); // 109 020D: car 12@ flipped если указанный автомобиль стоит на колесах.
 	lua_register(L, "find_road_for_car", find_road_for_car); // 110 найти дорогу.
 	lua_register(L, "setcarstrong", setcarstrong); // 111 сделать авто устойчивым.
 	lua_register(L, "putincar", putincar); // 112 переместить педа в авто.
@@ -653,8 +653,13 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "off_phone", off_phone); // 292 выкл телефон.
 	lua_register(L, "read_memory", read_memory); // 293 читать адрес памяти.
 	lua_register(L, "write_memory", write_memory); // 294 записать адрес памяти.
+	lua_register(L, "is_sphere_onscreen", is_sphere_onscreen); // 295 видна точка на радаре.
+	lua_register(L, "set_ped_can_shot_in_car", set_ped_can_shot_in_car); // 296 водитель авто может получить пули.
+	lua_register(L, "iscarfire", iscarfire); // 297 авто горит?
+	lua_register(L, "is_car_damage_by_car", is_car_damage_by_car);// 298 Если авто получило урон от другого авто.
+	lua_register(L, "show_text_gtx_table", show_text_gtx_table); // 299 вывести текст из таблицы.
 
-	lua_register(L, "exitcar", exitcar); // 295 выйти из авто.
+	lua_register(L, "exitcar", exitcar); // 300 выйти из авто.
 
 	return 0;
 };
