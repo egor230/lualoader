@@ -1,10 +1,4 @@
-loaded F:\games\GTA Vice City\lualoader\test.lua 28-12-2020 10:55:48 
-loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 28-12-2020 10:55:48 
-loaded F:\games\GTA Vice City\lualoader\mod.lua 28-12-2020 10:55:48 
-loaded F:\games\GTA Vice City\lualoader\mission kill Wife.lua 28-12-2020 10:55:48 
-bad argument in function setcarangle option of the vehicle 28-12-2020 10:56:25 
-bad argument in function setcarangle option of the vehicle 28-12-2020 10:56:25 
-bad argument in function setcarangle option of the vehicle 28-12-2020 10:57:21 
-bad argument in function setcarangle option of the vehicle 28-12-2020 11:01:15 
-bad argument in function setcarangle option of the vehicle 28-12-2020 11:01:15 
-bad argument in function setcarangle option of the vehicle 28-12-2020 11:02:45 
+loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 06-01-2021 01:19:06 
+loaded F:\games\GTA Vice City\lualoader\mod.lua 06-01-2021 01:19:06 
+loaded F:\games\GTA Vice City\lualoader\test.lua 06-01-2021 01:19:06 
+loaded F:\games\GTA Vice City\lualoader\mission hack car.lua 06-01-2021 01:19:06 

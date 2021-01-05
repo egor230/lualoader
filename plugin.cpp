@@ -360,7 +360,7 @@ public: Message() {
 int funs(lua_State* L) {// список функций.
 
 	//set_path_to_module(L); // уст путь к модулю.
-	lua_register(L, "findplayer", findplayer); // 1 возвращает указатель педа.
+	lua_register(L, "findplayer", findplayer); // 1 найти томми.
 	lua_register(L, "setpedhealth", setpedhealth); // 2 установить здоровье педу.
 	lua_register(L, "setarmour", setarmour); // 3 установить броню педу.
 	lua_register(L, "wait", wait); // 4 задержка.
@@ -658,8 +658,22 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "iscarfire", iscarfire); // 297 авто горит?
 	lua_register(L, "is_car_damage_by_car", is_car_damage_by_car);// 298 Если авто получило урон от другого авто.
 	lua_register(L, "show_text_gtx_table", show_text_gtx_table); // 299 вывести текст из таблицы.
+	lua_register(L, "ped_road_off", ped_road_off); // 300 выкл путь педов.
+	lua_register(L, "ped_road_on", ped_road_on); // 301 вкл путь педов.
+	lua_register(L, "car_road_off", car_road_off); // 302 выкл путь авто.
+	lua_register(L, "car_road_on", car_road_on); // 303 вкл путь авто.
+	lua_register(L, "getcardamage", getcardamage); // 304 получить кол-во урона авто.
+	lua_register(L, "randomfindobj", randomfindobj); // 305 найти случайный объект в радиусе.
+	lua_register(L, "findped_in_cord", findped_in_cord); // 306 найти педа в радиусе с координатами.
+	lua_register(L, "findcar_in_cord", findcar_in_cord); // 307 найти авто в радиусе с координатами.
+	lua_register(L, "findobj_in_cord", findobj_in_cord); // 308 найти объект в радиусе с координатами.
+	lua_register(L, "findped_nearest_in_cord", findped_nearest_in_cord); // 309 найти ближайшего педа в радиусе с координатами.
+	lua_register(L, "findcar_nearest_in_cord", findcar_nearest_in_cord); // 310 найти ближайшее авто в радиусе с координатами.
+	lua_register(L, "findobj_nearest_in_cord", findobj_nearest_in_cord); // 311 найти ближайший объект в радиусе с координатами.
+	lua_register(L, "getmodelindex", getmodelindex); // 312 получить id модели.
 
-	lua_register(L, "exitcar", exitcar); // 300 выйти из авто.
+
+	lua_register(L, "exitcar", exitcar); // 313 выйти из авто.
 
 	return 0;
 };

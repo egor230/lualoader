@@ -478,10 +478,9 @@ function setcolorcar(car, first, second)-- установить первый и 
 end
 
 function end_mission(text)
-
   set_traffic(1)
   set_ped_traffic(1) 
- draw_corona(false, 4.5, 6, 0, 255, 0, 0, 0,0, 0)
+  draw_corona(false, 4.5, 6, 0, 255, 0, 0, 0,0, 0)
  setflagmission(false) -- установить флаг миссии
  wait(200)
  showtext(text, 2500,0)-- вывод статуса миссии.
