@@ -1,4 +1,3 @@
-loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 06-01-2021 01:19:06 
-loaded F:\games\GTA Vice City\lualoader\mod.lua 06-01-2021 01:19:06 
-loaded F:\games\GTA Vice City\lualoader\test.lua 06-01-2021 01:19:06 
-loaded F:\games\GTA Vice City\lualoader\mission hack car.lua 06-01-2021 01:19:06 
+loaded F:\games\GTA Vice City\lualoader\open and clouse first bridge.lua 13-01-2021 09:13:40 
+loaded F:\games\GTA Vice City\lualoader\mod.lua 13-01-2021 09:13:40 
+loaded F:\games\GTA Vice City\lualoader\test.lua 13-01-2021 09:13:40 

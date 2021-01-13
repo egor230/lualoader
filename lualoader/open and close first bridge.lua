@@ -1,31 +1,15 @@
 require("lualoader/mod")
-function f(n)
-givemoney(n)
-printmessage("~r~end script 1", 3400,1 )
-end
 function main()
 
 while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
- if Keypress("VK_H") -- если клавиша H.
-  then  
-	-- setcord(player,-714.6, -489.5, 11.1)
-  x,y,z = getcoordinates_on_y(player, 5)Giveweaponped(player,600,"uzi")-- дать педу оружие.
-	car = Createcar("MODEL_PCJ600",x,y,z) 
-wait(800)	set_radio(9,1)-- выключить радио.
-	 -- setcarangle(car, getpedangle(player)  )-- уст угол авто
-	 remove_car(car)
--- 
+ if cheat("close") -- если чит введен.
+  then  mod_block_first_bridge()-- создать баррикаду на первом мосте.
  end
-	if Keypress("VK_S") -- если клавиша H.
-     then show_save_menu()
-	 x,y,z = getcoordinates_on_y(player, 1)
-	 -- mod_del_block_second_bridge()-- удалить баррикаду на мосте к острову диаса.
-	-- mod_del_block_second_bridge_on_exit()-- удалить баррикаду на первом мосте.
-	-- find_obj_and_write(x,y,z)
-  -- wait(5000)
+	if cheat("open") -- если чит введен.
+     then mod_del_block_first_bridge()-- удалить баррикаду на первом мосте.
  end end
-  --setcord(player, 325.5, 1199.1, 27.6)
+
   end
   -- end
   -- end 

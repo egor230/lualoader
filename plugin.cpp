@@ -671,9 +671,14 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "findcar_nearest_in_cord", findcar_nearest_in_cord); // 310 найти ближайшее авто в радиусе с координатами.
 	lua_register(L, "findobj_nearest_in_cord", findobj_nearest_in_cord); // 311 найти ближайший объект в радиусе с координатами.
 	lua_register(L, "getmodelindex", getmodelindex); // 312 получить id модели.
+	lua_register(L, "check_ped_in_cord", check_ped_in_cord); // 313 есть ли педа в радиусе с координатами.
+	lua_register(L, "get_ped_in_cord", get_ped_in_cord); // 314 получить педа в радиусе с координатами.
+	lua_register(L, "check_car_in_cord", check_car_in_cord); // 315 есть ли авто в радиусе с координатами.
+	lua_register(L, "get_car_in_cord", get_car_in_cord); // 316 найти авто в радиусе с координатами.
+	lua_register(L, "check_obj_in_cord", check_obj_in_cord); // 317 есть ли объект в радиусе с координатами.
+	lua_register(L, "get_obj_in_cord", get_obj_in_cord); // 318 получить объект в радиусе с координатам.
 
-
-	lua_register(L, "exitcar", exitcar); // 313 выйти из авто.
+	lua_register(L, "exitcar", exitcar); // 319 выйти из авто.
 
 	return 0;
 };

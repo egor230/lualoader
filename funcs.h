@@ -591,6 +591,15 @@ int findped_nearest_in_cord(lua_State* L); // найти ближайшего п
 int findcar_nearest_in_cord(lua_State* L); // найти ближайшее авто в радиусе с координатами.
 int findobj_nearest_in_cord(lua_State* L); // найти ближайший объект в радиусе с координатами.
 int getmodelindex(lua_State* L); // получить id модели.
+int check_ped_in_cord(lua_State* L); // есть ли педа в радиусе с координатами.
+
+int get_ped_in_cord(lua_State* L); // получить педа в радиусе с координатами.
+int check_car_in_cord(lua_State* L); // есть ли авто в радиусе с координатами.
+int get_car_in_cord(lua_State* L); // найти авто в радиусе с координатами.
+int check_obj_in_cord(lua_State* L); // есть ли объект в радиусе с координатами.
+
+int get_obj_in_cord(lua_State* L); // получить объект в радиусе с координатам.
+
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -1226,7 +1235,12 @@ int randomfindcar(lua_State* L) {//Найти случайное авто в р�
 
 					lua_pushboolean(L, true); lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
 					return 2;
-				}	}
+				}
+			};
+			CVehicle* car = NULL;
+			lua_pushboolean(L, false); lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
+			return 2;
+
 		}
 		else { throw "bad argument in function randomfindcar"; }
 	}
@@ -1240,7 +1254,7 @@ int randomfindobj(lua_State* L) {// найти случайный объект �
 			const void* p1 = lua_topointer(L, 1);
 
 			CPed* p = findpedinpool(p1);//  получить указатель на педа.
-			double radius = lua_tonumber(L, 2);	CVehicle* v = NULL;
+			double radius = lua_tonumber(L, 2);	
 				
 			for (auto obj : CPools::ms_pObjectPool) {
 				if (DistanceBetweenPoints(obj->GetPosition(), p->GetPosition()) < radius) {
@@ -6734,7 +6748,7 @@ int findped_in_cord(lua_State* L) {// найти педа в радиусе с �
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)	&& LUA_TNUMBER == lua_type(L, 4)) {
 
-				float x = lua_tointeger(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
+				float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
 				float radius = lua_tonumber(L, 4); CVector pos = { x, y, z };// вектор координат.
 				CPed* p = FindPlayerPed(); CVehicle* v = NULL;
     			if (p->m_bInVehicle && p->m_pVehicle != NULL) {// в авто пед?
@@ -6768,7 +6782,7 @@ int findcar_in_cord(lua_State* L) {// найти авто в радиусе с �
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)	&& LUA_TNUMBER == lua_type(L, 4)) {
 
-			float x = lua_tointeger(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
 			float radius = lua_tonumber(L, 4); CVector pos = { x, y, z };// вектор координат.
 			CPed* p = FindPlayerPed(); CVehicle* v = NULL;
 
@@ -6779,6 +6793,9 @@ int findcar_in_cord(lua_State* L) {// найти авто в радиусе с �
 					lua_pushboolean(L, true); lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
 					return 2;
 				}	}
+			CVehicle* car = NULL;
+			lua_pushboolean(L, false); lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
+			return 2;
 		}
 		else { throw "bad argument in function findcar_in_cord"; }
 	}
@@ -6789,8 +6806,8 @@ int findobj_in_cord(lua_State* L) {// найти объект в радиусе 
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
 
-			float x = lua_tointeger(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
-			float radius = lua_tonumber(L, 4); CVector pos = { x, y, z };// вектор координат.
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
+			float radius = lua_tonumber(L, 4);  const CVector pos = { x, y, z };// вектор координат.
 
 			for (auto obj : CPools::ms_pObjectPool) {
 				if (DistanceBetweenPoints(obj->GetPosition(), pos) < radius) {
@@ -6858,6 +6875,9 @@ int findcar_nearest_in_cord(lua_State* L) {// найти ближайшее ав
       			  if (car != v && DistanceBetweenPoints(car->GetPosition(), pos) < radius) {
 					  lua_pushboolean(L, true); lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
 						return 2;	}	}	}
+			CVehicle* car = NULL;
+			lua_pushboolean(L, false); lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
+			return 2;
 		}
 		else { throw "bad argument in function findcar_nearest_in_cord"; }
 	}
@@ -6885,7 +6905,171 @@ int findobj_nearest_in_cord(lua_State* L) {// найти ближайший об
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 };
 
+int check_obj_in_cord(lua_State* L) {// есть ли объект в радиусе с координатами.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
 
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
+			float radius = lua_tonumber(L, 4);  const CVector pos = { x, y, z };// вектор координат.
+
+			for (auto obj : CPools::ms_pObjectPool) {
+				if (DistanceBetweenPoints(obj->GetPosition(), pos) < radius) {
+					lua_pushboolean(L, true); // отправить в стек и получить из стека можно
+					return 1;
+				}
+			}//    
+			lua_pushboolean(L, false);// отправить в стек и получить из стека можно
+			return 1;
+		}
+		else { throw "bad argument in function check_obj_in_cord"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int get_obj_in_cord(lua_State* L) {// получить объект в радиусе с координатами.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
+			float radius = lua_tonumber(L, 4);  const CVector pos = { x, y, z };// вектор координат.
+
+			for (auto obj : CPools::ms_pObjectPool) {
+				if (DistanceBetweenPoints(obj->GetPosition(), pos) < radius) {
+					lua_pushlightuserdata(L, obj);// отправить в стек и получить из стека можно
+					return 1;
+				}
+			}//    
+			CObject* obj1 = NULL; 
+			lua_pushlightuserdata(L, obj1);// отправить в стек и получить из стека можно
+			return 1;
+		}
+		else { throw "bad argument in function get_obj_in_cord"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int check_ped_in_cord(lua_State* L) {// есть ли педа в радиусе с координатами.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
+			float radius = lua_tonumber(L, 4); CVector pos = { x, y, z };// вектор координат.
+			CPed* p = FindPlayerPed(); CVehicle* v = NULL;
+			if (p->m_bInVehicle && p->m_pVehicle != NULL) {// в авто пед?
+				v = p->m_pVehicle;	}// получить указатель на хенлд авто в котором сидит томии.
+
+			for (auto car : CPools::ms_pVehiclePool) {
+				if (car != v && DistanceBetweenPoints(car->GetPosition(), pos) < radius) {
+					car->CanPedExitCar(true);
+					if (CPed * p1 = car->m_pDriver) {
+						if (p1 != NULL && p1 != p) {
+							lua_pushboolean(L, true);// отправить в стек и получить из стека можно
+							return 1;
+						}
+					}
+				}
+			}
+			for (auto ped : CPools::ms_pPedPool) {
+				if (ped != p && DistanceBetweenPoints(ped->GetPosition(), pos) < radius) {
+					lua_pushboolean(L, true); // отправить в стек и получить из стека можно
+					return 1;
+				}
+			}//    
+			CPed* p2 = NULL; lua_pushboolean(L, false);
+			lua_pushlightuserdata(L, p2);// отправить в стек и получить из стека можно
+			return 2;
+		}
+		else { throw "bad argument in function check_ped_in_cord"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int get_ped_in_cord(lua_State* L) {// получить педа в радиусе с координатами.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
+			float radius = lua_tonumber(L, 4); CVector pos = { x, y, z };// вектор координат.
+			CPed* p = FindPlayerPed(); CVehicle* v = NULL;
+			if (p->m_bInVehicle && p->m_pVehicle != NULL) {// в авто пед?
+				v = p->m_pVehicle;	}// получить указатель на хенлд авто в котором сидит томии.
+
+			for (auto car : CPools::ms_pVehiclePool) {
+				if (car != v && DistanceBetweenPoints(car->GetPosition(), pos) < radius) {
+					car->CanPedExitCar(true);
+					if (CPed * p1 = car->m_pDriver) {
+						if (p1 != NULL && p1 != p) {
+							lua_pushboolean(L, true); lua_pushlightuserdata(L, p1);// отправить в стек и получить из стека можно
+							return 2;
+						}
+					}
+				}
+			}
+			for (auto ped : CPools::ms_pPedPool) {
+				if (ped != p && DistanceBetweenPoints(ped->GetPosition(), pos) < radius) {
+					lua_pushboolean(L, true); lua_pushlightuserdata(L, ped);// отправить в стек и получить из стека можно
+					return 2;
+				}
+			}//    
+			CPed* p2 = NULL; lua_pushboolean(L, false);
+			lua_pushlightuserdata(L, p2);// отправить в стек и получить из стека можно
+			return 2;
+		}
+		else { throw "bad argument in function get_ped_in_cord"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int check_car_in_cord(lua_State* L) {// есть ли авто в радиусе с координатами.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
+			float radius = lua_tonumber(L, 4); CVector pos = { x, y, z };// вектор координат.
+			CPed* p = FindPlayerPed(); CVehicle* v = NULL;
+
+			if (p->m_bInVehicle && p->m_pVehicle != NULL) {// в авто пед?
+				CVehicle* v = p->m_pVehicle;	}// получить указатель на хенлд авто в котором сидит томии.
+			for (auto car : CPools::ms_pVehiclePool) {
+				if (car != v && DistanceBetweenPoints(car->GetPosition(), pos) < radius) {
+					lua_pushboolean(L, true);// отправить в стек и получить из стека можно
+					return 1;
+				}
+			}
+				lua_pushboolean(L, false); // отправить в стек и получить из стека можно
+			    return 1;
+		}
+		else { throw "bad argument in function check_car_in_cord"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int get_car_in_cord(lua_State* L) {// найти авто в радиусе с координатами.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);	float z = lua_tonumber(L, 3);
+			float radius = lua_tonumber(L, 4); CVector pos = { x, y, z };// вектор координат.
+			CPed* p = FindPlayerPed(); CVehicle* v = NULL;
+
+			if (p->m_bInVehicle && p->m_pVehicle != NULL) {// в авто пед?
+				CVehicle* v = p->m_pVehicle;}// получить указатель на хенлд авто в котором сидит томии.
+			for (auto car : CPools::ms_pVehiclePool) {
+				if (car != v && DistanceBetweenPoints(car->GetPosition(), pos) < radius) {
+					lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
+					return 2;
+				}
+			}
+			CVehicle* car = NULL;
+			lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
+			return 1;
+		}
+		else { throw "bad argument in function get_car_in_cord"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+	
 int getcardamage(lua_State* L) { // получить кол-во урона авто.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
