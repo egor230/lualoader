@@ -397,18 +397,6 @@ end
 -- end
 
 
-function Draw_corona(...)
-local t = {...} 
-draw_corona(t) 
-t= nil
-end
-
-Co_Draw_corona= coroutine.wrap(
- function(radius, t, glow_flare, red, green, blue,x,y,z)
-  while true do  Draw_corona(radius, t, glow_flare, red, green, blue,x,y,z)
-   coroutine.yield()   end
-   end
- )
 function races()-- отсчет времени перед стартом.
   ped_frozen(0)
   sound_coordinate(7, 0.0,0.0,0.0)
@@ -429,7 +417,7 @@ function races()-- отсчет времени перед стартом.
  end 
  
 
-function car_in_radius(car, x1, y1, z1, rx, ry, rz)
+function car_in_radius_mod(car, x1, y1, z1, rx, ry, rz)
 local x,y,z=getcarcoordes(car)
 if rx == 0 and ry == 0 and x == x1 and y == y1
 then return true
@@ -442,7 +430,7 @@ else return false
 end
 end 
 
-function ped_in_radius(player, x1, y1, z1, rx, ry, rz) 
+function ped_in_radius_mod(player, x1, y1, z1, rx, ry, rz) 
 wait(50)
 local x,y,z=getpedcoordes(player)
 if rx == 0 and ry == 0 and x == x1 and y == y1
@@ -484,24 +472,15 @@ local key = tostring(key)
  end
 end
 
-function Create_obj(model, x,y,z) 
- loadmodel(model)
- load_requested_models() 
-while not availablemodel(model) do wait(1) loadmodel(model) end
-obj =  create_obj(model, x,y,z) 
-releasemodel(model)  
-return obj
-end
-
 function setcolorcar(car, first, second)-- установить первый и второй цвет авто.
  setcarfirstcolor(car, first) -- уст первый цвет авто.
  setcarseconscolor(car, second) -- уст второй цвет авто.
 end
 
 function end_mission(text)
-
   set_traffic(1)
   set_ped_traffic(1) 
+  draw_corona(false, 4.5, 6, 0, 255, 0, 0, 0,0, 0)
  setflagmission(false) -- установить флаг миссии
  wait(200)
  showtext(text, 2500,0)-- вывод статуса миссии.
@@ -547,9 +526,9 @@ function Star_mission_marker(t,x,y,z)
     then ped_frozen(0)
     local mycar = ped_car(player)
     while not 0 == getcarspeed(mycar) and is_car_stopped(mycar) do wait(100) end
-    fade(0,1100) 
-      wait(1000) 
       setflagmission(true) -- установить флаг миссии
+      fade(0,1100) 
+      wait(1000) 
       exitcar(player) 
       while true do wait(500)
        if not is_ped_in_car(player)
@@ -605,34 +584,34 @@ local rx = 3.0  ry = 4.0 rz = 2.0
  return true
  end )
  
-follow_route_for_corona_for_playercar  = coroutine.wrap(-- ехать по маршруту.
-function(mycar, road)
-local iter = 1
-for i, v in pairs(road) do
-    if i == iter
-    then x = road[i] y= road[i+1] z = road[i+2]  iter= iter+3   
-   	blip = createmarker(1,2, x,y,z) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
-	setsizemarker(blip,2)--уст размер маркера. Принимает маркер, значение его размера
-local t = {true, 4.5, 6, 0, 255, 0, 0, x,y,z}
-  draw_corona(t) -- вкл корону
-while lualoader == nil  do  wait(10)
- player = findplayer()-- получить игрока
- local b, mycar= incar(player) 
- coroutine.yield(false) 
- if b == true
- then  if car_in_point_in_radius(mycar, x, y, z, 4.0  )
-  then	sound_coordinate(7, 0.0,0.0,0.0)
-local t = {false, 4.5, 6, 0, 255, 0, 0, x,y,z}
-  draw_corona(t) -- выкл корону
-  remove_blip(blip)
-	break end
-	 end 
-	 end 
- end
- end
- return true
-end 
- )
+-- follow_route_for_corona_for_playercar  = coroutine.wrap(-- ехать по маршруту.
+-- function(mycar, road)
+-- local iter = 1
+-- for i, v in pairs(road) do
+    -- if i == iter
+    -- then x = road[i] y= road[i+1] z = road[i+2]  iter= iter+3   
+   	-- blip = createmarker(1,2, x,y,z) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
+	-- setsizemarker(blip,2)--уст размер маркера. Принимает маркер, значение его размера
+-- local t = {true, 4.5, 6, 0, 255, 0, 0, x,y,z}
+  -- draw_corona(t) -- вкл корону
+-- while lualoader == nil  do  wait(10)
+ -- player = findplayer()-- получить игрока
+ -- local b, mycar= incar(player) 
+ -- coroutine.yield(false) 
+ -- if b == true
+ -- then  if car_in_point_in_radius(mycar, x, y, z, 4.0  )
+  -- then	sound_coordinate(7, 0.0,0.0,0.0)
+-- local t = {false, 4.5, 6, 0, 255, 0, 0, x,y,z}
+  -- draw_corona(t) -- выкл корону
+  -- remove_blip(blip)
+	-- break end
+	 -- end 
+	 -- end 
+ -- end
+ -- end
+ -- return true
+-- end 
+ -- )
  
 function finish_road(car, road)
 local x= road[#road-2] 
@@ -865,6 +844,471 @@ end  -- printmessage("angle = ".. tostring( angle1), 1300, 1)
  set_camera_position(x1,y1,z, 0.0, 0.0, 0.0)
 end
 
+function mod_autoaim(weapon, switch)
+ if weapon =="M4"
+   then if switch =="on"
+        then write_memory(0x5349DB, 2, 0x9090)
+		end
+		if switch =="off"
+        then write_memory(0x5349DB, 2, -125627532)
+		end
+	end
+	 if weapon =="ruger"
+     then if switch =="on"
+        then write_memory(0x5349E0, 2, 0x9090)
+		end
+		if switch =="off"
+        then write_memory(0x5349E0, 2, -125628812)
+		end
+	end
+	 if weapon =="M90"
+     then if switch =="on"
+        then write_memory(0x5349D1, 2, 0x9090)
+		end
+		if switch =="off"
+        then write_memory(0x5349D1, 2,  -108852876)
+		end
+	end
+end
+
+
+function mod_distance_between_cars(player,car, d )
+ local x,y,z = getpedcoordes(player)
+ local x1,y1,z1 = getcarcoordes(car)
+ local rx =d ry=d rz= d
+ local r2 = rx * rx + ry * ry + rz * rz;
+   x = x - x1 y = y - y1 z = z - z1
+
+if x * x + y * y + z * z <= r2
+then return false
+else return true
+end
+end
+function obj_write(x1,y1,z1)
+
+ if check_obj_in_cord(x1,y1,z1,8)-- найти ближайший объект в радиусе с координатами.
+ then obj = get_obj_in_cord(x1,y1,z1,8)
+ m = getmodelindex(obj)
+ -- if tonumber(m) == 590
+  --then 
+  a = getobjangle(obj)
+  
+  x,y,z = getobjcoordes(obj)
+  
+ x = tonumber(string.format("%.1f", x))
+ y = tonumber(string.format("%.1f", y))
+ z = tonumber(string.format("%.1f", z))
+
+-- givemoney(m)
+ cord = tostring(x)..", "..tostring(y)..", " .. tostring(z)..", angle " .. tostring(a).." -- model ".. tostring(m).."\n"
+  file = io.open('obj.txt', 'a') -- открыть файл для записи 
+  file:write(cord)    
+  file:close()
+  end
+  
+end
+
+function find_obj_and_write(x1,y1,z1)
+
+ if check_obj_in_cord(x1,y1,z1,8)-- найти ближайший объект в радиусе с координатами.
+ then obj = get_obj_in_cord(x1,y1,z1,8)
+ m = getmodelindex(obj)
+ -- if tonumber(m) == 590
+  --then 
+  a = getobjangle(obj)
+  givemoney(m)
+  x,y,z = getobjcoordes(obj)
+  
+ x = tonumber(string.format("%.1f", x))
+ y = tonumber(string.format("%.1f", y))
+ z = tonumber(string.format("%.1f", z))
+
+ cord = tostring(x)..", "..tostring(y)..", " .. tostring(z)..", angle " .. tostring(a).." -- model ".. tostring(m).."\n"
+  file = io.open('obj.txt', 'a') -- открыть файл для записи 
+  file:write(cord)    
+  file:close()
+  end
+  
+end
+
+function mod_del_block_first_bridge()-- удалить баррикаду на первом мосте.
+ if check_obj_in_cord(-242.7, -935.7, 15.2, 3)-- проверить есть ли объект в радиусе с координатами.
+  then obj = get_obj_in_cord( -242.7, -935.7, 15.2, 3) -- получить объект в координатах.
+   m = getmodelindex(obj)-- получить id объекта.
+  if tonumber(m) == 3518 -- проверить соответствует id модели баррикады.   
+  then  remove_obj(obj)--- удалить объект.
+		ped_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
+		ped_road_on(-230.0, -464.5, 10.0, 56.85, -459.8, 20.0)
+		ped_road_on(-271.6, -504.3, 0.0, -510.5, -661.2, 55.0)
+
+		car_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
+		car_road_on(-230.0, -464.5, 10.0, 165.85, -459.8, 20.0)
+		car_road_on(-283.0, 372.0, 0.0, -137.0, 608.0, 35.0)
+		car_road_on(-291.0, -287.0, 0.0, 208.0, 648.0, 35.0)
+
+		ped_road_on(-414.0, -597.0, 12.0, -332.0, -555.0, 30.0)
+		ped_road_on(-522.414, -662.451, -9.357, -222.414, -502.451, 90.643)
+		ped_road_on(-692.193, -1522.901, 0.0, -575.311, -1453.378, 30.0)
+		ped_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
+
+		car_road_on(-721.211, 243.998, 5.0, -651.211, 693.998, 25.0)
+		car_road_on(-760.362, 101.883, 5.0, -700.362, 251.883, 25.0)
+		car_road_on(-783.906, -46.826, 5.0, -723.906, 103.174, 25.0)
+		car_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
+   wait(2000)  end
+  end
+  end
+
+function mod_block_first_bridge()-- создать баррикаду на первом мосте.
+ if not check_obj_in_cord(-242.7, -935.7, 12.2, 3)-- проверить нет ли объект в радиусе с координатами.
+  then  cleanarea(-242.7, -935.7, 12.2,50,0)
+        wait(500)
+        obj1 = Createobj(3518, -242.7, -935.7, 13.2)-- создать объект с координатами.
+   		ped_road_off(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
+		ped_road_off(-230.0, -464.5, 10.0, 56.85, -459.8, 20.0)
+		ped_road_off(-271.6, -504.3, 0.0, -510.5, -661.2, 55.0)
+
+		car_road_off(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
+		car_road_off(-230.0, -464.5, 10.0, 165.85, -459.8, 20.0)
+		car_road_off(-283.0, 372.0, 0.0, -137.0, 608.0, 35.0)
+		car_road_off(-291.0, -287.0, 0.0, 208.0, 648.0, 35.0)
+
+		ped_road_off(-414.0, -597.0, 12.0, -332.0, -555.0, 30.0)
+		ped_road_off(-522.414, -662.451, -9.357, -222.414, -502.451, 90.643)
+		ped_road_off(-692.193, -1522.901, 0.0, -575.311, -1453.378, 30.0)
+		ped_road_off(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
+
+		car_road_off(-721.211, 243.998, 5.0, -651.211, 693.998, 25.0)
+		car_road_off(-760.362, 101.883, 5.0, -700.362, 251.883, 25.0)
+		car_road_off(-783.906, -46.826, 5.0, -723.906, 103.174, 25.0)
+		car_road_off(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
+
+   wait(2000)  end
+  end
+
+function mod_del_block_second_bridge()-- удалить баррикаду на мосте к острову диаса.
+ if check_obj_in_cord(-181.5, -472.6, 11.4, 4)-- проверить есть ли объект в радиусе с координатами.
+  then obj = get_obj_in_cord(-181.5, -472.6, 11.4, 4) -- получить объект в координатах.
+      m = getmodelindex(obj)-- получить id объекта.
+  if tonumber(m) == 2447 -- проверить соответствует id модели баррикады.   
+  then remove_obj(obj)--- удалить объект.
+  obj1 = Createobj(2443, -183.8, -473.2, 10.15)
+--  -181.0, -472.7, 11.1, 0 -- 1
+-- 173.4, -446.6, 10.9, 267 -- 2
+ped_road_on(-230.0, -464.5, 10.0, 56.85, -459.8, 20.0)
+car_road_on(-230.0, -464.5, 10.0, 165.85, -459.8, 20.0)
+
+   wait(2000)  end
+  end
+ end
+ 
+function mod_block_second_bridge()-- создать баррикаду на мосте к острову диаса.
+ if not check_obj_in_cord(-181.5, -472.6, 11.4, 2)-- проверить есть ли объект в радиусе с координатами.
+  --and check_obj_in_cord(-183.8, -473.2, 10.15, 6)
+  then  cleanarea(-181.5, -472.6, 11.4, 50,0)
+        wait(500)
+  obj = get_obj_in_cord(-183.8, -473.2, 10.15, 4) -- получить объект в координатах.
+  remove_obj(obj)--- удалить объект.
+  
+  obj = Createobj(2447, -181.5, -472.6, 8.68)
+  setobjangle(obj, 101.8420715332 )
+ 
+  ped_road_off(-230.0, -464.5, 10.0, 56.85, -459.8, 20.0)
+  car_road_off(-230.0, -464.5, 10.0, 165.85, -459.8, 20.0)
+
+   wait(2000)  end
+  end
+ 
+ function mod_del_block_second_bridge_on_exit()-- удалить баррикаду на мосте к острову диаса на выходе.
+ if check_obj_in_cord(-712.5, -489.4, 12.5, 4)-- проверить есть ли объект в радиусе с координатами.
+ then obj = get_obj_in_cord(-712.5, -489.4, 12.5, 4) -- получить объект в координатах.
+    m = getmodelindex(obj)-- получить id объекта.
+  if tonumber(m) == 2446 -- проверить соответствует id модели баррикады.   
+  then remove_obj(obj)--- удалить объект.
+  
+  obj1 = Createobj(2444, -712.5, -489.4, 10.15)
+   wait(2000)   end
+  end
+ end
+ 
+ function mod_block_second_bridge_on_exit()-- создать баррикаду на мосте к острову диаса на выходе.
+ if not check_obj_in_cord(-712.5, -489.4, 12.5, 4)-- проверить нет ли объект в радиусе с координатами.
+ then  obj1 = Createobj(2446, -712.5, -489.4, 12.5)
+   wait(2000)   end
+ end
+ 
+ function mod_del_block_third_bridge()-- удалить баррикаду на мосту около гольфа клуба.
+  if check_obj_in_cord(-81.5, 81.4, 21.0, 8)-- проверить есть ли объект в радиусе с координатами.
+  then obj = get_obj_in_cord(-81.5, 81.4, 21.0, 8) -- получить объект в координатах.
+  m = getmodelindex(obj)-- получить id объекта.
+  if tonumber(m) == 2141 -- проверить соответствует id модели баррикады.   
+  then remove_obj(obj)--- удалить объект.
+   wait(2000)  end
+  end
+  end
+  
+ function mod_del_block_fourth_bridge()-- удалить баррикаду на мосту около киностудии.
+   if check_obj_in_cord(-97.3, 1061.8, 11.6, 8)-- проверить есть ли объект в радиусе с координатами.
+   then obj = get_obj_in_cord(-97.3, 1061.8, 11.6, 8) -- получить объект в координатах.
+    m = getmodelindex(obj)-- получить id объекта.
+   if tonumber(m) == 590 -- проверить соответствует id модели баррикады.   
+   then remove_obj(obj)--- удалить объект.
+   wait(2000)
+  end
+  end
+  end
+ --[[
+
+-- ped_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
+-- car_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
+-- car_road_on(63.4, 188.6, 0.0, 49.4, 189.7, 30.0)
+-- ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
+
+-- car_road_on(130.4, 368.4, 50.7, -228.4, 724.5, 0.0)
+-- car_road_on(149.8, 231.4, 0.0, 136.0, 235.3, 30.0)
+-- car_road_on(175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
+-- car_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
+-- car_road_on(-38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
+-- car_road_on(-99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
+
+-- ped_road_on(-112.495, 920.349, 0.0, 9.705, 1025.694, 30.0)
+
+-- car_road_on(63.4, 188.6, 0.0, 49.4, 189.7, 30.0)
+-- car_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
+
+-- ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
+-- car_road_on(-38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
+
+-- car_road_on(149.8, 231.4, 0.0, 136.0, 235.3, 30.0)
+-- car_road_on(175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
+
+-- ped_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
+-- car_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
+
+-- car_road_on(63.4, 188.6, 0.0, 49.4, 189.7, 30.0)
+-- car_road_on(149.8, 231.4, 0.0, 136.0, 235.3, 30.0)
+-- ped_road_on(-99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
+-- car_road_on(-99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
+-- ped_road_on(-38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
+-- car_road_on(-38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
+-- car_road_on(175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
+-- ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
+-- car_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
+
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
+
+car_road_on(130.4, 368.4, 50.7, -228.4, 724.5, 0.0)
+car_road_on(149.8, 231.4, 0.0, 136.0, 235.3, 30.0)
+car_road_on(175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
+car_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
+car_road_on(63.4, 188.6, 0.0, 49.4, 189.7, 30.0)
+car_road_on(-38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
+car_road_on(-99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
+
+ped_road_on(-112.495, 920.349, 0.0, 9.705, 1025.694, 30.0)
+
+ped_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
+ped_road_on(-230.0, -464.5, 10.0, 56.85, -459.8, 20.0)
+ped_road_on(-271.6, -504.3, 0.0, -510.5, -661.2, 55.0)
+
+car_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
+car_road_on(-230.0, -464.5, 10.0, 165.85, -459.8, 20.0)
+car_road_on(-283.0, 372.0, 0.0, -137.0, 608.0, 35.0)
+car_road_on(-291.0, -287.0, 0.0, 208.0, 648.0, 35.0)
+
+
+ped_road_on(306.885, 179.0982, -10.0907, 413.129, 203.139, 10.89)
+ped_road_on(354.9, -483.1, 21.0, 406.0, -490.0, 0.0)
+ped_road_on(369.0032, -563.5308, 8.19, 374.3449, -563.1741, 10.09998)
+ped_road_on(376.66, -453.85, -10.0, 328.91, -504.02, 30.0)
+ped_road_on(378.103, -785.55, -10.908, 448.572, -365.738, 15.096)
+ped_road_on(387.9402, -553.2854, 5.080599, 388.5724, -557.2783, 11.06856)
+
+car_road_on(360.1251, -718.2709, 5.6599, 358.0144, -714.4711, 15.5665)
+car_road_on(378.103, -785.55, -10.908, 448.572, -365.738, 15.096)
+car_road_on(397.0, 220.0, -9.71, 402.61, 191.618, 9.89)
+
+
+ped_road_on(403.8958, -706.7869, 5.047491, 401.1646, -707.5736, 12.05998)
+ped_road_on(409.0673, -567.9186, 5.203645, 407.8025, -563.9974, 11.11817)
+ped_road_on(-414.0, -597.0, 12.0, -332.0, -555.0, 30.0)
+ped_road_on(435.0, -524.0, 8.06, 471.0, -543.0, 10.22)
+ped_road_on(453.827, -521.7261, -9.8193, 458.1206, -518.6826, 9.8448)
+
+ped_road_on(459.0238, -516.2858, -9.8426, 442.6711, -521.8006, 9.3815)
+ped_road_on(461.047, -407.806, -5.549, 470.15, -391.0296, 16.9967)
+ped_road_on(463.6935, -522.5222, -9.9304, 458.2091, -523.7589, 9.9072)
+ped_road_on(467.448, -562.4217, 10.0455, 498.3176, -559.6038, 10.0255)
+ped_road_on(468.0, -77.0, 0.0, 490.0, -54.0, 30.0)
+ped_road_on(474.0, 1250.0, 17.0, 356.0, 1003.0, 32.0)
+ped_road_on(479.9, -1.4, 11.0, 450.3, 59.5, 40.0)
+
+car_road_on(435.0, -524.0, 8.06, 471.0, -543.0, 10.22)
+car_road_on(439.691, -319.016, 8.0, 533.378, 139.155, 14.0)
+car_road_on(444.9, -203.82, 8.0, 572.14, 133.77, 20.0)
+car_road_on(461.047, -407.806, -5.549, 470.15, -391.0296, 16.9967)
+
+
+ped_road_on(512.5228, -414.8388, 5.066745, 515.016, -419.5481, 12.06674)
+ped_road_on(-522.414, -662.451, -9.357, -222.414, -502.451, 90.643)
+
+car_road_on(-648.52, 629.85, 8.0, -499.21, 702.38, 15.0)
+
+ped_road_on(-692.193, -1522.901, 0.0, -575.311, -1453.378, 30.0)
+ped_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
+
+car_road_on(-721.211, 243.998, 5.0, -651.211, 693.998, 25.0)
+car_road_on(-760.362, 101.883, 5.0, -700.362, 251.883, 25.0)
+car_road_on(-783.906, -46.826, 5.0, -723.906, 103.174, 25.0)
+car_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
+
+ped_road_on(-877.0, -368.0, 5.0, -832.0, -317.0, 25.0)
+ped_road_on(-896.098, -593.101, 0.0, -855.09, -548.64, 30.0)
+ped_road_on(-918.5, -355.0, 5.0, -898.0, -328.0, 16.0)
+
+car_road_on(-827.532, -1539.617, 5.0, -747.532, -1039.617, 25.0)
+car_road_on(-837.282, -1041.814, 5.0, -777.282, -591.814, 25.0)
+car_road_on(-853.397, -149.692, 5.0, -773.397, 0.308, 25.0)
+car_road_on(-870.656, -594.54, 5.0, -810.656, -144.54, 25.0)
+car_road_on(-875.1, 1156.89, 8.0, -662.04, 738.48, 20.0)
+
+
+ped_road_on(-1012.06, 181.561, 0.0, -982.06, 216.561, 30.0)
+ped_road_on(-1031.494, -902.312, 0.0, -949.479, -821.592, 30.0)
+car_road_on(-1090.0, 0.0, 14.0, -1030.0, 90.0, 20.0)
+ped_road_on(-1176.038, -266.898, 0.0, -1012.796, -158.26, 30.0)
+car_road_on(-1208.09, 1.78, 6.0, -1172.68, 18.66, 20.0)
+car_road_on(-1400.423, -788.7123, 12.2184, -1284.43, -778.7008, 27.3309)
+
+ped_road_on(-1385.123, -855.1205, 10.0263, -1383.952, -853.1511, 28.5218)
+ped_road_on(-1386.247, -863.7204, 8.8377, -1393.27, -859.9062, 16.8377)
+ped_road_on(-1407.059, -869.3946, -5.8549, -1408.656, -873.5172, 23.8402)
+ped_road_on(-1424.038, -876.6656, 10.8537, -1422.422, -873.6301, 29.8434)
+
+
+
+
+ 
+022A: remove_forbidden_for_peds_cube 0.778 -944.7307 14.4913 7.0235 -931.7332 23.0981 
+022A: remove_forbidden_for_peds_cube -38.0 84.3 0.0 -102.3 95.1 30.0 
+022A: remove_forbidden_for_peds_cube -99.8 1041.9 0.0 -129.0 1097.4 30.0 
+
+01E7: remove_forbidden_for_cars_cube $5181 $5182 $5183 $5184 $5185 $5186 
+01E7: remove_forbidden_for_cars_cube $7477 $7478 $7479 $7480 $7481 $7482 
+
+01E7: remove_forbidden_for_cars_cube -38.0 84.3 0.0 -102.3 95.1 30.0
+01E7: remove_forbidden_for_cars_cube 63.4 188.6 0.0 49.4 189.7 30.0 
+01E7: remove_forbidden_for_cars_cube -99.8 1041.9 0.0 -129.0 1097.4 30.0 
+ 
+
+022A: remove_forbidden_for_peds_cube -112.495 920.349 0.0 9.705 1025.694 30.0 
+022A: remove_forbidden_for_peds_cube 189.8 230.3 0.0 248.0 258.5 30.0 
+  
+01E7: remove_forbidden_for_cars_cube 130.4 368.4 50.7 -228.4 724.5 0.0 
+01E7: remove_forbidden_for_cars_cube 149.8 231.4 0.0 136.0 235.3 30.0 
+01E7: remove_forbidden_for_cars_cube 175.0 236.1 0.0 161.0 242.4 30.0 
+01E7: remove_forbidden_for_cars_cube 189.8 230.3 0.0 248.0 258.5 30.0 
+
+022A: remove_forbidden_for_peds_cube -214.6 -948.8 0.0 -258.7 -920.6 30.0 
+022A: remove_forbidden_for_peds_cube -230.0 -464.5 10.0 56.85 -459.8 20.0 
+022A: remove_forbidden_for_peds_cube -271.6 -504.3 0.0 -510.5 -661.2 55.0 
+
+01E7: remove_forbidden_for_cars_cube -214.6 -948.8 0.0 -258.7 -920.6 30.0 
+01E7: remove_forbidden_for_cars_cube -230.0 -464.5 10.0 165.85 -459.8 20.0 
+01E7: remove_forbidden_for_cars_cube -283.0 372.0 0.0 -137.0 608.0 35.0 
+01E7: remove_forbidden_for_cars_cube -291.0 -287.0 0.0 208.0 648.0 35.0 
+
+
+022A: remove_forbidden_for_peds_cube 306.885 179.0982 -10.0907 413.129 203.139 10.89 
+022A: remove_forbidden_for_peds_cube 354.9 -483.1 21.0 406.0 -490.0 0.0 
+022A: remove_forbidden_for_peds_cube 369.0032 -563.5308 8.19 374.3449 -563.1741 10.09998 
+022A: remove_forbidden_for_peds_cube 376.66 -453.85 -10.0 328.91 -504.02 30.0 
+022A: remove_forbidden_for_peds_cube 378.103 -785.55 -10.908 448.572 -365.738 15.096 
+022A: remove_forbidden_for_peds_cube 387.9402 -553.2854 5.080599 388.5724 -557.2783 11.06856 
+
+01E7: remove_forbidden_for_cars_cube 360.1251 -718.2709 5.6599 358.0144 -714.4711 15.5665 
+01E7: remove_forbidden_for_cars_cube 378.103 -785.55 -10.908 448.572 -365.738 15.096 
+01E7: remove_forbidden_for_cars_cube 397.0 220.0 -9.71 402.61 191.618 9.89 
+
+
+
+022A: remove_forbidden_for_peds_cube 403.8958 -706.7869 5.047491 401.1646 -707.5736 12.05998 
+022A: remove_forbidden_for_peds_cube 409.0673 -567.9186 5.203645 407.8025 -563.9974 11.11817 
+022A: remove_forbidden_for_peds_cube -414.0 -597.0 12.0 -332.0 -555.0 30.0 
+022A: remove_forbidden_for_peds_cube 435.0 -524.0 8.06 471.0 -543.0 10.22 
+022A: remove_forbidden_for_peds_cube 453.827 -521.7261 -9.8193 458.1206 -518.6826 9.8448 
+
+022A: remove_forbidden_for_peds_cube 459.0238 -516.2858 -9.8426 442.6711 -521.8006 9.3815 
+022A: remove_forbidden_for_peds_cube 461.047 -407.806 -5.549 470.15 -391.0296 16.9967 
+022A: remove_forbidden_for_peds_cube 463.6935 -522.5222 -9.9304 458.2091 -523.7589 9.9072 
+022A: remove_forbidden_for_peds_cube 467.448 -562.4217 10.0455 498.3176 -559.6038 10.0255 
+022A: remove_forbidden_for_peds_cube 468.0 -77.0 0.0 490.0 -54.0 30.0 
+022A: remove_forbidden_for_peds_cube 474.0 1250.0 17.0 356.0 1003.0 32.0 
+022A: remove_forbidden_for_peds_cube 479.9 -1.4 11.0 450.3 59.5 40.0 
+
+01E7: remove_forbidden_for_cars_cube 435.0 -524.0 8.06 471.0 -543.0 10.22 
+01E7: remove_forbidden_for_cars_cube 439.691 -319.016 8.0 533.378 139.155 14.0 
+01E7: remove_forbidden_for_cars_cube 444.9 -203.82 8.0 572.14 133.77 20.0 
+01E7: remove_forbidden_for_cars_cube 461.047 -407.806 -5.549 470.15 -391.0296 16.9967 
+
+
+022A: remove_forbidden_for_peds_cube 512.5228 -414.8388 5.066745 515.016 -419.5481 12.06674 
+022A: remove_forbidden_for_peds_cube -522.414 -662.451 -9.357 -222.414 -502.451 90.643 
+022A: remove_forbidden_for_peds_cube -692.193 -1522.901 0.0 -575.311 -1453.378 30.0 
+022A: remove_forbidden_for_peds_cube -787.8 -519.4 10.0 -657.5 -475.2 20.0 
+
+01E7: remove_forbidden_for_cars_cube -721.211 243.998 5.0 -651.211 693.998 25.0 
+01E7: remove_forbidden_for_cars_cube -760.362 101.883 5.0 -700.362 251.883 25.0 
+01E7: remove_forbidden_for_cars_cube -783.906 -46.826 5.0 -723.906 103.174 25.0 
+01E7: remove_forbidden_for_cars_cube -787.8 -519.4 10.0 -657.5 -475.2 20.0 
+
+022A: remove_forbidden_for_peds_cube -877.0 -368.0 5.0 -832.0 -317.0 25.0 
+022A: remove_forbidden_for_peds_cube -896.098 -593.101 0.0 -855.09 -548.64 30.0 
+022A: remove_forbidden_for_peds_cube -918.5 -355.0 5.0 -898.0 -328.0 16.0 
+
+01E7: remove_forbidden_for_cars_cube -827.532 -1539.617 5.0 -747.532 -1039.617 25.0 
+01E7: remove_forbidden_for_cars_cube -837.282 -1041.814 5.0 -777.282 -591.814 25.0 
+01E7: remove_forbidden_for_cars_cube -853.397 -149.692 5.0 -773.397 0.308 25.0 
+01E7: remove_forbidden_for_cars_cube -870.656 -594.54 5.0 -810.656 -144.54 25.0 
+01E7: remove_forbidden_for_cars_cube -875.1 1156.89 8.0 -662.04 738.48 20.0 
+
+
+022A: remove_forbidden_for_peds_cube -1012.06 181.561 0.0 -982.06 216.561 30.0 
+022A: remove_forbidden_for_peds_cube -1031.494 -902.312 0.0 -949.479 -821.592 30.0 
+01E7: remove_forbidden_for_cars_cube -1090.0 0.0 14.0 -1030.0 90.0 20.0 
+022A: remove_forbidden_for_peds_cube -1176.038 -266.898 0.0 -1012.796 -158.26 30.0 
+01E7: remove_forbidden_for_cars_cube -1208.09 1.78 6.0 -1172.68 18.66 20.0 
+022A: remove_forbidden_for_peds_cube -1385.123 -855.1205 10.0263 -1383.952 -853.1511 28.5218 
+022A: remove_forbidden_for_peds_cube -1386.247 -863.7204 8.8377 -1393.27 -859.9062 16.8377 
+022A: remove_forbidden_for_peds_cube -1407.059 -869.3946 -5.8549 -1408.656 -873.5172 23.8402 
+022A: remove_forbidden_for_peds_cube -1424.038 -876.6656 10.8537 -1422.422 -873.6301 29.8434 
+
+
+
+ ]]
+-- res = read_memory(adres,2)
+-- write_memory(adres, 2, 0x9090)
+-- 05DF: write_memory 0x5349DB size 2 value 0x9090 virtual_protect 1 //M4 -125627532
+-- 05DF: write_memory 0x5349E0 size 2 value 0x9090 virtual_protect 1 //ruger -125628812
+-- 05DF: write_memory 0x5349E5 size 2 value 0x9090 virtual_protect 1 //M60 -108852876
+-- 05DF: write_memory 0x5349D1 size 2 value 0x9090 virtual_protect 1 //sniper rifle (29)--125626252
+-- 05DF: write_memory 0x5349D6 size 2 value 0x9090 virtual_protect 1 //sniper rifle (28)-125627532
+-- 05DF: write_memory 0x5349C8 size 2 value 0x9090 virtual_protect 1 //rocket launcher-125627532 	
 --[[
 метки
 0 Место назначения Маленький розовый квадрат, неиспользованный
@@ -897,33 +1341,13 @@ end
 21 RADAR_ SPRITE_ ICE мороженое LG_17 мороженое Черри Попперс
 22 RADAR_ SPRITE_ KCABS kcabs LG_18 Кауфманские кабины Такси фирма
 23 RADAR_ SPRITE_ LOVEFIST кулак любви LG_19 Кулак любви
-24
-RADAR_ SPRITE_ 
-PRINTWORKS
-ситценабивная
-фабрика
-LG_20 Печатные работы
-25
-RADAR_ SPRITE_ 
-СОБСТВЕННОСТЬ
-­ ­ ­ ­ Без спрайта
-26
-RADAR_ SPRITE_ 
-SUNYARD
-Sunyard LG_36 Sun Yard Sunshine Autos
+24 RADAR_ SPRITE_ PRINTWORKS ситценабивная фабрика LG_20 Печатные работы 
+25 RADAR_ SPRITE_  СОБСТВЕННОСТЬ­ ­ ­ ­ Без спрайта
+26 RADAR_ SPRITE_ SUNYARD Sunyard LG_36 Sun Yard Sunshine Autos
 27 RADAR_ SPRITE_ SPRAY спрей LG_22 Pay 'n' Spray
-28
-RADAR_ SPRITE_ 
-TSHIRT
-Футболка LG_23 Магазин одежды
-29
-RADAR_ SPRITE_ 
-TOMMY
-Томми LG_24 Особняк Томми
-30
-ТЕЛЕФОН RADAR_ 
-SPRITE_
-Телефон LG_25 телефон убийство
+28 RADAR_ SPRITE_TSHIRT Футболка LG_23 Магазин одежды
+29 RADAR_ SPRITE_TOMMY Томми LG_24 Особняк Томми
+30 ТЕЛЕФОН RADAR_SPRITE_ Телефон LG_25 телефон убийство
 31
 RADAR_ SPRITE_ 
 RADIO_WILDSTYLE
