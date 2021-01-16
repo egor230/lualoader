@@ -677,8 +677,9 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_in_cord", get_car_in_cord); // 316 найти авто в радиусе с координатами.
 	lua_register(L, "check_obj_in_cord", check_obj_in_cord); // 317 есть ли объект в радиусе с координатами.
 	lua_register(L, "get_obj_in_cord", get_obj_in_cord); // 318 получить объект в радиусе с координатам.
-
-	lua_register(L, "exitcar", exitcar); // 319 выйти из авто.
+	lua_register(L, "setobjangle", setobjangle); // 319  уст угол объекта.
+	
+	lua_register(L, "exitcar", exitcar); // 320 выйти из авто.
 
 	return 0;
 };

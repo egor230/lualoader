@@ -599,7 +599,7 @@ int get_car_in_cord(lua_State* L); // найти авто в радиусе с �
 int check_obj_in_cord(lua_State* L); // есть ли объект в радиусе с координатами.
 
 int get_obj_in_cord(lua_State* L); // получить объект в радиусе с координатам.
-
+int setobjangle(lua_State* L); // уст угол объекта.
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -814,6 +814,22 @@ int setpedangle(lua_State* L) {// установить угол педа.
 			}
 		}
 		else { throw "bad argument in function setcarangle option of the vehicle"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int setobjangle(lua_State* L) {// уст угол объекта.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2))  {// указатель на объект.
+			const void* p = lua_topointer(L, 1);
+			CObject* obj = findobjinpool(p);// получить указатель на педа.
+			
+			float angle = lua_tonumber(L, 2);// угол объекта.
+			Command<COMMAND_SET_OBJECT_HEADING>(CPools::GetObjectRef(obj), angle);// уст угол объекта.
+			return 0;
+		}
+		else { throw "bad argument in function setobjangle."; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
@@ -2152,9 +2168,9 @@ int getobjcoordes(lua_State* L) {// получить координаты объ
 			lua_pushnumber(L, obj->GetPosition().y);// отправить в стек.
 			lua_pushnumber(L, obj->GetPosition().z);// отправить в стек.
 			return 3;
-		}// получить координаты автоа.
+		}// получить координаты объект.
 
-		else { throw "bad argument in function getcarcoordes"; }
+		else { throw "bad argument in function getobjcoordes"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 };
