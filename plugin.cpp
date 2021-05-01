@@ -678,8 +678,60 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "check_obj_in_cord", check_obj_in_cord); // 317 есть ли объект в радиусе с координатами.
 	lua_register(L, "get_obj_in_cord", get_obj_in_cord); // 318 получить объект в радиусе с координатам.
 	lua_register(L, "setobjangle", setobjangle); // 319  уст угол объекта.
+	lua_register(L, "getcardimension", getcardimension); // 320 получить размер авто.
+	lua_register(L, "carmoveforce", carmoveforce); // 321 двигать авто с силой.
+	lua_register(L, "carturnforce", carturnforce); // 322 повернуть авто с силой.
+	lua_register(L, "car_turn_speed", car_turn_speed); // 323 повернуть авто с применением скорости.
+	lua_register(L, "carturnfrictionforce", carturnfrictionforce); // 324 повернуть авто с силой трения.
+	lua_register(L, "car_move_speed", car_move_speed); // 325 двигать авто с применением скорости.
+
+	lua_register(L, "car_turnforce_on_x", car_turnforce_on_x); // 326 Повернуть авто по оси x (вверх).
+	lua_register(L, "car_turnforce_on_y", car_turnforce_on_y); // 327 Повернуть авто по оси y (вбок).
+	lua_register(L, "car_turnforce_on_z", car_turnforce_on_z); // 328 Повернуть авто по оси z (вокруг оси).
+
+	lua_register(L, "car_moveforce_on_x", car_moveforce_on_x); // 329 Двигать авто по оси x.
+	lua_register(L, "car_moveforce_on_y", car_moveforce_on_y); // 330 Двигать авто по оси y.
+	lua_register(L, "car_moveforce_on_z", car_moveforce_on_z); // 331 Двигать авто по оси z.
 	
-	lua_register(L, "exitcar", exitcar); // 320 выйти из авто.
+	lua_register(L, "setcarrotate", setcarrotate); // 332 уст вращения авто.
+	
+	lua_register(L, "getcar_turn_on_x", getcar_turn_on_x); // 333 Получить угол поворота авто по оси x.
+	lua_register(L, "getcar_turn_on_y", getcar_turn_on_y); // 334 Получить угол поворота авто по оси y.
+	lua_register(L, "getcar_turn_on_z", getcar_turn_on_z); // 335 Получить угол поворота авто по оси z.
+	
+	lua_register(L, "carmovespeed_on_x", carmovespeed_on_x); // 336 двигать авто с скоростью по x.
+	lua_register(L, "carmovespeed_on_y", carmovespeed_on_y); // 337 двигать авто с скоростью по y.
+	lua_register(L, "carmovespeed_on_z", carmovespeed_on_z); // 338 двигать авто с скоростью по z.
+
+	lua_register(L, "car_rotate_on_x", car_rotate_on_x); // 339 двигать авто по оси x.
+	lua_register(L, "car_rotate_on_y", car_rotate_on_y); // 340 двигать авто по оси y.
+	lua_register(L, "car_rotate_on_z", car_rotate_on_z); // 341 двигать угла авто по оси z.
+	lua_register(L, "car_setrotate_on_x", car_setrotate_on_x); // 342 уст авто по оси x.
+	
+	lua_register(L, "car_setrotate_on_y", car_setrotate_on_y); // 343 уст авто по оси y.
+	lua_register(L, "car_setrotate_on_z", car_setrotate_on_z); // 344 уст авто по оси z.
+	lua_register(L, "getcar_resistance", getcar_resistance); // 345 Получить сопротивления авто трению.
+	lua_register(L, "car_rotate_turn_on_x", car_rotate_turn_on_x); // 346 уст угол поворота авто по оси x.
+
+	lua_register(L, "car_rotate_turn_on_y", car_rotate_turn_on_y); // 347 уст угол поворота авто по оси y.
+	lua_register(L, "car_rotate_turn_on_z", car_rotate_turn_on_z); // 348 уст угол поворота авто по оси z.
+
+	lua_register(L, "setcar_resistance", setcar_resistance); // 349 Уст силу сопротивления авто трению.
+	lua_register(L, "getcar_turns_on_axes", getcar_turns_on_axes); // 350 получить углы авто поворота по осям.
+	lua_register(L, "setcar_at_on_x", setcar_on_x); // 351 уст авто по оси x.
+	lua_register(L, "setcar_at_on_y", setcar_on_y); // 352 уст авто по оси y.
+
+	lua_register(L, "setcar_at_on_z", setcar_on_z); // 353 уст авто по оси z.
+	lua_register(L, "car_turn_on_x_with_speed", car_turn_on_x_with_speed); // 354 повeрнуть авто по оси x на угол со скорость.
+	lua_register(L, "car_turn_on_y_with_speed", car_turn_on_y_with_speed); // 355 повeрнуть авто по оси y на угол со скорость.
+	lua_register(L, "car_turn_on_z_with_speed", car_turn_on_z_with_speed); // 356 повeрнуть авто по оси z на угол со скорость.
+
+	lua_register(L, "car_turn_on_x_with_delay", car_turn_on_x_with_delay); // 357 повeрнуть авто по оси x на угол со задержкой.
+	lua_register(L, "car_turn_on_y_with_delay", car_turn_on_y_with_delay); // 358 повeрнуть авто по оси y на угол со задержкой.
+	lua_register(L, "car_turn_on_z_with_delay", car_turn_on_z_with_delay); // 359 повeрнуть авто по оси z на угол со задержкой.
+
+	   
+	lua_register(L, "exitcar", exitcar); // 360 выйти из авто.
 
 	return 0;
 };

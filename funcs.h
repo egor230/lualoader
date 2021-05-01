@@ -48,6 +48,9 @@
 #include "CWeaponInfo.h"
 #include "CShotInfo.h"
 #include "CMenuManager.h"
+#include "tHandlingData.h"
+#include "CMatrix.h"
+#include "CVector.h"
 
 using namespace plugin;
 using namespace std;
@@ -600,6 +603,60 @@ int check_obj_in_cord(lua_State* L); // есть ли объект в радиу
 
 int get_obj_in_cord(lua_State* L); // получить объект в радиусе с координатам.
 int setobjangle(lua_State* L); // уст угол объекта.
+int getcardimension(lua_State* L); // получить размер авто.
+
+int carmoveforce(lua_State* L);  // двигать авто с силой.
+int carturnforce(lua_State* L);  // повернуть авто с силой.
+int car_turn_speed(lua_State* L); // повернуть авто с применением скорости.
+int carturnfrictionforce(lua_State* L); // повернуть авто с силой трения.
+
+int car_move_speed(lua_State* L); // двигать авто с применением скорости.
+int car_turnforce_on_x(lua_State* L); // Повернуть авто по оси x.
+int car_turnforce_on_y(lua_State* L); // Повернуть авто по оси y.
+int car_turnforce_on_z(lua_State* L); // Повернуть авто по оси z.
+
+int car_moveforce_on_x(lua_State* L); // Двигать авто по оси x.
+int car_moveforce_on_y(lua_State* L); // Двигать авто по оси y.
+int car_moveforce_on_z(lua_State* L); // Двигать авто по оси z.
+int setcarrotate(lua_State* L);  // уст вращения авто.
+
+int getcar_turn_on_x(lua_State* L); // Получить угол поворота авто по оси x.
+int getcar_turn_on_y(lua_State* L); // Получить угол поворота авто по оси y.
+int getcar_turn_on_z(lua_State* L); // Получить угол поворота авто по оси z.
+
+int carmovespeed_on_x(lua_State* L); // двигать авто с скоростью по x.
+int carmovespeed_on_y(lua_State* L); // двигать авто с скоростью по y.
+int carmovespeed_on_z(lua_State* L); // двигать авто с скоростью по z.
+
+int car_rotate_on_x(lua_State* L); // Поворот угла авто по оси x.
+int car_rotate_on_y(lua_State* L); // Поворот угла авто по оси y.
+int car_rotate_on_z(lua_State* L); // Поворот угла авто по оси z.
+
+int car_setrotate_on_x(lua_State* L); // уст авто по оси x.
+int car_setrotate_on_y(lua_State* L); // уст авто по оси y.
+int car_setrotate_on_z(lua_State* L); // уст авто по оси z.
+
+int getcar_resistance(lua_State* L); // Получить сопротивления авто трению.
+int setcar_resistance(lua_State* L); // Уст силу сопротивления авто трению.
+int getcar_turns_on_axes(lua_State* L); // получить углы авто поворота по осям.
+
+int setcar_on_x(lua_State* L); // уст авто по оси x.
+int setcar_on_y(lua_State* L); // уст авто по оси y.
+int setcar_on_z(lua_State* L); // уст авто по оси z.
+
+int car_rotate_turn_on_x(lua_State* L); // уст угол поворота авто по оси x.
+int car_rotate_turn_on_y(lua_State* L); // уст угол поворота авто по оси y.
+int car_rotate_turn_on_z(lua_State* L); // уст угол поворота авто по оси z.
+
+int car_turn_on_x_with_speed(lua_State* L); //повeрнуть авто по оси x на угол со скорость.
+int car_turn_on_y_with_speed(lua_State* L); //повeрнуть авто по оси y на угол со скорость.
+int car_turn_on_z_with_speed(lua_State* L); //повeрнуть авто по оси z на угол со скорость.
+
+
+int car_turn_on_x_with_delay(lua_State* L); //повeрнуть авто по оси x на угол со задержкой.
+int car_turn_on_y_with_delay(lua_State* L); //повeрнуть авто по оси y на угол со задержкой.
+int car_turn_on_z_with_delay(lua_State* L); //повeрнуть авто по оси z на угол со задержкой.
+
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -1206,7 +1263,7 @@ int randomfindped(lua_State* L) {// найти педа в радиусе.
 			const void* p1 = lua_topointer(L, 1);
 
 			CPed* p = findpedinpool(p1);//  получить указатель на педа.
-			double radius = lua_tonumber(L, 2);	CVehicle* v = NULL;
+			float radius = lua_tonumber(L, 2);	CVehicle* v = NULL;
 
 			if (p->m_bInVehicle && p->m_pVehicle != NULL) {// в авто пед?
 				CVehicle* v = p->m_pVehicle;}// получить указатель на хенлд авто в котором сидит томии.
@@ -1241,7 +1298,7 @@ int randomfindcar(lua_State* L) {//Найти случайное авто в р�
 			const void* p1 = lua_topointer(L, 1);
 			CPed* p = findpedinpool(p1);//  получить указатель на авто.
 
-			double radius = lua_tointeger(L, 2);// радиус.
+			float radius = lua_tointeger(L, 2);// радиус.
 			CVehicle* v = NULL;
 
 			if (p->m_bInVehicle && p->m_pVehicle != NULL) {// в авто пед?
@@ -1270,7 +1327,7 @@ int randomfindobj(lua_State* L) {// найти случайный объект �
 			const void* p1 = lua_topointer(L, 1);
 
 			CPed* p = findpedinpool(p1);//  получить указатель на педа.
-			double radius = lua_tonumber(L, 2);	
+			float radius = lua_tonumber(L, 2);	
 				
 			for (auto obj : CPools::ms_pObjectPool) {
 				if (DistanceBetweenPoints(obj->GetPosition(), p->GetPosition()) < radius) {
@@ -1662,10 +1719,10 @@ int worldcoord(lua_State* L) {// Перевод в мировые координ
 			&& LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
 
 			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
 
+			CEntity* p1 = (CEntity*)p;
 			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
-			CVector pos = ped->m_placement.pos + ped->m_placement.right * x + ped->m_placement.up * y;
+			CVector pos = p1->m_placement.pos + p1->m_placement.right * x + p1->m_placement.up * y;
 			lua_pushnumber(L, pos.x);   lua_pushnumber(L, pos.y);
 			return 2;
 		}
@@ -2227,12 +2284,12 @@ int ped_in_point_in_radius(lua_State* L) {// проверить находитс
 			float rx = lua_tonumber(L, 5);	float ry = lua_tonumber(L, 6);	float rz = lua_tonumber(L, 7);
 
 			this_thread::sleep_for(chrono::milliseconds(10));
-			double x = ped->GetPosition().x;
-			double y = ped->GetPosition().y;
-			double z = ped->GetPosition().z;
-			double r2 = rx * rx + ry * ry + rz * rz;
+			float x = ped->GetPosition().x;
+			float y = ped->GetPosition().y;
+			float z = ped->GetPosition().z;
+			float r2 = rx * rx + ry * ry + rz * rz;
 			x = x - x1; y = y - y1; z = z - z1;
-			double res = x * x + y * y + z * z;
+			float res = x * x + y * y + z * z;
 			if (res < r2) {
 
 				lua_pushboolean(L, true);
@@ -2838,9 +2895,9 @@ int create_explosion(lua_State* L) {// Создать взрыв на коорд
 			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 1)) {// тип взрыва и координаты.
 
 			int tipe = lua_tointeger(L, 1);// тип взрыва.
-			double x = lua_tonumber(L, 2);
-			double y = lua_tonumber(L, 3);
-			double z = lua_tonumber(L, 4);
+			float x = lua_tonumber(L, 2);
+			float y = lua_tonumber(L, 3);
+			float z = lua_tonumber(L, 4);
 			/*
 			0 Стандартный средний взрыв, используется чаще всего Highslide JS
 			1 Взрыв как от коктейля Молотова. По-этому после него появлятся много огня и звук тихий. Следует также учитывать то, что именно этот взрыв визуально появляется вне зависимости высоты у самой земли. Highslide JS
@@ -3403,13 +3460,13 @@ int set_camera_and_point(lua_State* L) {// установить и переме�
 	return 0;
 };
 
-static int getcord(queue<double>q, const void* p) {
+static int getcord(queue<float>q, const void* p) {
 	CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 	while (!q.empty()) {
 		this_thread::sleep_for(chrono::milliseconds(1));
-		double x = q.front(); q.pop();
-		double y = q.front(); q.pop();
-		double z = q.front(); q.pop();
+		float x = q.front(); q.pop();
+		float y = q.front(); q.pop();
+		float z = q.front(); q.pop();
 
 		Command<COMMAND_CAR_GOTO_COORDINATES>(car, x, y, z);// авто едет на координаты.
 		while (!car->IsSphereTouchingVehicle(x, y, z, 3.0)) {
@@ -3421,7 +3478,7 @@ static int getcord(queue<double>q, const void* p) {
 	};
 	return 0;
 };
-void writelog1(double x) {// запись ошибок в файл.
+void writelog1(float x) {// запись ошибок в файл.
 	string path = "queqe.txt";
 	fstream f1; {f1.open(path, fstream::in | fstream::out | fstream::app);
 	f1 << x;  f1 << "\n"; }
@@ -3447,12 +3504,12 @@ int go_to_route(lua_State* L) {//установить маршрут авто.
 			if (LUA_TLIGHTUSERDATA == lua_type(L1, -1)) {
 				const void* p = lua_topointer(L1, -1);
 				lua_pop(L1, 1);	int counts = luaL_len(L1, 1);
-				counts += 2; queue<double>q = {};// очередь для хранение всех значение координат из файла.
+				counts += 2; queue<float>q = {};// очередь для хранение всех значение координат из файла.
 				for (int i = 1; i < counts; i++) {
 					lua_pushinteger(L1, i);
 					lua_gettable(L1, -2);
 					if (LUA_TNUMBER == lua_type(L1, -1)) {
-						double cord = lua_tonumber(L1, -1);
+						float cord = lua_tonumber(L1, -1);
 						q.push(cord); lua_pop(L1, 1);
 					}
 				};
@@ -6468,8 +6525,8 @@ int read_memory(lua_State* L) {// читать адрес памяти.
 			};
 
 			if (size == 4)	{
-				float res1 = patch::GetFloat(address);
-				lua_pushinteger(L, res1);
+				float res2 = patch::GetFloat(address);
+				lua_pushnumber(L, res2);
 				return 1;
 			};
 		}
@@ -6627,18 +6684,143 @@ int iscarfire(lua_State* L) {// авто горит?
 	return 0;
 };
 
+bool check_segment(float x1_1, float y1_1, float x1_2, float y1_2, float x2_1, float y2_1, float x2_2,  float y2_2) {
+
+	float Ua, Ub, numerator_a, numerator_b, denominator;
+	denominator = (y2_2 - y2_1) * (x1_1 - x1_2) - (x2_2 - x2_1) * (y1_1 - y1_2);
+	if (denominator == 0) {
+		if ((x1_1 * y1_2 - x1_2 * y1_1) * (x2_2 - x2_1) - (x2_1 * y2_2 - x2_2 * y2_1) * (x1_2 - x1_1) == 0 && (x1_1 * y1_2 - x1_2 * y1_1)
+			* (y2_2 - y2_1) - (x2_1 * y2_2 - x2_2 * y2_1) * (y1_2 - y1_1) == 0) {
+
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	else {
+		numerator_a = (x2_2 - x1_2) * (y2_2 - y2_1) - (x2_2 - x2_1) * (y2_2 - y1_2);
+		numerator_b = (x1_1 - x1_2) * (y2_2 - y1_2) - (x2_2 - x1_2) * (y1_1 - y1_2);
+		Ua = numerator_a / denominator;
+		Ub = numerator_b / denominator;
+		if (Ua >= 0 && Ua <= 1 && Ub >= 0 && Ub <= 1) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+};
+
 int is_car_damage_by_car(lua_State* L) {// Если авто получило урон от другого авто.
 	try {// 051D: car 57@ damaged_by_car 40@
 
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {//указатель на авто.
 
-			const void* p = lua_topointer(L, 1);	CVehicle* car = findcarinpool(p);//  получить указатель на авто.
+			const void* p = lua_topointer(L, 1);	
+			const void* p1 = lua_topointer(L, 2);	
+			//Command<COMMAND_ADD_SPHERE>(pos.x, pos.y, 10.0, 0.6, &sphere); //создать, удалить, создать сферу  
+			//Command<COMMAND_REMOVE_SPHERE>(sphere);// нужно, чтобы обойти глюк.
+			//Command<COMMAND_ADD_SPHERE>(pos.x, pos.y, 10.0, 0.6, &sphere);
+			//this_thread::sleep_for(chrono::milliseconds(10));
+			int sphere;// переменная, которая хранить id сферы. 
 
-			const void* p1 = lua_topointer(L, 2);	CVehicle* car1 = findcarinpool(p1);//  получить указатель на авто.
+			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
+			CVehicle* car1 = findcarinpool(p1);//  получить указатель на авто.
 
-			bool check = Command<COMMAND_HAS_CAR_BEEN_DAMAGED_BY_CAR>(CPools::GetVehicleRef(car), CPools::GetVehicleRef(car1)); //пед садится в авто как водитель.
-			lua_pushboolean(L, check);
+			vector<vector<float>>car_cord;// {// 1{2},3{2},3{1},1{1 } };
+			vector<vector<float>>car_cord1;
+			car_cord.resize(4, vector<float>(4));
+			car_cord1.resize(4, vector<float>(4));
+
+			CVector pos;
+			float length, width, height, x, x1, y, y1, x_end, x1_end, y_end, y1_end;
+
+			pos = car->m_pHandlingData->m_vDimensions;
+			length = pos.x; width = pos.y; height = pos.z;
+			
+			length = +0.98;	width = (width + 0.64);// / 2;
+
+			// первого авто.
+			pos = car->m_placement.pos + car->m_placement.right * width + car->m_placement.up * length;
+			car_cord[0][0] = pos.x; car_cord[0][1] = pos.y;//правый верхний угол первого авто.
+
+			pos = car->m_placement.pos + car->m_placement.right * (width * -1) + car->m_placement.up * length;
+			car_cord[0][2] = pos.x; car_cord[0][3] = pos.y;//левый верхний угол первого авто.
+			// 1 сторона
+			//car[0][0] = x; 	car[0][1] = y;  car[0][2] = x_end; car[0][3] = y_end;
+
+			car_cord[1][0] = pos.x; car_cord[1][1] = pos.y;
+
+			pos = car->m_placement.pos + car->m_placement.right * (width * -1) + car->m_placement.up * (length * -1);
+			car_cord[1][2] = pos.x; car_cord[1][3] = pos.y;	;//левый нижний угол первого авто.
+			// 2 сторона. 	//car[1][0] = 3; car[1][1] = 2;  car[1][2] = 3; car[1][3] = 1;
+
+			car_cord[2][0] = pos.x; car_cord[2][1] = pos.y;
+
+			pos = car->m_placement.pos + car->m_placement.right * width + car->m_placement.up * (length * -1);
+			car_cord[2][2] = pos.x; car_cord[3][3] = pos.y;//правый нижний угол первого авто.
+			// 3 сторона //car[2][0] = 3; car[2][1] = 1;  car[2][2] = 1; car[3][3] = 1;
+
+			car_cord[3][0] = pos.x; car_cord[3][1] = pos.y;
+
+			pos = car->m_placement.pos + car->m_placement.right * width + car->m_placement.up * length;
+			car_cord[3][2] = pos.x; car_cord[3][3] = pos.y;//правый верхний угол первого авто.	
+			// 4 сторона.			
+			//car[3][0] = 1; car[3][1] = 1;  car[3][2] = 1; car[3][3] = 2;//координанты вершин 1 прямоугольника.
+
+			// второе авто.
+			pos = car1->m_pHandlingData->m_vDimensions; 	length = pos.x; width = pos.y; height = pos.z;
+
+			length = +0.98;	width = (width + 0.64);// / 2;
+			
+			pos = car1->m_placement.pos + car1->m_placement.right * width + car1->m_placement.up * length;
+			car_cord1[0][0] = pos.x; car_cord1[0][1] = pos.y;//правый верхний угол второго авто.
+
+			pos = car1->m_placement.pos + car1->m_placement.right * (width * -1) + car1->m_placement.up * length;
+			car_cord1[0][2] = pos.x; car_cord1[0][3] = pos.y;//левый верхний угол второго авто.
+			// 1 сторона
+			//car[0][0] = 1; 	car[0][1] = 2;  car[0][2] = 3; car[0][3] = 2;
+
+			car_cord1[1][0] = pos.x; car_cord1[1][1] = pos.y;
+
+			pos = car1->m_placement.pos + car1->m_placement.right * (width * -1) + car1->m_placement.up * (length * -1);
+			car_cord1[1][2] = pos.x; car_cord1[1][3] = pos.y; ;//левый нижний угол второго авто.
+			// 2 сторона. 	//car[1][0] = 3; car[1][1] = 2;  car[1][2] = 3; car[1][3] = 1;
+
+			car_cord1[2][0] = pos.x; car_cord1[2][1] = pos.y;
+
+			pos = car1->m_placement.pos + car1->m_placement.right * width + car1->m_placement.up * (length * -1);
+			car_cord1[2][2] = pos.x; car_cord1[3][3] = pos.y;//правый нижний угол второго авто.
+			// 3 сторона //car[2][0] = 3; car[2][1] = 1;  car[2][2] = 1; car[3][3] = 1;
+
+			car_cord1[3][0] = pos.x; car_cord1[3][1] = pos.y;
+
+			pos = car1->m_placement.pos + car1->m_placement.right * width + car1->m_placement.up * length;
+			car_cord1[3][2] = pos.x; car_cord1[3][3] = pos.y;//правый верхний угол второго авто.	
+			// 4 сторона.			
+			//car[3][0] = 1; car[3][1] = 1;  car[3][2] = 1; car[3][3] = 2;//координанты вершин 2 прямоугольника.	
+
+
+			for (int i = 0; i < 4; i++) {
+				x = car_cord[i][0];	y = car_cord[i][1];	x_end = car_cord[i][2];	y_end = car_cord[i][3];
+				for (int i = 0; i < 4; i++) {
+					x1 = car_cord1[i][0];	y1 = car_cord1[i][1];	 x1_end = car_cord1[i][2];	y1_end = car_cord1[i][3];
+
+					if (check_segment(x, y, x_end, y_end, x1, y1, x1_end, y1_end) && car->m_fCollisionPower > 0 && car1->m_fCollisionPower > 0
+						&& car->GetHasCollidedWith(car1)
+						) {
+						lua_pushboolean(L, true);
+							return 1;
+					}
+				}
+			};
+
+			lua_pushboolean(L, false);
 			return 1;
+			
+						//&& 39 == car->m_nLastWeaponDamage && 39 == car->m_nLastWeaponDamage
 		}
 		else { throw "bad argument in function is_car_damage_by_car"; }
 	}
@@ -7084,7 +7266,6 @@ int get_car_in_cord(lua_State* L) {// найти авто в радиусе с �
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 };
-
 	
 int getcardamage(lua_State* L) { // получить кол-во урона авто.
 	try {
@@ -7108,13 +7289,953 @@ int getmodelindex(lua_State* L) { // получить id модели.
 			const void* p = lua_topointer(L, 1);		
 			
 			CEntity* p1 = (CEntity*)p;
-			int modelindex = p1->m_nModelIndex; // получить кол-во здоровья педа.
+			int modelindex = p1->m_nModelIndex; // получить id сущности.
 			lua_pushinteger(L, modelindex);// отправить в стек.  
 			return 1;
 		}
 		else { throw "bad argument in function getmodelindex"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int getcardimension(lua_State* L) { // получить размер авто.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			//tHandlingData* data;
+			float x, y, z; 
+			//CVector pos = { x, y, z };// вектор координат.
+			//pos =data->m_vDimensions;
+			CVector pos = car->m_pHandlingData->m_vDimensions;
+			x = pos.x; y = pos.y; z = pos.z;
+			lua_pushnumber(L, x);// отправить в стек.
+			lua_pushnumber(L, y);// отправить в стек.
+			lua_pushnumber(L, z);// отправить в стек.
+			return 3;
+		}
+		else { throw "bad argument in function getcardimension"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int carmoveforce(lua_State* L) { // двигать авто с силой.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+		
+			float x = lua_tonumber(L, 2);	float y = lua_tonumber(L, 3);		float z = lua_tonumber(L, 4);// координаты.
+			
+				car->ApplyMoveForce(x, y, z);
+			
+			return 0;
+		}
+		else { throw "bad argument in function carmoveforce"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int carturnforce(lua_State* L) { // повернуть авто с силой.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
+			&& LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6) && LUA_TNUMBER == lua_type(L, 7)) {// указатель на авто.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			
+			float x = lua_tonumber(L, 2);	float y = lua_tonumber(L, 3);
+			float z = lua_tonumber(L, 4);	float rx = lua_tonumber(L, 5);	float ry = lua_tonumber(L, 6);
+			float rz = lua_tonumber(L, 7);// координаты.
+
+			car->ApplyTurnForce(x,y,z,rx,ry,rz);
+				return 0;
+		}
+		else { throw "bad argument in function carturnforce"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+}; 
+
+int carturnfrictionforce(lua_State* L) { // повернуть авто с силой трения.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
+			&& LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6) && LUA_TNUMBER == lua_type(L, 7)) {// указатель на авто.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float x = lua_tonumber(L, 2);	float y = lua_tonumber(L, 3);
+			float z = lua_tonumber(L, 4);	float rx = lua_tonumber(L, 5);	float ry = lua_tonumber(L, 6);
+			float rz = lua_tonumber(L, 7);// координаты.
+
+			car->ApplyFrictionTurnForce(x, y, z, rx, ry, rz);
+
+			return 0;
+		}
+		else { throw "bad argument in function carturnfrictionforce"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_turn_speed(lua_State* L) { // повернуть авто с применением скорости.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) ) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+            car->ApplyTurnSpeed();
+
+			return 0;
+		}
+		else { throw "bad argument in function car_turn_speed"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_move_speed(lua_State* L) { // двигать авто с применением скорости.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			car->ApplyMoveSpeed();
+
+			//car->ApplyAirResistance();
+			return 0;
+		}
+		else { throw "bad argument in function car_move_speed"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_turnforce_on_x(lua_State* L) {// Повернуть авто по оси x.
+try {  
+	if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+		
+			const void* p = lua_topointer(L, 1);
+
+			float turn = lua_tonumber(L, 2);
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			
+			car->m_vecFrictionTurnForce.x = turn;
+			return 0;
+		}
+		else { throw "bad argument in function car_turnforce_on_x"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_turnforce_on_y(lua_State* L) {// Повернуть авто по оси y.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			float turn = lua_tonumber(L, 2);
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			car->m_vecFrictionTurnForce.y = turn;
+			return 0;
+		}
+		else { throw "bad argument in function car_turnforce_on_y"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_turnforce_on_z(lua_State* L) {// Повернуть авто по оси z.
+	static CVehicle* car;
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			float turn = lua_tonumber(L, 2);
+			 car = findcarinpool(p);// получить указатель на авто.
+
+			car->m_vecFrictionTurnForce.z = turn;// когда игрок сидит в ней может вращать.
+			return 0;
+		}
+		else { throw "bad argument in function car_turnforce_on_z"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_moveforce_on_x(lua_State* L) {// Двигать авто по оси x.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			float turn = lua_tonumber(L, 2);
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			car->m_vecFrictionMoveForce.x = turn;
+			return 0;
+		}
+		else { throw "bad argument in function car_moveforce_on_x"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_moveforce_on_y(lua_State* L) {// Повернуть авто по оси y.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			float turn = lua_tonumber(L, 2);
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			car->m_vecFrictionMoveForce.y = turn;
+			return 0;
+		}
+		else { throw "bad argument in function car_moveforce_on_y"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_moveforce_on_z(lua_State* L) {// Повернуть авто по оси z.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			float turn = lua_tonumber(L, 2);
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			car->m_vecFrictionMoveForce.z = turn;
+			return 0;
+		}
+		else { throw "bad argument in function car_move_on_z"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int setcarrotate(lua_State* L) { // уст вращения авто.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float x = lua_tonumber(L, 2);	float y = lua_tonumber(L, 3);		float z = lua_tonumber(L, 4);// координаты.
+
+			car->m_placement.SetRotate(x, y, z);
+
+			return 0;
+		}
+		else { throw "bad argument in function setcarrotate"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int carmovespeed(lua_State* L) { // двигать авто с скоростью.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float x = lua_tonumber(L, 2);	float y = lua_tonumber(L, 3);		float z = lua_tonumber(L, 4);// координаты.
+					   
+			car->m_vecMoveSpeed.x = x; car->m_vecMoveSpeed.y = y;
+			car->m_vecMoveSpeed.z = z;
+			return 0;
+		}
+		else { throw "bad argument in function carmovespeed"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int carmovespeed_on_x(lua_State* L) { // двигать авто с скоростью по x.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float x = lua_tonumber(L, 2);	
+
+			car->m_vecMoveSpeed.x = x; 
+			return 0;
+		}
+		else { throw "bad argument in function carmovespeed_on_x"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int carmovespeed_on_y(lua_State* L) { // двигать авто с скоростью по y.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float y = lua_tonumber(L, 2);
+
+			car->m_vecMoveSpeed.y = y;
+			return 0;
+		}
+		else { throw "bad argument in function carmovespeed_on_y"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int carmovespeed_on_z(lua_State* L) { // двигать авто с скоростью по z.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			float z = lua_tonumber(L, 2);
+
+			car->m_vecMoveSpeed.z = z;
+			return 0;
+		}
+		else { throw "bad argument in function carmovespeed_on_z"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_rotate_on_x(lua_State* L) {// двигать авто по оси x.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			float x = lua_tonumber(L, 2);
+			car->m_placement.RotateX(x);
+			return 0;
+		}
+		else { throw "bad argument in function car_rotate_on_x"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_rotate_on_y(lua_State* L) {// двигать авто по оси y.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			float y = lua_tonumber(L, 2);
+			car->m_placement.RotateY(y);
+			return 0;
+		}
+		else { throw "bad argument in function car_rotate_on_y"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_rotate_on_z(lua_State* L) {// двигать авто по оси z.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			float z = lua_tonumber(L, 2);
+			car->m_placement.RotateZ(z);
+			return 0;
+		}
+		else { throw "bad argument in function car_rotate_on_z"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_setrotate_on_x(lua_State* L) {// уст авто по оси x.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			float x = lua_tonumber(L, 2);
+			car->m_placement.SetRotateX(x);
+			return 0;
+		}
+		else { throw "bad argument in function car_setrotate_on_x"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_setrotate_on_y(lua_State* L) {// уст авто по оси y.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			float y = lua_tonumber(L, 2);
+			car->m_placement.SetRotateY(y);
+			return 0;
+		}
+		else { throw "bad argument in function car_setrotate_on_x"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_setrotate_on_z(lua_State* L) {// уст авто по оси z.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			float z = lua_tonumber(L, 2);
+			car->m_placement.SetRotateZ(z);
+			return 0;
+		}
+		else { throw "bad argument in function car_setrotate_on_z"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int getcar_resistance(lua_State* L) {// Получить сопротивления авто трению.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			
+			int res = int(car) + 0x0bc; //	turn resistance
+			float res1 = patch::GetFloat(res);
+			lua_pushnumber(L, res1);
+			return 1;
+		}
+		else { throw "bad argument in function getcar_resistance"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int car_rotate_turn_on_x(lua_State* L) {// уст угол поворота авто по оси x.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			double speed = lua_tonumber(L, 2);
+			double turn = lua_tonumber(L, 3);
+
+			car->m_vecTurnSpeed.x = speed;
+			car->m_vecFrictionTurnForce.x = turn;
+
+			return 0;
+		}
+		else { throw "bad argument in function car_rotate_turn_on_x"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_rotate_turn_on_y(lua_State* L) {// уст угол поворота авто по оси y.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			double speed = lua_tonumber(L, 2);
+			double turn = lua_tonumber(L, 3);
+
+			car->m_vecTurnSpeed.y = speed;
+			car->m_vecFrictionTurnForce.y = turn;
+
+			return 0;
+		}
+		else { throw "bad argument in function car_rotate_turn_on_y"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_rotate_turn_on_z(lua_State* L) {// уст угол поворота авто по оси z.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && 
+			LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			double speed = lua_tonumber(L, 2);
+			double turn = lua_tonumber(L, 3);
+			
+			car->m_vecTurnSpeed.z = speed;
+			car->m_vecFrictionTurnForce.z = turn;
+
+			return 0;
+		}
+		else { throw "bad argument in function car_rotate_turn_on_z"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int setcar_resistance(lua_State* L) {// Уст силу сопротивления авто трению.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			double resistance = lua_tonumber(L, 2);
+			int res = int(car) + 0x0bc; //	turn resistance
+			patch::SetFloat(res, resistance);
+
+			return 0;
+		}
+		else { throw "bad argument in function setcar_resistance"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int get_car_angle(CVehicle* car, vector<float>& carang);
+
+int getcar_turn_on_x(lua_State* L) {// Получить угол поворота авто по оси x.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			
+			vector<float>carang{};
+			carang.resize(3);
+			get_car_angle(car, carang);
+			float x = carang[0];
+
+			lua_pushnumber(L, x);
+			return 1;
+		}
+		else { throw "bad argument in function getcar_turn_on_x"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int getcar_turn_on_y(lua_State* L) {// Получить угол поворота авто по оси y.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			vector<float>carang{};
+			carang.resize(3);
+			get_car_angle(car, carang);
+			
+			float y = carang[1];
+			lua_pushnumber(L, y);
+			return 1;
+		}
+		else { throw "bad argument in function getcar_turn_on_y"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int getcar_turn_on_z(lua_State* L) {// Получить угол поворота авто по оси z.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
+
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			
+			vector<float>carang{};
+			carang.resize(3);
+			get_car_angle(car, carang);
+			float z = carang[2];
+
+			lua_pushnumber(L, z);
+			return 1;
+		}
+		else { throw "bad argument in function getcar_turn_on_z"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int getcar_turns_on_axes(lua_State* L){ // получить углы авто поворота по осям.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1))	{// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			float x, y, z; 
+
+			vector<float>carang{};
+			carang.resize(3);
+			get_car_angle(car, carang);
+			x = carang[0];
+			y = carang[1];
+			z = carang[2];
+
+			lua_pushnumber(L, x);
+			lua_pushnumber(L, y);
+			lua_pushnumber(L, z);
+
+			return 3;
+		}
+		else { throw "bad argument in function get_at_on_z"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+CVector* get_car_angles_on_axes(CVehicle* car);
+int turncar(CVehicle* car, float angle, float speed, int switc);
+int car_turn_on_x_with_speed(lua_State* L) {//повeрнуть авто по оси x на угол со скорость.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float angle = lua_tonumber(L, 2);
+			float speed = lua_tonumber(L, 3);
+			std::thread(turncar, std::ref(car), angle, speed, 1).detach();
+
+			return 0;
+		}
+		else { throw "bad argument in function car_turn_on_x_with_speed"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_turn_on_y_with_speed(lua_State* L) {//повeрнуть авто по оси y на угол со скорость.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float angle = lua_tonumber(L, 2);
+			float speed = lua_tonumber(L, 3);
+			std::thread(turncar, std::ref(car), angle, speed, 2).detach();
+
+			return 0;
+		}
+		else { throw "bad argument in function car_turn_on_y_with_speed"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_turn_on_z_with_speed(lua_State* L) {//повeрнуть авто по оси z на угол со скорость.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float angle = lua_tonumber(L, 2);
+			float speed = lua_tonumber(L, 3);
+			std::thread(turncar, std::ref(car), angle, speed, 3 ).detach();
+			
+			return 0;
+		}
+		else { throw "bad argument in function car_turn_on_z_with_speed"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int setcar_on_x(lua_State* L) {// уст авто по оси x.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);	float z = lua_tonumber(L, 2); //p1->m_placement.RotateZ(z);
+
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			CVector entpos = car->m_placement.pos;
+
+			(*(void(__thiscall*)(CMatrix*, float))0x4DF4F0)(&car->m_placement, 3.1415927f * z * 0.0055555557f);    //    CMatrix::SetRotateZ
+					
+			car->m_placement.pos = {
+			car->m_placement.pos.x += entpos.x,
+			car->m_placement.pos.y += entpos.y,
+			car->m_placement.pos.z += entpos.z
+			};
+
+			return 0;
+		}
+		else { throw "bad argument in function setcar_on_x"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int setcar_on_y(lua_State* L) {// уст авто по оси y.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);	float z = lua_tonumber(L, 2); //p1->m_placement.RotateZ(z);
+			
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			CVector entpos = car->m_placement.pos;
+
+			(*(void(__thiscall*)(CMatrix*, float))0x4DF450)(&car->m_placement, 3.1415927f * z * 0.0055555557f);    //    CMatrix::SetRotateZ
+
+			car->m_placement.pos = {
+			car->m_placement.pos.x += entpos.x,
+			car->m_placement.pos.y += entpos.y,
+			car->m_placement.pos.z += entpos.z
+			};
+			return 0;
+		}
+		else { throw "bad argument in function setcar_on_y"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int setcar_on_z(lua_State* L) {// уст авто по оси z.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);	
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+			
+			float z = lua_tonumber(L, 2); //p1->m_placement.RotateZ(z);
+			CVector entpos = car->m_placement.pos;
+		
+			(*(void(__thiscall*)(CMatrix*, float))0x4DF3B0)(&car->m_placement, 3.1415927f * z * 0.0055555557f);    //    CMatrix::SetRotateZ
+
+			//car->m_placement.pos = {
+			car->m_placement.pos.x = entpos.x;
+				car->m_placement.pos.y = entpos.y; 
+				car->m_placement.pos.z = entpos.z; 
+			//};
+			return 0;
+		}
+		else { throw "bad argument in function setcar_on_z"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+			/*
+			    //    axis is: 1 - X, 2 - Y, 3 - Z.
+    switch (axis)
+    {
+        case 1:
+            (*(void (__thiscall*)(CMatrix*, float))0x4DF4F0)(ent->m_matrix, 3.1415927f * deg * 0.0055555557f);    //    CMatrix::SetRotateX
+            break;
+        case 2:
+            (*(void (__thiscall*)(CMatrix*, float))0x4DF450)(ent->m_matrix, 3.1415927f * deg * 0.0055555557f);    //    CMatrix::SetRotateY
+            break;
+        case 3:
+            (*(void (__thiscall*)(CMatrix*, float))0x4DF3B0)(ent->m_matrix, 3.1415927f * deg * 0.0055555557f);    //    CMatrix::SetRotateZ
+            break;
+    }
+			*/
+};
+
+int turncar_with_delay(CVehicle* car, float angle, int time, int switc);
+int car_turn_on_x_with_delay(lua_State* L) {//повeрнуть авто по оси x на угол со задержкой.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float angle = lua_tonumber(L, 2);
+			float time = lua_tonumber(L, 3);
+			std::thread(turncar_with_delay, std::ref(car), angle, time, 1).detach();
+
+			return 0;
+		}
+		else { throw "bad argument in function car_turn_on_x_with_delay"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_turn_on_y_with_delay(lua_State* L) {//повeрнуть авто по оси y на угол со задержкой.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float angle = lua_tonumber(L, 2);
+			float time = lua_tonumber(L, 3);
+			std::thread(turncar_with_delay, std::ref(car), angle, time, 2).detach();
+
+			return 0;
+		}
+		else { throw "bad argument in function car_turn_on_y_with_delay"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int car_turn_on_z_with_delay(lua_State* L) {//повeрнуть авто по оси z на угол со задержкой.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CVehicle* car = findcarinpool(p);// получить указатель на авто.
+
+			float angle = lua_tonumber(L, 2);
+			float time = lua_tonumber(L, 3);
+			std::thread(turncar_with_delay, std::ref(car), angle, time, 3).detach();
+
+			return 0;
+		}
+		else { throw "bad argument in function car_turn_on_z_with_delay"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+};
+
+int turncar(CVehicle* car, float angle, float speed, int switc) {
+
+	speed = speed / 360;
+	while (true) {
+
+		this_thread::sleep_for(chrono::milliseconds(1));
+
+		if (switc == 1) {
+			car->m_vecFrictionTurnForce.x = speed;
+			car->m_vecTurnSpeed.x = speed;
+			CVector* anl = get_car_angles_on_axes(car);
+			if (anl->x >= angle) {// угол по оси x.
+				break;
+			}
+		}
+		if (switc == 2) {
+			car->m_vecFrictionTurnForce.y = speed;
+			car->m_vecTurnSpeed.y = speed;
+			CVector* anl = get_car_angles_on_axes(car);
+			if (anl->y >= angle) {// угол по оси y.
+				break;
+			}
+		}
+		if (switc == 3) {
+			car->m_vecFrictionTurnForce.z = speed;
+			car->m_vecTurnSpeed.z = speed;
+			CVector* anl = get_car_angles_on_axes(car);
+			if (anl->z >= angle) {// угол по оси z.
+				break;
+			}
+		}
+	};
+	return 0;
+};
+int RotationMatrixToEulerianAngle(float* RotMx, vector<float>& carang);
+int EulerianAngleNormalize360(vector<float>& EulAng);
+int get_car_angle(CVehicle* car, vector<float>& carang) {
+
+	float car_martix[9];
+	car_martix[0] = car->m_placement.right.x;
+	car_martix[1] = car->m_placement.right.y;
+	car_martix[2] = car->m_placement.right.z;
+	car_martix[3] = car->m_placement.up.x;
+	car_martix[4] = car->m_placement.up.y;
+	car_martix[5] = car->m_placement.up.z;
+	car_martix[6] = car->m_placement.at.x;
+	car_martix[7] = car->m_placement.at.y;
+	car_martix[8] = car->m_placement.at.z;
+	RotationMatrixToEulerianAngle(car_martix, carang);
+	EulerianAngleNormalize360(carang);
+
+	return 0;
+};
+int EulerianAngleToRotationMatrix(vector<float>& EulAng, vector<float>& RotMx) {
+	double cosx = cos(EulAng[0] / 57.295776);
+	double sinx = sin(EulAng[0] / 57.295776);
+	double cosy = cos(EulAng[1] / 57.295776);
+	double siny = sin(EulAng[1] / 57.295776);
+	double cosz = cos(EulAng[2] / 57.295776);
+	double sinz = sin(EulAng[2] / 57.295776);
+	RotMx[3 * 0 + 0] = (float)(cosz * cosy - sinz * sinx * siny);
+	RotMx[3 * 0 + 1] = (float)(cosz * sinx * siny + sinz * cosy);
+	RotMx[3 * 0 + 2] = (float)(-cosx * siny);
+	RotMx[3 * 1 + 0] = (float)(-sinz * cosx);
+	RotMx[3 * 1 + 1] = (float)(cosz * cosx);
+	RotMx[3 * 1 + 2] = (float)(sinx);
+	RotMx[3 * 2 + 0] = (float)(sinz * sinx * cosy + cosz * siny);
+	RotMx[3 * 2 + 1] = (float)(sinz * siny - cosz * sinx * cosy);
+	RotMx[3 * 2 + 2] = (float)(cosx * cosy);
+
+	return 0;
+};
+
+
+int EulerianAngleNormalize360(vector<float>& EulAng) {
+	if (EulAng[0] < 0) EulAng[0] = EulAng[0] + 360;
+	if (EulAng[0] >= 360) EulAng[0] = EulAng[0] - 360;
+	if (EulAng[1] < 0) EulAng[1] = EulAng[1] + 360;
+	if (EulAng[1] >= 360) EulAng[1] = EulAng[1] - 360;
+	if (EulAng[2] < 0) EulAng[2] = EulAng[2] + 360;
+	if (EulAng[2] >= 360) EulAng[2] = EulAng[2] - 360;
+	return 0;
+
+};
+
+int RotationMatrixToEulerianAngle(float* RotMx, vector<float>& carang) {
+	//double rm00 = RotMx[3*0+0];
+	//double rm01 = RotMx[3*0+1];
+	double rm02 = RotMx[3 * 0 + 2];
+	double rm10 = RotMx[3 * 1 + 0];
+	double rm11 = RotMx[3 * 1 + 1];
+	double rm12 = RotMx[3 * 1 + 2];
+	//double rm20 = RotMx[3*2+0];
+	//double rm21 = RotMx[3*2+1];
+	double rm22 = RotMx[3 * 2 + 2];
+	carang[2] = (float)(-atan2(rm10, rm11) * 57.295776);
+	carang[0] = (float)(-asin(-rm12) * 57.295776);
+	carang[1] = (float)(-atan2(rm02, rm22) * 57.295776);
+	return 0;
+};
+
+int turncar_with_delay(CVehicle* car, float angle, int time, int switc) {
+
+	while (true) {
+
+		this_thread::sleep_for(chrono::milliseconds(time));
+		float speed = 0.001;
+		if (switc == 1) {
+			car->m_vecFrictionTurnForce.x = speed;
+			car->m_vecTurnSpeed.x = speed;
+			CVector* anl = get_car_angles_on_axes(car);
+			if (anl->x >= angle) {// угол по оси x.
+				break;
+			}
+		}
+		if (switc == 2) {
+			car->m_vecFrictionTurnForce.y = speed;
+			car->m_vecTurnSpeed.y = speed;
+			CVector* anl = get_car_angles_on_axes(car);
+			if (anl->y >= angle) {// угол по оси y.
+				break;
+			}
+		}
+		if (switc == 3) {
+			car->m_vecFrictionTurnForce.z = speed;
+			car->m_vecTurnSpeed.z = speed;
+			CVector* anl = get_car_angles_on_axes(car);
+			if (anl->z >= angle) {// угол по оси z.
+				break;
+			}
+		}
+	};
 	return 0;
 };
 
@@ -7127,6 +8248,41 @@ CPed* findpedinpool(const void* p) {// найти педа в пуле.
 	};
 	CPed* ped2 = NULL;
 	return ped2;
+};
+
+CVector* get_car_angles_on_axes(CVehicle* car) {
+
+	CVector* anl;
+	float car_martix[9];
+	car_martix[0] = car->m_placement.right.x;
+	car_martix[1] = car->m_placement.right.y;
+	car_martix[2] = car->m_placement.right.z;
+	car_martix[3] = car->m_placement.up.x;
+	car_martix[4] = car->m_placement.up.y;
+	car_martix[5] = car->m_placement.up.z;
+	car_martix[6] = car->m_placement.at.x;
+	car_martix[7] = car->m_placement.at.y;
+	car_martix[8] = car->m_placement.at.z;
+	//double rm00 = RotMx[3*0+0];
+//double rm01 = RotMx[3*0+1];
+	double rm02 = car_martix[3 * 0 + 2];
+	double rm10 = car_martix[3 * 1 + 0];
+	double rm11 = car_martix[3 * 1 + 1];
+	double rm12 = car_martix[3 * 1 + 2];
+	//double rm20 = RotMx[3*2+0];
+	//double rm21 = RotMx[3*2+1];
+	double rm22 = car_martix[3 * 2 + 2];
+	anl->z = (float)(-atan2(rm10, rm11) * 57.295776);
+	anl->x = (float)(-asin(-rm12) * 57.295776);
+	anl->y = (float)(-atan2(rm02, rm22) * 57.295776);
+	if (anl->x < 0) anl->x = anl->x + 360;
+	if (anl->x >= 360) anl->x = anl->x - 360;
+	if (anl->y < 0) anl->y = anl->y + 360;
+	if (anl->y >= 360) anl->y = anl->y - 360;
+	if (anl->z < 0) anl->z = anl->z + 360;
+	if (anl->z >= 360) anl->z = anl->z - 360;
+
+	return anl;
 };
 
 CVehicle* findcarinpool(const void* p) {// найти авто в пуле.

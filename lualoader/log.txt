@@ -1,3 +1,3 @@
-loaded F:\games\GTA Vice City\lualoader\mod.lua 18-01-2021 04:14:53 
-loaded F:\games\GTA Vice City\lualoader\test.lua 18-01-2021 04:14:53 
-loaded F:\games\GTA Vice City\lualoader\open and close second bridge_on_exit.lua 18-01-2021 04:14:53 
+loaded F:\games\GTA Vice City\lualoader\mod.lua 27-04-2021 06:50:15 
+loaded F:\games\GTA Vice City\lualoader\test.lua 27-04-2021 06:50:15 
+loaded F:\games\GTA Vice City\lualoader\write_coordinate.lua 27-04-2021 06:50:15 
