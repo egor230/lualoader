@@ -36,14 +36,19 @@ VK_OEM_AUTO = 0xF3,VK_OEM_ENLW = 0xF4,VK_OEM_BACKTAB = 0xF5,VK_ATTN = 0xF6,VK_CR
 VK_EXSEL = 0xF8, VK_EREOF = 0xF9,VK_PLAY = 0xFA,VK_ZOOM = 0xFB,VK_PA1 = 0xFD, VK_OEM_CLEAR = 0xFE} 
 
 MODEL_CARS = { MODEL_LANDSTAL = 130, MODEL_IDAHO = 131, MODEL_STINGER = 132,MODEL_LINERUN = 133, 
+
 MODEL_PEREN = 134, MODEL_SENTINEL = 135, MODEL_RIO = 136, MODEL_FIRETRUK = 137, MODEL_TRASH = 138,
+
 MODEL_STRETCH = 139, MODEL_MANANA = 140, MODEL_INFERNUS = 141, MODEL_VOODOO = 142, MODEL_PONY = 143,
+
 MODEL_MULE = 144, MODEL_CHEETAH = 145, MODEL_AMBULAN = 146, MODEL_FBICAR = 147,MODEL_MOONBEAM = 148,
+
 MODEL_ESPERANT = 149, MODEL_TAXI = 150, MODEL_WASHING = 151, MODEL_BOBCAT = 152, MODEL_MRWHOOP = 153,
-MODEL_BFINJECT = 154, MODEL_HUNTER = 155, MODEL_POLICE = 156, MODEL_ENFORCER = 157,
-MODEL_SECURICA = 158, MODEL_BANSHEE = 159, MODEL_PREDATOR = 160, MODEL_BUS = 161,MODEL_RHINO = 162,
-MODEL_BARRACKS = 163,MODEL_CUBAN = 164,MODEL_CHOPPER = 165,MODEL_ANGEL = 166,MODEL_COACH = 167,
-MODEL_CABBIE = 168,MODEL_STALLION = 169,MODEL_RUMPO = 170,MODEL_RCBANDIT = 171,MODEL_ROMERO = 172,
+
+MODEL_BFINJECT = 154, MODEL_HUNTER = 155, MODEL_POLICE = 156, MODEL_ENFORCER = 157, MODEL_SECURICA = 158,
+MODEL_BANSHEE = 159, MODEL_PREDATOR = 160, MODEL_BUS = 161,MODEL_RHINO = 162, MODEL_BARRACKS = 163, MODEL_CUBAN = 164,
+MODEL_CHOPPER = 165,MODEL_ANGEL = 166,MODEL_COACH = 167, MODEL_CABBIE = 168,MODEL_STALLION = 169,MODEL_RUMPO = 170,
+MODEL_RCBANDIT = 171,MODEL_ROMERO = 172,
 MODEL_PACKER = 173,MODEL_SENTXS = 174,MODEL_ADMIRAL = 175,MODEL_SQUALO = 176,MODEL_SEASPAR = 177,
 MODEL_PIZZABOY = 178,MODEL_GANGBUR = 179,MODEL_AIRTRAIN = 180,MODEL_DEADDODO = 181,
 MODEL_SPEEDER = 182, MODEL_REEFER = 183,MODEL_TROPIC = 184,MODEL_FLATBED = 185,MODEL_YANKEE = 186,
@@ -301,13 +306,7 @@ AMINATIONS_LIST ={
 -- 172 - висит на тросе
 }
 
---for k, v in pairs(KEYS) do _G[k] = v end	
---for k, v in pairs(MODEL_CARS) do _G[k] = v end
---for k, v in pairs(MODEL_WEAPONS) do _G[k] = v end
---for k, v in pairs(PED_MODELS_AND_TYPES) do _G[k] = v end
---for k, v in pairs(WEAPONS_MODELS_AND_TYPES) do _G[k] = v end
 for k, v in pairs(DOORS_CAR) do _G[k] = v end	
---for k, v in pairs(SPEC_PED_MODELS_AND_TYPES) do _G[k] = v end	
 
 
 function delay()
@@ -359,14 +358,6 @@ end
  3 - бесплатно, одноразовый 9,11 - бомба 
  15 - эти регенерируется за 6 часов игрового времени или за 6 минут по-нормальному
 ]]-- 
--- function Create_pickup(model, typepickup, x,y,z) -- создать пикап.
--- loadmodel(model)
--- load_requested_models() 
--- while not availablemodel(model) do wait(1) loadmodel(model) end
--- local pickup = create_pickup(model,typepickup, x,y,z)
--- releasemodel(model)  
--- return pickup
--- end
 
 function remove_current_weapon_ped(ped)	-- удалить текущее оружие.
   local m = get_model_current_weapon_ped(ped) -- получить текущее оружие.
@@ -483,8 +474,8 @@ function end_mission(text)
   draw_corona(false, 4.5, 6, 0, 255, 0, 0, 0,0, 0)
  setflagmission(false) -- установить флаг миссии
  wait(200)
- showtext(text, 2500,0)-- вывод статуса миссии.
- destroy()-- удалить все объекты, которые были созданы скриптом.	 
+ destroy()-- удалить все объекты, которые были созданы скриптом.	
+ showtext(text, 2500,0)-- вывод статуса миссии. 
 end
 
 function miss(money)  text="mission passed $"..tostring(money)
@@ -802,8 +793,10 @@ function foel(model, player,weapon,x,y,z)
  return ped, m
 end
 
-function foel1(model, player,weapon,x,y,z)
+function foel1(model, player,weapon,x,y,z, angle)
+local angle=angle or 0
  local ped = Createped(model, x,y,z)
+ setpedangle(ped, angle)
  Giveweaponped(ped,600, weapon)
  kill_ped_on_foot(ped, player)
  return ped
@@ -1082,6 +1075,54 @@ function mod_block_second_bridge()-- создать баррикаду на мо
   end
   end
   end
+  function check_car(player, car)
+ m=create_marker(car) -- создать маркер над авто.
+while getflagmission() do wait(100)
+if 0 == getcarhealth(car) or iscarfire(car) or is_ped_in_this_car(player, car) 
+then removemarker(m)  break
+ end
+  if is_car_stuck(car)
+ then printmessage("~r~Car stuck", 4000,1) end 
+end
+
+while getflagmission() do wait(10)
+
+if is_ped_in_this_car(player, car) 
+then m,sp = create_marker_and_sphere(-165.7, -1344.4, 3.6, 3, 3.0) -- создать метку на карте с размером и сферу с радиусом.
+
+while getflagmission() do wait(10)
+if not is_ped_in_this_car(player, car) 
+then remove_blip(m) remove_sphere(sp) break end
+end
+end
+end
+
+remove_blip(m) remove_sphere(sp)
+end
+function create_car_with_driver(model, model_ped, x,y,z, angle)
+
+   car = Createcar(model, x,y,z) -- создать авто на 5 впереди. 
+   ped = set_ped_in_car(car, model_ped ) -- создать педа в авто
+   setcarangle(car, angle  )-- уст угол авто
+   setcartask(car, 1)-- авто едет.
+   lockstatus(car, 1)-- закрыть двери авто.  
+   setcarspeed(car, 35) setdrivingstyle(car, 2) setcarstrong(car,1)
+   create_newthread(check_car, player, car) -- запуск функции в новом потоке. 
+   wait(1500)
+   return car
+end
+  
+  
+function create_car_with_driver_back_car(model, model_ped, x,y,z, angle)
+local angle=angle or 0
+   car = Createcar(model, x,y,z) -- создать авто на 5 впереди. 
+   ped = set_ped_in_car(car, model_ped ) -- создать педа в авто
+   setcarangle(car, angle  )-- уст угол авто
+  
+   return car, ped
+end
+  
+  
  --[[
    
    

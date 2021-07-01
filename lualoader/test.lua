@@ -1,182 +1,64 @@
 require("lualoader/mod")
-function f(n)
-givemoney(n)
-printmessage("~r~end script 1", 3400,1 )
-end
-
 
 function main()
-
 while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
  if Keypress("VK_H") -- если клавиша H.
-  then  	-- setcord(player, -713.0, -501.7, 11.3)
-  x,y,z = getcoordinates_on_y(player, 5)Giveweaponped(player,600,"uzi")-- дать педу оружие.
-	car = Createcar("MODEL_PCJ600",x,y,z) 
-
-wait(800)	set_radio(9,1)-- выключить радио.
-	 setcarangle(car, getpedangle(player)  )-- уст угол авто
-	 remove_car(car)
--- 
+  then
+   x,y,z = getcoordinates_on_y(player, 5)
+	  car = Createcar("MODEL_INFERNUS",x,y,z)
+	  setcarangle(car,180)
+Giveweaponped(player,600,"uzi")-- дать педу оружие.
+setarmour(player,150) wait(3100)   remove_car(car)
  end
-	if Keypress("VK_T") -- если клавиша H.
-     then 
-	-- mod_del_block_second_bridge_on_exit()-- удалить баррикаду на первом мосте.
-	 -- show_save_menu()
-	 x,y,z = getcoordinates_on_y(player, 1)
-	 -- mod_del_block_second_bridge()-- удалить баррикаду на мосте к острову диаса.
-	find_obj_and_write(x,y,z)
-	-- mod_del_block_second_bridge()-- удалить баррикаду на мосте к острову диаса. 
-	
-  -- blip, sp = create_marker_and_sphere(-230.0, -464.5, 10.0, 3,3.0)-- создать метку на карте с размером и сферу с радиусом.
-  -- blip, sp = create_marker_and_sphere( 56.85, -459.8, 10.0, 3,3.0)-- создать метку на карте с размером и сферу с радиусом.
-	
-  -- wait(5000)
- end end
-  --setcord(player, 325.5, 1199.1, 27.6)
-  end
-  -- end
-  -- end 
-  -- end
- 
- --obj = Createobj(3518, -242.7, -935.7, 15.2)-- блок на первом мосту
--- end -- 
-  
-	-- u=9
-	-- for i= 1, 100 do  wait(500)
-	-- u=9+0.1
- -- givemoney(1)
- -- x,y,z = getcoordinates_on_y(player, 5)
+ -- if is_ped_in_car(player)
+ -- then set_radio(9,0) end
+ end
+ end  
 
-  -- givemoney(m)remove_obj(obj)
-  --[[
-  первые ворота острова диаса
- -181.5, -472.6, 11.4, angle 101.8420715332 -- model 2447
-  ]]--
-  
-  --[[
- гольф клуб
-  -- function del_block_third_bridge()
- -81.5, 81.4, 21.0, angle -0.0 -- model 2141
-    -- if  check_obj_in_cord( -81.5, 81.4, 21.0, 8)-- найти ближайший объект в радиусе с координатами.
- -- then
-  -- obj = get_obj_in_cord(-81.5, 81.4, 21.0, 8)
-  -- remove_obj(obj)
-  end
-  ]]--
-  
-  
-  --[[
- 
- -181.5, -472.6, 11.4, angle 101.8420715332 -- model 2447
-  ]]--
-  -- givemoney(m)
-	 -- givemoney(33)
-	 -- car = ped_car(player)
-	 -- dam = getmodelindex(car)
-	 -- printmessage("damage = "..tostring(string.format("%.d", dam)), 3300,1 )
-		 -- wait(4000)
- 	-- while true do wait() dam = getcardamage(car)
-	     -- if dam ~= 0
-       -- then printmessage("damage = "..tostring(string.format("%.f", dam)), 3300,1 )
-		-- wait(4000)
-	-- end
-	-- end
-  -- x,y,z = getcoordinates_on_y(player, 5)
-   
-  -- set_traffic(0)
-	-- car = Createcar("MODEL_SENTXS",x,y,z) --set_camera_on_car(car, 18,2)
-	-- while true do wait()
-	-- x,y,z = getcarcoordinates_on_y(car,30)
-	-- x,y,z = find_road_for_car(x,y,z)
-	-- sp = create_sphere(x,y,z, 3)
-	-- blip = createmarker(1,2,x,y,z)
-	-- cardrive(car,x,y,z)
-	
-	-- while not  car_in_point_in_radius(car, x,y,z, 3.0) do wait(100) end
-	-- remove_sphere(sp)
-	-- remove_blip(blip)
-	-- wait(1000)
-	-- end
-	-- printmessage("~r~end script 1", 3400,1 )
-  -- ped = Createped("HMYST", x,y,z)
--- ped_rebuff(ped, 1)-- отвечать на атаки.
--- set_ped_stats_to(ped,16)-- уст враждебность педа.
--- ped_search_threat(ped,1)-- пед ищет угрозу.  
-	-- set_radio(9,1)-- выключить радио.
-  -- x,y,z = getcoordinates_on_y(player, 10)
-	-- car = Createcar("MODEL_PCJ600",x,y,z) 
-	-- wait(1000)
- -- ped_attack_car(ped, car)
-	-- remove_car(car)
-	-- Giveweaponped(player,600,"uzi")-- дать педу оружие.
-      -- create_newthread(f,1000)
-		  -- if Keypress("VK_J") -- если клавиша H.
-   -- then  setcord(player, 495.7, -1734.3, 13.7)
-  
-  -- end 
-  -- x,y,z = getcoordinates_on_y(player, 5)
-	-- -- car = Createcar("MODEL_SECURICA",x,y,z)
-	-- -- setcarangle(car, getpedangle(player)) 
-
-	-- set_radio(9,1)-- выключить радио.
-	-- car = Createcar("MODEL_PCJ600",x,y,z) 
--- --	set_skin(player, "IGMIKE") 
-	 -- -- wait(3100)
-	-- -- delete_entity(car)
-	-- remove_car(car) 
-  -- -- set_skin(player, "PLAYER")-- восстановить скин.
-
-	-- 
-	-- set_skin("IGKEN")  
--- printmessage("jhgfc",2000,3)
-	--ped1 = create_spec_ped("SAM",x,y,z)
-      --p =	  Createped("HMYST", x,y,z)	
- 
-	  -- ped_from_turret_on_car(ped)--убрать педа из турели авто.
-      -- destroy()-- удалить все объекты, которые были созданы скриптом.	
-	  -- printmessage("~r~end script 1", 3400,1 )
--- local ped1 = set_ped_in_car(car, "HFORI",1) -- уст пассажира авто.
-	-- car = Createcar("MODEL_PCJ600",x,y,z)
-	-- 
--- local 
--- m2 = create_marker(car)
-  -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
-   -- wait(300)
-   
--- if isvehicle(car)
--- then  m = create_marker_car(car)
--- end
-
- -- -- pickup = Create_pickup(335,3,606.5, -255.9, 13.8) -- создать пикап 
- 
- -- restore_camera()
- -- -- remove_pickup(pickup) 
-  -- end
--- --  setpedhealth(player, 300)
-  -- -- set_camera_on_car(car, 18, 2)
-  -- -- set_camera_on_car(car, 18, 2)
-   -- -- set_cops_ignored(1)
- --setcord(player, 529.6, 370.1, 10.9)
- 
 -- if is_button_pressed(17)
-     -- --wait(300)	
+--setcord(player, 529.6, 370.1, 10.9)
+  -- set_wanted(1)
+    -- z=z+6
+  -- create_rope_on_cords(x,y,z)
+ -- if Keypress("VK_J") -- если клавиша H.
+  -- then x,y,z = getcoordinates_on_y(player, 15)
+  -- show_save_menu()
+     -- p1 = Create_pickup(335,3, -1197.1, -324.3, 10.9)
+	-- setcord(player,-1197.1, -324.3, 14.9 )
+	-- ped_frozen(1)
+ -- end 
+  -- if Keypress("VK_T") -- если клавиша H.
+  -- then Giveweaponped(player,600,"uzi")-- дать педу оружие.setcord(player,-1197.1, -324.3, 10.9 )
+  -- ped_frozen(0)
+  -- end
+ 	  -- x,y,z = getcoordinates_on_y(player, 50)
+     -- wait(6600)	
+     -- z=z+12
+	  -- ped_car_as_passenger(player, car)
+-- while not is_ped_in_this_car(player, car)  do  wait(30) -- цикл пока статус миссии не изменится. 
+   -- end 
+	-- heli_to_fly(car,60,60,60,10)
+   -- while true do wait()
+   -- x1,y1,z1 = getcarcoordes(car)
+   -- printmessage("cord = "..tostring(string.format("%.f, %.f, %f", x1,y1,z1)), 600,1 )
+   -- f(car)
+	--putincar(player,car)
+  -- remove_car(car)
+   -- wait(300)
+   -- end
+  -- Giveweaponped(ped,600,"m4")-- дать педу оружие.
+  -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
+  -- wait(200)
+  --addmoney_ped(ped,100)
+ --  create_shots_on_car(car,1,100 )
+ --create_shots(ped, x, y, z)  
    -- ped1 = set_ped_in_car(car, "HFORI") -- уст водителя авто.
   -- ped2 = set_ped_in_car(car, "HFORI",0) -- уст пассажира авто.
   -- ped3 = set_ped_in_car(car, "HFORI",1) -- уст пассажира авто.
   -- ped4 = set_ped_in_car(car, "HFORI",2) -- уст пассажира авто.
   --ped = Createped("BMYBB", x,y,z)
 --  p1, m1 = Create_ped_and_give_weapon("BMYBB", "uzi", x,y,z)-- создать врага.
---   remove_car(car)
-  -- if Keypress("VK_J") -- если клавиша H.
-  -- then x,y,z = getcoordinates_on_y(player, 15)
-  -- -- Giveweaponped(ped,600,"m4")-- дать педу оружие.
-  -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
-  -- wait(200)
-  -- --addmoney_ped(ped,100)
- -- --  create_shots_on_car(car,1,100 )
- -- --create_shots(ped, x, y, z)  
- -- end 
 	-- x,y,z = getcoordinates_on_y(player, 10) 
 	--car = Createcar("MODEL_PCJ600",x,y,z) 
 	--remove_car(car)

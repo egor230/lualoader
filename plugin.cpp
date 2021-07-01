@@ -212,7 +212,7 @@ void writelog3(int x) {// запись ошибок в файл.
 	f1.close();
 };
 int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// запуска скрипта.
-	
+
 	state Lua; lua_State* L = Lua.get(); lua_gc(L, LUA_GCSTOP, 1);// отключить сборщик мусора.
 	char str123[255]; auto j = std::experimental::filesystem::current_path();
 	string c1 = j.string();	c1 = c1 + "\\?.lua"; strcpy(str123, c1.c_str());
@@ -231,6 +231,8 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 			lua_settable(L, LUA_REGISTRYINDEX); // установить ключа и значение таблице реестре. 
 
 			lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
+			//Command<COMMAND_SCRIPT_NAME>(x); 
+				//Command<COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME>(luafile);
 			lua_pcall(L, 0, 0, 0);// запуск файла.
 			lua_getglobal(L, "main");	//writelog3("star scpipt");
 			if (LUA_TFUNCTION == lua_type(L, -1)) {
@@ -239,8 +241,8 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 			    lua_resume(L, NULL, 0);	// запуск файла.
 				lua_State* L1 = lua_newthread(L);// создать новый поток.
 
-				if (!star_coroutine::get())// если нельзя запустить второой поток в скрипте.
-				{
+				if (!star_coroutine::get()){// если нельзя запустить второой поток в скрипте.
+				
 					//writelog3("exit");
 					return 0;
 				}
@@ -268,8 +270,7 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 
 		}
 		else {	string er1 = lua_tostring(L, -1); string er0 = "could not load " + er1;
-			char* x = strdup(er1.c_str());
-			writelog(x);}// записать ошибку в файл.
+			char* x = strdup(er1.c_str());		writelog(x);}// записать ошибку в файл.
 		return 0;
 };
 
@@ -294,32 +295,22 @@ void search() {// поиск всех lua файлов для запуска.
 
 bool s = true;
 int start_lualoder() { // найти все lua файлы. меню 12,	старт новой игры 1.	
-	star_thread::set(s);
-	// Новая игра 7	 загрузка 8 точно загрузка 10 в игре 32.// 8, 1, 10 загрузка. // 1, 7	новая игра. 32 в игр
+	star_thread::set(s);// Новая игра 7	 загрузка 8 точно загрузка 10 в игре 32. 8, 1, 10 загрузка.  1, 7 новая игра. 32 в игр
 	CMenuManager& MenuManager = *(CMenuManager*)0x869630;
-   //while (true) {  this_thread::sleep_for(chrono::milliseconds(1));
-	  // if (MenuManager.m_nCurrentPage = 12) {
-		 //  break;
-	  // }
-
-   //};
+	int step = 0;
    std::thread(search).detach();// поиск и запуск lua файлов.
    while (true) {
 	   this_thread::sleep_for(chrono::milliseconds(1));
-	   if (MenuManager.m_nCurrentPage == 32) {
-		   break;
+	   if (MenuManager.m_nCurrentPage == 32 && step==0) {
+		   step = 1;
 	   }
 
-   };
-	while (true) {	this_thread::sleep_for(chrono::milliseconds(1)); //|| m == 7 || m == 10
-		if ((MenuManager.m_nCurrentPage == 10) || (MenuManager.m_nCurrentPage == 7)) {// перезагрузка скрипта.
-			break;	}
-	};
-
-	while (true) {	this_thread::sleep_for(chrono::milliseconds(1));
-	if ((MenuManager.m_nCurrentPage == 8) || (MenuManager.m_nCurrentPage == 10) ) {// точно загрузка и новая игра.
-			 final_scripts();
-		     break;		}
+      if ((MenuManager.m_nCurrentPage == 10) || (MenuManager.m_nCurrentPage == 7) && step == 1 ) {// перезагрузка скрипта.
+			step = 2;
+		}
+	  if ((MenuManager.m_nCurrentPage == 8) || (MenuManager.m_nCurrentPage == 10) && step == 1) {// точно загрузка и новая игра.
+		   final_scripts();
+			 break;		}
 		}; 
 	
 	  std::thread(timerstar).detach(); // запуск через загрузку сэйва.
@@ -730,8 +721,11 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_turn_on_y_with_delay", car_turn_on_y_with_delay); // 358 повeрнуть авто по оси y на угол со задержкой.
 	lua_register(L, "car_turn_on_z_with_delay", car_turn_on_z_with_delay); // 359 повeрнуть авто по оси z на угол со задержкой.
 
-	   
-	lua_register(L, "exitcar", exitcar); // 360 выйти из авто.
+	lua_register(L, "create_rope_on_cords_with_swat", create_rope_on_cords_with_swat); // 360 создать веревку на координатах с бойцом спецназа.
+	lua_register(L, "create_rope_on_cords", create_rope_on_cords); // 361 создать веревку на координатах.
+	lua_register(L, "heli_change_height", heli_change_height); // 362 изменить высоту вертолета.
+
+	lua_register(L, "exitcar", exitcar); // 363 выйти из авто.
 
 	return 0;
 };
@@ -1231,6 +1225,8 @@ int create_newthread(lua_State* L) {// создания нового поток�
 				lua_pcall(L1, 0, 0, 0);// запуск файла.
 				lua_pushvalue(L1, 1);//скопировать имена функции, отправить на вершину стека.
 				std::thread([=]() {lua_resume(L1, NULL, args); }).detach();
+				this_thread::sleep_for(chrono::milliseconds(301));// задержка
+				lua_settop(L, 0);
 				return 0;
 			}
 			return 0;
@@ -1241,6 +1237,8 @@ int create_newthread(lua_State* L) {// создания нового поток�
 	return 0;
 };
 
+
+// 0x9B48EC 60 4 карды в секунду
 
 //if ((iters < 1) && (star_thread::get())) { //bool k = false;	star_thread::set(k);
 //}

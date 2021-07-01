@@ -51,6 +51,9 @@
 #include "tHandlingData.h"
 #include "CMatrix.h"
 #include "CVector.h"
+#include "CCopPed.h"
+#include "CHeli.h"
+
 
 using namespace plugin;
 using namespace std;
@@ -657,6 +660,9 @@ int car_turn_on_x_with_delay(lua_State* L); //повeрнуть авто по о
 int car_turn_on_y_with_delay(lua_State* L); //повeрнуть авто по оси y на угол со задержкой.
 int car_turn_on_z_with_delay(lua_State* L); //повeрнуть авто по оси z на угол со задержкой.
 
+int create_rope_on_cords_with_swat(lua_State* L); // создать веревку на координатах с бойцом спецназа.
+int create_rope_on_cords(lua_State* L); // создать веревку на координатах.
+int heli_change_height(lua_State* L); // изменить высоту вертолета.
 
 int set_path_to_module(lua_State* L);// уст путь к модулю.
 int load_and_start_luascript(lua_State* L, char* luafile, string res); // загрузка и запуск скрипта. 
@@ -2015,8 +2021,12 @@ int set_wanted(lua_State* L) {// уcтановить уровень розыск
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
 			int wanted = lua_tointeger(L, 1);// кол-во звезд розыска.
-			Command<COMMAND_SET_MAX_WANTED_LEVEL>(wanted);
-
+			((int(__cdecl*)(int))0x4D1E90)(wanted);//	Command<COMMAND_SET_MAX_WANTED_LEVEL>(wanted);
+			/*			
+			(void(__cdecl *)(const wchar_t *text, unsigned time, bool flag1))0x584300;
+			(*(void (__thiscall*)(CObject*))0x4E3690)(_this);
+			int __cdecl CWanted::SetMaximumWantedLevel(int a1)
+			*/
 			CPlayerPed& player1 = *FindPlayerPed();
 			player1.SetWantedLevel(wanted);
 			player1.SetWantedLevelNoDrop(wanted);
@@ -3259,7 +3269,7 @@ int ped_frozen(lua_State* L) {// заморозить игpока.
 
 			return 0;
 		}
-		else { throw "bad argument in function timer_donw"; }
+		else { throw "bad argument in ped_frozen"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
@@ -4152,6 +4162,14 @@ int Create_weapon_pickup(lua_State* L) {// макрос создать пика�
 	return 0;
 };
 
+int expectations2(int model) {
+		this_thread::sleep_for(chrono::milliseconds(1000));// задержка
+
+			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+	
+	return 0;
+};
+
 //function Create_pickup(model, typepickup, x, y, z) --создать пикап.
 
 int Create_pickup(lua_State* L) {// макрос создать пикап.
@@ -4168,9 +4186,12 @@ int Create_pickup(lua_State* L) {// макрос создать пикап.
 			int idpickup;// переменная, которая хранить id пикапа.  
 			CVector pos = { x, y, z };
 			Command<COMMAND_CREATE_PICKUP>(model, type, pos.x, pos.y, pos.z, &idpickup);
-			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			//this_thread::sleep_for(chrono::milliseconds(1));// задержка
 			pickupsids.emplace(idpickup, L);// добавить в map пикапов.
 			lua_pushinteger(L, idpickup);// отправить id пикапа в стек.  
+
+			//std::thread(expectations2, model).detach();
+//			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
 			return 1;
 		}
 		else { throw "bad argument in function Create_pickup"; }
@@ -5353,17 +5374,40 @@ int heli_to_fly(lua_State* L) {// вертолет летит на коорди�
 	try {// 04A2 heli $1379 fly_to - 1721.964 - 275.942 40.959 speed 40
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
 			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5)) {// значение число.
-
+			/*
+			CAutomobile::TellHeliToGoToCoors(float,float,float,uchar) .text 0059B4B0 а во-вторых, нужно присвоить вертолёту скорость через m_vecMoveSpeed
+			*/
 			const void* p1 = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p1);//  получить указатель на авто.
 			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
 			float z = lua_tonumber(L, 4); int speed = lua_tonumber(L, 4); 
-			CVector pos = { x, y, z };// вектор координат.
-			Command<COMMAND_HELI_GOTO_COORDS>(CPools::GetVehicleRef(car), pos.x, pos.y, pos.z, speed);// вертолет летит на координаты.
+			CVector pos = { x, y, z };// вектор координат.pos.x, pos.y, pos.z,
+			CAutomobile* heli = reinterpret_cast<CAutomobile*>(car);
+			heli->TellHeliToGoToCoors(x, y, z, speed);
+			//heli->m_vecMoveSpeed = pos;
+			//Command<COMMAND_HELI_GOTO_COORDS>(CPools::GetVehicleRef(car), speed, x, y, z);// вертолет летит на координаты.
 			return 0;
 		}// int
 
 		else { throw "bad argument in function heli_to_fly"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int heli_change_height(lua_State* L) {// изменить высоту вертолета.
+	try {//
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {// значение число.
+
+			const void* p1 = lua_topointer(L, 1);
+			CVehicle* car = findcarinpool(p1);//  получить указатель на авто.
+			float x = lua_tonumber(L, 2); float speed = lua_tonumber(L, 3);
+			CVector pos = { x, x, x };
+			Command<COMMAND_HELI_GOTO_COORDS>(CPools::GetVehicleRef(car), pos.x, pos.y, pos.z, speed);//изменить высоту вертолета.
+			return 0;
+		}// int
+
+		else { throw "bad argument in function heli_change_height"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
@@ -8104,6 +8148,672 @@ int car_turn_on_z_with_delay(lua_State* L) {//повeрнуть авто по о
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 };
 
+
+int create_rope_on_cords_with_swat(lua_State* L) { // создать веревку на координатах с бойцом спецназа.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
+			&& LUA_TNUMBER == lua_type(L, 5)) {// значение число.
+			int model = lua_tointeger(L, 1);// модель педа.
+			int type = lua_tointeger(L, 2);// тип педа.
+			float x = lua_tonumber(L, 3); float y = lua_tonumber(L, 4);
+			float z = lua_tonumber(L, 5); CVector pos = { x, y, z };
+			Command<COMMAND_CREATE_SWAT_ROPE>(model, type, pos.x, pos.y, pos.z);
+			return 0;
+		}// int
+		else { throw "bad argument in function create_rope_on_cords_with_swat"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int create_rope_on_cords(lua_State* L) { // создать веревку на координатах.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {// значение число.
+			
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);
+			float z = lua_tonumber(L, 3); 
+			CVector pos = { x, y, z };
+			((char(__cdecl*)(float,float,float))0x632550)(x, y, z);
+			//адрес 00632550 
+			//char __cdecl CRopes::CreateRopeWithSwatComingDown(float a1, float a2, float a3)
+					
+			((int(__cdecl*)())0x633000)();
+
+			//	адрес 0x633000
+			//__int16 __cdecl CRopes::Update()
+
+			/*
+ адрес 00632550
+ char __cdecl CRopes::CreateRopeWithSwatComingDown(float a1, float a2, float a3)
+{
+  int v4; // eax
+
+  if ( !byte_786DB4 )
+  {
+	byte_786DB4 = 1;
+	dword_786DB0 = 0;
+  }
+  if ( CStreaming::ms_aInfoForModel[2].m_nLoadState != 1 )
+	return 0;
+  if ( !CRopes::RegisterRope(dword_786DB0 + 100, a1, a2, a3, 1) )
+	return 0;
+  v4 = CPopulation::AddPed(6, 3, &a1, 0);
+  *(_BYTE *)(v4 + 81) &= 0xFEu;
+  *(_DWORD *)(v4 + 1552) = 1;
+  *(_DWORD *)(v4 + 1556) = dword_786DB0 + 100;
+  CAnimManager::BlendAnimation(*(_DWORD *)(v4 + 76), 0, 172, dword_6DC380);
+  dword_786DB0 = (unsigned __int8)(dword_786DB0 + 1);
+  return 1;
+}
+*/
+	return 0;}// int
+
+		else { throw "bad argument in function create_rope_on_cords"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int create_rope2(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 00632610
+char __thiscall CRope::Render(int this)
+{
+  int v1; // ebx
+  double v2; // st7
+  double v3; // st6
+  double v4; // st7
+  int v5; // eax
+  int v6; // edx
+  signed int v7; // eax
+  int v8; // ecx
+  int v9; // esi
+  int v10; // ebp
+  int v11; // esi
+  int v12; // ebp
+  int v13; // esi
+  int v14; // ebp
+  int v15; // esi
+  int v16; // ebp
+  int v17; // esi
+  int v18; // ebp
+  int v19; // esi
+  int v20; // ebp
+  int v21; // esi
+  int v22; // ebp
+  int v23; // ecx
+  float v25; // [esp+4h] [ebp-18h]
+  float v26; // [esp+8h] [ebp-14h]
+  float v27; // [esp+Ch] [ebp-10h]
+
+  v1 = this;
+  v2 = *(float *)(this + 208);
+  v3 = *(float *)(this + 212);
+  v25 = *(float *)(this + 204);
+  v26 = v2;
+  v27 = v3;
+  RwV3dTransformPoints(&v25, &v25, 1, &unk_7E4EA8);
+  v4 = v26;
+  if ( v26 + flt_6DC384 < CDraw::ms_fNearClipZ )
+  {
+	if ( v4 - flt_6DC384 <= CDraw::ms_fFarClipZ )
+	{
+	  if ( v4 * flt_7E4F44 + v25 * flt_7E4F40 <= flt_6DC384 )
+	  {
+		if ( v4 * flt_7E4F50 + v25 * flt_7E4F4C <= flt_6DC384 )
+		{
+		  if ( v27 * flt_7E4F60 + v4 * flt_7E4F5C <= flt_6DC384 )
+			LOBYTE(v5) = v27 * flt_7E4F6C + v4 * flt_7E4F68 <= flt_6DC384;
+		  else
+			LOBYTE(v5) = 0;
+		}
+		else
+		{
+		  LOBYTE(v5) = 0;
+		}
+	  }
+	  else
+	  {
+		LOBYTE(v5) = 0;
+	  }
+	}
+	else
+	{
+	  LOBYTE(v5) = 0;
+	}
+  }
+  else
+  {
+	LOBYTE(v5) = 0;
+  }
+  if ( (_BYTE)v5 )
+  {
+	v6 = 0;
+	v7 = 0;
+	v8 = 0;
+	do
+	{
+	  TempVertexBuffer[v6].color = 1686143104;
+	  v9 = v7 + 1;
+	  TempVertexBuffer[v6].objVertex.x = *(float *)(v1 + v8 + 12);
+	  TempVertexBuffer[v6].objVertex.y = *(float *)(v1 + v8 + 16);
+	  TempVertexBuffer[v6].objVertex.z = *(float *)(v1 + v8 + 20);
+	  v8 += 96;
+	  v6 += 8;
+	  TempVertexBuffer[v9].color = 1686143104;
+	  v10 = 12 * (v7 + 1);
+	  TempVertexBuffer[v9].objVertex.x = *(float *)(v1 + v10 + 12);
+	  TempVertexBuffer[v9].objVertex.y = *(float *)(v1 + v10 + 16);
+	  TempVertexBuffer[v9].objVertex.z = *(float *)(v1 + v10 + 20);
+	  v11 = v7 + 2;
+	  TempVertexBuffer[v11].color = 1686143104;
+	  v12 = 12 * (v7 + 2);
+	  TempVertexBuffer[v11].objVertex.x = *(float *)(v1 + v12 + 12);
+	  TempVertexBuffer[v11].objVertex.y = *(float *)(v1 + v12 + 16);
+	  TempVertexBuffer[v11].objVertex.z = *(float *)(v1 + v12 + 20);
+	  v13 = v7 + 3;
+	  TempVertexBuffer[v13].color = 1686143104;
+	  v14 = 12 * (v7 + 3);
+	  TempVertexBuffer[v13].objVertex.x = *(float *)(v1 + v14 + 12);
+	  TempVertexBuffer[v13].objVertex.y = *(float *)(v1 + v14 + 16);
+	  TempVertexBuffer[v13].objVertex.z = *(float *)(v1 + v14 + 20);
+	  v15 = v7 + 4;
+	  TempVertexBuffer[v15].color = 1686143104;
+	  v16 = 12 * (v7 + 4);
+	  TempVertexBuffer[v15].objVertex.x = *(float *)(v1 + v16 + 12);
+	  TempVertexBuffer[v15].objVertex.y = *(float *)(v1 + v16 + 16);
+	  TempVertexBuffer[v15].objVertex.z = *(float *)(v1 + v16 + 20);
+	  v17 = v7 + 5;
+	  TempVertexBuffer[v17].color = 1686143104;
+	  v18 = 12 * (v7 + 5);
+	  TempVertexBuffer[v17].objVertex.x = *(float *)(v1 + v18 + 12);
+	  TempVertexBuffer[v17].objVertex.y = *(float *)(v1 + v18 + 16);
+	  TempVertexBuffer[v17].objVertex.z = *(float *)(v1 + v18 + 20);
+	  v19 = v7 + 6;
+	  TempVertexBuffer[v19].color = 1686143104;
+	  v20 = 12 * (v7 + 6);
+	  TempVertexBuffer[v19].objVertex.x = *(float *)(v1 + v20 + 12);
+	  TempVertexBuffer[v19].objVertex.y = *(float *)(v1 + v20 + 16);
+	  TempVertexBuffer[v19].objVertex.z = *(float *)(v1 + v20 + 20);
+	  v21 = v7 + 7;
+	  TempVertexBuffer[v21].color = 1686143104;
+	  v22 = 4 * (v7 + 7);
+	  v7 += 8;
+	  v22 *= 3;
+	  TempVertexBuffer[v21].objVertex.x = *(float *)(v1 + v22 + 12);
+	  TempVertexBuffer[v21].objVertex.y = *(float *)(v1 + v22 + 16);
+	  TempVertexBuffer[v21].objVertex.z = *(float *)(v1 + v22 + 20);
+	}
+	while ( v7 < 32 );
+	RwRenderStateSet(12, 1);
+	RwRenderStateSet(10, 5);
+	RwRenderStateSet(11, 6);
+	RwRenderStateSet(1, 0);
+	v5 = RwIm3DTransform((int)TempVertexBuffer, 0x20u, 0, 24);
+	if ( v5 )
+	{
+	  RwIm3DRenderIndexedPrimitive(2, &unk_6DC300, 62);
+	  LOBYTE(v5) = RwIm3DEnd(v23);
+	}
+  }
+  return v5;
+}
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+}; 
+
+int create_rope3(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 006329A0
+
+__int16 __thiscall CRope::Update(float *this)
+{
+  long double v1; // st2
+  float *v2; // ebx
+  long double v3; // st2
+  float v6; // ST18_4
+  double v7; // st7
+  double v8; // st5
+  double v9; // st6
+  signed int v10; // ecx
+  signed int v11; // eax
+  float v12; // ST0C_4
+  float v13; // ST10_4
+  float v14; // ST14_4
+  double v15; // st5
+  double v16; // st6
+  double v17; // st2
+  double v18; // st1
+  double v19; // st2
+  double v20; // st1
+  float v21; // ST18_4
+  double v22; // st6
+  double v23; // st5
+  float v24; // ST08_4
+  double v25; // st4
+  float v26; // ST04_4
+  double v27; // st3
+  float v28; // ST00_4
+  double v29; // st4
+  double v30; // st5
+  double v31; // st6
+  __int16 v32; // fps
+  double v33; // st2
+  bool v34; // c0
+  char v35; // c2
+  bool v36; // c3
+
+  v1 = CTimer::ms_fTimeStep;
+  v2 = this;
+  if ( dbl_6DC388 <= 0.0 )
+  {
+	powf(0.0);
+  }
+  else
+  {
+	v3 = __FYL2X__(dbl_6DC388, v1);
+	_ST1 = v3;
+	__asm { frndint }
+	v1 = __F2XM1__(v3 - _ST1) + flt_6DC39C;
+  }
+  v6 = v1;
+  v7 = v6;
+  if ( !*((_BYTE *)v2 + 1) && (unsigned int)CTimer::m_snTimeInMilliseconds > *((_DWORD *)v2 + 2) )
+  {
+	v2[101] = v2[101] - flt_6DC390 * CTimer::ms_fTimeStep;
+	v8 = CTimer::ms_fTimeStep * v2[101];
+	v9 = CTimer::ms_fTimeStep * v2[100];
+	v2[3] = CTimer::ms_fTimeStep * v2[99] + v2[3];
+	v2[4] = v2[4] + v9;
+	v2[5] = v2[5] + v8;
+  }
+  v10 = 3;
+  v11 = 1;
+  do
+  {
+	v12 = v2[v10 + 3];
+	v13 = v2[v10 + 4];
+	v14 = v2[v10 + 5];
+	v15 = CTimer::ms_fTimeStep * v2[v10 + 101] * v7;
+	v16 = CTimer::ms_fTimeStep * v2[v10 + 100] * v7;
+	v2[v10 + 3] = CTimer::ms_fTimeStep * v2[v10 + 99] * v7 + v12;
+	v2[v10 + 4] = v2[v10 + 4] + v16;
+	v2[v10 + 5] = v2[v10 + 5] + v15;
+	v2[v10 + 5] = v2[v10 + 5] - flt_6DC394 * CTimer::ms_fTimeStep;
+	v17 = v2[v10 + 4] - v2[v10 + 1];
+	v18 = v2[v10 + 3] - v2[v10];
+	v19 = v17 * v17 + v18 * v18;
+	v20 = v2[v10 + 5] - v2[v10 + 2];
+	v21 = sqrt(v19 + v20 * v20);
+	v22 = flt_6DC398 / v21;
+	v23 = v2[v10 + 2];
+	v24 = v2[v10 + 5] - v23;
+	v25 = v2[v10 + 1];
+	v26 = v2[v10 + 4] - v25;
+	v27 = v2[v10];
+	v28 = v2[v10 + 3] - v27;
+	++v11;
+	v2[v10 + 3] = v22 * v28 + v27;
+	v2[v10 + 4] = v22 * v26 + v25;
+	v2[v10 + 5] = v22 * v24 + v23;
+	v29 = flt_6DC39C / CTimer::ms_fTimeStep;
+	v30 = (v2[v10 + 5] - v14) * v29;
+	v31 = (v2[v10 + 4] - v13) * v29;
+	v2[v10 + 99] = (v2[v10 + 3] - v12) * v29;
+	v2[v10 + 100] = v31;
+	v2[v10 + 101] = v30;
+	v10 += 3;
+  }
+  while ( v11 < 32 );
+  if ( !*((_BYTE *)v2 + 1) )
+  {
+	v33 = v2[5];
+	v34 = v33 < flt_6DC3A0;
+	v35 = 0;
+	v36 = v33 == flt_6DC3A0;
+	LOWORD(v11) = __PAIR__(HIBYTE(v32), (unsigned __int8)v32) & 0x5FF;
+	if ( v33 >= flt_6DC3A0 )
+	  *(_BYTE *)v2 = 0;
+  }
+  *((_BYTE *)v2 + 1) = 0;
+  return v11;
+}
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+}; 
+
+int create_rope4(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 00632C00
+char __cdecl CRopes::FindCoorsAlongRope(int a1, float a2, int a3)
+{
+  signed int v3; // ecx
+  int v4; // edx
+  double v5; // st2
+  double v6; // st7
+  int v7; // ecx
+  int v8; // eax
+  int v9; // edx
+  double v10; // st7
+  double v11; // st5
+  double v12; // st3
+  double v13; // st4
+  double v14; // st6
+  double v15; // st1
+  char result; // al
+
+  v3 = 0;
+  v4 = 0;
+  while ( !byte_936918[v4 * 4] || a1 != dword_93691C[v4] )
+  {
+	++v3;
+	v4 += 195;
+	if ( v3 >= 8 )
+	  return 0;
+  }
+  if ( flt_6DC3A0 <= (double)a2 )
+	v5 = a2;
+  else
+	v5 = flt_6DC3A0;
+  if ( flt_6DC3A4 >= v5 )
+	v5 = flt_6DC3A4;
+  v6 = flt_6DC3A8 * v5;
+  v7 = 65 * v3;
+  v8 = 3 * (v7 + (signed int)v6);
+  v9 = 3 * (v7 + (signed int)v6 + 1);
+  v10 = v6 - (double)(signed int)v6;
+  v11 = v10 * flt_93692C[v9];
+  v12 = flt_6DC39C - v10;
+  v13 = v12 * flt_93692C[v8];
+  v14 = v10 * flt_936928[v9] + v12 * flt_936928[v8];
+  v15 = v12 * flt_936924[v8];
+  result = 1;
+  *(float *)a3 = v10 * flt_936924[v9] + v15;
+  *(float *)(a3 + 4) = v14;
+  *(float *)(a3 + 8) = v13 + v11;
+  return result;
+}
+
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+};
+int create_rope5(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 00632D50
+
+int __cdecl CRopes::SetSpeedOfTopNode(int a1, int a2, int a3, int a4)
+{
+  signed int v4; // edx
+  int result; // eax
+  int v6; // ecx
+  int v7; // edx
+
+  v4 = 0;
+  result = a1;
+  v6 = 0;
+  while ( !byte_936918[v6 * 4] || a1 != dword_93691C[v6] )
+  {
+	++v4;
+	v6 += 195;
+	if ( v4 >= 8 )
+	  return result;
+  }
+  v7 = 195 * v4;
+  dword_936AA4[v7] = a2;
+  dword_936AA8[v7] = a3;
+  dword_936AAC[v7] = a4;
+  return result;
+}
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+}; 
+int create_rope6(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 00632DB0 
+char __cdecl CRopes::RegisterRope(int a1, float a2, float a3, float a4, char a5)
+{
+  signed int v5; // ebx
+  int v6; // eax
+  int v7; // ebx
+  char result; // al
+  signed int v9; // eax
+  int v10; // ecx
+  int v11; // ecx
+  signed int v12; // ebx
+  int v13; // eax
+  int v14; // edx
+  double v15; // st6
+  double v16; // st7
+  int v17; // edx
+
+  v5 = 0;
+  v6 = 0;
+  do
+  {
+	if ( byte_936918[v6 * 4] && a1 == dword_93691C[v6] )
+	{
+	  v7 = 195 * v5;
+	  result = 1;
+	  flt_936924[v7] = a2;
+	  flt_936928[v7] = a3;
+	  flt_93692C[v7] = a4;
+	  dword_936AA4[v7] = 0;
+	  dword_936AA8[v7] = 0;
+	  dword_936AAC[v7] = 0;
+	  *((_BYTE *)&unk_936919 + v7 * 4) = 1;
+	  return result;
+	}
+	++v5;
+	v6 += 195;
+  }
+  while ( v5 < 8 );
+  v9 = 0;
+  v10 = 0;
+  while ( byte_936918[v10] )
+  {
+	++v9;
+	v10 += 780;
+	if ( v9 >= 8 )
+	  return 0;
+  }
+  v11 = 195 * v9;
+  dword_93691C[v11] = a1;
+  flt_936924[v11] = a2;
+  flt_936928[v11] = a3;
+  flt_93692C[v11] = a4;
+  dword_936AA4[v11] = 0;
+  dword_936AA8[v11] = 0;
+  dword_936AAC[v11] = 0;
+  byte_93691A[v11 * 4] = 0;
+  *((_BYTE *)&unk_936919 + v11 * 4) = 1;
+  if ( a5 )
+	dword_936920[v11] = CTimer::m_snTimeInMilliseconds + 20000;
+  else
+	dword_936920[v11] = 0;
+  v12 = 1;
+  v13 = 65 * v9 + 1;
+  do
+  {
+	if ( v12 & 1 )
+	{
+	  v14 = 3 * v13;
+	  v15 = *(float *)&dword_936920[3 * v13] + flt_6DC3A0;
+	  v16 = *(float *)&dword_93691C[3 * v13] + flt_6DC3A0;
+	  flt_936924[3 * v13] = *(float *)&byte_936918[12 * v13] + flt_6DC398;
+	}
+	else
+	{
+	  v14 = 3 * v13;
+	  v15 = *(float *)&dword_936920[3 * v13] - flt_6DC3A0;
+	  v16 = *(float *)&dword_93691C[3 * v13] - flt_6DC3A0;
+	  flt_936924[3 * v13] = *(float *)&byte_936918[12 * v13] - flt_6DC398;
+	}
+	flt_936928[v14] = v16;
+	flt_93692C[v14] = v15;
+	++v12;
+	v17 = 4 * v13++;
+	v17 *= 3;
+	*(int *)((char *)dword_936AA4 + v17) = 0;
+	*(int *)((char *)dword_936AA8 + v17) = 0;
+	*(int *)((char *)dword_936AAC + v17) = 0;
+  }
+  while ( v12 < 32 );
+  byte_936918[v11 * 4] = 1;
+  return 1;
+}
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+}; 
+int create_rope7(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 00632DB0
+
+char CRopes::Render()
+{
+  signed int v0; // ebx
+  int v1; // ebp
+  char *v2; // esi
+  char result; // al
+
+  v0 = 0;
+  v1 = 0;
+  v2 = byte_936918;
+  do
+  {
+	if ( byte_936918[v1] )
+	  result = CRope::Render((int)v2);
+	++v0;
+	v1 += 780;
+	v2 += 780;
+  }
+  while ( v0 < 8 );
+  return result;
+}
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+};
+int create_rope8(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 00633000
+__int16 __cdecl CRopes::Update()
+{
+  signed int v0; // ebx
+  int v1; // ebp
+  float *v2; // esi
+  __int16 result; // ax
+
+  v0 = 0;
+  v1 = 0;
+  v2 = (float *)byte_936918;
+  do
+  {
+	if ( byte_936918[v1] )
+	  result = CRope::Update(v2);
+	++v0;
+	v1 += 780;
+	v2 += 195;
+  }
+  while ( v0 < 8 );
+  return result;
+}
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+};
+
+int create_rope9(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 00633040
+
+void __cdecl CRopes::Init()
+{
+  byte_936918[0] = 0;
+  byte_936C24 = 0;
+  byte_936F30 = 0;
+  byte_93723C = 0;
+  byte_937548 = 0;
+  byte_937854 = 0;
+  byte_937B60 = 0;
+  byte_937E6C = 0;
+}
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+};
+int create_rope10(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 00633080
+int CRopes_CRopes()
+{
+  return _construct_array((int)byte_936918, (int (__thiscall *)(int, signed int))CRopes_DCRopes, 0, 780, 8u);
+}
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+};
+int create_rope11(lua_State* L) { // создать веревку на координатах.
+	//try {
+/*
+адрес 006330A0
+
+void *__thiscall CRopes_DCRopes(void *this)
+{
+  void *v1; // ebx
+
+  v1 = this;
+  _construct_array((int)this + 12, (int (__thiscall *)(int, signed int))CVector_CVector, 0, 12, 0x20u);
+  _construct_array((int)v1 + 396, (int (__thiscall *)(int, signed int))CVector_CVector, 0, 12, 0x20u);
+  return v1;
+}
+*/
+	return 0;
+	//}// int
+//}
+//	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+//	return 0;
+};
 int turncar(CVehicle* car, float angle, float speed, int switc) {
 
 	speed = speed / 360;
@@ -8581,6 +9291,7 @@ int setstatusmission(bool flag) { // уcтановить флага миссии
 };
 
 void writelog(const char x[]) {// запись ошибок в файл.
+
 	mtx.lock();
 	string path = "lualoader\\log.txt";// куда пишем ошибки.
 	fstream f1; {f1.open(path, fstream::in | fstream::out | fstream::app);
@@ -8588,6 +9299,6 @@ void writelog(const char x[]) {// запись ошибок в файл.
 	char buffer[120]; time(&rawtime); timeinfo = localtime(&rawtime);
 	strftime(buffer, sizeof(buffer), " %d-%m-%Y %I:%M:%S ", timeinfo);// датируем загрузки скриптов.
 	string er2(buffer); f1 << er2 << "\n"; }
-	f1.close();
 	mtx.unlock();
+	f1.close();
 };
