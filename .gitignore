@@ -5,3 +5,12 @@ lualoader/log.txt
 
 # Этот скрипт (чтобы не отправлять токен на GitHub)
 /updata git.sh
+
+# Старые файлы (>4 лет) — не отправлять, копия остаётся только на диске
+Lua_Project/lua/
+Lua_Project/III.VC.CLEO-2.0.0.6/
+lualoader/mod.lua
+lualoader/write_coordinate.lua
+lualoader/open and close first bridge.lua
+lualoader/Lua автозавершения.txt
+lualoader/Lua автозавершения для notepad++.rar
