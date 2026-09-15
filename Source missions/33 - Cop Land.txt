@@ -1,0 +1,929 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 33: Cop Land
+// Строки 55187-56111 исходного файла data/main.txt
+// Кол-во строк: 925
+//-------------Mission 33---------------
+// Originally: Cop Land
+
+:FAGRACE
+gosub @FAGRACE_36 
+if 
+wasted_or_busted 
+else_jump @FAGRACE_27 
+gosub @FAGRACE_8098 
+
+:FAGRACE_27
+gosub @FAGRACE_8196 
+end_thread 
+
+:FAGRACE_36
+$ONMISSION = 1 // integer values 
+if 
+  $4192 == 0 // integer values 
+else_jump @FAGRACE_63 
+increment_mission_attempts 
+
+:FAGRACE_63
+thread 'FAGRACE' 
+054C: use_GXT_table 'OVALRIG' 
+$4193 = 15000 // integer values 
+03C1: $4194 = player $PLAYER_CHAR car_no_save 
+$4195 = 0 // integer values 
+$4196 = 0 // integer values 
+$4197 = 0 // integer values 
+$4198 = 0 // integer values 
+$4199 = 0 // integer values 
+$4200 = 0 // integer values 
+$4201 = 0 // integer values 
+$4202 = 0 // integer values 
+$4203 = 0 // integer values 
+$4204 = 0 // integer values 
+$4205 = 0 // integer values 
+$4206 = 0 // integer values 
+$4207 = 0 // integer values 
+$4208 = 0 // integer values 
+$4209 = 0 // integer values 
+$4210 = 0 // integer values 
+$4211 = 0 // integer values 
+$4212 = 0 // integer values 
+$4213 = 0 // integer values 
+$4214 = 0 // integer values 
+$4215 = 0 // integer values 
+$4216 = 0 // integer values 
+$4217 = 0 // integer values 
+$4218 = 0 // integer values 
+$4219 = 0 // integer values 
+$4220 = 0 // integer values 
+$4221 = 0 // integer values 
+$4222 = 0 // integer values 
+$4223 = 0 // integer values 
+$4224 = 0 // integer values 
+$4225 = 0 // integer values 
+$4226 = 0 // integer values 
+$4227 = 0 // integer values 
+$4228 = 0 // integer values 
+$4229 = 0 // integer values 
+$4230 = 0 // integer values 
+$4231 = 0 // integer values 
+$4232 = 0 // integer values 
+$4233 = 0 // integer values 
+$4234 = 0 // integer values 
+$4235 = 0 // integer values 
+$4236 = 0 // integer values 
+$4237 = 0 // integer values 
+$4238 = 0 // integer values 
+$4239 = 0 // integer values 
+02A3: enable_widescreen 1 
+Camera.SetPosition(-179.388, -404.462, 14.611, 0.0, 0.0, 0.0)
+Camera.PointAt(-188.862, -396.243, 9.49, 2)
+fade 1 500 
+00BC: text_highpriority 'HOTR_01' 5000 ms 1  // ~g~Collect all the checkpoints before time runs out.
+16@ = 0 // integer values 
+
+:FAGRACE_498
+wait 0 
+04D5: create_corona_at -188.862 -396.243 10.49 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+  5000 > 16@ // integer values 
+else_jump @FAGRACE_561 
+jump @FAGRACE_498 
+
+:FAGRACE_561
+00BC: text_highpriority 'HOTR_02' 5000 ms 1  // ~g~You can collect them in any order. Each checkpoint will grant you with 3 seconds.
+Camera.PointAt(-209.506, -391.191, 9.709, 1)
+16@ = 0 // integer values 
+
+:FAGRACE_602
+wait 0 
+04D5: create_corona_at -188.862 -396.243 10.49 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -209.506 -391.191 10.709 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+  2500 > 16@ // integer values 
+else_jump @FAGRACE_698 
+jump @FAGRACE_602 
+
+:FAGRACE_698
+Camera.SetPosition(-188.862, -396.243, 14.611, 0.0, 0.0, 0.0)
+Camera.PointAt(-229.315, -417.498, 10.227, 1)
+16@ = 0 // integer values 
+
+:FAGRACE_756
+wait 0 
+04D5: create_corona_at -188.862 -396.243 10.49 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -209.506 -391.191 10.709 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -229.315 -417.498 11.227 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+  2500 > 16@ // integer values 
+else_jump @FAGRACE_885 
+jump @FAGRACE_756 
+
+:FAGRACE_885
+16@ = 0 // integer values 
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Player.CanMove($PLAYER_CHAR) = True
+018A: $4240 = create_checkpoint_at -188.862 -396.243 9.49 
+018A: $4241 = create_checkpoint_at -209.506 -391.191 9.709 
+018A: $4242 = create_checkpoint_at -229.315 -417.498 10.227 
+018A: $4243 = create_checkpoint_at -251.781 -403.073 10.406 
+018A: $4244 = create_checkpoint_at -260.043 -373.12 10.192 
+018A: $4245 = create_checkpoint_at -254.139 -340.945 9.307 
+018A: $4246 = create_checkpoint_at -273.57 -320.332 9.307 
+018A: $4247 = create_checkpoint_at -290.42 -357.684 10.192 
+018A: $4248 = create_checkpoint_at -328.201 -344.604 10.434 
+018A: $4249 = create_checkpoint_at -366.891 -338.997 10.296 
+018A: $4250 = create_checkpoint_at -403.59 -339.325 10.303 
+018A: $4251 = create_checkpoint_at -426.04 -328.182 10.32 
+018A: $4252 = create_checkpoint_at -427.804 -291.084 10.338 
+018A: $4253 = create_checkpoint_at -428.716 -251.827 9.758 
+018A: $4254 = create_checkpoint_at -460.355 -244.384 9.614 
+018A: $4255 = create_checkpoint_at -503.631 -244.773 9.614 
+018A: $4256 = create_checkpoint_at -503.496 -288.961 9.66 
+018A: $4257 = create_checkpoint_at -516.414 -308.507 9.822 
+018A: $4258 = create_checkpoint_at -523.139 -337.653 10.275 
+018A: $4259 = create_checkpoint_at -554.338 -348.535 10.301 
+018A: $4260 = create_checkpoint_at -593.935 -359.72 10.23 
+018A: $4261 = create_checkpoint_at -628.153 -383.083 10.296 
+018A: $4262 = create_checkpoint_at -649.944 -415.914 10.298 
+018A: $4263 = create_checkpoint_at -656.412 -459.596 10.302 
+018A: $4264 = create_checkpoint_at -629.355 -429.985 10.295 
+018A: $4265 = create_checkpoint_at -580.09 -378.814 10.273 
+018A: $4266 = create_checkpoint_at -498.75 -367.145 10.292 
+018A: $4267 = create_checkpoint_at -377.176 -363.26 10.293 
+018A: $4268 = create_checkpoint_at -299.455 -380.05 10.294 
+018A: $4269 = create_checkpoint_at -262.049 -425.614 10.292 
+018A: $4270 = create_checkpoint_at -443.361 -341.896 10.295 
+018A: $4271 = create_checkpoint_at -486.959 -342.835 10.302 
+018A: $4272 = create_checkpoint_at -601.556 -345.337 10.308 
+018A: $4273 = create_checkpoint_at -596.957 -311.66 10.288 
+018A: $4274 = create_checkpoint_at -645.88 -290.348 8.863 
+018A: $4275 = create_checkpoint_at -651.442 -320.928 11.072 
+018A: $4276 = create_checkpoint_at -635.147 -361.337 11.295 
+018A: $4277 = create_checkpoint_at -681.084 -312.983 8.732 
+018A: $4278 = create_checkpoint_at -598.214 -252.649 9.614 
+018A: $4279 = create_checkpoint_at -546.679 -244.174 9.614 
+018A: $4280 = create_checkpoint_at -397.575 -264.942 9.952 
+018A: $4281 = create_checkpoint_at -332.261 -246.437 9.524 
+018A: $4282 = create_checkpoint_at -378.466 -312.324 9.625 
+018A: $4283 = create_checkpoint_at -328.463 -294.551 9.815 
+014E: start_timer_at $4193 count_in_direction 1 
+
+:FAGRACE_1792
+wait 0 
+if 
+   not Car.Wrecked($4194)
+else_jump @FAGRACE_1853 
+if 
+00E0:   player $PLAYER_CHAR driving 
+else_jump @FAGRACE_1882 
+if 
+  $4193 > 0 // integer values 
+else_jump @FAGRACE_1860 
+jump @FAGRACE_2050 
+
+:FAGRACE_1853
+jump @FAGRACE_8098 
+
+:FAGRACE_1860
+00BC: text_highpriority 'HOTR_04' 5000 ms 1  // ~r~Too tough for you?
+jump @FAGRACE_8098 
+
+:FAGRACE_1882
+Car.RemoveReferences($4194)
+if 
+  $4193 >= 10000 // integer values 
+else_jump @FAGRACE_1920 
+$4284 = 10 // integer values 
+jump @FAGRACE_1936 
+
+:FAGRACE_1920
+0084: $4284 = $4193 // integer values and handles 
+$4284 /= 1000 // integer values 
+
+:FAGRACE_1936
+16@ = 0 // integer values 
+
+:FAGRACE_1943
+wait 0 
+if 
+  $4284 > 0 // integer values 
+else_jump @FAGRACE_1860 
+if 
+   not 16@ > 999 // integer values 
+else_jump @FAGRACE_2018 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #FAGGIO 
+else_jump @FAGRACE_1943 
+03C1: $4194 = player $PLAYER_CHAR car_no_save 
+jump @FAGRACE_1792 
+
+:FAGRACE_2018
+$4284 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_03' $4284 flag 1000 time 1  // ~g~You have ~1~ seconds to find yourself another Faggio!
+jump @FAGRACE_1936 
+
+:FAGRACE_2050
+if 
+  $4195 == 0 // integer values 
+else_jump @FAGRACE_2185 
+04D5: create_corona_at -188.862 -396.243 10.49 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -188.862 -396.243 radius 1.5 1.5 
+else_jump @FAGRACE_2185 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4240)
+$4195 = 1 // integer values 
+
+:FAGRACE_2185
+if 
+  $4196 == 0 // integer values 
+else_jump @FAGRACE_2320 
+04D5: create_corona_at -209.506 -391.191 10.709 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -209.506 -391.191 radius 1.5 1.5 
+else_jump @FAGRACE_2320 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4241)
+$4196 = 1 // integer values 
+
+:FAGRACE_2320
+if 
+  $4197 == 0 // integer values 
+else_jump @FAGRACE_2455 
+04D5: create_corona_at -229.315 -417.498 11.227 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -229.315 -417.498 radius 1.5 1.5 
+else_jump @FAGRACE_2455 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4242)
+$4197 = 1 // integer values 
+
+:FAGRACE_2455
+if 
+  $4198 == 0 // integer values 
+else_jump @FAGRACE_2590 
+04D5: create_corona_at -251.781 -403.073 11.406 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -251.781 -403.073 radius 1.5 1.5 
+else_jump @FAGRACE_2590 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4243)
+$4198 = 1 // integer values 
+
+:FAGRACE_2590
+if 
+  $4199 == 0 // integer values 
+else_jump @FAGRACE_2725 
+04D5: create_corona_at -260.043 -373.12 11.192 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -260.043 -373.12 radius 1.5 1.5 
+else_jump @FAGRACE_2725 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4244)
+$4199 = 1 // integer values 
+
+:FAGRACE_2725
+if 
+  $4200 == 0 // integer values 
+else_jump @FAGRACE_2860 
+04D5: create_corona_at -254.139 -340.945 10.307 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -254.139 -340.945 radius 1.5 1.5 
+else_jump @FAGRACE_2860 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4245)
+$4200 = 1 // integer values 
+
+:FAGRACE_2860
+if 
+  $4201 == 0 // integer values 
+else_jump @FAGRACE_2995 
+04D5: create_corona_at -273.57 -320.332 10.307 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -273.57 -320.332 radius 1.5 1.5 
+else_jump @FAGRACE_2995 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4246)
+$4201 = 1 // integer values 
+
+:FAGRACE_2995
+if 
+  $4202 == 0 // integer values 
+else_jump @FAGRACE_3130 
+04D5: create_corona_at -290.42 -357.684 11.192 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -290.42 -357.684 radius 1.5 1.5 
+else_jump @FAGRACE_3130 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4247)
+$4202 = 1 // integer values 
+
+:FAGRACE_3130
+if 
+  $4203 == 0 // integer values 
+else_jump @FAGRACE_3265 
+04D5: create_corona_at -328.201 -344.604 11.434 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -328.201 -344.604 radius 1.5 1.5 
+else_jump @FAGRACE_3265 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4248)
+$4203 = 1 // integer values 
+
+:FAGRACE_3265
+if 
+  $4204 == 0 // integer values 
+else_jump @FAGRACE_3400 
+04D5: create_corona_at -366.891 -338.997 11.296 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -366.891 -338.997 radius 1.5 1.5 
+else_jump @FAGRACE_3400 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4249)
+$4204 = 1 // integer values 
+
+:FAGRACE_3400
+if 
+  $4205 == 0 // integer values 
+else_jump @FAGRACE_3535 
+04D5: create_corona_at -403.59 -339.325 11.303 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -403.59 -339.325 radius 1.5 1.5 
+else_jump @FAGRACE_3535 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4250)
+$4205 = 1 // integer values 
+
+:FAGRACE_3535
+if 
+  $4206 == 0 // integer values 
+else_jump @FAGRACE_3670 
+04D5: create_corona_at -426.04 -328.182 11.32 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -426.04 -328.182 radius 1.5 1.5 
+else_jump @FAGRACE_3670 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4251)
+$4206 = 1 // integer values 
+
+:FAGRACE_3670
+if 
+  $4207 == 0 // integer values 
+else_jump @FAGRACE_3805 
+04D5: create_corona_at -427.804 -291.084 11.338 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -427.804 -291.084 radius 1.5 1.5 
+else_jump @FAGRACE_3805 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4252)
+$4207 = 1 // integer values 
+
+:FAGRACE_3805
+if 
+  $4208 == 0 // integer values 
+else_jump @FAGRACE_3940 
+04D5: create_corona_at -428.716 -251.827 10.758 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -428.716 -251.827 radius 1.5 1.5 
+else_jump @FAGRACE_3940 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4253)
+$4208 = 1 // integer values 
+
+:FAGRACE_3940
+if 
+  $4209 == 0 // integer values 
+else_jump @FAGRACE_4075 
+04D5: create_corona_at -460.355 -244.384 10.614 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -460.355 -244.384 radius 1.5 1.5 
+else_jump @FAGRACE_4075 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4254)
+$4209 = 1 // integer values 
+
+:FAGRACE_4075
+if 
+  $4210 == 0 // integer values 
+else_jump @FAGRACE_4210 
+04D5: create_corona_at -503.631 -244.773 10.614 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -503.631 -244.773 radius 1.5 1.5 
+else_jump @FAGRACE_4210 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4255)
+$4210 = 1 // integer values 
+
+:FAGRACE_4210
+if 
+  $4211 == 0 // integer values 
+else_jump @FAGRACE_4345 
+04D5: create_corona_at -503.496 -288.961 10.66 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -503.496 -288.961 radius 1.5 1.5 
+else_jump @FAGRACE_4345 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4256)
+$4211 = 1 // integer values 
+
+:FAGRACE_4345
+if 
+  $4212 == 0 // integer values 
+else_jump @FAGRACE_4480 
+04D5: create_corona_at -516.414 -308.507 10.822 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -516.414 -308.507 radius 1.5 1.5 
+else_jump @FAGRACE_4480 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4257)
+$4212 = 1 // integer values 
+
+:FAGRACE_4480
+if 
+  $4213 == 0 // integer values 
+else_jump @FAGRACE_4615 
+04D5: create_corona_at -523.139 -337.653 11.275 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -523.139 -337.653 radius 1.5 1.5 
+else_jump @FAGRACE_4615 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4258)
+$4213 = 1 // integer values 
+
+:FAGRACE_4615
+if 
+  $4214 == 0 // integer values 
+else_jump @FAGRACE_4750 
+04D5: create_corona_at -554.338 -348.535 11.301 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -554.338 -348.535 radius 1.5 1.5 
+else_jump @FAGRACE_4750 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4259)
+$4214 = 1 // integer values 
+
+:FAGRACE_4750
+if 
+  $4215 == 0 // integer values 
+else_jump @FAGRACE_4885 
+04D5: create_corona_at -593.935 -359.72 11.23 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -593.935 -359.72 radius 1.5 1.5 
+else_jump @FAGRACE_4885 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4260)
+$4215 = 1 // integer values 
+
+:FAGRACE_4885
+if 
+  $4216 == 0 // integer values 
+else_jump @FAGRACE_5020 
+04D5: create_corona_at -628.153 -383.083 11.296 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -628.153 -383.083 radius 1.5 1.5 
+else_jump @FAGRACE_5020 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4261)
+$4216 = 1 // integer values 
+
+:FAGRACE_5020
+if 
+  $4217 == 0 // integer values 
+else_jump @FAGRACE_5155 
+04D5: create_corona_at -649.944 -415.914 11.298 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -649.944 -415.914 radius 1.5 1.5 
+else_jump @FAGRACE_5155 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4262)
+$4217 = 1 // integer values 
+
+:FAGRACE_5155
+if 
+  $4218 == 0 // integer values 
+else_jump @FAGRACE_5290 
+04D5: create_corona_at -656.412 -459.596 11.302 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -656.412 -459.596 radius 1.5 1.5 
+else_jump @FAGRACE_5290 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4263)
+$4218 = 1 // integer values 
+
+:FAGRACE_5290
+if 
+  $4219 == 0 // integer values 
+else_jump @FAGRACE_5425 
+04D5: create_corona_at -629.355 -429.985 11.095 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -629.355 -429.985 radius 1.5 1.5 
+else_jump @FAGRACE_5425 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4264)
+$4219 = 1 // integer values 
+
+:FAGRACE_5425
+if 
+  $4220 == 0 // integer values 
+else_jump @FAGRACE_5560 
+04D5: create_corona_at -580.09 -378.814 11.073 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -580.09 -378.814 radius 1.5 1.5 
+else_jump @FAGRACE_5560 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4265)
+$4220 = 1 // integer values 
+
+:FAGRACE_5560
+if 
+  $4221 == 0 // integer values 
+else_jump @FAGRACE_5695 
+04D5: create_corona_at -498.75 -367.145 11.092 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -498.75 -367.145 radius 1.5 1.5 
+else_jump @FAGRACE_5695 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4266)
+$4221 = 1 // integer values 
+
+:FAGRACE_5695
+if 
+  $4222 == 0 // integer values 
+else_jump @FAGRACE_5830 
+04D5: create_corona_at -377.176 -363.26 11.093 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -377.176 -363.26 radius 1.5 1.5 
+else_jump @FAGRACE_5830 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4267)
+$4222 = 1 // integer values 
+
+:FAGRACE_5830
+if 
+  $4223 == 0 // integer values 
+else_jump @FAGRACE_5965 
+04D5: create_corona_at -299.455 -380.05 11.094 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -299.455 -380.05 radius 1.5 1.5 
+else_jump @FAGRACE_5965 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4268)
+$4223 = 1 // integer values 
+
+:FAGRACE_5965
+if 
+  $4224 == 0 // integer values 
+else_jump @FAGRACE_6100 
+04D5: create_corona_at -262.049 -425.614 11.092 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -262.049 -425.614 radius 1.5 1.5 
+else_jump @FAGRACE_6100 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4269)
+$4224 = 1 // integer values 
+
+:FAGRACE_6100
+if 
+  $4225 == 0 // integer values 
+else_jump @FAGRACE_6235 
+04D5: create_corona_at -443.361 -341.896 11.095 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -443.361 -341.896 radius 1.5 1.5 
+else_jump @FAGRACE_6235 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4270)
+$4225 = 1 // integer values 
+
+:FAGRACE_6235
+if 
+  $4226 == 0 // integer values 
+else_jump @FAGRACE_6370 
+04D5: create_corona_at -486.959 -342.835 11.102 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -486.959 -342.835 radius 1.5 1.5 
+else_jump @FAGRACE_6370 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4271)
+$4226 = 1 // integer values 
+
+:FAGRACE_6370
+if 
+  $4227 == 0 // integer values 
+else_jump @FAGRACE_6505 
+04D5: create_corona_at -601.556 -345.337 11.108 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -601.556 -345.337 radius 1.5 1.5 
+else_jump @FAGRACE_6505 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4272)
+$4227 = 1 // integer values 
+
+:FAGRACE_6505
+if 
+  $4228 == 0 // integer values 
+else_jump @FAGRACE_6640 
+04D5: create_corona_at -596.957 -311.66 11.08 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -596.957 -311.66 radius 1.5 1.5 
+else_jump @FAGRACE_6640 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4273)
+$4228 = 1 // integer values 
+
+:FAGRACE_6640
+if 
+  $4229 == 0 // integer values 
+else_jump @FAGRACE_6775 
+04D5: create_corona_at -645.88 -290.348 9.663 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -645.88 -290.348 radius 1.5 1.5 
+else_jump @FAGRACE_6775 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4274)
+$4229 = 1 // integer values 
+
+:FAGRACE_6775
+if 
+  $4230 == 0 // integer values 
+else_jump @FAGRACE_6910 
+04D5: create_corona_at -651.442 -320.928 11.872 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -651.442 -320.928 radius 1.5 1.5 
+else_jump @FAGRACE_6910 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4275)
+$4230 = 1 // integer values 
+
+:FAGRACE_6910
+if 
+  $4231 == 0 // integer values 
+else_jump @FAGRACE_7045 
+04D5: create_corona_at -635.147 -361.337 12.095 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -635.147 -361.337 radius 1.5 1.5 
+else_jump @FAGRACE_7045 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4276)
+$4231 = 1 // integer values 
+
+:FAGRACE_7045
+if 
+  $4232 == 0 // integer values 
+else_jump @FAGRACE_7180 
+04D5: create_corona_at -681.084 -312.983 9.532 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -681.084 -312.983 radius 1.5 1.5 
+else_jump @FAGRACE_7180 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4277)
+$4232 = 1 // integer values 
+
+:FAGRACE_7180
+if 
+  $4233 == 0 // integer values 
+else_jump @FAGRACE_7315 
+04D5: create_corona_at -598.214 -252.649 10.414 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -598.214 -252.649 radius 1.5 1.5 
+else_jump @FAGRACE_7315 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4278)
+$4233 = 1 // integer values 
+
+:FAGRACE_7315
+if 
+  $4234 == 0 // integer values 
+else_jump @FAGRACE_7450 
+04D5: create_corona_at -546.679 -244.174 10.414 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -546.679 -244.174 radius 1.5 1.5 
+else_jump @FAGRACE_7450 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4279)
+$4234 = 1 // integer values 
+
+:FAGRACE_7450
+if 
+  $4235 == 0 // integer values 
+else_jump @FAGRACE_7585 
+04D5: create_corona_at -397.575 -264.942 10.752 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -397.575 -264.942 radius 1.5 1.5 
+else_jump @FAGRACE_7585 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4280)
+$4235 = 1 // integer values 
+
+:FAGRACE_7585
+if 
+  $4236 == 0 // integer values 
+else_jump @FAGRACE_7720 
+04D5: create_corona_at -332.261 -246.437 10.324 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -332.261 -246.437 radius 1.5 1.5 
+else_jump @FAGRACE_7720 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4281)
+$4236 = 1 // integer values 
+
+:FAGRACE_7720
+if 
+  $4237 == 0 // integer values 
+else_jump @FAGRACE_7855 
+04D5: create_corona_at -378.466 -312.324 10.425 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -378.466 -312.324 radius 1.5 1.5 
+else_jump @FAGRACE_7855 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4282)
+$4237 = 1 // integer values 
+
+:FAGRACE_7855
+if 
+  $4238 == 0 // integer values 
+else_jump @FAGRACE_7990 
+04D5: create_corona_at -328.463 -294.551 10.615 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $4194 sphere 0 near_point -328.463 -294.551 radius 1.5 1.5 
+else_jump @FAGRACE_7990 
+$4193 += 3000 // integer values 
+$4239 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($4283)
+$4238 = 1 // integer values 
+
+:FAGRACE_7990
+if 
+  $4239 == 44 // integer values 
+else_jump @FAGRACE_8033 
+01E5: text_1number_highpriority 'MOB_40A' $4239 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 44
+jump @FAGRACE_8115 
+
+:FAGRACE_8033
+if 
+  $4239 == 0 // integer values 
+else_jump @FAGRACE_8073 
+00BC: text_highpriority 'MOB_36C' 1000 ms 1  // ~p~Checkpoints collected: 0 / 44
+jump @FAGRACE_1792 
+
+:FAGRACE_8073
+01E5: text_1number_highpriority 'MOB_40A' $4239 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 44
+jump @FAGRACE_1792 
+
+:FAGRACE_8098
+00BA: text_styled 'M_FAIL' 2000 ms 1  // MISSION FAILED!
+return 
+
+:FAGRACE_8115
+if 
+  $4192 == 0 // integer values 
+else_jump @FAGRACE_8154 
+030C: progress_made += 1 
+0318: set_latest_mission_passed 'JOB_2'  // Starfish Challenge
+$4192 = 1 // integer values 
+
+:FAGRACE_8154
+014F: stop_timer $4193 
+Player.Money($PLAYER_CHAR) += 500
+01E3: text_1number_styled 'M_PASS' number 500 time 5000 style 1  // MISSION PASSED! $~1~
+Player.ClearWantedLevel($PLAYER_CHAR)
+0394: play_music 1 
+return 
+
+:FAGRACE_8196
+Marker.Disable($4240)
+Marker.Disable($4241)
+Marker.Disable($4242)
+Marker.Disable($4243)
+Marker.Disable($4244)
+Marker.Disable($4245)
+Marker.Disable($4246)
+Marker.Disable($4247)
+Marker.Disable($4248)
+Marker.Disable($4249)
+Marker.Disable($4250)
+Marker.Disable($4251)
+Marker.Disable($4252)
+Marker.Disable($4253)
+Marker.Disable($4254)
+Marker.Disable($4255)
+Marker.Disable($4256)
+Marker.Disable($4257)
+Marker.Disable($4258)
+Marker.Disable($4259)
+Marker.Disable($4260)
+Marker.Disable($4261)
+Marker.Disable($4262)
+Marker.Disable($4263)
+Marker.Disable($4264)
+Marker.Disable($4265)
+Marker.Disable($4266)
+Marker.Disable($4267)
+Marker.Disable($4268)
+Marker.Disable($4269)
+Marker.Disable($4270)
+Marker.Disable($4271)
+Marker.Disable($4272)
+Marker.Disable($4273)
+Marker.Disable($4274)
+Marker.Disable($4275)
+Marker.Disable($4276)
+Marker.Disable($4277)
+Marker.Disable($4278)
+Marker.Disable($4279)
+Marker.Disable($4280)
+Marker.Disable($4281)
+Marker.Disable($4282)
+Marker.Disable($4283)
+Car.RemoveReferences($4194)
+014F: stop_timer $4193 
+$ONMISSION = 0 // integer values 
+$1139 = 1 // integer values 
+mission_cleanup 
+return 

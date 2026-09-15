@@ -1,0 +1,13 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 24: The Job
+// Строки 50416-50424 исходного файла data/main.txt
+// Кол-во строк: 9
+//-------------Mission 24---------------
+// Originally: The Job
+
+:LOOP3
+thread 'LOOP3' 
+
+:LOOP3_10
+jump @LOOP3_10 
+

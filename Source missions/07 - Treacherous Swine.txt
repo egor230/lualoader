@@ -1,0 +1,1112 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 7: Treacherous Swine
+// Строки 34371-35478 исходного файла data/main.txt
+// Кол-во строк: 1108
+//-------------Mission 7---------------
+// Originally: Treacherous Swine
+
+:JEFF7
+gosub @JEFF7_36 
+if 
+wasted_or_busted 
+else_jump @JEFF7_27 
+gosub @JEFF7_7643 
+
+:JEFF7_27
+gosub @JEFF7_7660 
+end_thread 
+
+:JEFF7_36
+increment_mission_attempts 
+thread 'JEFF7' 
+$ONMISSION = 1 // integer values 
+054C: use_GXT_table 'BARON2' 
+023C: load_special_actor 4 'IGBUDDY' 
+023C: load_special_actor 3 'BURGER' 
+023C: load_special_actor 2 'PLAYER' 
+Model.Load(#VICE6)
+Model.Load(#HMYBE)
+Model.Load(#WFOGO)
+Model.Load(#WMORI)
+Model.Load(#M4)
+Model.Load(#HAMMER)
+Model.Load(#KNIFECUR)
+Model.Load(#SPARROW)
+038B: load_requested_models 
+
+:JEFF7_139
+wait 0 
+if or
+823D:   not special_actor 4 loaded 
+823D:   not special_actor 3 loaded 
+823D:   not special_actor 2 loaded 
+else_jump @JEFF7_173 
+jump @JEFF7_139 
+
+:JEFF7_173
+wait 0 
+if or
+   not Model.Available(#M4)
+   not Model.Available(#HAMMER)
+   not Model.Available(#KNIFECUR)
+   not Model.Available(#SPARROW)
+   not Model.Available(#WMORI)
+   not Model.Available(#HMYBE)
+   not Model.Available(#WFOGO)
+   not Model.Available(#VICE6)
+else_jump @JEFF7_231 
+jump @JEFF7_173 
+
+:JEFF7_231
+wait 0 
+fade 1 1500 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+02A3: enable_widescreen 1 
+1@ = Actor.Create(CivMale, #SPECIAL03, 183.497, -1012.71, 10.495)
+0350: set_actor 1@ maintain_position_when_attacked 1 
+2@ = Actor.Create(CivMale, #SPECIAL04, 177.527, -1012.371, 10.495)
+0350: set_actor 2@ maintain_position_when_attacked 1 
+Actor.Angle(2@) = 270.0
+0211: actor 1@ walk_to 183.273 -1006.056 
+0055: put_player $PLAYER_CHAR at 187.171 -1009.554 10.495 
+0211: actor $PLAYER_ACTOR walk_to 179.827 -1011.787 
+Camera.SetPosition(181.95, -1012.529, 11.695, 0.0, 0.0, 0.0)
+Camera.PointAt(184.322, -1011.917, 11.695, 2)
+wait 0 
+Camera.SetPosition(180.273, -1010.056, 11.695, 0.0, 0.0, 0.0)
+Camera.PointAt(185.171, -1010.554, 11.695, 1)
+0460: set_camera_pointing_time 0.0 10000 
+16@ = 0 // integer values 
+
+:JEFF7_499
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @JEFF7_546 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_499 
+jump @JEFF7_2824 
+
+:JEFF7_546
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFA_A' 4000 ms 1  // ~x~Jeff around?
+
+:JEFF7_568
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_615 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_568 
+jump @JEFF7_2824 
+
+:JEFF7_615
+16@ = 0 // integer values 
+Camera.SetPosition(183.5, -1012.529, 11.695, 0.0, 0.0, 0.0)
+Camera.PointAt(177.322, -1011.917, 11.695, 2)
+020F: actor 2@ look_at_player $PLAYER_CHAR 
+Actor.DestroyInstantly(1@)
+
+:JEFF7_686
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @JEFF7_733 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_686 
+jump @JEFF7_2824 
+
+:JEFF7_733
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 16 wait_state_time 1000 ms 
+00BC: text_highpriority 'JEFFA_B' 4000 ms 1  // Grab a seat, * sniff * we need to talk.
+
+:JEFF7_765
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF7_812 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_765 
+jump @JEFF7_2824 
+
+:JEFF7_812
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFA_C' 4000 ms 1  // ~x~I'm excited already. I think I'll stand.
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+
+:JEFF7_844
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF7_891 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_844 
+jump @JEFF7_2824 
+
+:JEFF7_891
+16@ = 0 // integer values 
+Camera.SetPosition(181.557, -1010.504, 11.895, 0.0, 0.0, 0.0)
+Camera.PointAt(177.527, -1012.371, 11.895, 2)
+wait 0 
+Camera.SetPosition(180.5, -1009.929, 11.695, 0.0, 0.0, 0.0)
+Camera.PointAt(177.527, -1013.371, 11.895, 1)
+0460: set_camera_pointing_time 0.0 55000 
+0372: set_actor 2@ anim 19 wait_state_time 3700 ms 
+00BC: text_highpriority 'JEFFA_D' 4000 ms 1  // That agent who works for Frank called me.
+022C: set_actor 2@ to_look_at_actor $PLAYER_ACTOR 
+
+:JEFF7_1049
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF7_1096 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1049 
+jump @JEFF7_2824 
+
+:JEFF7_1096
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 19 wait_state_time 2000 ms 
+00BC: text_highpriority 'JEFFA_E' 4000 ms 1  // He said you two already met. * sniff *
+
+:JEFF7_1128
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF7_1175 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1128 
+jump @JEFF7_2824 
+
+:JEFF7_1175
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'JEFFA_F' 4000 ms 1  // Tells me I gotta take my chopper and... uh...
+
+:JEFF7_1207
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_1254 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1207 
+jump @JEFF7_2824 
+
+:JEFF7_1254
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 8 wait_state_time 5000 ms 
+00BC: text_highpriority 'JEFFA_G' 5000 ms 1  // Fly you to the Marina Sands hotel... There's a job for us.
+
+:JEFF7_1286
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_1333 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1286 
+jump @JEFF7_2824 
+
+:JEFF7_1333
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 31 wait_state_time 2000 ms 
+00BC: text_highpriority 'JEFFAA1' 5000 ms 1  // ~x~Get to the point already would you, Jeff?
+
+:JEFF7_1365
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_1412 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1365 
+jump @JEFF7_2824 
+
+:JEFF7_1412
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'JEFFA_H' 6000 ms 1  // There's a family staying at the Hotel, and you need to take them out.
+
+:JEFF7_1444
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @JEFF7_1491 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1444 
+jump @JEFF7_2824 
+
+:JEFF7_1491
+16@ = 0 // integer values 
+Camera.SetPosition(176.827, -1013.571, 11.895, 0.0, 0.0, 0.0)
+Camera.PointAt(181.557, -1010.604, 11.895, 2)
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 2500 ms 
+00BC: text_highpriority 'JEFFA_I' 4000 ms 1  // ~x~Something tells me there's a problem.
+
+:JEFF7_1574
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF7_1621 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1574 
+jump @JEFF7_2824 
+
+:JEFF7_1621
+16@ = 0 // integer values 
+Camera.SetPosition(180.5, -1010.029, 11.695, 0.0, 0.0, 0.0)
+Camera.PointAt(177.527, -1013.371, 11.895, 2)
+0372: set_actor 2@ anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'JEFFA_J' 4000 ms 1  // ...They are under witness protection, Flint.
+
+:JEFF7_1704
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF7_1751 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1704 
+jump @JEFF7_2824 
+
+:JEFF7_1751
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'JEFFA_K' 4000 ms 1  // Frank wants all three targets eliminated quietly.
+
+:JEFF7_1783
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF7_1830 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1783 
+jump @JEFF7_2824 
+
+:JEFF7_1830
+16@ = 0 // integer values 
+Camera.SetPosition(176.827, -1013.571, 11.895, 0.0, 0.0, 0.0)
+Camera.PointAt(181.557, -1010.604, 11.895, 2)
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'JEFFA_L' 5000 ms 1  // ~x~Great. A triple murder added to my resume...
+
+:JEFF7_1913
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_1960 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_1913 
+jump @JEFF7_2824 
+
+:JEFF7_1960
+16@ = 0 // integer values 
+Camera.SetPosition(180.5, -1010.029, 11.695, 0.0, 0.0, 0.0)
+Camera.PointAt(177.527, -1013.371, 11.895, 2)
+0372: set_actor 2@ anim 31 wait_state_time 4000 ms 
+00BC: text_highpriority 'JEFFA_M' 5000 ms 1  // * sniff * If you're counting on Frank's help, we've gotta do as we're told.
+
+:JEFF7_2043
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_2090 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_2043 
+jump @JEFF7_2824 
+
+:JEFF7_2090
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 19 wait_state_time 3700 ms 
+00BC: text_highpriority 'JEFFA_N' 4000 ms 1  // Come on, you've made some good connections so far...
+
+:JEFF7_2122
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF7_2169 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_2122 
+jump @JEFF7_2824 
+
+:JEFF7_2169
+16@ = 0 // integer values 
+Camera.SetPosition(176.827, -1013.571, 11.895, 0.0, 0.0, 0.0)
+Camera.PointAt(181.557, -1010.804, 11.895, 2)
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'JEFFA_O' 5000 ms 1  // ~x~I'm running around this town, killing people for criminals!
+
+:JEFF7_2252
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_2299 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_2252 
+jump @JEFF7_2824 
+
+:JEFF7_2299
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'JEFFA_P' 5000 ms 1  // You've made some decent money, man! You should be happy!
+
+:JEFF7_2331
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_2378 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_2331 
+jump @JEFF7_2824 
+
+:JEFF7_2378
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 2 wait_state_time 1500 ms 
+00BC: text_highpriority 'JEFFA_Q' 5000 ms 1  // ~x~Yeah? Well, I'm actually starting to feel like a damn idiot.
+
+:JEFF7_2410
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_2457 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_2410 
+jump @JEFF7_2824 
+
+:JEFF7_2457
+16@ = 0 // integer values 
+Camera.SetPosition(180.5, -1010.029, 11.695, 0.0, 0.0, 0.0)
+Camera.PointAt(177.527, -1013.371, 11.895, 2)
+0372: set_actor 2@ anim 19 wait_state_time 3700 ms 
+00BC: text_highpriority 'JEFFA_R' 5000 ms 1  // Oh! Before I forget... You can't be seen! * sniff *
+
+:JEFF7_2540
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_2587 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_2540 
+jump @JEFF7_2824 
+
+:JEFF7_2587
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'JEFFA_S' 5000 ms 1  // The main hall is packed with security so you'll use the rooftop entrance.
+
+:JEFF7_2619
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF7_2666 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_2619 
+jump @JEFF7_2824 
+
+:JEFF7_2666
+16@ = 0 // integer values 
+0372: set_actor 2@ anim 31 wait_state_time 4000 ms 
+00BC: text_highpriority 'JEFFA_T' 6000 ms 1  // If a security guard spots you - The deal is off, and you're on your own.
+
+:JEFF7_2698
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @JEFF7_2745 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_2698 
+jump @JEFF7_2824 
+
+:JEFF7_2745
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'JEFFA_U' 6000 ms 1  // ~x~Alright, Let's go. The sooner we do this, the sooner I should be getting answers.
+
+:JEFF7_2777
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @JEFF7_2824 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF7_2777 
+jump @JEFF7_2824 
+
+:JEFF7_2824
+16@ = 0 // integer values 
+00BE: text_clear_all 
+011C: actor $PLAYER_ACTOR clear_objective 
+0211: actor $PLAYER_ACTOR walk_to 185.437 -1009.893 
+fade 0 1000 
+wait 1000 
+Camera.SetPosition(16.5514, -1151.95, 60.9439, 0.0, 0.0, 0.0)
+Camera.PointAt(-100.319, -1154.92, 40.9782, 2)
+Actor.DestroyInstantly(2@)
+3@ = Car.Create(#SPARROW, 33.4454, -1172.39, 60.9439)
+Model.Destroy(#SPARROW)
+01C8: 4@ = create_actor_pedtype 9 model #SPECIAL02 in_car 3@ passenger_seat 0 
+0129: 5@ = create_actor 4 #SPECIAL04 in_car 3@ driverseat 
+04A2: heli 3@ fly_to -30.4454 -1157.39 55.9439 speed 30 
+wait 0 
+fade 1 55000 
+Camera.SetPosition(27.4454, -1172.39, 60.9439, 0.0, 0.0, 0.0)
+Camera.PointAt(-100.319, -1154.92, 40.9782, 1)
+0460: set_camera_pointing_time 0.0 15000 
+wait 4000 
+fade 1 1000 
+
+:JEFF7_3083
+wait 0 
+if 
+01AF:   car 3@ 0 -25.4454 -1157.39 55.9439 radius 5.5 5.5 5.5 
+else_jump @JEFF7_3083 
+Camera.SetPosition(-96.255, -1175.56, 32.227, 0.0, 0.0, 0.0)
+Camera.OnVehicle(3@, 15, 2)
+04DF: set_heli 3@ lean_and_thrust_limiter 1 
+
+:JEFF7_3183
+wait 0 
+if 
+01AF:   car 3@ 0 -30.4454 -1157.39 55.9439 radius 2.5 2.5 2.0 
+else_jump @JEFF7_3183 
+04A2: heli 3@ fly_to -100.319 -1184.92 30.9782 speed 30 
+
+:JEFF7_3257
+wait 0 
+if 
+01AF:   car 3@ 0 -100.319 -1184.92 30.9782 radius 2.5 2.5 2.0 
+else_jump @JEFF7_3257 
+Car.SetToNormalDriver(3@)
+wait 2500 
+00BC: text_highpriority 'JEFFA_V' 5000 ms 1  // You're on your own for now. I'll be keeping a low profile... Good luck!
+wait 4000 
+03E2: actor 4@ exit_car 
+wait 2500 
+04A2: heli 3@ fly_to -52.264 -1187.71 47.227 speed 10 
+04DF: set_heli 3@ lean_and_thrust_limiter 0 
+wait 2500 
+fade 0 1000 
+wait 1000 
+Actor.RemoveReferences(1@)
+Actor.RemoveReferences(2@)
+Actor.RemoveReferences(4@)
+Actor.RemoveReferences(5@)
+Actor.DestroyInstantly(4@)
+Actor.DestroyInstantly(5@)
+Car.Destroy(3@)
+Car.RemoveReferences(3@)
+0296: unload_special_actor 4 
+0296: unload_special_actor 3 
+0296: unload_special_actor 2 
+fade 1 1500 
+02A3: enable_widescreen 0 
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+0055: put_player $PLAYER_CHAR at -105.123 -1186.869 30.582 
+0171: set_player $PLAYER_CHAR z_angle_to 330.0 
+Camera.SetBehindPlayer
+$5786 = Actor.Create(CivMale, #VICE6, -100.491, -1114.506, 27.069)
+01B2: give_actor $5786 weapon 26 ammo 9999 // Load the weapon model before using this 
+0350: set_actor $5786 maintain_position_when_attacked 1 
+$5787 = Actor.Create(CivMale, #VICE6, -120.089, -1135.102, 22.908)
+01B2: give_actor $5787 weapon 26 ammo 9999 // Load the weapon model before using this 
+0350: set_actor $5787 maintain_position_when_attacked 1 
+$5788 = Actor.Create(CivMale, #VICE6, -133.009, -1146.27, 12.471)
+01B2: give_actor $5788 weapon 26 ammo 9999 // Load the weapon model before using this 
+0350: set_actor $5788 maintain_position_when_attacked 1 
+$5789 = Actor.Create(CivMale, #VICE6, -110.388, -1160.918, 17.764)
+01B2: give_actor $5789 weapon 26 ammo 9999 // Load the weapon model before using this 
+0350: set_actor $5789 maintain_position_when_attacked 1 
+$5790 = 0 // integer values 
+$5791 = 0 // integer values 
+$5792 = Actor.Health($5788)
+$5793 = 0 // integer values 
+$5795 = Actor.Health($5786)
+$5794 = 0 // integer values 
+$5796 = Actor.Health($5787)
+$5797 = 0 // integer values 
+$5798 = 0 // integer values 
+$5799 = Actor.Health($5789)
+03BC: $5785 = create_sphere -111.553 -1171.311 17.764 1.5 
+03BC: $5784 = create_sphere -123.539 -1176.074 17.764 1.5 
+03BC: $5783 = create_sphere -110.104 -1130.552 27.069 1.5 
+$5782 = 0 // integer values 
+$5781 = 0 // integer values 
+$5780 = 0 // integer values 
+$5777 = 0 // integer values 
+0245: set_actor $5786 walk_style_to 33 
+0245: set_actor $5787 walk_style_to 33 
+0245: set_actor $5788 walk_style_to 33 
+0245: set_actor $5789 walk_style_to 33 
+$5776 = Actor.Create(CivMale, #WMORI, -101.828, -1134.56, 27.069)
+Model.Destroy(#WMORI)
+Actor.Angle($5776) = 80.0
+Actor.Health($5776) = 45
+0350: set_actor $5776 maintain_position_when_attacked 1 
+0372: set_actor $5776 anim 24 wait_state_time 9999999 ms 
+$5775 = Actor.Create(CivMale, #HMYBE, -132.322, -1201.469, 18.047)
+Model.Destroy(#HMYBE)
+Actor.Angle($5775) = 10.0
+Actor.Health($5775) = 10
+0350: set_actor $5775 maintain_position_when_attacked 1 
+$5774 = Actor.Create(CivFemale, #WFOGO, -108.976, -1186.305, 17.764)
+Model.Destroy(#WFOGO)
+Actor.Angle($5774) = 200.0
+0350: set_actor $5774 maintain_position_when_attacked 1 
+wait 2000 
+00BC: text_highpriority 'JEFTXTA' 5000 ms 1  // ~r~The family is staying at the hotel. Search the property and find each of the three targets.
+
+:JEFF7_4049
+wait 0 
+if and
+  $5782 == 1 // integer values 
+  $5781 == 1 // integer values 
+  $5780 == 1 // integer values 
+else_jump @JEFF7_4290 
+if 
+  $5777 == 0 // integer values 
+else_jump @JEFF7_4169 
+$5773 = Actor.Create(CivMale, #VICE6, -132.21, -1149.966, 31.236)
+Actor.Angle($5773) = 160.0
+01B2: give_actor $5773 weapon 26 ammo 9999 // Load the weapon model before using this 
+00BC: text_highpriority 'JEFTXTC' 5000 ms 1  // ~r~All targets have been removed. Flee the scene undetected!
+$5777 = 1 // integer values 
+
+:JEFF7_4169
+wait 0 
+if 
+0056:   player $PLAYER_CHAR 0 -81.25 -1209.91 -171.25 -1114.91 
+else_jump @JEFF7_7580 
+if 
+0123:   actor $5773 spotted_player $PLAYER_CHAR 
+else_jump @JEFF7_4290 
+01CA: actor $5773 kill_player $PLAYER_CHAR 
+00BC: text_highpriority 'JEFTXTD' 5000 ms 1  // ~r~You have been identified by security! 
+wait 5000 
+01C5: remove_actor_from_mission_cleanup_list $5786 
+01C5: remove_actor_from_mission_cleanup_list $5787 
+01C5: remove_actor_from_mission_cleanup_list $5788 
+01C5: remove_actor_from_mission_cleanup_list $5789 
+01C5: remove_actor_from_mission_cleanup_list $5773 
+jump @JEFF7_7643 
+
+:JEFF7_4290
+wait 0 
+if 
+   not $5777 == 1 // integer values 
+else_jump @JEFF7_4384 
+if 
+0056:   player $PLAYER_CHAR 0 -81.25 -1209.91 -171.25 -1114.91 
+else_jump @JEFF7_4357 
+jump @JEFF7_4384 
+
+:JEFF7_4357
+00BC: text_highpriority 'JEFTXTB' 5000 ms 1  // ~r~You have abandoned the area before completing your task! 
+wait 5000 
+jump @JEFF7_7643 
+
+:JEFF7_4384
+wait 0 
+if or
+02E0:   actor $PLAYER_ACTOR firing_weapon 
+   not $5792 >= 90 // integer values 
+   not $5795 >= 90 // integer values 
+   not $5796 >= 90 // integer values 
+   not $5799 >= 90 // integer values 
+else_jump @JEFF7_4516 
+01CA: actor $5788 kill_player $PLAYER_CHAR 
+01CA: actor $5786 kill_player $PLAYER_CHAR 
+01CA: actor $5787 kill_player $PLAYER_CHAR 
+01CA: actor $5789 kill_player $PLAYER_CHAR 
+00BC: text_highpriority 'JEFTXTD' 5000 ms 1  // ~r~You have been identified by security! 
+wait 5000 
+01C5: remove_actor_from_mission_cleanup_list $5786 
+01C5: remove_actor_from_mission_cleanup_list $5787 
+01C5: remove_actor_from_mission_cleanup_list $5788 
+01C5: remove_actor_from_mission_cleanup_list $5789 
+01C5: remove_actor_from_mission_cleanup_list $5773 
+jump @JEFF7_7643 
+
+:JEFF7_4516
+wait 0 
+if or
+0123:   actor $5788 spotted_player $PLAYER_CHAR 
+0123:   actor $5786 spotted_player $PLAYER_CHAR 
+0123:   actor $5787 spotted_player $PLAYER_CHAR 
+0123:   actor $5789 spotted_player $PLAYER_CHAR 
+else_jump @JEFF7_4632 
+01CA: actor $5788 kill_player $PLAYER_CHAR 
+01CA: actor $5786 kill_player $PLAYER_CHAR 
+01CA: actor $5787 kill_player $PLAYER_CHAR 
+01CA: actor $5789 kill_player $PLAYER_CHAR 
+wait 5000 
+01C5: remove_actor_from_mission_cleanup_list $5786 
+01C5: remove_actor_from_mission_cleanup_list $5787 
+01C5: remove_actor_from_mission_cleanup_list $5788 
+01C5: remove_actor_from_mission_cleanup_list $5789 
+01C5: remove_actor_from_mission_cleanup_list $5773 
+jump @JEFF7_7643 
+
+:JEFF7_4632
+wait 0 
+gosub @JEFF7_6864 
+gosub @JEFF7_6698 
+gosub @JEFF7_6532 
+gosub @JEFF7_6220 
+gosub @JEFF7_4678 
+jump @JEFF7_4049 
+
+:JEFF7_4678
+wait 0 
+if and
+  $5782 == 0 // integer values 
+00F6:   player $PLAYER_CHAR 0 -111.553 -1171.311 17.764 radius 1.5 1.5 2.0 
+else_jump @JEFF7_5109 
+01B1: give_player $PLAYER_CHAR weapon 7 ammo 0 // Load the weapon model before using this 
+03BD: destroy_sphere $5785 
+Player.CanMove($PLAYER_CHAR) = False
+fade 0 500 
+wait 500 
+02A3: enable_widescreen 1 
+Camera.SetPosition(-110.566, -1184.031, 18.5, 0.0, 0.0, 0.0)
+Camera.PointAt(-109.546, -1187.057, 18.65, 2)
+fade 1 500 
+04EB: actor $5774 crouch 1 9999999 ms 
+wait 800 
+04EB: actor $5774 crouch 0 9999999 ms 
+wait 800 
+04EB: actor $5774 crouch 1 9999999 ms 
+wait 800 
+04EB: actor $5774 crouch 0 9999999 ms 
+wait 800 
+04EB: actor $5774 crouch 1 9999999 ms 
+wait 800 
+04EB: actor $5774 crouch 0 9999999 ms 
+04C7: toggle_camera_green_scanlines 1 
+052C: set_player $PLAYER_CHAR drunk_visuals 75 
+Camera.SetPosition(-104.137, -1189.173, 18.3, 0.0, 0.0, 0.0)
+Camera.PointAt(-108.607, -1185.785, 18.3, 2)
+0055: put_player $PLAYER_CHAR at -108.507 -1185.585 17.764 
+01CB: actor $PLAYER_ACTOR kill_actor $5774 
+wait 750 
+011C: actor $PLAYER_ACTOR clear_objective 
+0321: kill_actor $5774 
+
+:JEFF7_5034
+wait 0 
+if 
+   Actor.Dead($5774)
+else_jump @JEFF7_5034 
+wait 3000 
+fade 0 500 
+wait 500 
+04C7: toggle_camera_green_scanlines 0 
+02A3: enable_widescreen 0 
+052C: set_player $PLAYER_CHAR drunk_visuals 0 
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+fade 1 500 
+$5782 = 1 // integer values 
+
+:JEFF7_5109
+wait 0 
+if and
+  $5781 == 0 // integer values 
+00F6:   player $PLAYER_CHAR 0 -123.539 -1176.074 17.764 radius 1.5 1.5 2.0 
+else_jump @JEFF7_5634 
+04ED: load_animation 'RIOT' 
+
+:JEFF7_5178
+wait 0 
+if 
+04EE:   animation 'RIOT' loaded 
+else_jump @JEFF7_5178 
+0372: set_actor $5775 anim 28 wait_state_time 10000 ms 
+03BD: destroy_sphere $5784 
+Player.CanMove($PLAYER_CHAR) = False
+fade 0 500 
+wait 500 
+02A3: enable_widescreen 1 
+0055: put_player $PLAYER_CHAR at -125.933 -1179.074 17.769 
+Camera.SetPosition(-130.856, -1198.03, 18.5, 0.0, 0.0, 0.0)
+Camera.PointAt(-132.145, -1201.39, 18.5, 2)
+fade 1 500 
+wait 4000 
+Camera.SetPosition(-129.792, -1202.563, 18.5, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 1)
+01B1: give_player $PLAYER_CHAR weapon 5 ammo 0 // Load the weapon model before using this 
+0211: actor $PLAYER_ACTOR walk_to -137.327 -1192.199 
+wait 4000 
+00BC: text_highpriority 'JEFFA_Y' 3500 ms 1  // Hey! You're not the prostitute I ordered...
+wait 3500 
+Camera.SetPosition(-130.835, -1201.68, 20.7, 0.0, 0.0, 0.0)
+Camera.PointAt(-132.145, -1201.39, 18.5, 2)
+011C: actor $PLAYER_ACTOR clear_objective 
+00BC: text_highpriority 'JEFFA_Z' 3500 ms 1  // Get lost or I'm calling security!
+04C7: toggle_camera_green_scanlines 1 
+052C: set_player $PLAYER_CHAR drunk_visuals 75 
+0055: put_player $PLAYER_CHAR at -135.135 -1203.45 17.764 
+wait 1000 
+0211: actor $PLAYER_ACTOR walk_to -131.178 -1203.12 
+wait 2000 
+01CB: actor $PLAYER_ACTOR kill_actor $5775 
+
+:JEFF7_5549
+wait 0 
+if 
+   Actor.Dead($5775)
+else_jump @JEFF7_5549 
+wait 3000 
+fade 0 500 
+wait 500 
+04EF: release_animation 'RIOT' 
+04C7: toggle_camera_green_scanlines 0 
+02A3: enable_widescreen 0 
+052C: set_player $PLAYER_CHAR drunk_visuals 0 
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+fade 1 500 
+$5781 = 1 // integer values 
+
+:JEFF7_5634
+wait 0 
+if and
+00F6:   player $PLAYER_CHAR 0 -110.104 -1130.552 27.069 radius 1.5 1.5 2.0 
+  $5780 == 0 // integer values 
+else_jump @JEFF7_6218 
+03BD: destroy_sphere $5783 
+Player.CanMove($PLAYER_CHAR) = False
+fade 0 500 
+wait 500 
+0055: put_player $PLAYER_CHAR at -110.104 -1130.552 27.069 
+02A3: enable_widescreen 1 
+01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0 
+0211: actor $PLAYER_ACTOR walk_to -101.828 -1134.56 
+0372: set_actor $5776 anim 24 wait_state_time 3000 ms 
+wait 1000 
+fade 1 500 
+
+:JEFF7_5785
+wait 0 
+04C4: create_coordinate $5772 $5771 $5770 from_actor $PLAYER_ACTOR offset 0.0 -4.3 1.5 
+Camera.SetPosition($5772, $5771, $5770, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 2)
+if 
+  16@ >= 2000 // integer values 
+else_jump @JEFF7_5785 
+00BC: text_highpriority 'JEFFA_W' 5000 ms 1  // ~x~Move and I'll make you watch as I murder your family!
+
+:JEFF7_5887
+wait 0 
+04C4: create_coordinate $5772 $5771 $5770 from_actor $PLAYER_ACTOR offset 0.0 -4.3 1.5 
+Camera.SetPosition($5772, $5771, $5770, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 2)
+if 
+00F2:   actor $PLAYER_ACTOR near_actor $5776 radius 3.5 3.5 1.0 
+else_jump @JEFF7_5887 
+00BE: text_clear_all 
+04C7: toggle_camera_green_scanlines 1 
+052C: set_player $PLAYER_CHAR drunk_visuals 75 
+Camera.SetPosition(-102.341, -1136.43, 29.2, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 2)
+
+:JEFF7_6043
+wait 0 
+if 
+00F2:   actor $PLAYER_ACTOR near_actor $5776 radius 0.75 0.75 0.0 
+else_jump @JEFF7_6043 
+011C: actor $PLAYER_ACTOR clear_objective 
+wait 1000 
+01CB: actor $PLAYER_ACTOR kill_actor $5776 
+wait 250 
+011C: actor $PLAYER_ACTOR clear_objective 
+01B1: give_player $PLAYER_CHAR weapon 5 ammo 0 // Load the weapon model before using this 
+wait 1000 
+01CB: actor $PLAYER_ACTOR kill_actor $5776 
+wait 1500 
+Actor.Health($5776) = 0
+
+:JEFF7_6143
+wait 0 
+if 
+   Actor.Dead($5776)
+else_jump @JEFF7_6143 
+wait 3000 
+fade 0 500 
+wait 500 
+04C7: toggle_camera_green_scanlines 0 
+02A3: enable_widescreen 0 
+052C: set_player $PLAYER_CHAR drunk_visuals 0 
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+fade 1 500 
+$5780 = 1 // integer values 
+
+:JEFF7_6218
+return 
+
+:JEFF7_6220
+wait 0 
+if 
+  $5797 == 0 // integer values 
+else_jump @JEFF7_6302 
+0211: actor $5789 walk_to -115.089 -1174.669 
+if 
+00ED:   actor $5789 0 -115.089 -1174.669 radius 1.0 1.0 
+else_jump @JEFF7_6530 
+$5797 = 1 // integer values 
+
+:JEFF7_6302
+wait 0 
+if 
+  $5797 == 1 // integer values 
+else_jump @JEFF7_6434 
+0211: actor $5789 walk_to -110.388 -1160.918 
+if 
+00ED:   actor $5789 0 -110.388 -1160.918 radius 1.0 1.0 
+else_jump @JEFF7_6530 
+if 
+   not $5798 == 1 // integer values 
+else_jump @JEFF7_6409 
+$5797 = 2 // integer values 
+jump @JEFF7_6434 
+
+:JEFF7_6409
+wait 0 
+$5797 = 0 // integer values 
+$5798 = 0 // integer values 
+jump @JEFF7_6530 
+
+:JEFF7_6434
+wait 0 
+if 
+  $5797 == 2 // integer values 
+else_jump @JEFF7_6530 
+0211: actor $5789 walk_to -115.297 -1156.429 
+if 
+00ED:   actor $5789 0 -115.297 -1156.429 radius 1.0 1.0 
+else_jump @JEFF7_6530 
+$5797 = 1 // integer values 
+$5798 = 1 // integer values 
+jump @JEFF7_6302 
+
+:JEFF7_6530
+return 
+
+:JEFF7_6532
+wait 0 
+if 
+  $5794 == 0 // integer values 
+else_jump @JEFF7_6614 
+0211: actor $5787 walk_to -129.603 -1146.599 
+if 
+00ED:   actor $5787 0 -129.603 -1146.599 radius 1.0 1.0 
+else_jump @JEFF7_6696 
+$5794 = 1 // integer values 
+
+:JEFF7_6614
+wait 0 
+if 
+  $5794 == 1 // integer values 
+else_jump @JEFF7_6696 
+0211: actor $5787 walk_to -119.041 -1134.223 
+if 
+00ED:   actor $5787 0 -119.041 -1134.223 radius 1.0 1.0 
+else_jump @JEFF7_6696 
+$5794 = 0 // integer values 
+
+:JEFF7_6696
+return 
+
+:JEFF7_6698
+wait 0 
+if 
+  $5793 == 0 // integer values 
+else_jump @JEFF7_6780 
+0211: actor $5786 walk_to -110.274 -1125.886 
+if 
+00ED:   actor $5786 0 -110.274 -1125.886 radius 1.0 1.0 
+else_jump @JEFF7_6862 
+$5793 = 1 // integer values 
+
+:JEFF7_6780
+wait 0 
+if 
+  $5793 == 1 // integer values 
+else_jump @JEFF7_6862 
+0211: actor $5786 walk_to -100.491 -1114.506 
+if 
+00ED:   actor $5786 0 -100.491 -1114.506 radius 1.0 1.0 
+else_jump @JEFF7_6862 
+$5793 = 0 // integer values 
+
+:JEFF7_6862
+return 
+
+:JEFF7_6864
+wait 0 
+if 
+  $5790 == 0 // integer values 
+else_jump @JEFF7_6982 
+0211: actor $5788 walk_to -131.611 -1144.018 
+if 
+00ED:   actor $5788 0 -131.611 -1144.018 radius 1.0 1.0 
+else_jump @JEFF7_7578 
+if 
+   not $5791 == 1 // integer values 
+else_jump @JEFF7_6971 
+$5790 = 1 // integer values 
+jump @JEFF7_6982 
+
+:JEFF7_6971
+wait 0 
+$5791 = 0 // integer values 
+
+:JEFF7_6982
+wait 0 
+if 
+  $5790 == 1 // integer values 
+else_jump @JEFF7_7107 
+0211: actor $5788 walk_to -123.414 -1131.141 
+if 
+00ED:   actor $5788 0 -123.414 -1131.141 radius 1.0 1.0 
+else_jump @JEFF7_7578 
+if 
+   not $5791 == 1 // integer values 
+else_jump @JEFF7_7089 
+$5790 = 2 // integer values 
+jump @JEFF7_7107 
+
+:JEFF7_7089
+wait 0 
+$5790 = 0 // integer values 
+jump @JEFF7_6864 
+
+:JEFF7_7107
+wait 0 
+if 
+  $5790 == 2 // integer values 
+else_jump @JEFF7_7232 
+0211: actor $5788 walk_to -129.021 -1134.394 
+if 
+00ED:   actor $5788 0 -129.021 -1134.394 radius 1.0 1.0 
+else_jump @JEFF7_7578 
+if 
+   not $5791 == 1 // integer values 
+else_jump @JEFF7_7214 
+$5790 = 3 // integer values 
+jump @JEFF7_7232 
+
+:JEFF7_7214
+wait 0 
+$5790 -= 1 // integer values 
+jump @JEFF7_6982 
+
+:JEFF7_7232
+wait 0 
+if 
+  $5790 == 3 // integer values 
+else_jump @JEFF7_7357 
+0211: actor $5788 walk_to -124.999 -1137.516 
+if 
+00ED:   actor $5788 0 -124.999 -1137.516 radius 1.0 1.0 
+else_jump @JEFF7_7578 
+if 
+   not $5791 == 1 // integer values 
+else_jump @JEFF7_7339 
+$5790 = 4 // integer values 
+jump @JEFF7_7357 
+
+:JEFF7_7339
+wait 0 
+$5790 -= 1 // integer values 
+jump @JEFF7_7107 
+
+:JEFF7_7357
+wait 0 
+if 
+  $5790 == 4 // integer values 
+else_jump @JEFF7_7482 
+0211: actor $5788 walk_to -124.999 -1137.516 
+if 
+00ED:   actor $5788 0 -124.999 -1137.516 radius 1.0 1.0 
+else_jump @JEFF7_7578 
+if 
+   not $5791 == 1 // integer values 
+else_jump @JEFF7_7464 
+$5790 = 5 // integer values 
+jump @JEFF7_7482 
+
+:JEFF7_7464
+wait 0 
+$5790 -= 1 // integer values 
+jump @JEFF7_7232 
+
+:JEFF7_7482
+wait 0 
+if 
+  $5790 == 5 // integer values 
+else_jump @JEFF7_7578 
+0211: actor $5788 walk_to -124.004 -1130.42 
+if 
+00ED:   actor $5788 0 -124.004 -1130.42 radius 1.0 1.0 
+else_jump @JEFF7_7578 
+$5790 -= 1 // integer values 
+$5791 = 1 // integer values 
+jump @JEFF7_7357 
+
+:JEFF7_7578
+return 
+
+:JEFF7_7580
+01E3: text_1number_styled 'M_PASS' number 250 time 5000 style 1  // MISSION PASSED! $~1~
+Player.ClearWantedLevel($PLAYER_CHAR)
+Player.Money($PLAYER_CHAR) += 250
+$PASSED_COL2_MALL_SHOOTOUT = 1 // integer values 
+0394: play_music 1 
+030C: progress_made += 1 
+0318: set_latest_mission_passed 'COL_2'  // Men Hunt
+Marker.Disable($1775)
+return 
+
+:JEFF7_7643
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:JEFF7_7660
+Actor.DestroyWithFade($5776)
+Actor.DestroyWithFade($5775)
+Actor.DestroyWithFade($5774)
+03BD: destroy_sphere $5785 
+03BD: destroy_sphere $5784 
+03BD: destroy_sphere $5783 
+Model.Destroy(#VICE6)
+Model.Destroy(#M4)
+Model.Destroy(#HAMMER)
+Model.Destroy(#KNIFECUR)
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+

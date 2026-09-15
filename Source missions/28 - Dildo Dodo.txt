@@ -1,0 +1,1147 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 28: Dildo Dodo
+// Строки 50452-51594 исходного файла data/main.txt
+// Кол-во строк: 1143
+//-------------Mission 28---------------
+// Originally: Dildo Dodo
+
+:TOYZ1
+gosub @TOYZ1_36 
+if 
+wasted_or_busted 
+else_jump @TOYZ1_27 
+gosub @TOYZ1_5729 
+
+:TOYZ1_27
+gosub @TOYZ1_5785 
+end_thread 
+
+:TOYZ1_36
+increment_mission_attempts 
+thread 'TOYZ1' 
+$2336 = 1 // integer values 
+$2337 = 100 // integer values 
+$2338 = 10 // integer values 
+$2339 = 0 // integer values 
+$2340 = 0 // integer values 
+$2341 = 0 // integer values 
+$2342 = 0 // integer values 
+$2343 = 0 // integer values 
+$2344 = 0 // integer values 
+$2345 = 0 // integer values 
+$2346 = 0 // integer values 
+$2347 = 0 // integer values 
+$2348 = 0 // integer values 
+$ONMISSION = 1 // integer values 
+054C: use_GXT_table 'BARON4' 
+Model.Load(#TOPFUN)
+Model.Load(#BMYCR)
+Model.Load(#RCBANDIT)
+023C: load_special_actor 3 'IGHLARY' 
+Model.Load(#RCBARON)
+Model.Load(#COLT45)
+Model.Load(#RCBOMB)
+Model.Load(#BFINJECT)
+038B: load_requested_models 
+
+:TOYZ1_203
+wait 0 
+if or
+   not Model.Available(#BMYCR)
+   not Model.Available(#COLT45)
+   not Model.Available(#RCBOMB)
+   not Model.Available(#RCBANDIT)
+823D:   not special_actor 3 loaded 
+   not Model.Available(#TOPFUN)
+   not Model.Available(#RCBARON)
+   not Model.Available(#BFINJECT)
+else_jump @TOYZ1_262 
+jump @TOYZ1_203 
+
+:TOYZ1_262
+wait 0 
+fade 1 1500 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+022B: create_forbidden_for_peds_cube 300.359 70.567 9.0 2.359 20.5677 21.0 
+0395: clear_area 1 at 264.043 47.513 range 50.0 50.0 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+0055: put_player $PLAYER_CHAR at 258.025 43.609 10.09 
+0211: actor $PLAYER_ACTOR walk_to 261.802 47.929 
+$2349 = Actor.Create(CivMale, #SPECIAL03, 263.424, 50.055, 9.9)
+Actor.Angle($2349) = 210.0
+0372: set_actor $2349 anim 12 wait_state_time 5000 ms 
+1@ = Car.Create(#BFINJECT, 264.043, 47.513, 10.09)
+Model.Destroy(#BFINJECT)
+Camera.SetPosition(261.256, 42.28, 11.15, 0.0, 0.0, 0.0)
+Camera.OnPed($2349, 15, 2)
+0296: unload_special_actor 3 
+16@ = 0 // integer values 
+
+:TOYZ1_521
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_568 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_521 
+jump @TOYZ1_1915 
+
+:TOYZ1_568
+0372: set_actor $2349 anim 12 wait_state_time 5000 ms 
+00BC: text_highpriority 'RODA1' 4000 ms 1  // ~x~How's she comin' together?
+16@ = 0 // integer values 
+
+:TOYZ1_600
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_647 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_600 
+jump @TOYZ1_1915 
+
+:TOYZ1_647
+0372: set_actor $2349 anim 8 wait_state_time 4000 ms 
+00BC: text_highpriority 'RODA2' 4000 ms 1  // Hmmm... Seems like there are still some faulty parts.
+16@ = 0 // integer values 
+
+:TOYZ1_679
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @TOYZ1_726 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_679 
+jump @TOYZ1_1915 
+
+:TOYZ1_726
+020C: create_explosion_with_radius 6 at 276.426 55.0356 11.3203 
+0437: scatter_particle 42 0.85 at 263.424 49.055 11.3203 0.0 0.0 0.0 
+0372: set_actor $2349 anim 15 wait_state_time 2000 ms 
+0372: set_actor $PLAYER_ACTOR anim 15 wait_state_time 2000 ms 
+00BC: text_highpriority 'RODA3' 3000 ms 1  // Well FUCK!!!
+16@ = 0 // integer values 
+
+:TOYZ1_826
+wait 0 
+0437: scatter_particle 59 0.52 at 263.424 49.055 11.5203 0.0 0.0 0.0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @TOYZ1_912 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_826 
+jump @TOYZ1_1915 
+
+:TOYZ1_912
+020F: actor $2349 look_at_player $PLAYER_CHAR 
+0372: set_actor $PLAYER_ACTOR anim 16 wait_state_time 2000 ms 
+00BC: text_highpriority 'RODA4' 3000 ms 1  // ~x~You alright over there?!
+16@ = 0 // integer values 
+
+:TOYZ1_952
+wait 0 
+0437: scatter_particle 59 0.52 at 263.424 49.055 11.5203 0.0 0.0 0.0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @TOYZ1_1038 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_952 
+jump @TOYZ1_1915 
+
+:TOYZ1_1038
+0372: set_actor $2349 anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'RODA5' 5000 ms 1  // YEAH. I'm fine. Patience is the key to success, my friend!
+16@ = 0 // integer values 
+
+:TOYZ1_1070
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1117 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1070 
+jump @TOYZ1_1915 
+
+:TOYZ1_1117
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'RODA6' 5000 ms 1  // ~x~I better leave you to it then!
+16@ = 0 // integer values 
+
+:TOYZ1_1149
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1196 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1149 
+jump @TOYZ1_1915 
+
+:TOYZ1_1196
+0372: set_actor $2349 anim 16 wait_state_time 3200 ms 
+00BC: text_highpriority 'RODA7' 5000 ms 1  // Hey! if you liked playing with the toys last time, I've got more for you.
+16@ = 0 // integer values 
+
+:TOYZ1_1228
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1275 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1228 
+jump @TOYZ1_1915 
+
+:TOYZ1_1275
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'RODA8' 4000 ms 1  // ~x~I must admit, that was kind of fun.
+16@ = 0 // integer values 
+
+:TOYZ1_1307
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @TOYZ1_1354 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1307 
+jump @TOYZ1_1915 
+
+:TOYZ1_1354
+0372: set_actor $2349 anim 19 wait_state_time 3000 ms 
+00BC: text_highpriority 'RODA9' 5000 ms 1  // Well, there's only one buggy left. But don't be dissapointed...
+020F: actor $2349 look_at_player $PLAYER_CHAR 
+16@ = 0 // integer values 
+
+:TOYZ1_1394
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1441 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1394 
+jump @TOYZ1_1915 
+
+:TOYZ1_1441
+0372: set_actor $2349 anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'RODB1' 5000 ms 1  // Go to Shady Acres. You'll use my toys to remove the private security in the neighbourhood.
+16@ = 0 // integer values 
+
+:TOYZ1_1473
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1520 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1473 
+jump @TOYZ1_1915 
+
+:TOYZ1_1520
+0372: set_actor $2349 anim 31 wait_state_time 3000 ms 
+00BC: text_highpriority 'RODB2' 5000 ms 1  // This should reduce the rent expense for my client.
+16@ = 0 // integer values 
+
+:TOYZ1_1552
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1599 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1552 
+jump @TOYZ1_1915 
+
+:TOYZ1_1599
+0372: set_actor $2349 anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'RODB3' 5000 ms 1  // I'm going to launch an RC plane that will be circling the Island on autopilot.
+16@ = 0 // integer values 
+
+:TOYZ1_1631
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1678 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1631 
+jump @TOYZ1_1915 
+
+:TOYZ1_1678
+0372: set_actor $2349 anim 19 wait_state_time 3000 ms 
+00BC: text_highpriority 'RODB4' 5000 ms 1  // You'll use the RC buggy to drive up to the guards and mark their position.
+16@ = 0 // integer values 
+
+:TOYZ1_1710
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1757 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1710 
+jump @TOYZ1_1915 
+
+:TOYZ1_1757
+0372: set_actor $2349 anim 19 wait_state_time 3700 ms 
+00BC: text_highpriority 'RODB5' 5000 ms 1  // The RC plane will then drop an explosive charge and wipe them out at that spot.
+16@ = 0 // integer values 
+
+:TOYZ1_1789
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1836 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1789 
+jump @TOYZ1_1915 
+
+:TOYZ1_1836
+0372: set_actor $2349 anim 16 wait_state_time 4000 ms 
+00BC: text_highpriority 'RODB6' 5000 ms 1  // Oh and don't waste much time, the RC plane has a limited battery capacity!
+16@ = 0 // integer values 
+
+:TOYZ1_1868
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ1_1915 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ1_1868 
+jump @TOYZ1_1915 
+
+:TOYZ1_1915
+00BE: text_clear_all 
+011C: actor $PLAYER_ACTOR clear_objective 
+16@ = 0 // integer values 
+fade 0 1500 
+
+:TOYZ1_1936
+wait 0 
+if 
+fading 
+else_jump @TOYZ1_1960 
+jump @TOYZ1_1936 
+
+:TOYZ1_1960
+wait 500 
+03AD: set_rubbish 1 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+Actor.DestroyInstantly($2349)
+Player.CanMove($PLAYER_CHAR) = True
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+0055: put_player $PLAYER_CHAR at 282.088 27.174 10.09 
+0171: set_player $PLAYER_CHAR z_angle_to 140.0 
+Camera.SetBehindPlayer
+020A: set_car 1@ door_status_to 2 
+Car.RemoveReferences(1@)
+$2350 = Car.Create(#TOPFUN, -368.388, 314.255, 20.176)
+Car.Angle($2350) = 10.0
+$2351 = Marker.CreateAboveCar($2350)
+Model.Destroy(#TOPFUN)
+fade 1 1500 
+00BC: text_highpriority 'RODB7' 5000 ms 1  // ~r~Find the Top Fun van parked in ~y~Shady Acres.
+
+:TOYZ1_2113
+wait 0 
+if 
+00DC:   player $PLAYER_CHAR driving $2350 
+else_jump @TOYZ1_2527 
+Marker.Disable($2351)
+$2352 = Car.Create(#RCBARON, -446.369, 221.299, 55.441)
+$2353 = Object.Create(#RCBOMB, -446.369, 221.299, 60.441)
+Object.CollisionDetection($2353) = True
+Object.ToggleInMovingList($2353) = True
+Car.Angle($2352) = 90.0
+04BA: set_car $2352 speed_instantly 20.0 
+04D2: set_plane $2352 fly_autopilot_around_point -393.29 330.985 50.965 15 
+$2354 = Marker.CreateAboveCar($2352)
+Model.Destroy(#RCBARON)
+046E: put_player $PLAYER_CHAR in_RC_mode_at -355.953 291.404 19.966 angle 180.0 RC_model #RCBANDIT 
+03C4: set_status_text_to $2337 1 'RODB8'  // Battery:
+04F7: status_text $2338 0 line 2 'RODB9'  // Bombs:
+00BC: text_highpriority 'BNK_A' 5000 ms 1 
+0512: show_permanent_text_box 'RODC1' 
+048A: enable_rc_vehicle_detonation 0 
+gosub @TOYZ1_5970 
+Model.Destroy(#BMYCR)
+Model.Destroy(#COLT45)
+
+:TOYZ1_2360
+wait 0 
+gosub @TOYZ1_5071 
+gosub @TOYZ1_4924 
+gosub @TOYZ1_4518 
+gosub @TOYZ1_3018 
+if 
+   not $2337 == 0 // integer values 
+else_jump @TOYZ1_5683 
+if 
+   not $2338 == 0 // integer values 
+else_jump @TOYZ1_5630 
+if 
+   not Player.InRemoteMode($PLAYER_CHAR)
+else_jump @TOYZ1_2451 
+jump @TOYZ1_5729 
+
+:TOYZ1_2451
+if 
+   Car.Wrecked($2350)
+else_jump @TOYZ1_2489 
+00BC: text_highpriority 'RODC2' 5000 ms 1  // ~r~The car is wrecked!
+jump @TOYZ1_5729 
+
+:TOYZ1_2489
+if 
+018F:   vehicle $2350 flipped 
+else_jump @TOYZ1_2603 
+00BC: text_highpriority 'RODC3' 5000 ms 1  // ~r~You flipped the wheels!
+jump @TOYZ1_5729 
+
+:TOYZ1_2527
+if 
+   Car.Wrecked($2350)
+else_jump @TOYZ1_2565 
+00BC: text_highpriority 'RODC2' 5000 ms 1  // ~r~The car is wrecked!
+jump @TOYZ1_5729 
+
+:TOYZ1_2565
+if 
+018F:   vehicle $2350 flipped 
+else_jump @TOYZ1_2113 
+00BC: text_highpriority 'RODC3' 5000 ms 1  // ~r~You flipped the wheels!
+jump @TOYZ1_5729 
+
+:TOYZ1_2603
+if 
+00E1:   player 0 pressed_button 19 
+else_jump @TOYZ1_2645 
+if or
+  $2342 == 1 // integer values 
+  $2340 == 1 // integer values 
+else_jump @TOYZ1_2645 
+
+:TOYZ1_2645
+$2355 = Player.RC_car($PLAYER_CHAR)
+if 
+80B0:   not car $2355 0 -216.603 133.643 -441.603 338.643 
+else_jump @TOYZ1_2792 
+00BC: text_highpriority 'RODC4' 3000 ms 1  // ~r~You're getting out of control range.
+if 
+80B0:   not car $2355 0 -141.603 124.643 -451.603 349.643 
+else_jump @TOYZ1_2792 
+0409: blow_up_rc_buggy 
+020B: explode_car $2352 
+fade 0 500 
+wait 1000 
+00BC: text_highpriority 'RODC5' 3000 ms 1  // ~r~You went out of range!
+fade 1 1500 
+jump @TOYZ1_5729 
+
+:TOYZ1_2792
+wait 0 
+if or
+02BF:   car $2355 sunk 
+   Car.Wrecked($2355)
+else_jump @TOYZ1_2865 
+0409: blow_up_rc_buggy 
+020B: explode_car $2352 
+fade 0 500 
+wait 1000 
+00BC: text_highpriority 'RODD1' 3000 ms 1  // ~r~You've destroyed the buggy!
+fade 1 1500 
+jump @TOYZ1_5729 
+
+:TOYZ1_2865
+wait 0 
+if and
+   Actor.Dead($2356)
+   Actor.Dead($2357)
+   Actor.Dead($2358)
+   Actor.Dead($2359)
+   Actor.Dead($2360)
+   Actor.Dead($2361)
+else_jump @TOYZ1_2360 
+if and
+   Actor.Dead($2362)
+   Actor.Dead($2363)
+   Actor.Dead($2364)
+   Actor.Dead($2365)
+   Actor.Dead($2366)
+   Actor.Dead($2367)
+else_jump @TOYZ1_2360 
+if and
+   Actor.Dead($2368)
+   Actor.Dead($2369)
+   Actor.Dead($2370)
+   Actor.Dead($2371)
+   Actor.Dead($2372)
+   Actor.Dead($2373)
+else_jump @TOYZ1_2360 
+wait 1000 
+0409: blow_up_rc_buggy 
+0151: remove_status_text $2338 
+0151: remove_status_text $2337 
+03E6: remove_text_box 
+jump @TOYZ1_5575 
+
+:TOYZ1_3018
+$2355 = Player.RC_car($PLAYER_CHAR)
+if and
+  $2343 == 0 // integer values 
+01AF:   car $2355 0 $2374 $2375 $2376 radius 15.5 15.5 3.0 
+else_jump @TOYZ1_3190 
+$2377 = Marker.CreateAboveActor($2356)
+Marker.SetColor($2377, 0)
+0166: set_marker $2377 brightness_to 1 
+$2378 = Marker.CreateAboveActor($2357)
+Marker.SetColor($2378, 0)
+0166: set_marker $2378 brightness_to 1 
+$2379 = Marker.CreateAboveActor($2358)
+Marker.SetColor($2379, 0)
+0166: set_marker $2379 brightness_to 1 
+$2343 = 1 // integer values 
+if 
+  $2339 == 1 // integer values 
+else_jump @TOYZ1_3190 
+01CA: actor $2356 kill_player $PLAYER_CHAR 
+01CA: actor $2357 kill_player $PLAYER_CHAR 
+01CA: actor $2358 kill_player $PLAYER_CHAR 
+
+:TOYZ1_3190
+wait 0 
+if and
+  $2344 == 0 // integer values 
+01AF:   car $2355 0 $2380 $2381 $2382 radius 15.5 15.5 3.0 
+else_jump @TOYZ1_3358 
+$2383 = Marker.CreateAboveActor($2359)
+Marker.SetColor($2383, 0)
+0166: set_marker $2383 brightness_to 1 
+$2384 = Marker.CreateAboveActor($2360)
+Marker.SetColor($2384, 0)
+0166: set_marker $2384 brightness_to 1 
+$2385 = Marker.CreateAboveActor($2361)
+Marker.SetColor($2385, 0)
+0166: set_marker $2385 brightness_to 1 
+$2344 = 1 // integer values 
+if 
+  $2339 == 1 // integer values 
+else_jump @TOYZ1_3358 
+01CA: actor $2359 kill_player $PLAYER_CHAR 
+01CA: actor $2360 kill_player $PLAYER_CHAR 
+01CA: actor $2361 kill_player $PLAYER_CHAR 
+
+:TOYZ1_3358
+wait 0 
+if and
+  $2345 == 0 // integer values 
+01AF:   car $2355 0 $2386 $2387 $2388 radius 15.5 15.5 3.0 
+else_jump @TOYZ1_3526 
+$2389 = Marker.CreateAboveActor($2362)
+Marker.SetColor($2389, 0)
+0166: set_marker $2389 brightness_to 1 
+$2390 = Marker.CreateAboveActor($2363)
+Marker.SetColor($2390, 0)
+0166: set_marker $2390 brightness_to 1 
+$2391 = Marker.CreateAboveActor($2364)
+Marker.SetColor($2391, 0)
+0166: set_marker $2391 brightness_to 1 
+$2345 = 1 // integer values 
+if 
+  $2339 == 1 // integer values 
+else_jump @TOYZ1_3526 
+01CA: actor $2362 kill_player $PLAYER_CHAR 
+01CA: actor $2363 kill_player $PLAYER_CHAR 
+01CA: actor $2364 kill_player $PLAYER_CHAR 
+
+:TOYZ1_3526
+wait 0 
+if and
+  $2346 == 0 // integer values 
+01AF:   car $2355 0 $2392 $2393 $2394 radius 15.5 15.5 3.0 
+else_jump @TOYZ1_3694 
+$2395 = Marker.CreateAboveActor($2365)
+Marker.SetColor($2395, 0)
+0166: set_marker $2395 brightness_to 1 
+$2396 = Marker.CreateAboveActor($2366)
+Marker.SetColor($2396, 0)
+0166: set_marker $2396 brightness_to 1 
+$2397 = Marker.CreateAboveActor($2367)
+Marker.SetColor($2397, 0)
+0166: set_marker $2397 brightness_to 1 
+$2346 = 1 // integer values 
+if 
+  $2339 == 1 // integer values 
+else_jump @TOYZ1_3694 
+01CA: actor $2365 kill_player $PLAYER_CHAR 
+01CA: actor $2366 kill_player $PLAYER_CHAR 
+01CA: actor $2367 kill_player $PLAYER_CHAR 
+
+:TOYZ1_3694
+wait 0 
+if and
+  $2347 == 0 // integer values 
+01AF:   car $2355 0 $2398 $2399 $2400 radius 15.5 15.5 3.0 
+else_jump @TOYZ1_3862 
+$2401 = Marker.CreateAboveActor($2368)
+Marker.SetColor($2401, 0)
+0166: set_marker $2401 brightness_to 1 
+$2402 = Marker.CreateAboveActor($2369)
+Marker.SetColor($2402, 0)
+0166: set_marker $2402 brightness_to 1 
+$2403 = Marker.CreateAboveActor($2370)
+Marker.SetColor($2403, 0)
+0166: set_marker $2403 brightness_to 1 
+$2347 = 1 // integer values 
+if 
+  $2339 == 1 // integer values 
+else_jump @TOYZ1_3862 
+01CA: actor $2368 kill_player $PLAYER_CHAR 
+01CA: actor $2369 kill_player $PLAYER_CHAR 
+01CA: actor $2370 kill_player $PLAYER_CHAR 
+
+:TOYZ1_3862
+wait 0 
+if and
+  $2348 == 0 // integer values 
+01AF:   car $2355 0 $2404 $2405 $2406 radius 15.5 15.5 3.0 
+else_jump @TOYZ1_4030 
+$2407 = Marker.CreateAboveActor($2371)
+Marker.SetColor($2407, 0)
+0166: set_marker $2407 brightness_to 1 
+$2408 = Marker.CreateAboveActor($2372)
+Marker.SetColor($2408, 0)
+0166: set_marker $2408 brightness_to 1 
+$2409 = Marker.CreateAboveActor($2373)
+Marker.SetColor($2409, 0)
+0166: set_marker $2409 brightness_to 1 
+$2348 = 1 // integer values 
+if 
+  $2339 == 1 // integer values 
+else_jump @TOYZ1_4030 
+01CA: actor $2371 kill_player $PLAYER_CHAR 
+01CA: actor $2372 kill_player $PLAYER_CHAR 
+01CA: actor $2373 kill_player $PLAYER_CHAR 
+
+:TOYZ1_4030
+if 
+  $2343 == 1 // integer values 
+else_jump @TOYZ1_4111 
+if 
+   Actor.Dead($2356)
+else_jump @TOYZ1_4069 
+Marker.Disable($2377)
+
+:TOYZ1_4069
+if 
+   Actor.Dead($2357)
+else_jump @TOYZ1_4090 
+Marker.Disable($2378)
+
+:TOYZ1_4090
+if 
+   Actor.Dead($2358)
+else_jump @TOYZ1_4111 
+Marker.Disable($2379)
+
+:TOYZ1_4111
+if 
+  $2344 == 1 // integer values 
+else_jump @TOYZ1_4192 
+if 
+   Actor.Dead($2359)
+else_jump @TOYZ1_4150 
+Marker.Disable($2383)
+
+:TOYZ1_4150
+if 
+   Actor.Dead($2360)
+else_jump @TOYZ1_4171 
+Marker.Disable($2384)
+
+:TOYZ1_4171
+if 
+   Actor.Dead($2361)
+else_jump @TOYZ1_4192 
+Marker.Disable($2385)
+
+:TOYZ1_4192
+if 
+  $2345 == 1 // integer values 
+else_jump @TOYZ1_4273 
+if 
+   Actor.Dead($2362)
+else_jump @TOYZ1_4231 
+Marker.Disable($2389)
+
+:TOYZ1_4231
+if 
+   Actor.Dead($2363)
+else_jump @TOYZ1_4252 
+Marker.Disable($2390)
+
+:TOYZ1_4252
+if 
+   Actor.Dead($2364)
+else_jump @TOYZ1_4273 
+Marker.Disable($2391)
+
+:TOYZ1_4273
+if 
+  $2346 == 1 // integer values 
+else_jump @TOYZ1_4354 
+if 
+   Actor.Dead($2365)
+else_jump @TOYZ1_4312 
+Marker.Disable($2395)
+
+:TOYZ1_4312
+if 
+   Actor.Dead($2366)
+else_jump @TOYZ1_4333 
+Marker.Disable($2396)
+
+:TOYZ1_4333
+if 
+   Actor.Dead($2367)
+else_jump @TOYZ1_4354 
+Marker.Disable($2397)
+
+:TOYZ1_4354
+if 
+  $2347 == 1 // integer values 
+else_jump @TOYZ1_4435 
+if 
+   Actor.Dead($2368)
+else_jump @TOYZ1_4393 
+Marker.Disable($2401)
+
+:TOYZ1_4393
+if 
+   Actor.Dead($2369)
+else_jump @TOYZ1_4414 
+Marker.Disable($2402)
+
+:TOYZ1_4414
+if 
+   Actor.Dead($2370)
+else_jump @TOYZ1_4435 
+Marker.Disable($2403)
+
+:TOYZ1_4435
+if 
+  $2348 == 1 // integer values 
+else_jump @TOYZ1_4516 
+if 
+   Actor.Dead($2371)
+else_jump @TOYZ1_4474 
+Marker.Disable($2407)
+
+:TOYZ1_4474
+if 
+   Actor.Dead($2372)
+else_jump @TOYZ1_4495 
+Marker.Disable($2408)
+
+:TOYZ1_4495
+if 
+   Actor.Dead($2373)
+else_jump @TOYZ1_4516 
+Marker.Disable($2409)
+
+:TOYZ1_4516
+return 
+
+:TOYZ1_4518
+if and
+  $2342 == 0 // integer values 
+  $2340 == 0 // integer values 
+  $2336 == 1 // integer values 
+else_jump @TOYZ1_4667 
+if 
+00E1:   player 0 pressed_button 19 
+else_jump @TOYZ1_4922 
+018C: play_sound 1 at 0.0 0.0 0.0 
+$2342 = 1 // integer values 
+$2355 = Player.RC_car($PLAYER_CHAR)
+Car.StorePos($2355, $2410, $2411, $2412)
+018A: $2413 = create_checkpoint_at $2410 $2411 $2412 
+$2412 = 50.5 // floating-point values 
+04D2: set_plane $2352 fly_autopilot_around_point $2410 $2411 $2412 15 
+03E6: remove_text_box 
+03E5: text_box 'RODC6'  // Target position acquired.
+
+:TOYZ1_4667
+if 
+  $2340 == 0 // integer values 
+else_jump @TOYZ1_4799 
+if 
+01AF:   car $2352 0 $2410 $2411 $2412 radius 1.0 1.0 5.0 
+else_jump @TOYZ1_4922 
+Object.CollisionDetection($2353) = True
+Object.ToggleInMovingList($2353) = True
+Object.Throw($2353, 0.0, 0.0, -1.0)
+$2336 = 0 // integer values 
+$2340 = 1 // integer values 
+$2342 = 0 // integer values 
+16@ = 0 // integer values 
+03E5: text_box 'RODC7'  // Bombs away!
+
+:TOYZ1_4799
+if 
+  16@ > 2100 // integer values 
+else_jump @TOYZ1_4922 
+Marker.Disable($2413)
+Object.StorePos($2353, $2414, $2415, $2416)
+020C: create_explosion_with_radius 2 at $2414 $2415 $2416 
+Object.Destroy($2353)
+$2353 = Object.Create(#RCBOMB, -446.369, 221.299, 80.441)
+Object.CollisionDetection($2353) = True
+Object.ToggleInMovingList($2353) = True
+$2340 = 0 // integer values 
+$2336 = 1 // integer values 
+$2338 -= 1 // integer values 
+0512: show_permanent_text_box 'RODC1' 
+
+:TOYZ1_4922
+return 
+
+:TOYZ1_4924
+if and
+  $2340 == 0 // integer values 
+  $2336 == 1 // integer values 
+else_jump @TOYZ1_4986 
+Object.CollisionDetection($2353) = False
+Object.ToggleInMovingList($2353) = False
+035C: place_object $2353 relative_to_car $2352 offset 0.0 0.0 -0.4 
+
+:TOYZ1_4986
+if 
+  $2340 == 0 // integer values 
+else_jump @TOYZ1_5069 
+if 
+  $2341 == 0 // integer values 
+else_jump @TOYZ1_5036 
+$2341 = 1 // integer values 
+16@ = 0 // integer values 
+
+:TOYZ1_5036
+if 
+  16@ > 5000 // integer values 
+else_jump @TOYZ1_5069 
+$2337 -= 2 // integer values 
+$2341 = 0 // integer values 
+
+:TOYZ1_5069
+return 
+
+:TOYZ1_5071
+wait 0 
+if and
+  $2342 == 0 // integer values 
+   not Car.Wrecked($2352)
+else_jump @TOYZ1_5573 
+if 
+  $2417 == 0 // integer values 
+else_jump @TOYZ1_5193 
+04D2: set_plane $2352 fly_autopilot_around_point -393.29 330.985 70.965 15 
+if 
+01AF:   car $2352 0 -393.29 330.985 50.965 radius 5.5 5.5 5.0 
+else_jump @TOYZ1_5573 
+$2417 = 1 // integer values 
+
+:TOYZ1_5193
+if 
+  $2417 == 1 // integer values 
+else_jump @TOYZ1_5288 
+04D2: set_plane $2352 fly_autopilot_around_point -272.121 294.56 70.782 15 
+if 
+01AF:   car $2352 0 -272.121 294.56 50.782 radius 5.5 5.5 5.0 
+else_jump @TOYZ1_5573 
+$2417 = 2 // integer values 
+
+:TOYZ1_5288
+if 
+  $2417 == 2 // integer values 
+else_jump @TOYZ1_5383 
+04D2: set_plane $2352 fly_autopilot_around_point -256.737 172.127 70.614 15 
+if 
+01AF:   car $2352 0 -256.737 172.127 50.614 radius 5.5 5.5 5.0 
+else_jump @TOYZ1_5573 
+$2417 = 3 // integer values 
+
+:TOYZ1_5383
+if 
+  $2417 == 3 // integer values 
+else_jump @TOYZ1_5478 
+04D2: set_plane $2352 fly_autopilot_around_point -371.873 134.122 70.781 15 
+if 
+01AF:   car $2352 0 -371.873 134.122 50.781 radius 5.5 5.5 5.0 
+else_jump @TOYZ1_5573 
+$2417 = 4 // integer values 
+
+:TOYZ1_5478
+if 
+  $2417 == 4 // integer values 
+else_jump @TOYZ1_5573 
+04D2: set_plane $2352 fly_autopilot_around_point -446.369 221.299 70.441 15 
+if 
+01AF:   car $2352 0 -446.369 221.299 50.441 radius 5.5 5.5 5.0 
+else_jump @TOYZ1_5573 
+$2417 = 0 // integer values 
+
+:TOYZ1_5573
+return 
+
+:TOYZ1_5575
+00BA: text_styled 'M_PASS2' 5000 ms 1  // MISSION PASSED!
+Player.ClearWantedLevel($PLAYER_CHAR)
+0394: play_music 1 
+0318: set_latest_mission_passed 'PORN_4'  // Top Fun
+030C: progress_made += 1 
+$148 = 1 // integer values 
+create_thread @FIN1 
+return 
+
+:TOYZ1_5630
+00BC: text_highpriority 'RODC8' 5000 ms 1  // ~r~You ran out of bombs!
+wait 1000 
+0409: blow_up_rc_buggy 
+020B: explode_car $2352 
+fade 0 500 
+wait 1000 
+fade 1 1500 
+jump @TOYZ1_5729 
+
+:TOYZ1_5683
+00BC: text_highpriority 'RODC9' 5000 ms 1  // ~r~The RC plane battery is drained!
+wait 1000 
+0409: blow_up_rc_buggy 
+020B: explode_car $2352 
+fade 0 500 
+wait 1000 
+fade 1 1500 
+
+:TOYZ1_5729
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+if 
+   not $2418 == 2 // integer values 
+else_jump @TOYZ1_5776 
+$2418 += 1 // integer values 
+jump @TOYZ1_5783 
+
+:TOYZ1_5776
+$2418 = 0 // integer values 
+
+:TOYZ1_5783
+return 
+
+:TOYZ1_5785
+Model.Destroy(#TOPFUN)
+Model.Destroy(#RCBARON)
+Model.Destroy(#BMYCR)
+Model.Destroy(#RCBOMB)
+Model.Destroy(#RCBANDIT)
+Model.Destroy(#COLT45)
+0296: unload_special_actor 3 
+03E6: remove_text_box 
+0151: remove_status_text $2338 
+0151: remove_status_text $2337 
+Actor.RemoveReferences($2356)
+Actor.RemoveReferences($2357)
+Actor.RemoveReferences($2358)
+Actor.RemoveReferences($2359)
+Actor.RemoveReferences($2360)
+Actor.RemoveReferences($2361)
+Actor.RemoveReferences($2362)
+Actor.RemoveReferences($2363)
+Actor.RemoveReferences($2364)
+Actor.RemoveReferences($2365)
+Actor.RemoveReferences($2366)
+Actor.RemoveReferences($2367)
+Actor.RemoveReferences($2368)
+Actor.RemoveReferences($2369)
+Actor.RemoveReferences($2370)
+Actor.RemoveReferences($2371)
+Actor.RemoveReferences($2372)
+Actor.RemoveReferences($2373)
+Actor.RemoveReferences($2349)
+Marker.Disable($2351)
+Marker.Disable($2413)
+Marker.Disable($2354)
+Car.RemoveReferences($2350)
+Car.RemoveReferences($2352)
+Car.RemoveReferences($2355)
+Object.RemoveReferences($2353)
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
+:TOYZ1_5970
+if 
+  $2418 == 0 // integer values 
+else_jump @TOYZ1_6175 
+$2374 = -268.249 // floating-point values 
+$2375 = 223.638 // floating-point values 
+$2376 = 18.738 // floating-point values 
+$2380 = -348.351 // floating-point values 
+$2381 = 217.588 // floating-point values 
+$2382 = 19.964 // floating-point values 
+$2386 = -413.935 // floating-point values 
+$2387 = 158.991 // floating-point values 
+$2388 = 19.962 // floating-point values 
+$2392 = -417.92 // floating-point values 
+$2393 = 183.666 // floating-point values 
+$2394 = 22.052 // floating-point values 
+$2398 = -406.521 // floating-point values 
+$2399 = 262.877 // floating-point values 
+$2400 = 20.078 // floating-point values 
+$2404 = -324.78 // floating-point values 
+$2405 = 308.838 // floating-point values 
+$2406 = 19.968 // floating-point values 
+jump @TOYZ1_6560 
+
+:TOYZ1_6175
+if 
+  $2418 == 1 // integer values 
+else_jump @TOYZ1_6380 
+$2374 = -340.178 // floating-point values 
+$2375 = 258.64 // floating-point values 
+$2376 = 19.965 // floating-point values 
+$2380 = -395.554 // floating-point values 
+$2381 = 245.307 // floating-point values 
+$2382 = 19.964 // floating-point values 
+$2386 = -431.849 // floating-point values 
+$2387 = 168.7 // floating-point values 
+$2388 = 20.807 // floating-point values 
+$2392 = -386.837 // floating-point values 
+$2393 = 297.325 // floating-point values 
+$2394 = 19.966 // floating-point values 
+$2398 = -368.075 // floating-point values 
+$2399 = 160.908 // floating-point values 
+$2400 = 19.963 // floating-point values 
+$2404 = -237.618 // floating-point values 
+$2405 = 208.571 // floating-point values 
+$2406 = 19.796 // floating-point values 
+jump @TOYZ1_6560 
+
+:TOYZ1_6380
+$2374 = -395.914 // floating-point values 
+$2375 = 319.052 // floating-point values 
+$2376 = 20.036 // floating-point values 
+$2380 = -327.87 // floating-point values 
+$2381 = 182.917 // floating-point values 
+$2382 = 19.965 // floating-point values 
+$2386 = -351.944 // floating-point values 
+$2387 = 231.491 // floating-point values 
+$2388 = 19.964 // floating-point values 
+$2392 = -263.194 // floating-point values 
+$2393 = 258.254 // floating-point values 
+$2394 = 19.793 // floating-point values 
+$2398 = -346.138 // floating-point values 
+$2399 = 200.588 // floating-point values 
+$2400 = 19.964 // floating-point values 
+$2404 = -394.667 // floating-point values 
+$2405 = 249.2 // floating-point values 
+$2406 = 19.964 // floating-point values 
+
+:TOYZ1_6560
+$2356 = Actor.Create(CivMale, #BMYCR, $2374, $2375, $2376)
+0350: set_actor $2356 maintain_position_when_attacked 1 
+01B2: give_actor $2356 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2374 -= 1.0 // floating-point values 
+$2375 -= 1.0 // floating-point values 
+$2357 = Actor.Create(CivMale, #BMYCR, $2374, $2375, $2376)
+0350: set_actor $2357 maintain_position_when_attacked 1 
+01B2: give_actor $2357 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2375 += 1.0 // floating-point values 
+$2358 = Actor.Create(CivMale, #BMYCR, $2374, $2375, $2376)
+0350: set_actor $2358 maintain_position_when_attacked 1 
+Actor.Angle($2358) = 220.0
+01B2: give_actor $2358 weapon 17 ammo 9999 // Load the weapon model before using this 
+03F9: make_actors $2356 $2357 converse_in 999999999 ms 
+$2359 = Actor.Create(CivMale, #BMYCR, $2380, $2381, $2382)
+0350: set_actor $2359 maintain_position_when_attacked 1 
+01B2: give_actor $2359 weapon 17 ammo 9999 // Load the weapon model before using this 
+Actor.Angle($2359) = 220.0
+$2380 += 1.0 // floating-point values 
+$2360 = Actor.Create(CivMale, #BMYCR, $2380, $2381, $2382)
+0350: set_actor $2360 maintain_position_when_attacked 1 
+01B2: give_actor $2360 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2380 -= 1.0 // floating-point values 
+$2381 -= 1.0 // floating-point values 
+$2361 = Actor.Create(CivMale, #BMYCR, $2380, $2381, $2382)
+0350: set_actor $2361 maintain_position_when_attacked 1 
+01B2: give_actor $2361 weapon 17 ammo 9999 // Load the weapon model before using this 
+03F9: make_actors $2361 $2360 converse_in 999999999 ms 
+$2362 = Actor.Create(CivMale, #BMYCR, $2386, $2387, $2388)
+0350: set_actor $2362 maintain_position_when_attacked 1 
+01B2: give_actor $2362 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2386 -= 1.0 // floating-point values 
+$2363 = Actor.Create(CivMale, #BMYCR, $2386, $2387, $2376)
+Actor.Angle($2363) = 220.0
+0350: set_actor $2363 maintain_position_when_attacked 1 
+01B2: give_actor $2363 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2386 += 1.0 // floating-point values 
+$2387 -= 1.0 // floating-point values 
+$2364 = Actor.Create(CivMale, #BMYCR, $2386, $2387, $2388)
+0350: set_actor $2364 maintain_position_when_attacked 1 
+01B2: give_actor $2364 weapon 17 ammo 9999 // Load the weapon model before using this 
+03F9: make_actors $2362 $2364 converse_in 999999999 ms 
+$2365 = Actor.Create(CivMale, #BMYCR, $2392, $2393, $2394)
+0350: set_actor $2365 maintain_position_when_attacked 1 
+01B2: give_actor $2365 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2392 -= 1.0 // floating-point values 
+$2366 = Actor.Create(CivMale, #BMYCR, $2392, $2393, $2394)
+0350: set_actor $2366 maintain_position_when_attacked 1 
+01B2: give_actor $2366 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2392 += 1.0 // floating-point values 
+$2393 += 1.0 // floating-point values 
+$2367 = Actor.Create(CivMale, #BMYCR, $2392, $2393, $2394)
+0350: set_actor $2367 maintain_position_when_attacked 1 
+01B2: give_actor $2367 weapon 17 ammo 9999 // Load the weapon model before using this 
+03F9: make_actors $2367 $2366 converse_in 999999999 ms 
+$2368 = Actor.Create(CivMale, #BMYCR, $2398, $2399, $2400)
+0350: set_actor $2368 maintain_position_when_attacked 1 
+01B2: give_actor $2368 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2398 += 1.0 // floating-point values 
+$2369 = Actor.Create(CivMale, #BMYCR, $2398, $2399, $2400)
+0350: set_actor $2369 maintain_position_when_attacked 1 
+01B2: give_actor $2369 weapon 17 ammo 9999 // Load the weapon model before using this 
+Actor.Angle($2369) = 90.0
+$2398 -= 1.0 // floating-point values 
+$2399 -= 1.0 // floating-point values 
+$2370 = Actor.Create(CivMale, #BMYCR, $2398, $2399, $2400)
+0350: set_actor $2370 maintain_position_when_attacked 1 
+01B2: give_actor $2370 weapon 17 ammo 9999 // Load the weapon model before using this 
+03F9: make_actors $2368 $2370 converse_in 999999999 ms 
+$2371 = Actor.Create(CivMale, #BMYCR, $2404, $2405, $2406)
+0350: set_actor $2371 maintain_position_when_attacked 1 
+01B2: give_actor $2371 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2404 -= 1.0 // floating-point values 
+$2372 = Actor.Create(CivMale, #BMYCR, $2404, $2405, $2406)
+0350: set_actor $2372 maintain_position_when_attacked 1 
+01B2: give_actor $2372 weapon 17 ammo 9999 // Load the weapon model before using this 
+$2404 += 1.0 // floating-point values 
+$2405 += 1.0 // floating-point values 
+$2373 = Actor.Create(CivMale, #BMYCR, $2404, $2405, $2406)
+0350: set_actor $2373 maintain_position_when_attacked 1 
+01B2: give_actor $2373 weapon 17 ammo 9999 // Load the weapon model before using this 
+03F9: make_actors $2373 $2372 converse_in 999999999 ms 
+return 
+

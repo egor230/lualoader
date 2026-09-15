@@ -1,0 +1,1008 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 15: Supply & Demand
+// Строки 40546-41549 исходного файла data/main.txt
+// Кол-во строк: 1004
+//-------------Mission 15---------------
+// Originally: Supply & Demand
+
+:UMBER1
+gosub @UMBER1_36 
+if 
+wasted_or_busted 
+else_jump @UMBER1_27 
+gosub @UMBER1_4973 
+
+:UMBER1_27
+gosub @UMBER1_4990 
+end_thread 
+
+:UMBER1_36
+increment_mission_attempts 
+thread 'UMBER1' 
+$ONMISSION = 1 // integer values 
+$1971 = 0 // integer values 
+$1972 = 0 // integer values 
+$1973 = 0 // integer values 
+$1974 = 0 // integer values 
+$1975 = 0 // integer values 
+$1976 = 0 // integer values 
+054C: use_GXT_table 'ASSIN4' 
+Model.Load(#JETMAX)
+Model.Load(#SPEEDER)
+023C: load_special_actor 1 'IGCOLON' 
+Model.Load(#HNA)
+Model.Load(#HNB)
+Model.Load(#RUGER)
+Model.Load(#CUBAN)
+Model.Load(#MP5LNG)
+Model.Load(#VOODOO)
+Model.Load(#CELLPHONE)
+Model.Load(#HFYPR)
+023C: load_special_actor 21 'IGSONNY' 
+038B: load_requested_models 
+
+:UMBER1_180
+wait 0 
+if or
+   not Model.Available(#CELLPHONE)
+   not Model.Available(#VOODOO)
+   not Model.Available(#MP5LNG)
+   not Model.Available(#CUBAN)
+   not Model.Available(#JETMAX)
+   not Model.Available(#SPEEDER)
+else_jump @UMBER1_232 
+jump @UMBER1_180 
+
+:UMBER1_232
+if or
+   not Model.Available(#HFYPR)
+823D:   not special_actor 21 loaded 
+823D:   not special_actor 1 loaded 
+   not Model.Available(#HNA)
+   not Model.Available(#HNB)
+   not Model.Available(#RUGER)
+else_jump @UMBER1_275 
+jump @UMBER1_232 
+
+:UMBER1_275
+wait 0 
+fade 1 1500 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+02A3: enable_widescreen 1 
+022B: create_forbidden_for_peds_cube -1166.408 -608.22 10.0 -1171.642 -632.22 15.0 
+Player.CanMove($PLAYER_CHAR) = False
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+select_interior 7 
+0055: put_player $PLAYER_CHAR at -1170.958 -611.052 10.849 
+$1977 = Actor.Create(CivMale, #SPECIAL21, -1169.275, -614.127, 10.849)
+Actor.Angle($1977) = 200.0
+0350: set_actor $1977 maintain_position_when_attacked 1 
+0296: unload_special_actor 21 
+0210: player $PLAYER_CHAR look_at_actor $1977 
+Camera.SetPosition(-1166.9, -613.539, 12.047, 0.0, 0.0, 0.0)
+Camera.PointAt(-1169.275, -614.127, 12.049, 2)
+$1978 = Actor.Create(CivMale, #HFYPR, -1169.123, -614.751, 10.849)
+0350: set_actor $1978 maintain_position_when_attacked 1 
+Model.Destroy(#HFYPR)
+Actor.Angle($1978) = 270.0
+$523 = 1 // integer values 
+16@ = 0 // integer values 
+
+:UMBER1_539
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @UMBER1_586 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_539 
+jump @UMBER1_2147 
+
+:UMBER1_586
+16@ = 0 // integer values 
+0372: set_actor $1977 anim 8 wait_state_time 5000 ms 
+0211: actor $1978 walk_to -1170.08 -614.714 
+
+:UMBER1_618
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @UMBER1_665 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_618 
+jump @UMBER1_2147 
+
+:UMBER1_665
+16@ = 0 // integer values 
+0372: set_actor $1977 anim 31 wait_state_time 5000 ms 
+00BC: text_highpriority 'UMB1_2' 5000 ms 1  // Ha ha... You know you can't handle a real man. That's right, run. Run away!
+
+:UMBER1_697
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @UMBER1_744 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_697 
+jump @UMBER1_2147 
+
+:UMBER1_744
+16@ = 0 // integer values 
+0211: actor $1978 walk_to -1167.803 -631.93 
+00BC: text_highpriority 'UMB2_0' 3000 ms 1  // ...Creep!
+0211: actor $PLAYER_ACTOR walk_to -1169.502 -613.547 
+
+:UMBER1_796
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @UMBER1_843 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_796 
+jump @UMBER1_2147 
+
+:UMBER1_843
+Camera.SetPosition(-1171.17, -614.938, 12.257, 0.0, 0.0, 0.0)
+Camera.PointAt(-1169.275, -613.727, 12.049, 2)
+16@ = 0 // integer values 
+Actor.Angle($1977) = 90.0
+020F: actor $1977 look_at_player $PLAYER_CHAR 
+wait 1000 
+00BC: text_highpriority 'UMB1_3' 4000 ms 1  // ~x~You must be Umberto Robina.
+
+:UMBER1_939
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @UMBER1_986 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_939 
+jump @UMBER1_2147 
+
+:UMBER1_986
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB1_4' 5000 ms 1  // And who are you supposed to be?
+0372: set_actor $1977 anim 31 wait_state_time 2000 ms 
+
+:UMBER1_1018
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER1_1065 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1018 
+jump @UMBER1_2147 
+
+:UMBER1_1065
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB1_5' 5000 ms 1  // ~x~Flint Casey. Does that tell you anything?
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 2000 ms 
+
+:UMBER1_1097
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER1_1144 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1097 
+jump @UMBER1_2147 
+
+:UMBER1_1144
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB1_6' 5000 ms 1  // Ah, so you're the kid Erico spoke of - said you've got BIG cojones!
+0372: set_actor $1977 anim 19 wait_state_time 2000 ms 
+
+:UMBER1_1176
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER1_1223 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1176 
+jump @UMBER1_2147 
+
+:UMBER1_1223
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB1_7' 5000 ms 1  // ~x~Said the same about you. Just can't get enough balls, can he?
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 4000 ms 
+
+:UMBER1_1255
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER1_1302 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1255 
+jump @UMBER1_2147 
+
+:UMBER1_1302
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB1_8' 5000 ms 1  // Trying to be funny, eh? I like that!
+0372: set_actor $1977 anim 19 wait_state_time 4000 ms 
+03CF: load_wav 'MOBRING' as 1 
+
+:UMBER1_1346
+wait 0 
+if 
+03D0:   wav 1 loaded 
+else_jump @UMBER1_1346 
+03D1: play_wav 1 
+
+:UMBER1_1369
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER1_1416 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1369 
+jump @UMBER1_2147 
+
+:UMBER1_1416
+16@ = 0 // integer values 
+052B: actor $1977 hold_cellphone 1 
+
+:UMBER1_1430
+wait 0 
+if 
+   not 16@ > 1500 // integer values 
+else_jump @UMBER1_1477 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1430 
+jump @UMBER1_2147 
+
+:UMBER1_1477
+16@ = 0 // integer values 
+Camera.SetPosition(-1169.502, -611.547, 12.047, 0.0, 0.0, 0.0)
+Camera.PointAt(-1169.275, -614.127, 12.049, 2)
+00BC: text_highpriority 'UMB1_9' 4000 ms 1  // Si, Umberto. Que?
+
+:UMBER1_1550
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @UMBER1_1597 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1550 
+jump @UMBER1_2147 
+
+:UMBER1_1597
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB2_1' 4000 ms 1  // Those putas! I can't believe it...
+
+:UMBER1_1619
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER1_1666 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1619 
+jump @UMBER1_2147 
+
+:UMBER1_1666
+16@ = 0 // integer values 
+052B: actor $1977 hold_cellphone 0 
+00BC: text_highpriority 'UMB2_2' 5000 ms 1  // Cono, Erico's in trouble. You gotta warn him, fast!
+0372: set_actor $1977 anim 19 wait_state_time 4000 ms 
+
+:UMBER1_1705
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER1_1752 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1705 
+jump @UMBER1_2147 
+
+:UMBER1_1752
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB2_3' 3000 ms 1  // ~x~Well I would, Umberto, if you told me what's happening!
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 4000 ms 
+
+:UMBER1_1784
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @UMBER1_1831 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1784 
+jump @UMBER1_2147 
+
+:UMBER1_1831
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB2_4' 5000 ms 1  // I sent that kid down to the docks to clean up those vans...
+0372: set_actor $1977 anim 19 wait_state_time 4000 ms 
+
+:UMBER1_1863
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER1_1910 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1863 
+jump @UMBER1_2147 
+
+:UMBER1_1910
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB2_5' 6000 ms 1  // The plan was to transport any remaining weapons to a safe location nearby, in his boat.
+0372: set_actor $1977 anim 19 wait_state_time 4000 ms 
+
+:UMBER1_1942
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @UMBER1_1989 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_1942 
+jump @UMBER1_2147 
+
+:UMBER1_1989
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB2_6' 5000 ms 1  // Just got a message that he was followed. Those putas haitians!
+0372: set_actor $1977 anim 19 wait_state_time 4000 ms 
+
+:UMBER1_2021
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER1_2068 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_2021 
+jump @UMBER1_2147 
+
+:UMBER1_2068
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB2_7' 5000 ms 1  // I'll tell you where to go. Now show me that you've got some balls!
+0372: set_actor $1977 anim 19 wait_state_time 4000 ms 
+
+:UMBER1_2100
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @UMBER1_2147 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER1_2100 
+jump @UMBER1_2147 
+
+:UMBER1_2147
+16@ = 0 // integer values 
+00BE: text_clear_all 
+fade 0 1500 
+
+:UMBER1_2163
+wait 0 
+if 
+fading 
+else_jump @UMBER1_2187 
+jump @UMBER1_2163 
+
+:UMBER1_2187
+wait 500 
+040D: unload_wav 1 
+011C: actor $PLAYER_ACTOR clear_objective 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+0055: put_player $PLAYER_CHAR at -1170.241 -604.757 10.66 
+Player.CanMove($PLAYER_CHAR) = True
+022A: remove_forbidden_for_peds_cube -1166.408 -608.22 10.0 -1171.642 -632.22 15.0 
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Actor.DestroyInstantly($1978)
+Actor.DestroyInstantly($1977)
+$523 = 0 // integer values 
+select_interior 0 
+fade 1 1500 
+Model.Destroy(#CELLPHONE)
+018A: $1981 = create_checkpoint_at -1198.534 145.792 10.145 
+03C7: set_sensitivity_to_crime_to 0.7 
+wait 3000 
+00BC: text_highpriority 'TXT6_5' 5000 ms 1  // ~r~Get to Erico's last known location!
+
+:UMBER1_2360
+wait 0 
+if 
+00F5:   player $PLAYER_CHAR 0 -1198.534 145.792 10.145 radius 100.0 100.0 10.0 
+else_jump @UMBER1_2360 
+fade 0 500 
+Marker.Disable($1981)
+wait 1000 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+Camera.SetPosition(-1216.648, 187.867, 12.124, 0.0, 0.0, 0.0)
+$125 = Car.Create(#CUBAN, -1213.677, 189.071, 10.132)
+Car.Angle($125) = 90.0
+Model.Destroy(#CUBAN)
+$1983 = Actor.Create(CivMale, #SPECIAL01, -1214.395, 193.094, 10.131)
+012A: put_player $PLAYER_CHAR at -1205.962 192.923 10.145 and_remove_from_car 
+0211: actor $PLAYER_ACTOR walk_to -1212.39 193.991 
+0319: set_actor $PLAYER_ACTOR running 1 
+Camera.OnPed($1983, 15, 2)
+fade 1 1500 
+jump @UMBER1_2621 
+00BC: text_highpriority 'TXT6_6' 5000 ms 1  // ~r~The boat is trashed!
+jump @UMBER1_4973 
+
+:UMBER1_2621
+wait 0 
+if 
+00F6:   player $PLAYER_CHAR 0 -1212.39 193.991 10.0 radius 1.4 1.8 3.5 
+else_jump @UMBER1_2621 
+Actor.Angle($1983) = 270.0
+022D: set_actor $1983 to_look_at_player $PLAYER_CHAR 
+022E: set_player $PLAYER_CHAR to_look_at_actor $1983 
+00BC: text_highpriority 'UMB2_8' 5000 ms 1  // Hey amigo, what are you doin' here?
+wait 5000 
+00BC: text_highpriority 'UMB2_9' 5000 ms 1  // ~x~Bad news, amigo. This is a set up.
+wait 5000 
+00BC: text_highpriority 'UMB3_0' 5000 ms 1  // What are you talking about?
+wait 5000 
+00BC: text_highpriority 'UMB3_1' 5000 ms 1  // ~x~The Haitians, they are going to show up any second.
+wait 5000 
+00BC: text_highpriority 'UMB3_2' 4000 ms 1  // Let's get to the boat!
+$1984 = Car.Create(#VOODOO, -1198.53, 130.792, 10.145)
+0129: $1985 = create_actor 4 #HNA in_car $1984 driverseat 
+Camera.OnVehicle($1984, 15, 1)
+04BA: set_car $1984 speed_instantly 25.0 
+00AE: set_vehicle $1984 traffic_behavior_to 2 
+02C2: car $1984 drive_to_point -1198.53 150.792 10.145 
+Model.Destroy(#VOODOO)
+$1986 = Car.Create(#SPEEDER, -1256.476, 249.183, 5.806)
+0129: $1987 = create_actor 4 #HNB in_car $1986 driverseat 
+$1988 = Actor.Create(CivMale, #HNA, -1256.476, 249.183, 5.806)
+0464: put_actor $1988 into_turret_on_car $1986 at_car_offset 0.4242 0.0479 1.1322 position 3 angle 270.0 with_weapon 25 
+Car.SetImmunities($1986, 0, 0, 1, 0, 1)
+wait 2000 
+fade 0 1500 
+wait 1500 
+Camera.Restore_WithJumpCut
+Actor.DestroyInstantly($1985)
+$1985 = Actor.Create(CivMale, #HNA, -1201.474, 259.164, 6.926)
+$1989 = Actor.Create(CivMale, #HNB, -1227.272, 212.868, 10.016)
+01B2: give_actor $1985 weapon 25 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1989 weapon 25 ammo 9999 // Load the weapon model before using this 
+0350: set_actor $1985 maintain_position_when_attacked 1 
+0350: set_actor $1985 maintain_position_when_attacked 1 
+$1979 = Car.Create(#JETMAX, -1223.578, 290.378, 5.98)
+Model.Destroy(#JETMAX)
+Actor.DestroyInstantly($1983)
+0129: $1983 = create_actor 4 #SPECIAL01 in_car $1979 driverseat 
+0464: put_actor $PLAYER_ACTOR into_turret_on_car $1979 at_car_offset 0.4242 -0.0679 1.1322 position 3 angle 270.0 with_weapon 27 
+02DB: set_boat $1979 speed_to 30.0 
+0296: unload_special_actor 1 
+02D3: boat $1979 drive_to -1810.395 1248.991 5.846 
+$1990 = Car.Create(#SPEEDER, -1136.525, 484.706, 4.891)
+0129: $1991 = create_actor 4 #HNB in_car $1990 driverseat 
+$1992 = Actor.Create(CivMale, #HNA, -1136.525, 484.706, 4.891)
+0464: put_actor $1992 into_turret_on_car $1990 at_car_offset 0.4242 0.0479 1.1322 position 3 angle 270.0 with_weapon 25 
+$1993 = Car.Create(#SPEEDER, -1147.285, 1133.477, 4.853)
+Car.Angle($1993) = 180.0
+0129: $1994 = create_actor 4 #HNB in_car $1993 driverseat 
+$1995 = Actor.Create(CivMale, #HNA, -1147.285, 1133.477, 4.853)
+0464: put_actor $1995 into_turret_on_car $1993 at_car_offset 0.4242 0.0479 1.1322 position 3 angle 270.0 with_weapon 25 
+fade 1 1500 
+Actor.Health($1983) = 250
+Car.Health($1979) = 2000
+Player.CanMove($PLAYER_CHAR) = True
+02A3: enable_widescreen 0 
+01CA: actor $1985 kill_player $PLAYER_CHAR 
+01CA: actor $1989 kill_player $PLAYER_CHAR 
+01CA: actor $1988 kill_player $PLAYER_CHAR 
+01CA: actor $1992 kill_player $PLAYER_CHAR 
+01CA: actor $1995 kill_player $PLAYER_CHAR 
+03C4: set_status_text_to $1996 1 'TXT6_7'  // Boat:
+00BC: text_highpriority 'UMB3_3' 5000 ms 1  // I'll do the driving, you do the shooting!
+
+:UMBER1_3499
+wait 0 
+gosub @UMBER1_5333 
+gosub @UMBER1_5990 
+if 
+   not Actor.Dead($1983)
+else_jump @UMBER1_4943 
+if 
+   not Car.Wrecked($1979)
+else_jump @UMBER1_4921 
+if 
+01AF:   car $1979 0 -1810.395 1248.991 5.846 radius 3.5 3.5 5.0 
+else_jump @UMBER1_3499 
+02D3: boat $1979 drive_to -1268.54 1743.127 5.691 
+$1997 = Car.Create(#SPEEDER, -1368.69, 1540.489, 4.998)
+0129: $1998 = create_actor 4 #HNB in_car $1997 driverseat 
+$1999 = Actor.Create(CivMale, #HNA, -1368.69, 1540.489, 4.998)
+0464: put_actor $1999 into_turret_on_car $1997 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $1999 kill_player $PLAYER_CHAR 
+$2000 = Car.Create(#SPEEDER, -1725.712, 1111.0, 6.174)
+0129: $2001 = create_actor 4 #HNB in_car $2000 driverseat 
+$2002 = Actor.Create(CivMale, #HNA, -1725.712, 1111.0, 6.174)
+0464: put_actor $2002 into_turret_on_car $2000 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2002 kill_player $PLAYER_CHAR 
+$1974 = 1 // integer values 
+
+:UMBER1_3822
+wait 0 
+gosub @UMBER1_5333 
+gosub @UMBER1_5990 
+if 
+   not Actor.Dead($1983)
+else_jump @UMBER1_4943 
+if 
+   not Car.Wrecked($1979)
+else_jump @UMBER1_4921 
+if 
+01AF:   car $1979 0 -1268.54 1743.127 5.691 radius 3.5 3.5 5.0 
+else_jump @UMBER1_3822 
+02D3: boat $1979 drive_to -131.155 1482.844 5.487 
+$2003 = Car.Create(#SPEEDER, -1019.84, 1529.113, 4.779)
+0129: $2004 = create_actor 4 #HNB in_car $2003 driverseat 
+$2005 = Actor.Create(CivMale, #HNA, -1072.188, 1478.333, 5.706)
+0464: put_actor $2005 into_turret_on_car $2003 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2005 kill_player $PLAYER_CHAR 
+$2006 = Car.Create(#SPEEDER, -468.63, 1551.201, 5.674)
+0129: $2007 = create_actor 4 #HNA in_car $2006 driverseat 
+$2008 = Actor.Create(CivMale, #HNB, -468.63, 1551.201, 5.674)
+0464: put_actor $2008 into_turret_on_car $2006 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2008 kill_player $PLAYER_CHAR 
+$1975 = 1 // integer values 
+
+:UMBER1_4145
+wait 0 
+gosub @UMBER1_5333 
+gosub @UMBER1_5990 
+if 
+   not Actor.Dead($1983)
+else_jump @UMBER1_4943 
+if 
+   not Car.Wrecked($1979)
+else_jump @UMBER1_4921 
+if 
+01AF:   car $1979 0 -131.155 1482.844 5.487 radius 3.5 3.5 5.0 
+else_jump @UMBER1_4145 
+02D3: boat $1979 drive_to -589.695 -20.348 4.842 
+$2009 = Car.Create(#SPEEDER, -109.339, 1097.752, 5.669)
+0129: $2010 = create_actor 4 #HNA in_car $2009 driverseat 
+$2011 = Actor.Create(CivMale, #HNB, -109.339, 1097.752, 5.669)
+0464: put_actor $2011 into_turret_on_car $2009 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2011 kill_player $PLAYER_CHAR 
+$2012 = Car.Create(#SPEEDER, 216.643, 1321.525, 5.884)
+0129: $2013 = create_actor 4 #HNA in_car $2012 driverseat 
+$2014 = Actor.Create(CivMale, #HNB, 216.643, 1321.525, 5.884)
+0464: put_actor $2014 into_turret_on_car $2012 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2014 kill_player $PLAYER_CHAR 
+$2015 = Car.Create(#SPEEDER, -304.317, 479.637, 5.772)
+0129: $2016 = create_actor 4 #HNA in_car $2015 driverseat 
+$2017 = Actor.Create(CivMale, #HNB, -304.317, 479.637, 5.772)
+0464: put_actor $2017 into_turret_on_car $2015 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2017 kill_player $PLAYER_CHAR 
+$1976 = 1 // integer values 
+
+:UMBER1_4567
+wait 0 
+gosub @UMBER1_5333 
+gosub @UMBER1_5990 
+if 
+   not Actor.Dead($1983)
+else_jump @UMBER1_4943 
+if 
+   not Car.Wrecked($1979)
+else_jump @UMBER1_4921 
+if 
+01AF:   car $1979 0 -589.695 -20.348 4.842 radius 3.5 3.5 5.0 
+else_jump @UMBER1_4567 
+02D3: boat $1979 drive_to -798.52 -334.862 4.87 
+00BC: text_highpriority 'UMB3_4' 5000 ms 1  // I'll drop you off at that pier.
+
+:UMBER1_4700
+wait 0 
+if 
+   not Actor.Dead($1983)
+else_jump @UMBER1_4943 
+if 
+   not Car.Wrecked($1979)
+else_jump @UMBER1_4921 
+if 
+01AF:   car $1979 0 -798.52 -334.862 4.87 radius 15.5 15.5 10.0 
+else_jump @UMBER1_4700 
+fade 0 500 
+wait 1000 
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+0055: put_player $PLAYER_CHAR at -804.956 -338.011 7.309 
+Actor.DestroyInstantly($1983)
+Car.Destroy($1979)
+Player.CanMove($PLAYER_CHAR) = True
+01B1: give_player $PLAYER_CHAR weapon 27 ammo 200 // Load the weapon model before using this 
+fade 1 1500 
+$PASSED_ASS1_RUB_OUT = 1 // integer values 
+01E3: text_1number_styled 'M_PASS' number 750 time 5000 style 1  // MISSION PASSED! $~1~
+Player.Money($PLAYER_CHAR) += 750
+Player.ClearWantedLevel($PLAYER_CHAR)
+0394: play_music 1 
+0318: set_latest_mission_passed 'ASS_1'  // Sea Warriors
+030C: progress_made += 1 
+create_thread @NONAME_19 
+return 
+
+:UMBER1_4921
+00BC: text_highpriority 'TXT6_6' 5000 ms 1  // ~r~The boat is trashed!
+jump @UMBER1_4958 
+
+:UMBER1_4943
+00BC: text_highpriority 'BTXT6_8' 5000 ms 1 
+
+:UMBER1_4958
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+01B1: give_player $PLAYER_CHAR weapon 27 ammo 200 // Load the weapon model before using this 
+
+:UMBER1_4973
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:UMBER1_4990
+Model.Destroy(#CBB)
+Model.Destroy(#CUBAN)
+Model.Destroy(#VOODOO)
+Model.Destroy(#JETMAX)
+Model.Destroy(#SPEEDER)
+Model.Destroy(#MP5LNG)
+Model.Destroy(#RUGER)
+Model.Destroy(#HNA)
+Model.Destroy(#HNB)
+Model.Destroy(#CELLPHONE)
+Model.Destroy(#HFYPR)
+0296: unload_special_actor 21 
+03C7: set_sensitivity_to_crime_to 1.0 
+Actor.RemoveReferences($1978)
+Actor.RemoveReferences($1977)
+Actor.RemoveReferences($1983)
+Actor.RemoveReferences($1987)
+Actor.RemoveReferences($1988)
+Actor.RemoveReferences($1985)
+Actor.RemoveReferences($1989)
+Actor.RemoveReferences($1991)
+Actor.RemoveReferences($1992)
+Actor.RemoveReferences($1994)
+Actor.RemoveReferences($1995)
+Actor.RemoveReferences($1998)
+Actor.RemoveReferences($1999)
+Actor.RemoveReferences($2001)
+Actor.RemoveReferences($2002)
+Actor.RemoveReferences($2004)
+Actor.RemoveReferences($2005)
+Actor.RemoveReferences($2016)
+Actor.RemoveReferences($2017)
+Actor.RemoveReferences($2013)
+Actor.RemoveReferences($2014)
+Actor.RemoveReferences($2007)
+Actor.RemoveReferences($2008)
+Actor.RemoveReferences($2010)
+Actor.RemoveReferences($2011)
+Car.RemoveReferences($1979)
+Car.RemoveReferences($125)
+Car.RemoveReferences($1984)
+Car.RemoveReferences($1986)
+Car.RemoveReferences($1990)
+Car.RemoveReferences($1993)
+Car.RemoveReferences($1997)
+Car.RemoveReferences($2000)
+Car.RemoveReferences($2003)
+Car.RemoveReferences($2006)
+Car.RemoveReferences($2009)
+Car.RemoveReferences($2012)
+Car.RemoveReferences($2015)
+Car.RemoveReferences($2018)
+Actor.RemoveReferences($2019)
+Actor.RemoveReferences($2020)
+Car.RemoveReferences($2021)
+Actor.RemoveReferences($2022)
+Actor.RemoveReferences($2023)
+Car.RemoveReferences($2024)
+Actor.RemoveReferences($2025)
+Actor.RemoveReferences($2026)
+Car.RemoveReferences($2027)
+Actor.RemoveReferences($2028)
+Actor.RemoveReferences($2029)
+03BD: destroy_sphere $1982 
+Marker.Disable($1981)
+Marker.Disable($1980)
+0151: remove_status_text $1996 
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
+:UMBER1_5333
+if 
+  $1971 == 0 // integer values 
+else_jump @UMBER1_5515 
+if 
+01AF:   car $1979 0 -1637.544 966.079 6.136 radius 65.5 65.5 5.0 
+else_jump @UMBER1_5515 
+$2018 = Car.Create(#SPEEDER, -1603.066, 1444.22, 5.872)
+Car.Angle($2018) = 180.0
+0129: $2019 = create_actor 4 #HNA in_car $2018 driverseat 
+$2020 = Actor.Create(CivMale, #HNB, -1603.066, 1444.22, 5.872)
+0464: put_actor $2020 into_turret_on_car $2018 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2020 kill_player $PLAYER_CHAR 
+$1971 = 1 // integer values 
+
+:UMBER1_5515
+if 
+  $1972 == 0 // integer values 
+else_jump @UMBER1_5697 
+if 
+01AF:   car $1979 0 -694.852 1613.71 6.436 radius 55.5 55.5 5.0 
+else_jump @UMBER1_5697 
+$2021 = Car.Create(#SPEEDER, -624.163, 1566.952, 6.227)
+Car.Angle($2021) = 90.0
+0129: $2022 = create_actor 4 #HNA in_car $2021 driverseat 
+$2023 = Actor.Create(CivMale, #HNB, -624.163, 1566.952, 6.227)
+0464: put_actor $2023 into_turret_on_car $2021 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2023 kill_player $PLAYER_CHAR 
+$1972 = 1 // integer values 
+
+:UMBER1_5697
+if 
+  $1973 == 0 // integer values 
+else_jump @UMBER1_5988 
+if 
+01AF:   car $1979 0 -378.865 668.975 6.161 radius 35.5 35.5 5.0 
+else_jump @UMBER1_5988 
+$2024 = Car.Create(#SPEEDER, -85.293, 595.176, 5.501)
+Car.Angle($2024) = 180.0
+0129: $2025 = create_actor 4 #HNA in_car $2024 driverseat 
+$2026 = Actor.Create(CivMale, #HNB, -85.293, 595.176, 5.501)
+0464: put_actor $2026 into_turret_on_car $2024 at_car_offset 0.4242 0.1479 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2026 kill_player $PLAYER_CHAR 
+$2027 = Car.Create(#SPEEDER, -176.54, 356.587, 5.658)
+Car.Angle($2027) = 270.0
+0129: $2028 = create_actor 4 #HNA in_car $2027 driverseat 
+$2029 = Actor.Create(CivMale, #HNB, -176.54, 356.587, 5.658)
+0464: put_actor $2029 into_turret_on_car $2027 at_car_offset 0.4242 0.1379 1.1322 position 3 angle 270.0 with_weapon 25 
+01CA: actor $2029 kill_player $PLAYER_CHAR 
+$1973 = 1 // integer values 
+
+:UMBER1_5988
+return 
+
+:UMBER1_5990
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 3.0 // floating-point values 
+$2031 += -1.0 // floating-point values 
+if 
+   not Car.Wrecked($1986)
+else_jump @UMBER1_6080 
+if 
+   not Actor.Dead($1987)
+else_jump @UMBER1_6080 
+02DB: set_boat $1986 speed_to 45.0 
+02D3: boat $1986 drive_to $2030 $2031 $2032 
+
+:UMBER1_6080
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 4.0 // floating-point values 
+$2031 += -2.0 // floating-point values 
+if 
+   not Car.Wrecked($1990)
+else_jump @UMBER1_6170 
+if 
+   not Actor.Dead($1991)
+else_jump @UMBER1_6170 
+02DB: set_boat $1990 speed_to 45.0 
+02D3: boat $1990 drive_to $2030 $2031 $2032 
+
+:UMBER1_6170
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 4.0 // floating-point values 
+$2031 += -2.0 // floating-point values 
+if 
+   not Car.Wrecked($1993)
+else_jump @UMBER1_6260 
+if 
+   not Actor.Dead($1994)
+else_jump @UMBER1_6260 
+02DB: set_boat $1993 speed_to 45.0 
+02D3: boat $1993 drive_to $2030 $2031 $2032 
+
+:UMBER1_6260
+if 
+  $1974 == 1 // integer values 
+else_jump @UMBER1_6368 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 6.0 // floating-point values 
+$2031 += -3.0 // floating-point values 
+if 
+   not Car.Wrecked($1997)
+else_jump @UMBER1_6368 
+if 
+   not Actor.Dead($1998)
+else_jump @UMBER1_6368 
+02DB: set_boat $1997 speed_to 45.0 
+02D3: boat $1997 drive_to $2030 $2031 $2032 
+
+:UMBER1_6368
+if 
+  $1975 == 1 // integer values 
+else_jump @UMBER1_6476 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 6.0 // floating-point values 
+$2031 += -3.0 // floating-point values 
+if 
+   not Car.Wrecked($2003)
+else_jump @UMBER1_6476 
+if 
+   not Actor.Dead($2004)
+else_jump @UMBER1_6476 
+02DB: set_boat $2003 speed_to 45.0 
+02D3: boat $2003 drive_to $2030 $2031 $2032 
+
+:UMBER1_6476
+if 
+  $1975 == 1 // integer values 
+else_jump @UMBER1_6584 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 6.0 // floating-point values 
+$2031 += -3.0 // floating-point values 
+if 
+   not Car.Wrecked($2006)
+else_jump @UMBER1_6584 
+if 
+   not Actor.Dead($2007)
+else_jump @UMBER1_6584 
+02DB: set_boat $2006 speed_to 45.0 
+02D3: boat $2006 drive_to $2030 $2031 $2032 
+
+:UMBER1_6584
+if 
+  $1976 == 1 // integer values 
+else_jump @UMBER1_6692 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 3.0 // floating-point values 
+$2031 += -1.0 // floating-point values 
+if 
+   not Car.Wrecked($2009)
+else_jump @UMBER1_6692 
+if 
+   not Actor.Dead($2010)
+else_jump @UMBER1_6692 
+02DB: set_boat $2009 speed_to 45.0 
+02D3: boat $2009 drive_to $2030 $2031 $2032 
+
+:UMBER1_6692
+if 
+  $1976 == 1 // integer values 
+else_jump @UMBER1_6800 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 3.0 // floating-point values 
+$2031 += -1.0 // floating-point values 
+if 
+   not Car.Wrecked($2012)
+else_jump @UMBER1_6800 
+if 
+   not Actor.Dead($2013)
+else_jump @UMBER1_6800 
+02DB: set_boat $2012 speed_to 45.0 
+02D3: boat $2012 drive_to $2030 $2031 $2032 
+
+:UMBER1_6800
+if 
+  $1976 == 1 // integer values 
+else_jump @UMBER1_6908 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 6.0 // floating-point values 
+$2031 += -4.0 // floating-point values 
+if 
+   not Car.Wrecked($2015)
+else_jump @UMBER1_6908 
+if 
+   not Actor.Dead($2016)
+else_jump @UMBER1_6908 
+02DB: set_boat $2015 speed_to 45.0 
+02D3: boat $2015 drive_to $2030 $2031 $2032 
+
+:UMBER1_6908
+if 
+  $1974 == 1 // integer values 
+else_jump @UMBER1_7016 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 6.0 // floating-point values 
+$2031 += -4.0 // floating-point values 
+if 
+   not Car.Wrecked($2000)
+else_jump @UMBER1_7016 
+if 
+   not Actor.Dead($2001)
+else_jump @UMBER1_7016 
+02DB: set_boat $2000 speed_to 45.0 
+02D3: boat $2000 drive_to $2030 $2031 $2032 
+
+:UMBER1_7016
+if 
+  $1971 == 1 // integer values 
+else_jump @UMBER1_7124 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 6.0 // floating-point values 
+$2031 += -4.0 // floating-point values 
+if 
+   not Car.Wrecked($2018)
+else_jump @UMBER1_7124 
+if 
+   not Actor.Dead($2019)
+else_jump @UMBER1_7124 
+02DB: set_boat $2018 speed_to 45.0 
+02D3: boat $2018 drive_to $2030 $2031 $2032 
+
+:UMBER1_7124
+if 
+  $1972 == 1 // integer values 
+else_jump @UMBER1_7232 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 6.0 // floating-point values 
+$2031 += -4.0 // floating-point values 
+if 
+   not Car.Wrecked($2021)
+else_jump @UMBER1_7232 
+if 
+   not Actor.Dead($2022)
+else_jump @UMBER1_7232 
+02DB: set_boat $2021 speed_to 45.0 
+02D3: boat $2021 drive_to $2030 $2031 $2032 
+
+:UMBER1_7232
+if 
+  $1973 == 1 // integer values 
+else_jump @UMBER1_7340 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 6.0 // floating-point values 
+$2031 += -4.0 // floating-point values 
+if 
+   not Car.Wrecked($2024)
+else_jump @UMBER1_7340 
+if 
+   not Actor.Dead($2025)
+else_jump @UMBER1_7340 
+02DB: set_boat $2024 speed_to 45.0 
+02D3: boat $2024 drive_to $2030 $2031 $2032 
+
+:UMBER1_7340
+if 
+  $1973 == 1 // integer values 
+else_jump @UMBER1_7448 
+0054: store_player $PLAYER_CHAR position_to $2030 $2031 $2032 
+$2030 += 6.0 // floating-point values 
+$2031 += -4.0 // floating-point values 
+if 
+   not Car.Wrecked($2027)
+else_jump @UMBER1_7448 
+if 
+   not Actor.Dead($2028)
+else_jump @UMBER1_7448 
+02DB: set_boat $2027 speed_to 45.0 
+02D3: boat $2027 drive_to $2030 $2031 $2032 
+
+:UMBER1_7448
+if 
+   not Car.Wrecked($1979)
+else_jump @UMBER1_7479 
+$1996 = Car.Health($1979)
+$1996 /= 20 // integer values 
+
+:UMBER1_7479
+return 
+

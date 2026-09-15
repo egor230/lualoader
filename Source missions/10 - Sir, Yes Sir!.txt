@@ -1,0 +1,787 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 10: Sir, Yes Sir!
+// Строки 36206-36988 исходного файла data/main.txt
+// Кол-во строк: 783
+//-------------Mission 10---------------
+// Originally: Sir, Yes Sir!
+
+:ERICO2
+gosub @ERICO2_36 
+if 
+wasted_or_busted 
+else_jump @ERICO2_27 
+gosub @ERICO2_4873 
+
+:ERICO2_27
+gosub @ERICO2_4890 
+end_thread 
+
+:ERICO2_36
+increment_mission_attempts 
+thread 'ERICO2' 
+$ONMISSION = 1 // integer values 
+054C: use_GXT_table 'BANKJ3' 
+Model.Load(#HMYRI)
+Model.Load(#HNA)
+Model.Load(#HNB)
+Model.Load(#CBA)
+Model.Load(#CBB)
+023C: load_special_actor 1 'IGCOLON' 
+Model.Load(#INGRAMSL)
+Model.Load(#MINIGUN)
+038B: load_requested_models 
+
+:ERICO2_109
+wait 0 
+if or
+823D:   not special_actor 1 loaded 
+   not Model.Available(#HNB)
+   not Model.Available(#CBB)
+   not Model.Available(#HMYRI)
+   not Model.Available(#HNA)
+   not Model.Available(#CBA)
+   not Model.Available(#INGRAMSL)
+   not Model.Available(#MINIGUN)
+else_jump @ERICO2_165 
+jump @ERICO2_109 
+
+:ERICO2_165
+wait 0 
+fade 1 1500 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+0055: put_player $PLAYER_CHAR at -1189.111 -419.973 9.919 
+$1861 = Actor.Create(CivMale, #SPECIAL01, -1189.101, -420.593, 9.92)
+01ED: clear_actor $1861 threat_search 
+020F: actor $1861 look_at_player $PLAYER_CHAR 
+0210: player $PLAYER_CHAR look_at_actor $1861 
+Camera.SetPosition(-1193.7, -420.848, 11.131, 0.0, 0.0, 0.0)
+Camera.PointAt(-1187.416, -419.591, 10.45, 2)
+0296: unload_special_actor 1 
+16@ = 0 // integer values 
+
+:ERICO2_336
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @ERICO2_383 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_336 
+jump @ERICO2_1168 
+
+:ERICO2_383
+16@ = 0 // integer values 
+0372: set_actor $1861 anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'ERIC3_4' 5000 ms 1  // Idiotas! They can't stop us now... They don't know what's coming!
+
+:ERICO2_415
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO2_462 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_415 
+jump @ERICO2_1168 
+
+:ERICO2_462
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 31 wait_state_time 2000 ms 
+00BC: text_highpriority 'ERIC3_5' 5000 ms 1  // ~x~That incident with the truck could have seriously gone wrong, man.
+
+:ERICO2_494
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO2_541 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_494 
+jump @ERICO2_1168 
+
+:ERICO2_541
+16@ = 0 // integer values 
+0372: set_actor $1861 anim 8 wait_state_time 2000 ms 
+00BC: text_highpriority 'ERIC3_6' 5000 ms 1  // My bad, Flint. We've been at war with those putas since... always.
+
+:ERICO2_573
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO2_620 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_573 
+jump @ERICO2_1168 
+
+:ERICO2_620
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'ERIC3_7' 5000 ms 1  // ~x~Speaking of which... why do you keep those weapons in their territory?
+0372: set_actor $1861 anim 2 wait_state_time 7000 ms 
+
+:ERICO2_662
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO2_709 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_662 
+jump @ERICO2_1168 
+
+:ERICO2_709
+16@ = 0 // integer values 
+0372: set_actor $1861 anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'ERIC3_8' 5000 ms 1  // They'll never think of looking for those armas there. They're blind, amigo.
+
+:ERICO2_741
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO2_788 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_741 
+jump @ERICO2_1168 
+
+:ERICO2_788
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC3_9' 5000 ms 1  // We've also got our stronghold hidden right in the middle of their turf!
+
+:ERICO2_810
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO2_857 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_810 
+jump @ERICO2_1168 
+
+:ERICO2_857
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC4_1' 5000 ms 1  // We're preparing to go to war. If you want to make a good impression, now is the time!
+0372: set_actor $1861 anim 31 wait_state_time 4000 ms 
+
+:ERICO2_889
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO2_936 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_889 
+jump @ERICO2_1168 
+
+:ERICO2_936
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC4_2' 5000 ms 1  // Some companeros are at the bar. You can go and help them out.
+
+:ERICO2_958
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO2_1005 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_958 
+jump @ERICO2_1168 
+
+:ERICO2_1005
+16@ = 0 // integer values 
+0372: set_actor $1861 anim 19 wait_state_time 4500 ms 
+00BC: text_highpriority 'ERIC4_3' 5000 ms 1  // I'll give you the location... But you can't let a single Haitian spot you on the way there!
+
+:ERICO2_1037
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @ERICO2_1084 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_1037 
+jump @ERICO2_1168 
+
+:ERICO2_1084
+16@ = 0 // integer values 
+0211: actor $1861 walk_to -1187.378 -420.147 
+0211: actor $PLAYER_ACTOR walk_to -1192.303 -419.888 
+
+:ERICO2_1121
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @ERICO2_1168 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO2_1121 
+jump @ERICO2_1168 
+
+:ERICO2_1168
+16@ = 0 // integer values 
+00BE: text_clear_all 
+fade 0 1500 
+
+:ERICO2_1184
+wait 0 
+if 
+fading 
+else_jump @ERICO2_1208 
+jump @ERICO2_1184 
+
+:ERICO2_1208
+wait 500 
+Actor.DestroyInstantly($1861)
+fade 1 1500 
+Camera.Restore_WithJumpCut
+02A3: enable_widescreen 0 
+Player.CanMove($PLAYER_CHAR) = True
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+018A: 5@ = create_checkpoint_at -1003.18 283.787 10.245 
+03BC: 6@ = create_sphere -1003.18 283.787 10.245 4.0 
+wait 2000 
+$ON_ERICO2 = 1 // integer values 
+00BC: text_highpriority 'TXT4_5' 7000 ms 1  // ~r~Get to the secret location in Little Haiti. Evade any Haitians that you see!
+022B: create_forbidden_for_peds_cube -1032.6 182.2 3.5 -970.2 308.9 18.5 
+
+:ERICO2_1356
+wait 0 
+if 
+00F5:   player $PLAYER_CHAR 0 -1003.18 283.787 10.245 radius 4.0 4.0 2.0 
+else_jump @ERICO2_1436 
+
+:ERICO2_1408
+fade 0 1000 
+Player.CanMove($PLAYER_CHAR) = False
+0221: set_player $PLAYER_CHAR apply_brakes_to_car 1 
+jump @ERICO2_1781 
+
+:ERICO2_1436
+04C4: create_coordinate 0@ 1@ 2@ from_actor $PLAYER_ACTOR offset 0.0 0.0 0.0 
+05EF: 3@ = random_actor_near_point 0@ 1@ 2@ in_radius 30.0 find_next 0 pass_deads 1 //IF and SET 
+if 
+056D:   actor 3@ defined 
+else_jump @ERICO2_1356 
+if or
+02F2:   actor 3@ model == #HNA 
+02F2:   actor 3@ model == #HNB 
+else_jump @ERICO2_1356 
+4@ = Marker.CreateAboveActor(3@)
+018B: show_on_radar 4@ 2 
+Marker.SetColor(4@, 1)
+00BC: text_highpriority 'TXT3_7' 5000 ms 1  // ~t~Haitians ~r~are nearby. Hold your distance and keep a low profile!
+
+:ERICO2_1566
+wait 0 
+if 
+80F6:   not player $PLAYER_CHAR 0 -1003.18 283.787 10.245 radius 4.0 4.0 2.0 
+else_jump @ERICO2_1408 
+if 
+80E9:   not player $PLAYER_CHAR 0 3@ radius 30.0 30.0 
+else_jump @ERICO2_1656 
+jump @ERICO2_1356 
+
+:ERICO2_1656
+wait 0 
+if 
+00FB:   player $PLAYER_CHAR 0 3@ radius 15.0 15.0 15.0 
+else_jump @ERICO2_1566 
+018B: show_on_radar 4@ 3 
+00BC: text_highpriority 'TXT3_8' 5000 ms 1  // ~r~You were spotted by the Haitians! The plan is off.
+Marker.Disable(5@)
+03BD: destroy_sphere 6@ 
+03E7: flash_hud 8 
+022A: remove_forbidden_for_peds_cube -1032.6 182.2 3.5 -970.2 308.9 18.5 
+wait 5000 
+Marker.Disable(4@)
+jump @ERICO2_4873 
+
+:ERICO2_1781
+wait 2000 
+fade 1 1000 
+00BE: text_clear_all 
+Marker.Disable(5@)
+Marker.Disable(4@)
+Actor.DestroyInstantly(3@)
+022A: remove_forbidden_for_peds_cube -1032.6 182.2 3.5 -970.2 308.9 18.5 
+03BD: destroy_sphere 6@ 
+02A3: enable_widescreen 1 
+022B: create_forbidden_for_peds_cube -1000.63 258.25 6.5 -935.631 287.253 11.5 
+6@ = Actor.Create(CivMale, #CBA, -975.619, 267.582, 10.282)
+7@ = Actor.Create(CivMale, #CBB, -975.526, 265.377, 10.282)
+Actor.Angle(7@) = 290.0
+Actor.Angle(6@) = 290.0
+01ED: clear_actor 6@ threat_search 
+01ED: clear_actor 7@ threat_search 
+012A: put_player $PLAYER_CHAR at -974.064 274.516 10.282 and_remove_from_car 
+Camera.SetPosition(-971.818, 272.286, 11.436, 0.0, 0.0, 0.0)
+Camera.PointAt(-975.204, 266.87, 10.895, 2)
+0211: actor $PLAYER_ACTOR walk_to -973.714 266.794 
+wait 7000 
+0211: actor $PLAYER_ACTOR walk_to -975.0 266.71 
+020F: actor 7@ look_at_player $PLAYER_CHAR 
+020F: actor 6@ look_at_player $PLAYER_CHAR 
+00BC: text_highpriority 'ERIC2_4' 3000 ms 1  // Hola amigo, you Flint?
+wait 3000 
+0372: set_actor $PLAYER_ACTOR anim 31 wait_state_time 2000 ms 
+00BC: text_highpriority 'ERIC2_5' 2000 ms 1  // ~x~Yeah.
+wait 2000 
+0372: set_actor 7@ anim 19 wait_state_time 1500 ms 
+00BC: text_highpriority 'ERIC2_6' 5000 ms 1  // Let's go inside, we can't talk out here...
+wait 2000 
+0211: actor 6@ walk_to -981.466 266.975 
+0211: actor 7@ walk_to -981.617 265.546 
+wait 1000 
+0211: actor $PLAYER_ACTOR walk_to -980.578 266.612 
+wait 4000 
+Actor.PutAt($PLAYER_ACTOR, -983.624, 278.656, 7.635)
+Actor.PutAt(7@, -984.842, 278.899, 7.635)
+032B: $1862 = create_weapon_pickup #MINIGUN 15 ammo 9900 at -987.719 278.719 8.436 
+0211: actor 7@ walk_to -986.56 280.082 
+wait 500 
+0211: actor $PLAYER_ACTOR walk_to -986.493 278.71 
+wait 1000 
+011C: actor 7@ clear_objective 
+Actor.Angle(7@) = 90.0
+Camera.SetPosition(-991.324, 277.861, 9.25, 0.0, 0.0, 0.0)
+Camera.PointAt(-984.842, 278.899, 8.7, 2)
+wait 2000 
+Camera.PointAt(-984.842, 278.899, 8.0, 1)
+wait 1000 
+00BC: text_highpriority 'ERIC2_7' 3000 ms 1  // There she is. You like what you see, chico?
+wait 3000 
+00BC: text_highpriority 'ERIC2_8' 3000 ms 1  // ~x~I'm impressed.
+wait 3000 
+00BC: text_highpriority 'ERIC2_9' 5000 ms 1  // You know how to handle her. Maybe a couple of Haitians, too?
+wait 5000 
+00BC: text_highpriority 'ERIC3_1' 6000 ms 1  // ~x~Guess I owe them that much. I'll take a shot at it, if you know what I mean... amigo.
+wait 6000 
+0372: set_actor 7@ anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'ERIC3_2' 6000 ms 1  // Si! there's shots for you at bar, hombre. afterwards, you can go do your thing!
+wait 4000 
+0211: actor 7@ walk_to -983.0 278.46 
+wait 4000 
+0211: actor 7@ walk_to -983.44 269.6 
+wait 2000 
+Player.CanMove($PLAYER_CHAR) = True
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+8@ = Actor.Create(CivMale, #CBA, -983.4, 263.5, 7.617)
+Actor.Angle(8@) = 0.0
+0243: set_actor 8@ ped_stats_to 16 
+01ED: clear_actor 8@ threat_search 
+0372: set_actor 8@ anim 24 wait_state_time 60000000 ms 
+11@ = Actor.Create(CivMale, #CBA, -987.962, 270.275, 7.625)
+Actor.Angle(11@) = 100.0
+01ED: clear_actor 11@ threat_search 
+10@ = Actor.Create(CivMale, #HMYRI, -989.977, 272.465, 7.628)
+Actor.Angle(10@) = 270.0
+01ED: clear_actor 10@ threat_search 
+011C: actor 7@ clear_objective 
+Actor.PutAt(7@, -986.767, 264.637, 7.618)
+Actor.Angle(7@) = 0.0
+0372: set_actor 7@ anim 24 wait_state_time 60000000 ms 
+03DC: 13@ = create_marker_above_pickup $1862 
+
+:ERICO2_2775
+wait 0 
+if and
+   not Actor.Dead(11@)
+   not Actor.Dead(10@)
+   not Actor.Dead(8@)
+   not Actor.Dead(7@)
+   not Actor.Dead(6@)
+else_jump @ERICO2_4873 
+if 
+80E9:   not player $PLAYER_CHAR 0 10@ radius 20.0 20.0 
+else_jump @ERICO2_2868 
+00BC: text_highpriority 'TXT4_3' 1000 ms 1  // ~r~There's Haitians everywhere - you cannot risk being seen! Get back to the Cubans.
+jump @ERICO2_2775 
+
+:ERICO2_2868
+wait 0 
+if 
+   Pickup.Picked_up($1862)
+else_jump @ERICO2_2775 
+Marker.Disable(13@)
+03BC: $1863 = create_sphere -987.391 274.426 7.635 1.0 
+
+:ERICO2_2918
+wait 0 
+if and
+   not Actor.Dead(11@)
+   not Actor.Dead(10@)
+   not Actor.Dead(8@)
+   not Actor.Dead(7@)
+   not Actor.Dead(6@)
+else_jump @ERICO2_4873 
+if 
+80E9:   not player $PLAYER_CHAR 0 10@ radius 20.0 20.0 
+else_jump @ERICO2_3011 
+00BC: text_highpriority 'TXT4_3' 1000 ms 1  // ~r~There's Haitians everywhere - you cannot risk being seen! Get back to the Cubans.
+jump @ERICO2_2918 
+
+:ERICO2_3011
+wait 0 
+if 
+00F9:   player $PLAYER_CHAR stopped 0 -987.391 274.426 7.635 radius 1.0 1.0 2.0 
+else_jump @ERICO2_2918 
+03BD: destroy_sphere $1863 
+Player.CanMove($PLAYER_CHAR) = False
+Camera.SetPosition(-987.95, 273.3, 9.55, 0.0, 0.0, 0.0)
+Camera.OnPed(10@, 15, 1)
+0211: actor 10@ walk_to -989.391 274.426 
+wait 2000 
+0372: set_actor 10@ anim 25 wait_state_time 5000 ms 
+00BC: text_highpriority 'ERIC3_3' 5000 ms 1  //  The next round is on the Haitians! They hang out at the Crocs Bar.
+wait 5000 
+052C: set_player $PLAYER_CHAR drunk_visuals 225 
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+018A: 12@ = create_checkpoint_at -1087.74 133.247 10.282 
+wait 2000 
+00BC: text_highpriority 'TXT3_9' 9000 ms 1  // ~r~Don't attract attention to this location. Wipe out the Haitians at the Crocs Bar.
+$1864 = Actor.Create(CivMale, #HNA, -1078.781, 129.1, 10.282)
+Actor.Angle($1864) = 90.0
+0372: set_actor $1864 anim 24 wait_state_time 60000000 ms 
+$1865 = Actor.Create(CivMale, #HNB, -1083.858, 128.573, 10.282)
+Actor.Angle($1865) = 0.0
+0372: set_actor $1865 anim 24 wait_state_time 60000000 ms 
+$1866 = Actor.Create(CivMale, #HNA, -1100.162, 130.589, 10.282)
+$1867 = Actor.Create(CivMale, #HNB, -1102.162, 130.589, 10.282)
+03F9: make_actors $1866 $1867 converse_in 999999999 ms 
+01B2: give_actor $1864 weapon 24 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1865 weapon 24 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1866 weapon 24 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1867 weapon 24 ammo 9999 // Load the weapon model before using this 
+0350: set_actor $1864 maintain_position_when_attacked 1 
+0350: set_actor $1865 maintain_position_when_attacked 1 
+0350: set_actor $1866 maintain_position_when_attacked 1 
+13@ = Pickup.Create(#BODYARMOUR, 15, -1100.222, 139.052, 11.25)
+$COUNT = 6 // integer values 
+01F0: set_max_wanted_level_to 0 
+
+:ERICO2_3472
+wait 0 
+gosub @ERICO2_5133 
+if and
+   not Actor.Dead(11@)
+   not Actor.Dead(10@)
+   not Actor.Dead(8@)
+   not Actor.Dead(7@)
+   not Actor.Dead(6@)
+else_jump @ERICO2_4873 
+if and
+   Actor.Dead($1864)
+   Actor.Dead($1865)
+   Actor.Dead($1866)
+else_jump @ERICO2_3472 
+00BC: text_highpriority 'TXT4_2' 5000 ms 1  // ~r~The Haitians have sent reinforcements. Wipe them out!
+Marker.Disable(12@)
+Actor.RemoveReferences(6@)
+Actor.RemoveReferences(7@)
+Actor.RemoveReferences(8@)
+Actor.RemoveReferences(10@)
+Actor.RemoveReferences(11@)
+jump @ERICO2_4022 
+
+:ERICO2_3597
+wait 0 
+if 
+   not Actor.Dead($1864)
+else_jump @ERICO2_3656 
+if 
+   not Actor.Dead($1865)
+else_jump @ERICO2_3778 
+if 
+   not Actor.Dead($1866)
+else_jump @ERICO2_3900 
+jump @ERICO2_3597 
+
+:ERICO2_3656
+Marker.Disable(6@)
+
+:ERICO2_3661
+wait 0 
+if 
+   not Actor.Dead($1865)
+else_jump @ERICO2_3704 
+if 
+   not Actor.Dead($1866)
+else_jump @ERICO2_3741 
+jump @ERICO2_3661 
+
+:ERICO2_3704
+Marker.Disable(7@)
+
+:ERICO2_3709
+wait 0 
+if 
+   Actor.Dead($1866)
+else_jump @ERICO2_3709 
+Marker.Disable(8@)
+jump @ERICO2_4022 
+
+:ERICO2_3741
+Marker.Disable(8@)
+
+:ERICO2_3746
+wait 0 
+if 
+   Actor.Dead($1865)
+else_jump @ERICO2_3746 
+Marker.Disable(7@)
+jump @ERICO2_4022 
+
+:ERICO2_3778
+Marker.Disable(7@)
+
+:ERICO2_3783
+wait 0 
+if 
+   not Actor.Dead($1864)
+else_jump @ERICO2_3826 
+if 
+   not Actor.Dead($1866)
+else_jump @ERICO2_3863 
+jump @ERICO2_3783 
+
+:ERICO2_3826
+Marker.Disable(6@)
+
+:ERICO2_3831
+wait 0 
+if 
+   Actor.Dead($1866)
+else_jump @ERICO2_3831 
+Marker.Disable(8@)
+jump @ERICO2_4022 
+
+:ERICO2_3863
+Marker.Disable(8@)
+
+:ERICO2_3868
+wait 0 
+if 
+   Actor.Dead($1864)
+else_jump @ERICO2_3868 
+Marker.Disable(6@)
+jump @ERICO2_4022 
+
+:ERICO2_3900
+Marker.Disable(8@)
+
+:ERICO2_3905
+wait 0 
+if 
+   not Actor.Dead($1864)
+else_jump @ERICO2_3948 
+if 
+   not Actor.Dead($1865)
+else_jump @ERICO2_3985 
+jump @ERICO2_3905 
+
+:ERICO2_3948
+Marker.Disable(6@)
+
+:ERICO2_3953
+wait 0 
+if 
+   Actor.Dead($1865)
+else_jump @ERICO2_3953 
+Marker.Disable(7@)
+jump @ERICO2_4022 
+
+:ERICO2_3985
+Marker.Disable(7@)
+
+:ERICO2_3990
+wait 0 
+if 
+   Actor.Dead($1864)
+else_jump @ERICO2_3990 
+Marker.Disable(6@)
+jump @ERICO2_4022 
+
+:ERICO2_4022
+wait 0 
+if 
+   not $1870 == 5 // integer values 
+else_jump @ERICO2_4789 
+$1870 += 1 // integer values 
+$COUNT -= 1 // integer values 
+wait 0 
+Actor.StorePos($1864, $125, $1730, $1871)
+Actor.StorePos($1865, $1872, $1873, $1871)
+Actor.StorePos($1866, $1121, $1874, $1871)
+0170: $1875 = player $PLAYER_CHAR z_angle 
+if and
+  90.0 >= $1875 // floating-point values 
+  $1875 >= 0.0 // floating-point values 
+else_jump @ERICO2_4150 
+jump @ERICO2_4226 
+
+:ERICO2_4150
+if and
+  180.0 >= $1875 // floating-point values 
+  $1875 >= 90.0 // floating-point values 
+else_jump @ERICO2_4188 
+jump @ERICO2_4303 
+
+:ERICO2_4188
+if and
+  270.0 >= $1875 // floating-point values 
+  $1875 >= 180.0 // floating-point values 
+else_jump @ERICO2_4457 
+jump @ERICO2_4380 
+
+:ERICO2_4226
+$125 -= 25.85 // floating-point values 
+$1730 -= 20.85 // floating-point values 
+$1872 -= 52.85 // floating-point values 
+$1873 -= 55.85 // floating-point values 
+$1121 -= 15.85 // floating-point values 
+$1874 -= 17.85 // floating-point values 
+$1871 -= 1.0 // floating-point values 
+jump @ERICO2_4527 
+
+:ERICO2_4303
+$125 -= 25.85 // floating-point values 
+$1730 += 26.75 // floating-point values 
+$1872 -= 52.85 // floating-point values 
+$1873 += 40.75 // floating-point values 
+$1871 -= 1.0 // floating-point values 
+$1121 -= 5.85 // floating-point values 
+$1874 += 9.75 // floating-point values 
+jump @ERICO2_4527 
+
+:ERICO2_4380
+$125 += 18.1 // floating-point values 
+$1730 += 26.75 // floating-point values 
+$1872 += 40.1 // floating-point values 
+$1873 += 10.75 // floating-point values 
+$1871 -= 1.0 // floating-point values 
+$1121 += 23.1 // floating-point values 
+$1874 += 59.75 // floating-point values 
+jump @ERICO2_4527 
+
+:ERICO2_4457
+$125 += 58.1 // floating-point values 
+$1730 -= 50.85 // floating-point values 
+$1872 += 60.1 // floating-point values 
+$1873 -= 65.85 // floating-point values 
+$1871 -= 1.0 // floating-point values 
+$1121 += 53.1 // floating-point values 
+$1874 -= 47.85 // floating-point values 
+
+:ERICO2_4527
+03C4: set_status_text_to $COUNT 0 'TXT4_1'  // Haitian forces:
+02C0: set $1876 $1877 $1878 to_ped_path_coords_closest_to $125 $1730 $1871 
+02C0: set $1879 $1880 $1878 to_ped_path_coords_closest_to $1872 $1873 $1871 
+02C0: set $1881 $1882 $1878 to_ped_path_coords_closest_to $1121 $1874 $1871 
+$1864 = Actor.Create(CivMale, #HNB, $1876, $1877, $1878)
+$1865 = Actor.Create(CivMale, #HNA, $1879, $1880, $1878)
+$1866 = Actor.Create(CivMale, #HNA, $1881, $1882, $1878)
+6@ = Marker.CreateAboveActor($1864)
+Marker.SetColor(6@, 0)
+0166: set_marker 6@ brightness_to 1 
+7@ = Marker.CreateAboveActor($1865)
+Marker.SetColor(7@, 0)
+0166: set_marker 7@ brightness_to 1 
+8@ = Marker.CreateAboveActor($1866)
+Marker.SetColor(8@, 0)
+0166: set_marker 8@ brightness_to 1 
+01B2: give_actor $1864 weapon 24 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1865 weapon 24 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1866 weapon 24 ammo 9999 // Load the weapon model before using this 
+01CA: actor $1864 kill_player $PLAYER_CHAR 
+01CA: actor $1865 kill_player $PLAYER_CHAR 
+01CA: actor $1866 kill_player $PLAYER_CHAR 
+03F1: pedtype 8 add_threat 1 
+jump @ERICO2_3597 
+
+:ERICO2_4789
+00BE: text_clear_all 
+wait 1000 
+$PASSED_COL5_ALL_HANDS_ON_DECK = 1 // integer values 
+01E3: text_1number_styled 'M_PASS' number 500 time 5000 style 1  // MISSION PASSED! $~1~
+Player.Money($PLAYER_CHAR) += 500
+Player.ClearWantedLevel($PLAYER_CHAR)
+0394: play_music 1 
+$ON_ERICO2 = 0 // integer values 
+create_thread @NONAME_17 
+030C: progress_made += 1 
+01F0: set_max_wanted_level_to 6 
+0318: set_latest_mission_passed 'COL_5'  // Bullet Dance
+return 
+
+:ERICO2_4873
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:ERICO2_4890
+0296: unload_special_actor 1 
+Model.Destroy(#HNA)
+Model.Destroy(#HNB)
+Model.Destroy(#CBB)
+Model.Destroy(#CBA)
+Model.Destroy(#INGRAMSL)
+Model.Destroy(#MINIGUN)
+Pickup.Destroy($1862)
+Marker.Disable(4@)
+Marker.Disable(5@)
+Marker.Disable(6@)
+Marker.Disable(7@)
+Marker.Disable(8@)
+Marker.Disable(9@)
+Marker.Disable(12@)
+Marker.Disable(13@)
+Actor.DestroyInstantly(3@)
+Actor.RemoveReferences(6@)
+Actor.RemoveReferences(7@)
+Actor.RemoveReferences(8@)
+Actor.RemoveReferences(10@)
+Actor.RemoveReferences(11@)
+Actor.RemoveReferences($1861)
+Actor.RemoveReferences($1864)
+Actor.RemoveReferences($1865)
+Actor.RemoveReferences($1866)
+01F0: set_max_wanted_level_to 6 
+$ON_ERICO2 = 0 // integer values 
+017A: set_player $PLAYER_CHAR weapon 33 ammo_to 0 
+0151: remove_status_text $COUNT 
+03BD: destroy_sphere $1863 
+052C: set_player $PLAYER_CHAR drunk_visuals 0 
+03F2: pedtype 8 remove_threat 1 
+022A: remove_forbidden_for_peds_cube -1032.6 182.2 3.5 -970.2 308.9 18.5 
+01E7: remove_forbidden_for_cars_cube -1000.63 258.25 6.5 -935.631 287.253 11.5 
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
+:ERICO2_5133
+wait 0 
+if or
+8184:   not actor $1864 health >= 90 
+8184:   not actor $1865 health >= 90 
+8184:   not actor $1866 health >= 90 
+8184:   not actor $1867 health >= 90 
+else_jump @ERICO2_5227 
+03F1: pedtype 8 add_threat 1 
+0350: set_actor $1864 maintain_position_when_attacked 0 
+0350: set_actor $1865 maintain_position_when_attacked 0 
+0350: set_actor $1866 maintain_position_when_attacked 0 
+01CA: actor $1864 kill_player $PLAYER_CHAR 
+01CA: actor $1865 kill_player $PLAYER_CHAR 
+01CA: actor $1866 kill_player $PLAYER_CHAR 
+
+:ERICO2_5227
+return 
+

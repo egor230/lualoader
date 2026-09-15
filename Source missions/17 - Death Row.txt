@@ -1,0 +1,1109 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 17: Death Row
+// Строки 42173-43277 исходного файла data/main.txt
+// Кол-во строк: 1105
+//-------------Mission 17---------------
+// Originally: Death Row
+
+:UMBER3
+gosub @UMBER3_36 
+if 
+wasted_or_busted 
+else_jump @UMBER3_27 
+gosub @UMBER3_4851 
+
+:UMBER3_27
+gosub @UMBER3_4868 
+end_thread 
+
+:UMBER3_36
+increment_mission_attempts 
+thread 'UMBER3' 
+$ONMISSION = 1 // integer values 
+$2109 = 0 // integer values 
+$2110 = 0 // integer values 
+$2111 = 0 // integer values 
+$2112 = 0 // integer values 
+$2113 = 0 // integer values 
+$2114 = 0 // integer values 
+054C: use_GXT_table 'ASSIN3' 
+Model.Load(#HNA)
+Model.Load(#HNB)
+Model.Load(#RUGER)
+Model.Load(#PONY)
+Model.Load(#GRENADE)
+023C: load_special_actor 21 'SAM' 
+023C: load_special_actor 20 'PLAYER9' 
+023C: load_special_actor 18 'IGSONNY' 
+023C: load_special_actor 19 'IGPHIL' 
+Model.Load(#GUNBOX)
+Model.Load(#CARDBOARDBOX2)
+Model.Load(#HAITAXIDR)
+038B: load_requested_models 
+
+:UMBER3_192
+wait 0 
+if or
+823D:   not special_actor 19 loaded 
+823D:   not special_actor 20 loaded 
+   not Model.Available(#GUNBOX)
+   not Model.Available(#GRENADE)
+   not Model.Available(#CARDBOARDBOX2)
+823D:   not special_actor 18 loaded 
+else_jump @UMBER3_239 
+jump @UMBER3_192 
+
+:UMBER3_239
+wait 0 
+if or
+   not Model.Available(#HAITAXIDR)
+823D:   not special_actor 21 loaded 
+   not Model.Available(#RUGER)
+   not Model.Available(#HNA)
+   not Model.Available(#HNB)
+   not Model.Available(#PONY)
+else_jump @UMBER3_287 
+jump @UMBER3_239 
+
+:UMBER3_287
+wait 0 
+fade 1 1500 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+022B: create_forbidden_for_peds_cube -1166.408 -608.22 10.0 -1171.642 -632.22 15.0 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+Camera.SetPosition(-1166.501, -631.527, 11.847, 0.0, 0.0, 0.0)
+$2068 = Actor.Create(CivMale, #SPECIAL18, -1169.274, -631.836, 10.847)
+Actor.Angle($2068) = 300.0
+0372: set_actor $2068 anim 24 wait_state_time 17000 ms 
+0055: put_player $PLAYER_CHAR at -1168.594 -626.818 10.847 
+0211: actor $PLAYER_ACTOR walk_to -1168.955 -631.279 
+0157: camera_on_player $PLAYER_CHAR mode 15 switchstyle 2 
+0296: unload_special_actor 18 
+select_interior 7 
+$523 = 1 // integer values 
+16@ = 0 // integer values 
+
+:UMBER3_505
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @UMBER3_552 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_505 
+jump @UMBER3_1613 
+
+:UMBER3_552
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB3_5' 5000 ms 1  // I'm sick of these putas!
+
+:UMBER3_574
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_621 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_574 
+jump @UMBER3_1613 
+
+:UMBER3_621
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB3_6' 5000 ms 1  // I do? It's 'cause I'm tired, amigo.
+
+:UMBER3_643
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_690 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_643 
+jump @UMBER3_1613 
+
+:UMBER3_690
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB3_7' 5000 ms 1  // Tired of this war, tired of all these Haitian putas.
+
+:UMBER3_712
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_759 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_712 
+jump @UMBER3_1613 
+
+:UMBER3_759
+16@ = 0 // integer values 
+Camera.SetPosition(-1168.005, -629.927, 12.247, 0.0, 0.0, 0.0)
+Camera.PointAt(-1169.155, -631.579, 12.247, 2)
+020F: actor $2068 look_at_player $PLAYER_CHAR 
+00BC: text_highpriority 'UMB3_8' 5000 ms 1  // Oh, how can't you see! They're gonna to kill him for real this time...
+
+:UMBER3_840
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_887 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_840 
+jump @UMBER3_1613 
+
+:UMBER3_887
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'UMB3_9' 5000 ms 1  // ~x~You can get stronger by weakening your enemy. Ever looked at it that way?
+
+:UMBER3_919
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_966 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_919 
+jump @UMBER3_1613 
+
+:UMBER3_966
+16@ = 0 // integer values 
+0372: set_actor $2068 anim 31 wait_state_time 4000 ms 
+00BC: text_highpriority 'UMB4_0' 5000 ms 1  // They couldn't get Erico so they took my nephew instead!
+
+:UMBER3_998
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_1045 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_998 
+jump @UMBER3_1613 
+
+:UMBER3_1045
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'UMB4_1' 5000 ms 1  // ~x~If the Haitains still have access to weapons, why don't we shut down their supplier?
+
+:UMBER3_1077
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_1124 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_1077 
+jump @UMBER3_1613 
+
+:UMBER3_1124
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 8 wait_state_time 4000 ms 
+00BC: text_highpriority 'UMB4_2' 5000 ms 1  // They took him hostage there and my men... GIRLS! They did nothing about it!
+
+:UMBER3_1156
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_1203 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_1156 
+jump @UMBER3_1613 
+
+:UMBER3_1203
+16@ = 0 // integer values 
+0372: set_actor $2068 anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'UMB4_3' 5000 ms 1  // ~x~I'm just guessing but I assume the Haitians did this?
+
+:UMBER3_1235
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_1282 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_1235 
+jump @UMBER3_1613 
+
+:UMBER3_1282
+16@ = 0 // integer values 
+0372: set_actor $2068 anim 3 wait_state_time 2000 ms 
+00BC: text_highpriority 'UMB4_4' 5000 ms 1  // Listen, muchacho! Go there and waste their supplies then, if it's that easy.
+
+:UMBER3_1314
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_1361 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_1314 
+jump @UMBER3_1613 
+
+:UMBER3_1361
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 31 wait_state_time 4000 ms 
+00BC: text_highpriority 'UMB4_5' 5000 ms 1  // ~x~Consider it done! ...Muchacho. Amigo. Umberto.
+
+:UMBER3_1393
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_1440 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_1393 
+jump @UMBER3_1613 
+
+:UMBER3_1440
+16@ = 0 // integer values 
+0372: set_actor $2068 anim 31 wait_state_time 4000 ms 
+00BC: text_highpriority 'UMB4_6' 5000 ms 1  // Good! Take the remaining guns to Phil Cassidy. He's not hard to find.
+
+:UMBER3_1472
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @UMBER3_1519 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_1472 
+jump @UMBER3_1613 
+
+:UMBER3_1519
+16@ = 0 // integer values 
+00BC: text_highpriority 'UMB4_7' 5000 ms 1  // Leave them with nothing. Nothing but their own dicks in their hands!
+0372: set_actor $2068 anim 17 wait_state_time 1000 ms 
+wait 1500 
+0372: set_actor $2068 anim 19 wait_state_time 4000 ms 
+
+:UMBER3_1566
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @UMBER3_1613 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @UMBER3_1566 
+jump @UMBER3_1613 
+
+:UMBER3_1613
+16@ = 0 // integer values 
+00BE: text_clear_all 
+fade 0 1500 
+
+:UMBER3_1629
+wait 0 
+if 
+fading 
+else_jump @UMBER3_1653 
+jump @UMBER3_1629 
+
+:UMBER3_1653
+wait 500 
+$523 = 0 // integer values 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+03AD: set_rubbish 1 
+011C: actor $PLAYER_ACTOR clear_objective 
+0055: put_player $PLAYER_CHAR at -1170.241 -604.757 10.66 
+Player.CanMove($PLAYER_CHAR) = True
+022A: remove_forbidden_for_peds_cube -1166.408 -608.22 10.0 -1171.642 -632.22 15.0 
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Actor.DestroyInstantly($2068)
+select_interior 0 
+Model.Load(#VOODOO)
+Model.Load(#WALTON)
+Model.Load(#BOBCAT)
+
+:UMBER3_1777
+wait 0 
+if and
+   Model.Available(#VOODOO)
+   Model.Available(#WALTON)
+   Model.Available(#BOBCAT)
+else_jump @UMBER3_1777 
+fade 1 1500 
+00BC: text_highpriority 'TXT6_9' 5000 ms 1  // ~r~Destroy the weapon supplies at the Ammu-Nation in Downtown.
+$2117 = Car.Create(#VOODOO, -741.974, 1245.184, 10.358)
+Car.Angle($2117) = 270.0
+Model.Destroy(#VOODOO)
+$2118 = Car.Create(#PONY, -717.357, 1264.933, 10.989)
+Car.Angle($2118) = 180.0
+$2119 = Car.Create(#PONY, -725.709, 1288.624, 10.991)
+Car.Angle($2119) = 180.0
+Model.Destroy(#PONY)
+$2120 = Object.Create(#CARDBOARDBOX2, -691.79, 1251.4, 10.2895)
+Object.CollisionDetection($2120) = True
+Object.ToggleInMovingList($2120) = False
+$2121 = Object.Create(#CARDBOARDBOX2, -692.79, 1253.8, 10.3895)
+Object.CollisionDetection($2121) = True
+Object.ToggleInMovingList($2121) = False
+$2122 = Object.Create(#CARDBOARDBOX2, -689.79, 1250.8, 10.5895)
+Object.CollisionDetection($2122) = True
+Object.ToggleInMovingList($2122) = False
+$2123 = Object.Create(#CARDBOARDBOX2, -691.79, 1255.8, 10.2895)
+Object.CollisionDetection($2123) = True
+Object.ToggleInMovingList($2123) = False
+$2124 = Object.Create(#CARDBOARDBOX2, -713.79, 1272.8, 10.7895)
+Object.CollisionDetection($2124) = True
+Object.ToggleInMovingList($2124) = False
+$2125 = Object.Create(#CARDBOARDBOX2, -714.94, 1272.8, 10.7895)
+Object.CollisionDetection($2125) = True
+Object.ToggleInMovingList($2125) = False
+$2126 = Object.Create(#CARDBOARDBOX2, -714.3, 1272.8, 11.4895)
+Object.CollisionDetection($2126) = True
+Object.ToggleInMovingList($2126) = False
+$2127 = Object.Create(#CARDBOARDBOX2, -698.3, 1302.8, 10.7895)
+Object.CollisionDetection($2127) = True
+Object.ToggleInMovingList($2127) = False
+$2128 = Object.Create(#CARDBOARDBOX2, -697.7, 1301.8, 10.7895)
+Object.CollisionDetection($2128) = True
+Object.ToggleInMovingList($2128) = False
+$2129 = Object.Create(#CARDBOARDBOX2, -699.7, 1301.8, 10.7895)
+Object.CollisionDetection($2129) = True
+Object.ToggleInMovingList($2129) = False
+$2130 = Object.Create(#CARDBOARDBOX2, -699.7, 1303.2, 10.7895)
+Object.CollisionDetection($2130) = True
+Object.ToggleInMovingList($2130) = False
+$2131 = Object.Create(#CARDBOARDBOX2, -697.92, 1302.4, 11.495)
+Object.CollisionDetection($2131) = True
+Object.ToggleInMovingList($2131) = False
+$2132 = Object.Create(#CARDBOARDBOX2, -724.92, 1296.4, 10.795)
+Object.CollisionDetection($2132) = True
+Object.ToggleInMovingList($2132) = False
+$2133 = Object.Create(#CARDBOARDBOX2, -725.92, 1295.4, 10.795)
+Object.CollisionDetection($2133) = True
+Object.ToggleInMovingList($2133) = False
+$2134 = Object.Create(#CARDBOARDBOX2, -725.92, 1296.4, 10.795)
+Object.CollisionDetection($2134) = True
+Object.ToggleInMovingList($2134) = False
+$2135 = Object.Create(#CARDBOARDBOX2, -726.92, 1296.4, 10.795)
+Object.CollisionDetection($2135) = True
+Object.ToggleInMovingList($2135) = False
+Model.Destroy(#CARDBOARDBOX2)
+$2136 = Object.Create(#HAITAXIDR, -732.44, 1273.45, 10.5)
+Object.Angle($2136) = 7.0
+Object.CollisionDetection($2136) = True
+Object.ToggleInMovingList($2136) = True
+$2137 = Marker.CreateAboveObject($2120)
+Marker.SetColor($2137, 0)
+0166: set_marker $2137 brightness_to 1 
+$2138 = Marker.CreateAboveObject($2121)
+Marker.SetColor($2138, 0)
+0166: set_marker $2138 brightness_to 1 
+$2139 = Marker.CreateAboveObject($2122)
+Marker.SetColor($2139, 0)
+0166: set_marker $2139 brightness_to 1 
+$2140 = Marker.CreateAboveObject($2123)
+Marker.SetColor($2140, 0)
+0166: set_marker $2140 brightness_to 1 
+$2141 = Marker.CreateAboveObject($2124)
+Marker.SetColor($2141, 0)
+0166: set_marker $2141 brightness_to 1 
+$2142 = Marker.CreateAboveObject($2125)
+Marker.SetColor($2142, 0)
+0166: set_marker $2142 brightness_to 1 
+$2143 = Marker.CreateAboveObject($2126)
+Marker.SetColor($2143, 0)
+0166: set_marker $2143 brightness_to 1 
+$2144 = Marker.CreateAboveObject($2127)
+Marker.SetColor($2144, 0)
+0166: set_marker $2144 brightness_to 1 
+$2145 = Marker.CreateAboveObject($2128)
+Marker.SetColor($2145, 0)
+0166: set_marker $2145 brightness_to 1 
+$2146 = Marker.CreateAboveObject($2129)
+Marker.SetColor($2146, 0)
+0166: set_marker $2146 brightness_to 1 
+$2147 = Marker.CreateAboveObject($2130)
+Marker.SetColor($2147, 0)
+0166: set_marker $2147 brightness_to 1 
+$2148 = Marker.CreateAboveObject($2131)
+Marker.SetColor($2148, 0)
+0166: set_marker $2148 brightness_to 1 
+$2149 = Marker.CreateAboveObject($2132)
+Marker.SetColor($2149, 0)
+0166: set_marker $2149 brightness_to 1 
+$2150 = Marker.CreateAboveObject($2133)
+Marker.SetColor($2150, 0)
+0166: set_marker $2150 brightness_to 1 
+$2151 = Marker.CreateAboveObject($2134)
+Marker.SetColor($2151, 0)
+0166: set_marker $2151 brightness_to 1 
+$2152 = Marker.CreateAboveObject($2135)
+Marker.SetColor($2152, 0)
+0166: set_marker $2152 brightness_to 1 
+$141 = Actor.Create(CivMale, #SPECIAL21, -717.626, 1259.11, 10.746)
+0350: set_actor $141 maintain_position_when_attacked 1 
+01B2: give_actor $141 weapon 27 ammo 9999 // Load the weapon model before using this 
+$142 = Actor.Create(CivMale, #HNA, -717.539, 1258.13, 10.689)
+0350: set_actor $142 maintain_position_when_attacked 1 
+01B2: give_actor $142 weapon 27 ammo 9999 // Load the weapon model before using this 
+03F9: make_actors $141 $142 converse_in 999999999 ms 
+$145 = Actor.Create(CivMale, #HNB, -728.761, 1263.658, 10.786)
+0350: set_actor $145 maintain_position_when_attacked 1 
+01B2: give_actor $145 weapon 27 ammo 9999 // Load the weapon model before using this 
+Actor.Angle($145) = 180.0
+$144 = Actor.Create(CivMale, #HNB, -723.888, 1286.149, 10.786)
+0350: set_actor $144 maintain_position_when_attacked 1 
+01B2: give_actor $144 weapon 27 ammo 9999 // Load the weapon model before using this 
+Actor.Angle($144) = 180.0
+$526 = Actor.Create(CivMale, #SPECIAL21, -709.505, 1289.171, 10.786)
+0350: set_actor $526 maintain_position_when_attacked 1 
+Actor.Angle($526) = 90.0
+01B2: give_actor $526 weapon 27 ammo 9999 // Load the weapon model before using this 
+$1352 = Actor.Create(CivMale, #SPECIAL21, -712.579, 1298.729, 10.786)
+0350: set_actor $1352 maintain_position_when_attacked 1 
+Actor.Angle($1352) = 180.0
+01B2: give_actor $1352 weapon 27 ammo 9999 // Load the weapon model before using this 
+$1353 = Actor.Create(CivMale, #SPECIAL21, -715.599, 1298.294, 10.786)
+0350: set_actor $1353 maintain_position_when_attacked 1 
+Actor.Angle($1353) = 180.0
+01B2: give_actor $1353 weapon 27 ammo 9999 // Load the weapon model before using this 
+$1321 = Actor.Create(CivMale, #SPECIAL21, -699.524, 1299.949, 10.786)
+0350: set_actor $1321 maintain_position_when_attacked 1 
+Actor.Angle($1321) = 180.0
+01B2: give_actor $1321 weapon 27 ammo 9999 // Load the weapon model before using this 
+01B1: give_player $PLAYER_CHAR weapon 12 ammo 10 // Load the weapon model before using this 
+Model.Destroy(#HNA)
+Model.Destroy(#HNB)
+
+:UMBER3_3339
+wait 0 
+gosub @UMBER3_5868 
+gosub @UMBER3_5530 
+gosub @UMBER3_6216 
+if and
+0366:   object $2120 damaged 
+0366:   object $2121 damaged 
+0366:   object $2122 damaged 
+0366:   object $2123 damaged 
+0366:   object $2124 damaged 
+0366:   object $2125 damaged 
+0366:   object $2126 damaged 
+else_jump @UMBER3_3339 
+if and
+0366:   object $2127 damaged 
+0366:   object $2128 damaged 
+0366:   object $2129 damaged 
+0366:   object $2130 damaged 
+0366:   object $2131 damaged 
+0366:   object $2132 damaged 
+0366:   object $2133 damaged 
+else_jump @UMBER3_3339 
+if and
+0366:   object $2134 damaged 
+0366:   object $2135 damaged 
+else_jump @UMBER3_3339 
+$2153 = Car.Create(#BOBCAT, -736.921, 1271.519, 10.521)
+Car.Angle($2153) = 270.0
+Model.Destroy(#BOBCAT)
+$2154 = Actor.Create(CivMale, #SPECIAL21, -738.269, 1273.472, 10.786)
+01B2: give_actor $2154 weapon 27 ammo 9999 // Load the weapon model before using this 
+0239: actor $2154 run_to -730.333 1273.0 
+$2155 = Actor.Create(CivMale, #SPECIAL21, -737.626, 1276.066, 10.786)
+01B2: give_actor $2155 weapon 27 ammo 9999 // Load the weapon model before using this 
+0239: actor $2155 run_to -729.852 1275.75 
+$2156 = Marker.CreateAboveCar($2153)
+$2157 = Object.Create(#GUNBOX, -736.921, 1271.519, 10.521)
+Object.CollisionDetection($2157) = False
+$2158 = Object.Create(#GUNBOX, -736.921, 1272.519, 10.521)
+Object.CollisionDetection($2158) = False
+Model.Destroy(#GUNBOX)
+00BC: text_highpriority 'TXT7_0' 5000 ms 1  // ~r~Take the Cuban to his home.
+
+:UMBER3_3700
+if 
+834E:   not move_object $2136 to -732.44 1273.45 15.5 speed 0.1 0.1 0.1 collision_check 0 
+else_jump @UMBER3_3759 
+wait 0 
+jump @UMBER3_3700 
+
+:UMBER3_3759
+wait 0 
+gosub @UMBER3_6216 
+gosub @UMBER3_5260 
+gosub @UMBER3_4717 
+if 
+00DC:   player $PLAYER_CHAR driving $2153 
+else_jump @UMBER3_4140 
+Marker.Disable($2156)
+018A: $2159 = create_checkpoint_at -1088.084 331.682 10.282 
+03BC: $2160 = create_sphere -1088.084 331.682 10.282 4.0 
+if 
+  $2114 == 0 // integer values 
+else_jump @UMBER3_3993 
+$2161 = Car.Create(#WALTON, -706.157, 1192.945, 9.921)
+Car.Angle($2161) = 90.0
+Model.Destroy(#WALTON)
+0129: $2162 = create_actor 4 #SPECIAL21 in_car $2161 driverseat 
+$2163 = Actor.Create(CivMale, #SPECIAL21, -706.157, 1192.945, 9.921)
+0464: put_actor $2163 into_turret_on_car $2161 at_car_offset 0.0 -1.0 0.9 position 0 angle 360.0 with_weapon 27 
+Car.SetDriverBehaviour($2161, 11)
+$2114 = 1 // integer values 
+
+:UMBER3_3993
+wait 0 
+gosub @UMBER3_6216 
+gosub @UMBER3_5260 
+gosub @UMBER3_4717 
+if 
+00DC:   player $PLAYER_CHAR driving $2153 
+else_jump @UMBER3_4765 
+if 
+00F5:   player $PLAYER_CHAR 0 -1088.084 331.682 10.282 radius 4.0 4.0 4.0 
+else_jump @UMBER3_3993 
+Marker.Disable($2159)
+03BD: destroy_sphere $2160 
+Player.CanMove($PLAYER_CHAR) = False
+fade 0 500 
+
+:UMBER3_4109
+wait 0 
+gosub @UMBER3_4717 
+if 
+fading 
+else_jump @UMBER3_4216 
+jump @UMBER3_4109 
+
+:UMBER3_4140
+if 
+   Car.Wrecked($2153)
+else_jump @UMBER3_4178 
+00BC: text_highpriority 'TXT7_1' 5000 ms 1  // ~r~You've destroyed the weapons!
+jump @UMBER3_4851 
+
+:UMBER3_4178
+if 
+018F:   vehicle $1883 flipped 
+else_jump @UMBER3_3759 
+00BC: text_highpriority 'TXT7_2' 5000 ms 1  // ~r~You left the Cuban behind!
+jump @UMBER3_4851 
+
+:UMBER3_4216
+wait 500 
+02A3: enable_widescreen 1 
+Player.ClearWantedLevel($PLAYER_CHAR)
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+012A: put_player $PLAYER_CHAR at -1094.358 333.534 10.282 and_remove_from_car 
+$2164 = Actor.Create(CivMale, #SPECIAL19, -1103.182, 343.346, 10.655)
+0350: set_actor $2164 maintain_position_when_attacked 1 
+Actor.Angle($2164) = 240.0
+0171: set_player $PLAYER_CHAR z_angle_to 180.0 
+0296: unload_special_actor 19 
+Camera.SetPosition(-1100.439, 344.944, 11.282, 0.0, 0.0, 0.0)
+Camera.PointAt(-1101.669, 342.864, 11.282, 2)
+fade 1 500 
+wait 2000 
+0211: actor $2164 walk_to -1101.669 342.864 
+wait 1000 
+0211: actor $PLAYER_ACTOR walk_to -1095.345 338.936 
+wait 3000 
+Camera.SetPosition(-1084.322, 332.125, 13.282, 0.0, 0.0, 0.0)
+0157: camera_on_player $PLAYER_CHAR mode 15 switchstyle 2 
+wait 3000 
+0211: actor $2164 walk_to -1094.965 340.51 
+wait 6500 
+0211: actor $2164 walk_to -1095.305 339.734 
+00BC: text_highpriority 'UMB4_8' 5000 ms 1  // What business have you got on my property, son?
+wait 5000 
+00BC: text_highpriority 'UMB4_9' 4000 ms 1  // ~x~You're Phil?
+wait 5000 
+00BC: text_highpriority 'UMB5_0' 5000 ms 1  // This is Phil's place. I wear Phil's clothes. Of course I'm Phil.
+wait 5000 
+00BC: text_highpriority 'UMB5_1' 5000 ms 1  // ~x~Umberto Robina thinks you might be needing some extra firepower
+wait 5000 
+00BC: text_highpriority 'UMB5_2' 5000 ms 1  // Robina - who? This must be for Tommy...
+wait 5000 
+00BC: text_highpriority 'UMB5_3' 5000 ms 1  // ~x~Don't know nothing about it. I was told to bring these weapons to you.
+wait 5000 
+00BC: text_highpriority 'UMB5_4' 5000 ms 1  // Whatever you say. Don't get lost on your way out or you might catch a bullet!
+wait 5000 
+00BC: text_highpriority 'UMB5_5' 5000 ms 1  // ~x~It was nice meeting you too.
+wait 5000 
+fade 0 1000 
+wait 1000 
+Actor.DestroyInstantly($2164)
+02A3: enable_widescreen 0 
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+Object.Destroy($2157)
+Object.Destroy($2158)
+fade 1 1000 
+jump @UMBER3_4785 
+
+:UMBER3_4717
+035C: place_object $2157 relative_to_car $2153 offset 0.0 -1.0 0.2 
+035C: place_object $2158 relative_to_car $2153 offset 0.0 -1.9 0.2 
+return 
+
+:UMBER3_4765
+Marker.Disable($2159)
+$2156 = Marker.CreateAboveCar($2153)
+jump @UMBER3_3759 
+
+:UMBER3_4785
+$PASSED_TEX1_FOUR_IRON = 1 // integer values 
+01E3: text_1number_styled 'M_PASS' number 800 time 5000 style 1  // MISSION PASSED! $~1~
+Player.Money($PLAYER_CHAR) += 800
+Player.ClearWantedLevel($PLAYER_CHAR)
+030C: progress_made += 1 
+0318: set_latest_mission_passed 'TEX_3'  // The Protection
+0394: play_music 1 
+create_thread @NONAME_21 
+return 
+
+:UMBER3_4851
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:UMBER3_4868
+Model.Destroy(#GRENADE)
+Model.Destroy(#VOODOO)
+Model.Destroy(#WALTON)
+Model.Destroy(#BOBCAT)
+0296: unload_special_actor 18 
+Model.Destroy(#CBB)
+Model.Destroy(#GUNBOX)
+Model.Destroy(#CARDBOARDBOX2)
+Model.Destroy(#PONY)
+Model.Destroy(#HNA)
+Model.Destroy(#HNB)
+Model.Destroy(#RUGER)
+0296: unload_special_actor 21 
+0296: unload_special_actor 19 
+0296: unload_special_actor 20 
+Marker.Disable($2137)
+Marker.Disable($2138)
+Marker.Disable($2139)
+Marker.Disable($2140)
+Marker.Disable($2141)
+Marker.Disable($2142)
+Marker.Disable($2143)
+Marker.Disable($2144)
+Marker.Disable($2145)
+Marker.Disable($2146)
+Marker.Disable($2147)
+Marker.Disable($2148)
+Marker.Disable($2149)
+Marker.Disable($2150)
+Marker.Disable($2151)
+Marker.Disable($2152)
+Marker.Disable($2156)
+Marker.Disable($2159)
+03BD: destroy_sphere $2160 
+Object.RemoveReferences($2157)
+Object.RemoveReferences($2158)
+Actor.RemoveReferences($2116)
+Actor.RemoveReferences($2115)
+Actor.RemoveReferences($141)
+Actor.RemoveReferences($142)
+Actor.RemoveReferences($145)
+Actor.RemoveReferences($144)
+Actor.RemoveReferences($526)
+Actor.RemoveReferences($1352)
+Actor.RemoveReferences($1353)
+Actor.RemoveReferences($1321)
+Actor.RemoveReferences($1322)
+Actor.RemoveReferences($2165)
+Actor.RemoveReferences($2166)
+Actor.RemoveReferences($2167)
+Actor.RemoveReferences($2168)
+Actor.RemoveReferences($2169)
+Actor.RemoveReferences($2170)
+Actor.RemoveReferences($2154)
+Actor.RemoveReferences($2155)
+Actor.RemoveReferences($2162)
+Actor.RemoveReferences($2163)
+Car.RemoveReferences($2119)
+Car.RemoveReferences($2118)
+Car.RemoveReferences($2117)
+Car.RemoveReferences($2153)
+Car.RemoveReferences($2161)
+Object.RemoveReferences($2120)
+Object.RemoveReferences($2121)
+Object.RemoveReferences($2122)
+Object.RemoveReferences($2123)
+Object.RemoveReferences($2124)
+Object.RemoveReferences($2125)
+Object.RemoveReferences($2126)
+Object.RemoveReferences($2127)
+Object.RemoveReferences($2128)
+Object.RemoveReferences($2129)
+Object.RemoveReferences($2130)
+Object.RemoveReferences($2131)
+Object.RemoveReferences($2132)
+Object.RemoveReferences($2133)
+Object.RemoveReferences($2134)
+Object.RemoveReferences($2135)
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
+:UMBER3_5260
+if 
+   not Actor.Dead($2154)
+else_jump @UMBER3_5339 
+if or
+8184:   not actor $2154 health >= 90 
+00FE:   actor $2154 0 -730.333 1273.0 10.786 radius 1.0 1.0 5.0 
+else_jump @UMBER3_5339 
+01CA: actor $2154 kill_player $PLAYER_CHAR 
+
+:UMBER3_5339
+if 
+   not Actor.Dead($2155)
+else_jump @UMBER3_5418 
+if or
+8184:   not actor $2155 health >= 90 
+00FE:   actor $2155 0 -729.852 1275.75 10.786 radius 1.0 1.0 5.0 
+else_jump @UMBER3_5418 
+01CA: actor $2155 kill_player $PLAYER_CHAR 
+
+:UMBER3_5418
+if 
+  $2114 == 1 // integer values 
+else_jump @UMBER3_5528 
+if or
+0056:   player $PLAYER_CHAR 0 -760.123 1212.729 -706.157 1192.945 
+8184:   not actor $2162 health >= 90 
+8184:   not actor $2163 health >= 90 
+8185:   not car $2161 health >= 950 
+else_jump @UMBER3_5528 
+Car.SetMaxSpeed($2161, 40.0)
+01CA: actor $2163 kill_player $PLAYER_CHAR 
+Car.SetDriverBehaviour($2161, KillThePlayer)
+00AE: set_vehicle $2161 traffic_behavior_to 2 
+
+:UMBER3_5528
+return 
+
+:UMBER3_5530
+if 
+0366:   object $2120 damaged 
+else_jump @UMBER3_5551 
+Marker.Disable($2137)
+
+:UMBER3_5551
+if 
+0366:   object $2121 damaged 
+else_jump @UMBER3_5572 
+Marker.Disable($2138)
+
+:UMBER3_5572
+if 
+0366:   object $2122 damaged 
+else_jump @UMBER3_5593 
+Marker.Disable($2139)
+
+:UMBER3_5593
+if 
+0366:   object $2123 damaged 
+else_jump @UMBER3_5614 
+Marker.Disable($2140)
+
+:UMBER3_5614
+if 
+0366:   object $2124 damaged 
+else_jump @UMBER3_5635 
+Marker.Disable($2141)
+
+:UMBER3_5635
+if 
+0366:   object $2125 damaged 
+else_jump @UMBER3_5656 
+Marker.Disable($2142)
+
+:UMBER3_5656
+if 
+0366:   object $2126 damaged 
+else_jump @UMBER3_5677 
+Marker.Disable($2143)
+
+:UMBER3_5677
+if 
+0366:   object $2127 damaged 
+else_jump @UMBER3_5698 
+Marker.Disable($2144)
+
+:UMBER3_5698
+if 
+0366:   object $2128 damaged 
+else_jump @UMBER3_5719 
+Marker.Disable($2145)
+
+:UMBER3_5719
+if 
+0366:   object $2129 damaged 
+else_jump @UMBER3_5740 
+Marker.Disable($2146)
+
+:UMBER3_5740
+if 
+0366:   object $2130 damaged 
+else_jump @UMBER3_5761 
+Marker.Disable($2147)
+
+:UMBER3_5761
+if 
+0366:   object $2131 damaged 
+else_jump @UMBER3_5782 
+Marker.Disable($2148)
+
+:UMBER3_5782
+if 
+0366:   object $2132 damaged 
+else_jump @UMBER3_5803 
+Marker.Disable($2149)
+
+:UMBER3_5803
+if 
+0366:   object $2133 damaged 
+else_jump @UMBER3_5824 
+Marker.Disable($2150)
+
+:UMBER3_5824
+if 
+0366:   object $2134 damaged 
+else_jump @UMBER3_5845 
+Marker.Disable($2151)
+
+:UMBER3_5845
+if 
+0366:   object $2135 damaged 
+else_jump @UMBER3_5866 
+Marker.Disable($2152)
+
+:UMBER3_5866
+return 
+
+:UMBER3_5868
+if 
+  $2109 == 0 // integer values 
+else_jump @UMBER3_6214 
+if 
+0056:   player $PLAYER_CHAR 0 -748.775 1240.1 -687.178 1296.622 
+else_jump @UMBER3_6024 
+if or
+0123:   actor $141 spotted_player $PLAYER_CHAR 
+0123:   actor $142 spotted_player $PLAYER_CHAR 
+0123:   actor $145 spotted_player $PLAYER_CHAR 
+0123:   actor $144 spotted_player $PLAYER_CHAR 
+0123:   actor $526 spotted_player $PLAYER_CHAR 
+0123:   actor $1352 spotted_player $PLAYER_CHAR 
+else_jump @UMBER3_5990 
+jump @UMBER3_6143 
+
+:UMBER3_5990
+if or
+0123:   actor $1353 spotted_player $PLAYER_CHAR 
+0123:   actor $1321 spotted_player $PLAYER_CHAR 
+else_jump @UMBER3_6024 
+jump @UMBER3_6143 
+
+:UMBER3_6024
+if or
+8184:   not actor $141 health >= 90 
+8184:   not actor $142 health >= 90 
+8184:   not actor $145 health >= 90 
+8184:   not actor $144 health >= 90 
+8184:   not actor $526 health >= 90 
+8184:   not actor $1352 health >= 90 
+else_jump @UMBER3_6084 
+jump @UMBER3_6143 
+
+:UMBER3_6084
+if or
+8184:   not actor $1353 health >= 90 
+8184:   not actor $1321 health >= 90 
+02D5:   player $PLAYER_CHAR firing_weapons_in_rectangle -760.112 1238.682 -687.161 1296.624 0 
+else_jump @UMBER3_6214 
+jump @UMBER3_6143 
+
+:UMBER3_6143
+01CA: actor $141 kill_player $PLAYER_CHAR 
+01CA: actor $142 kill_player $PLAYER_CHAR 
+01CA: actor $145 kill_player $PLAYER_CHAR 
+01CA: actor $144 kill_player $PLAYER_CHAR 
+01CA: actor $526 kill_player $PLAYER_CHAR 
+01CA: actor $1352 kill_player $PLAYER_CHAR 
+01CA: actor $1353 kill_player $PLAYER_CHAR 
+01CA: actor $1321 kill_player $PLAYER_CHAR 
+$2109 = 1 // integer values 
+
+:UMBER3_6214
+return 
+
+:UMBER3_6216
+if 
+0056:   player $PLAYER_CHAR 0 -732.045 1247.937 -711.274 1295.154 
+else_jump @UMBER3_6323 
+if 
+   not Actor.Dead($145)
+else_jump @UMBER3_6277 
+0350: set_actor $145 maintain_position_when_attacked 0 
+
+:UMBER3_6277
+if 
+   not Actor.Dead($1352)
+else_jump @UMBER3_6300 
+0350: set_actor $1352 maintain_position_when_attacked 0 
+
+:UMBER3_6300
+if 
+   not Actor.Dead($1353)
+else_jump @UMBER3_6323 
+0350: set_actor $1353 maintain_position_when_attacked 0 
+
+:UMBER3_6323
+if 
+  $2110 == 0 // integer values 
+else_jump @UMBER3_6424 
+if and
+0366:   object $2125 damaged 
+0366:   object $2124 damaged 
+0366:   object $2126 damaged 
+else_jump @UMBER3_6496 
+$1322 = Actor.Create(CivMale, #SPECIAL21, -734.676, 1263.293, 10.786)
+01B2: give_actor $1322 weapon 27 ammo 9999 // Load the weapon model before using this 
+0239: actor $1322 run_to -729.834 1262.992 
+$2110 = 1 // integer values 
+
+:UMBER3_6424
+if 
+   not Actor.Dead($1322)
+else_jump @UMBER3_6496 
+if 
+00FE:   actor $1322 0 -729.834 1262.992 10.786 radius 1.0 1.0 5.0 
+else_jump @UMBER3_6496 
+01CA: actor $1322 kill_player $PLAYER_CHAR 
+
+:UMBER3_6496
+if 
+  $2111 == 0 // integer values 
+else_jump @UMBER3_6607 
+if or
+0366:   object $2127 damaged 
+0366:   object $2128 damaged 
+0366:   object $2129 damaged 
+0366:   object $2130 damaged 
+0366:   object $2131 damaged 
+else_jump @UMBER3_6679 
+$2165 = Actor.Create(CivMale, #SPECIAL21, -690.912, 1299.487, 10.786)
+01B2: give_actor $2165 weapon 27 ammo 9999 // Load the weapon model before using this 
+0239: actor $2165 run_to -690.611 1295.29 
+$2111 = 1 // integer values 
+
+:UMBER3_6607
+if 
+   not Actor.Dead($2165)
+else_jump @UMBER3_6679 
+if 
+00FE:   actor $2165 0 -690.611 1295.29 10.78 radius 1.0 1.0 5.0 
+else_jump @UMBER3_6679 
+01CA: actor $2165 kill_player $PLAYER_CHAR 
+
+:UMBER3_6679
+if 
+  $2112 == 0 // integer values 
+else_jump @UMBER3_6830 
+if and
+0366:   object $2133 damaged 
+0366:   object $2134 damaged 
+0366:   object $2135 damaged 
+else_jump @UMBER3_6974 
+$2166 = Actor.Create(CivMale, #SPECIAL21, -690.912, 1299.487, 10.786)
+01B2: give_actor $2166 weapon 27 ammo 9999 // Load the weapon model before using this 
+0239: actor $2166 run_to -690.611 1295.29 
+$2167 = Actor.Create(CivMale, #SPECIAL21, -734.676, 1263.293, 10.786)
+01B2: give_actor $2167 weapon 27 ammo 9999 // Load the weapon model before using this 
+0239: actor $2167 run_to -729.834 1262.992 
+$2112 = 1 // integer values 
+
+:UMBER3_6830
+if 
+   not Actor.Dead($2166)
+else_jump @UMBER3_6902 
+if 
+00FE:   actor $2166 0 -690.611 1295.29 10.78 radius 1.0 1.0 5.0 
+else_jump @UMBER3_6902 
+01CA: actor $2166 kill_player $PLAYER_CHAR 
+
+:UMBER3_6902
+if 
+   not Actor.Dead($2167)
+else_jump @UMBER3_6974 
+if 
+00FE:   actor $2167 0 -729.834 1262.992 10.786 radius 1.0 1.0 5.0 
+else_jump @UMBER3_6974 
+01CA: actor $2167 kill_player $PLAYER_CHAR 
+
+:UMBER3_6974
+if 
+  $2113 == 0 // integer values 
+else_jump @UMBER3_7235 
+if and
+   Actor.Dead($141)
+   Actor.Dead($142)
+   Actor.Dead($145)
+   Actor.Dead($144)
+   Actor.Dead($526)
+   Actor.Dead($1352)
+else_jump @UMBER3_7472 
+if 
+0056:   player $PLAYER_CHAR 0 -731.719 1260.222 -687.171 1296.618 
+else_jump @UMBER3_7472 
+$2168 = Actor.Create(CivMale, #SPECIAL21, -741.439, 1241.241, 10.22)
+01B2: give_actor $2168 weapon 27 ammo 9999 // Load the weapon model before using this 
+0350: set_actor $2168 maintain_position_when_attacked 1 
+0239: actor $2168 run_to -722.488 1241.33 
+$2169 = Actor.Create(CivMale, #SPECIAL21, -744.837, 1248.952, 10.93)
+01B2: give_actor $2169 weapon 27 ammo 9999 // Load the weapon model before using this 
+0239: actor $2169 run_to -708.487 1254.48 
+$2170 = Actor.Create(CivMale, #SPECIAL21, -742.462, 1256.352, 11.2)
+01B2: give_actor $2170 weapon 27 ammo 9999 // Load the weapon model before using this 
+0239: actor $2170 run_to -728.524 1258.35 
+$2113 = 1 // integer values 
+
+:UMBER3_7235
+if 
+   not Actor.Dead($2168)
+else_jump @UMBER3_7314 
+if or
+8184:   not actor $2168 health >= 90 
+00FE:   actor $2168 0 -722.488 1241.33 11.78 radius 1.0 1.0 5.0 
+else_jump @UMBER3_7314 
+01CA: actor $2168 kill_player $PLAYER_CHAR 
+
+:UMBER3_7314
+if 
+   not Actor.Dead($2169)
+else_jump @UMBER3_7393 
+if or
+8184:   not actor $2169 health >= 90 
+00FE:   actor $2169 0 -708.487 1254.48 10.78 radius 1.0 1.0 5.0 
+else_jump @UMBER3_7393 
+01CA: actor $2169 kill_player $PLAYER_CHAR 
+
+:UMBER3_7393
+if 
+   not Actor.Dead($2170)
+else_jump @UMBER3_7472 
+if or
+8184:   not actor $2170 health >= 90 
+00FE:   actor $2170 0 -728.524 1258.35 10.78 radius 1.0 1.0 5.0 
+else_jump @UMBER3_7472 
+01CA: actor $2170 kill_player $PLAYER_CHAR 
+
+:UMBER3_7472
+return 
+

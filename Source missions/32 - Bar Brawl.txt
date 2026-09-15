@@ -1,0 +1,426 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 32: Bar Brawl
+// Строки 54765-55186 исходного файла data/main.txt
+// Кол-во строк: 422
+//-------------Mission 32---------------
+// Originally: Bar Brawl
+
+:SANDOK
+gosub @SANDOK_36 
+if 
+wasted_or_busted 
+else_jump @SANDOK_27 
+gosub @SANDOK_3505 
+
+:SANDOK_27
+gosub @SANDOK_3632 
+end_thread 
+
+:SANDOK_36
+$ONMISSION = 1 // integer values 
+if 
+  $3364 == 0 // integer values 
+else_jump @SANDOK_63 
+increment_mission_attempts 
+
+:SANDOK_63
+thread 'SANDOK' 
+054C: use_GXT_table 'OVALRIG' 
+$3365 = 300000 // integer values 
+03C1: $3366 = player $PLAYER_CHAR car_no_save 
+$3367 = 0 // integer values 
+$3368 = 0 // integer values 
+$3369 = 0 // integer values 
+$3370 = 0 // integer values 
+$3371 = 0 // integer values 
+$3372 = 0 // integer values 
+$3373 = 0 // integer values 
+$3374 = 0 // integer values 
+$3375 = 0 // integer values 
+$3376 = 0 // integer values 
+$3377 = 0 // integer values 
+$3378 = 0 // integer values 
+$3379 = 0 // integer values 
+$3380 = 0 // integer values 
+$3381 = 0 // integer values 
+$3382 = 0 // integer values 
+02A3: enable_widescreen 1 
+Camera.SetPosition(-1136.925, -1325.807, 20.0, 0.0, 0.0, 0.0)
+Camera.PointAt(-1058.475, -1270.68, 15.3, 2)
+00BC: text_highpriority 'HOTR_01' 5000 ms 1  // ~g~Collect all the checkpoints before time runs out.
+fade 1 500 
+16@ = 0 // integer values 
+
+:SANDOK_297
+wait 0 
+04D5: create_corona_at -1110.015 -1295.042 17.97 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1049.147 -1301.98 14.57 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1032.849 -1281.921 15.58 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1081.266 -1296.16 17.88 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1093.758 -1375.557 14.82 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1069.953 -1365.166 18.28 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1094.423 -1393.666 18.37 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1108.398 -1230.407 17.97 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+  5000 > 16@ // integer values 
+else_jump @SANDOK_591 
+jump @SANDOK_297 
+
+:SANDOK_591
+16@ = 0 // integer values 
+00BC: text_highpriority 'HOTR_10' 5000 ms 1  // ~g~You can collect them in any order.
+
+:SANDOK_613
+wait 0 
+04D5: create_corona_at -1110.015 -1295.042 17.97 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1049.147 -1301.98 14.57 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1032.849 -1281.921 15.58 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1081.266 -1296.16 17.88 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1093.758 -1375.557 14.82 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1069.953 -1365.166 18.28 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1094.423 -1393.666 18.37 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at -1108.398 -1230.407 17.97 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+  5000 > 16@ // integer values 
+else_jump @SANDOK_907 
+jump @SANDOK_613 
+
+:SANDOK_907
+16@ = 0 // integer values 
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Player.CanMove($PLAYER_CHAR) = True
+018A: $3383 = create_checkpoint_at -1110.015 -1295.042 17.97 
+018A: $3384 = create_checkpoint_at -1049.147 -1301.98 14.57 
+018A: $3385 = create_checkpoint_at -1032.849 -1281.921 15.58 
+018A: $3386 = create_checkpoint_at -1081.266 -1296.16 17.88 
+018A: $3387 = create_checkpoint_at -1093.758 -1375.557 14.82 
+018A: $3388 = create_checkpoint_at -1069.953 -1365.166 18.28 
+018A: $3389 = create_checkpoint_at -1094.423 -1393.666 18.37 
+018A: $3390 = create_checkpoint_at -1108.398 -1230.407 17.97 
+018A: $3391 = create_checkpoint_at -1072.875 -1221.053 14.52 
+018A: $3392 = create_checkpoint_at -1145.484 -1321.407 11.08 
+018A: $3393 = create_checkpoint_at -1089.17 -1231.058 11.117 
+018A: $3394 = create_checkpoint_at -1108.2 -1315.24 14.52 
+018A: $3395 = create_checkpoint_at -1046.355 -1255.098 19.05 
+018A: $3396 = create_checkpoint_at -1116.511 -1414.834 11.53 
+018A: $3397 = create_checkpoint_at -1082.935 -1244.431 18.25 
+014E: start_timer_at $3365 count_in_direction 1 
+
+:SANDOK_1234
+wait 0 
+if 
+   not Car.Wrecked($3366)
+else_jump @SANDOK_1295 
+if 
+00E0:   player $PLAYER_CHAR driving 
+else_jump @SANDOK_1324 
+if 
+  $3365 > 0 // integer values 
+else_jump @SANDOK_1302 
+jump @SANDOK_1492 
+
+:SANDOK_1295
+jump @SANDOK_3505 
+
+:SANDOK_1302
+00BC: text_highpriority 'HOTR_12' 5000 ms 1  // ~r~Too much for you, eh!?
+jump @SANDOK_3505 
+
+:SANDOK_1324
+Car.RemoveReferences($3366)
+if 
+  $3365 >= 10000 // integer values 
+else_jump @SANDOK_1362 
+$3398 = 10 // integer values 
+jump @SANDOK_1378 
+
+:SANDOK_1362
+0084: $3398 = $3365 // integer values and handles 
+$3399 /= 1000 // integer values 
+
+:SANDOK_1378
+16@ = 0 // integer values 
+
+:SANDOK_1385
+wait 0 
+if 
+  $3398 > 0 // integer values 
+else_jump @SANDOK_1302 
+if 
+   not 16@ > 999 // integer values 
+else_jump @SANDOK_1460 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #SANCHEZ 
+else_jump @SANDOK_1385 
+03C1: $3366 = player $PLAYER_CHAR car_no_save 
+jump @SANDOK_1234 
+
+:SANDOK_1460
+$3398 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_07' $3398 flag 1000 time 1  // ~g~You have ~1~ seconds to find yourself another Sanchez!
+jump @SANDOK_1378 
+
+:SANDOK_1492
+if 
+  $3367 == 0 // integer values 
+else_jump @SANDOK_1619 
+04D5: create_corona_at -1110.015 -1295.042 17.77 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1110.015 -1295.042 radius 1.5 1.5 
+else_jump @SANDOK_1619 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3383)
+$3367 = 1 // integer values 
+
+:SANDOK_1619
+if 
+  $3368 == 0 // integer values 
+else_jump @SANDOK_1746 
+04D5: create_corona_at -1049.147 -1301.98 14.37 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1049.147 -1301.98 radius 1.5 1.5 
+else_jump @SANDOK_1746 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3384)
+$3400 = 1 // integer values 
+
+:SANDOK_1746
+if 
+  $3369 == 0 // integer values 
+else_jump @SANDOK_1873 
+04D5: create_corona_at -1032.849 -1281.921 15.38 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1032.849 -1281.921 radius 1.5 1.5 
+else_jump @SANDOK_1873 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3385)
+$3369 = 1 // integer values 
+
+:SANDOK_1873
+if 
+  $3370 == 0 // integer values 
+else_jump @SANDOK_2000 
+04D5: create_corona_at -1081.266 -1296.16 17.68 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1081.266 -1296.16 radius 1.5 1.5 
+else_jump @SANDOK_2000 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3386)
+$3370 = 1 // integer values 
+
+:SANDOK_2000
+if 
+  $3371 == 0 // integer values 
+else_jump @SANDOK_2127 
+04D5: create_corona_at -1093.758 -1375.557 14.62 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1093.758 -1375.557 radius 1.5 1.5 
+else_jump @SANDOK_2127 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3387)
+$3371 = 1 // integer values 
+
+:SANDOK_2127
+if 
+  $3372 == 0 // integer values 
+else_jump @SANDOK_2254 
+04D5: create_corona_at -1069.953 -1365.166 18.08 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1069.953 -1365.166 radius 1.5 1.5 
+else_jump @SANDOK_2254 
+$3401 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3388)
+$3372 = 1 // integer values 
+
+:SANDOK_2254
+if 
+  $3373 == 0 // integer values 
+else_jump @SANDOK_2381 
+04D5: create_corona_at -1094.423 -1393.666 18.17 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1094.423 -1393.666 radius 1.5 1.5 
+else_jump @SANDOK_2381 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3389)
+$3373 = 1 // integer values 
+
+:SANDOK_2381
+if 
+  $3374 == 0 // integer values 
+else_jump @SANDOK_2508 
+04D5: create_corona_at -1108.398 -1230.407 17.77 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1108.398 -1230.407 radius 1.5 1.5 
+else_jump @SANDOK_2508 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3390)
+$3374 = 1 // integer values 
+
+:SANDOK_2508
+if 
+  $3375 == 0 // integer values 
+else_jump @SANDOK_2635 
+04D5: create_corona_at -1072.875 -1221.053 14.22 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1072.875 -1221.053 radius 1.5 1.5 
+else_jump @SANDOK_2635 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3391)
+$3375 = 1 // integer values 
+
+:SANDOK_2635
+if 
+  $3376 == 0 // integer values 
+else_jump @SANDOK_2762 
+04D5: create_corona_at -1145.484 -1321.407 10.88 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1145.484 -1321.407 radius 1.5 1.5 
+else_jump @SANDOK_2762 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3392)
+$3376 = 1 // integer values 
+
+:SANDOK_2762
+if 
+  $3377 == 0 // integer values 
+else_jump @SANDOK_2889 
+04D5: create_corona_at -1089.17 -1231.058 10.917 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1089.17 -1231.058 radius 1.5 1.5 
+else_jump @SANDOK_2889 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3393)
+$3377 = 1 // integer values 
+
+:SANDOK_2889
+if 
+  $3378 == 0 // integer values 
+else_jump @SANDOK_3016 
+04D5: create_corona_at -1108.2 -1315.24 14.22 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1108.2 -1315.24 radius 1.5 1.5 
+else_jump @SANDOK_3016 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3394)
+$3378 = 1 // integer values 
+
+:SANDOK_3016
+if 
+  $3379 == 0 // integer values 
+else_jump @SANDOK_3143 
+04D5: create_corona_at -1046.355 -1255.098 18.85 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1046.355 -1255.098 radius 1.5 1.5 
+else_jump @SANDOK_3143 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3395)
+$3379 = 1 // integer values 
+
+:SANDOK_3143
+if 
+  $3380 == 0 // integer values 
+else_jump @SANDOK_3270 
+04D5: create_corona_at -1116.511 -1414.834 11.53 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1116.511 -1414.834 radius 1.5 1.5 
+else_jump @SANDOK_3270 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3396)
+$3380 = 1 // integer values 
+
+:SANDOK_3270
+if 
+  $3381 == 0 // integer values 
+else_jump @SANDOK_3397 
+04D5: create_corona_at -1082.935 -1244.431 18.25 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3366 sphere 0 near_point -1082.935 -1244.431 radius 1.5 1.5 
+else_jump @SANDOK_3397 
+$3382 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3397)
+$3381 = 1 // integer values 
+
+:SANDOK_3397
+if 
+  $3382 == 15 // integer values 
+else_jump @SANDOK_3440 
+01E5: text_1number_highpriority 'MOB_40C' $3382 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 15
+jump @SANDOK_3522 
+
+:SANDOK_3440
+if 
+  $3382 == 0 // integer values 
+else_jump @SANDOK_3480 
+00BC: text_highpriority 'MOB_40B' 1000 ms 1  // ~p~Checkpoints collected: 0 / 15
+jump @SANDOK_1234 
+
+:SANDOK_3480
+01E5: text_1number_highpriority 'MOB_40C' $3382 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 15
+jump @SANDOK_1234 
+
+:SANDOK_3505
+00BA: text_styled 'M_FAIL' 2000 ms 1  // MISSION FAILED!
+return 
+
+:SANDOK_3522
+if 
+  $3364 == 0 // integer values 
+else_jump @SANDOK_3551 
+030C: progress_made += 1 
+$3364 = 1 // integer values 
+
+:SANDOK_3551
+014F: stop_timer $3402 
+Player.Money($PLAYER_CHAR) += 500
+01E3: text_1number_styled 'M_PASS' number 500 time 5000 style 1  // MISSION PASSED! $~1~
+Player.ClearWantedLevel($PLAYER_CHAR)
+0394: play_music 1 
+if 
+  $3364 == 0 // integer values 
+else_jump @SANDOK_3630 
+$3364 = 1 // integer values 
+030C: progress_made += 1 
+0318: set_latest_mission_passed 'TAXI_1'  // VC Dock Challenge
+
+:SANDOK_3630
+return 
+
+:SANDOK_3632
+Marker.Disable($3383)
+Marker.Disable($3384)
+Marker.Disable($3385)
+Marker.Disable($3386)
+Marker.Disable($3387)
+Marker.Disable($3388)
+Marker.Disable($3389)
+Marker.Disable($3390)
+Marker.Disable($3391)
+Marker.Disable($3392)
+Marker.Disable($3393)
+Marker.Disable($3394)
+Marker.Disable($3395)
+Marker.Disable($3396)
+Marker.Disable($3397)
+Car.RemoveReferences($3366)
+014F: stop_timer $3365 
+$ONMISSION = 0 // integer values 
+$1143 = 1 // integer values 
+mission_cleanup 
+return 
+

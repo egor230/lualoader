@@ -1,0 +1,949 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 6: Riot
+// Строки 33426-34370 исходного файла data/main.txt
+// Кол-во строк: 945
+//-------------Mission 6---------------
+// Originally: Riot
+
+:JEFF4
+gosub @JEFF4_36 
+if 
+wasted_or_busted 
+else_jump @JEFF4_27 
+gosub @JEFF4_7102 
+
+:JEFF4_27
+gosub @JEFF4_7119 
+end_thread 
+
+:JEFF4_36
+increment_mission_attempts 
+thread 'JEFF4' 
+$ONMISSION = 1 // integer values 
+054C: use_GXT_table 'CHIEF1' 
+023C: load_special_actor 2 'IGGONZ' 
+Model.Load(#PONY)
+Model.Load(#FBI)
+Model.Load(#CHROMEGUN)
+Model.Load(#PEREN)
+Model.Load(#FBICAR)
+038B: load_requested_models 
+
+:JEFF4_103
+wait 0 
+if or
+823D:   not special_actor 2 loaded 
+   not Model.Available(#PONY)
+   not Model.Available(#FBI)
+   not Model.Available(#CHROMEGUN)
+   not Model.Available(#FBI)
+   not Model.Available(#PEREN)
+   not Model.Available(#FBICAR)
+else_jump @JEFF4_157 
+jump @JEFF4_103 
+
+:JEFF4_157
+wait 0 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+02A3: enable_widescreen 1 
+fade 0 0 
+Player.CanMove($PLAYER_CHAR) = False
+0055: put_player $PLAYER_CHAR at -222.857 -423.795 10.308 
+$1604 = Car.Create(#PONY, -222.95, -419.916, 11.442)
+Model.Destroy(#PONY)
+0229: set_car $1604 color_to 71 73 
+01C8: $1696 = create_actor_pedtype 9 model #SPECIAL02 in_car $1604 passenger_seat 1 
+01C8: $1697 = create_actor_pedtype 10 model #FBI in_car $1604 passenger_seat 0 
+0526: set_actor $1696 stay_in_car_when_jacked 1 
+0526: set_actor $1697 stay_in_car_when_jacked 1 
+0337: set_actor $1697 visibility 0 
+01D4: actor $PLAYER_ACTOR go_to_car $1604 and_enter_it_as_a_passenger 
+01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0 
+wait 2500 
+$1603 = Object.Init(#CHROMEGUN, 1.0, 1.0, 1.0)
+035C: place_object $1603 relative_to_car $1604 offset 0.55 -1.13 -0.2 
+0453: object $1603 set_rotation 95.0 90.0 10.0 
+Camera.SetPosition(-210.196, -405.637, 10.987, 0.0, 0.0, 0.0)
+Camera.PointAt(-182.318, -415.736, 18.94, 2)
+fade 1 2000 
+0460: set_camera_pointing_time 0.0 6000 
+wait 2000 
+Camera.SetPosition(-223.634, -408.231, 10.987, 0.0, 0.0, 0.0)
+Camera.OnVehicle($1604, 15, 1)
+04C4: create_coordinate $1686 $1687 $1688 from_actor $1696 offset -2.0 0.7 0.6 
+04C4: create_coordinate $1689 $1690 $1691 from_actor $1696 offset 0.0 0.5 0.5 
+
+:JEFF4_550
+wait 0 
+if 
+   not 16@ > 10000 // integer values 
+else_jump @JEFF4_597 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_550 
+jump @JEFF4_2870 
+
+:JEFF4_597
+16@ = 0 // integer values 
+Camera.SetPosition($1686, $1687, $1688, 0.0, 0.0, 0.0)
+Camera.PointAt($1689, $1690, $1691, 1)
+
+:JEFF4_643
+wait 0 
+if 
+   not 16@ > 7500 // integer values 
+else_jump @JEFF4_690 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_643 
+jump @JEFF4_2870 
+
+:JEFF4_690
+16@ = 0 // integer values 
+00BC: text_highpriority 'CHF1_12' 5000 ms 1  // Make yourself comfortable, Casie.
+
+:JEFF4_712
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF4_759 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_712 
+jump @JEFF4_2870 
+
+:JEFF4_759
+16@ = 0 // integer values 
+00BC: text_highpriority 'CHF1_13' 3000 ms 1  // ~x~Hey, what the hell is this, huh?
+
+:JEFF4_781
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @JEFF4_828 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_781 
+jump @JEFF4_2870 
+
+:JEFF4_828
+16@ = 0 // integer values 
+00BC: text_highpriority 'CHF1_14' 5000 ms 1  // We have a load of evidence saying you're a DAMN good hit-man.
+
+:JEFF4_850
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF4_897 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_850 
+jump @JEFF4_2870 
+
+:JEFF4_897
+16@ = 0 // integer values 
+Object.StorePos($1603, $1698, $1699, $1700)
+0460: set_camera_pointing_time 0.0 800 
+Camera.PointAt($1698, $1699, $1700, 1)
+00BC: text_highpriority 'CHF1_15' 3500 ms 1  // So...That piece is for you.
+
+:JEFF4_956
+wait 0 
+if 
+   not 16@ > 3500 // integer values 
+else_jump @JEFF4_1003 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_956 
+jump @JEFF4_2870 
+
+:JEFF4_1003
+16@ = 0 // integer values 
+00BC: text_highpriority 'CHF1_16' 4000 ms 1  // ~x~I'm not touching that.
+
+:JEFF4_1025
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF4_1072 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_1025 
+jump @JEFF4_2870 
+
+:JEFF4_1072
+16@ = 0 // integer values 
+Camera.SetPosition(-227.111, -426.249, 10.987, 0.0, 0.0, 0.0)
+Camera.OnVehicle($1604, 15, 2)
+03E2: actor $PLAYER_ACTOR exit_car 
+0211: actor $PLAYER_ACTOR walk_to -222.898 -424.71 
+00BC: text_highpriority 'CHF1_18' 4000 ms 1  // ~x~I have no idea what you're talking about, friend.
+
+:JEFF4_1155
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF4_1202 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_1155 
+jump @JEFF4_2870 
+
+:JEFF4_1202
+16@ = 0 // integer values 
+011C: actor $PLAYER_ACTOR clear_objective 
+Actor.Angle($PLAYER_ACTOR) = 0.0
+00BC: text_highpriority 'CHF1_17' 4000 ms 1  // ~x~Wanna tell me where I'll find Frank?
+
+:JEFF4_1239
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @JEFF4_1286 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_1239 
+jump @JEFF4_2870 
+
+:JEFF4_1286
+16@ = 0 // integer values 
+0460: set_camera_pointing_time 0.0 3000 
+Camera.SetPosition($1698, $1699, $1700, 0.0, 0.0, 0.0)
+Camera.PointAt(-222.898, -424.71, $1691, 2)
+03E2: actor $1696 exit_car 
+wait 0 
+Camera.SetPosition($1689, $1690, $1688, 0.0, 0.0, 0.0)
+Camera.PointAt(-222.898, -424.71, $1691, 1)
+
+:JEFF4_1398
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @JEFF4_1445 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_1398 
+jump @JEFF4_2870 
+
+:JEFF4_1445
+16@ = 0 // integer values 
+Camera.SetPosition(-222.111, -427.249, 10.987, 0.0, 0.0, 0.0)
+Camera.OnVehicle($1604, 15, 2)
+Actor.Angle($1696) = 180.5
+0460: set_camera_pointing_time 0.0 80000 
+0350: set_actor $1696 maintain_position_when_attacked 1 
+wait 0 
+0372: set_actor $1696 anim 19 wait_state_time 3000 ms 
+00BC: text_highpriority 'CHF1_20' 7000 ms 1  // Don't act dumb with me, Casie. Frank needs you to do somethin' for him, and then we'll talk...
+Camera.SetPosition($1689, $1690, $1691, 0.0, 0.0, 0.0)
+Camera.PointAt(-222.898, -424.71, $1688, 1)
+
+:JEFF4_1587
+wait 0 
+if 
+   not 16@ > 7000 // integer values 
+else_jump @JEFF4_1634 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_1587 
+jump @JEFF4_2870 
+
+:JEFF4_1634
+16@ = 0 // integer values 
+0372: set_actor $1696 anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'CHF1_21' 5000 ms 1  // Now... There's a nosey reporter working for the Vice City newspaper... Mel Jefferson.
+
+:JEFF4_1666
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF4_1713 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_1666 
+jump @JEFF4_2870 
+
+:JEFF4_1713
+16@ = 0 // integer values 
+0372: set_actor $1696 anim 19 wait_state_time 4500 ms 
+00BC: text_highpriority 'CHF1_22' 5000 ms 1  // He's been looking into a series of local murders lately...
+
+:JEFF4_1745
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF4_1792 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_1745 
+jump @JEFF4_2870 
+
+:JEFF4_1792
+16@ = 0 // integer values 
+0372: set_actor $1696 anim 19 wait_state_time 4500 ms 
+00BC: text_highpriority 'CHF1_23' 4000 ms 1  // Long story short, the killer found out where he lives.
+
+:JEFF4_1824
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF4_1871 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_1824 
+jump @JEFF4_2870 
+
+:JEFF4_1871
+16@ = 0 // integer values 
+0372: set_actor $1696 anim 19 wait_state_time 4500 ms 
+00BC: text_highpriority 'CHF1_24' 5000 ms 1  // He called Mel earlier and said he's on his way to his home address...
+
+:JEFF4_1903
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF4_1950 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_1903 
+jump @JEFF4_2870 
+
+:JEFF4_1950
+fade 0 1500 
+16@ = 0 // integer values 
+$1692 = Car.Create(#PEREN, -348.807, -426.858, 10.85)
+Car.Angle($1692) = 320.2253
+0229: set_car $1692 color_to 3 1 
+$1693 = Car.Create(#FBICAR, -359.039, -434.263, 10.85)
+Car.Angle($1693) = -15.0
+
+:JEFF4_2039
+wait 0 
+if 
+   not fading 
+else_jump @JEFF4_2039 
+if 
+   not 16@ > 1500 // integer values 
+else_jump @JEFF4_2099 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_2039 
+jump @JEFF4_2870 
+
+:JEFF4_2099
+16@ = 0 // integer values 
+fade 1 2000 
+Camera.SetPosition(-372.267, -490.495, 11.8, 0.0, 0.0, 0.0)
+Camera.PointAt(-372.267, -450.495, 11.8, 2)
+
+:JEFF4_2164
+wait 0 
+if 
+   not fading 
+else_jump @JEFF4_2164 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF4_2224 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_2164 
+jump @JEFF4_2870 
+
+:JEFF4_2224
+16@ = 0 // integer values 
+00BC: text_highpriority 'CHF1_25' 5000 ms 1  // Mel already called the cops, but we pulled them off.
+Camera.SetPosition(-342.587, -413.951, 10.8, 0.0, 0.0, 0.0)
+Camera.OnVehicle($1693, 15, 2)
+
+:JEFF4_2287
+wait 0 
+if 
+   not 16@ > 6500 // integer values 
+else_jump @JEFF4_2334 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_2287 
+jump @JEFF4_2870 
+
+:JEFF4_2334
+16@ = 0 // integer values 
+Camera.SetPosition(-227.111, -426.249, 10.987, 0.0, 0.0, 0.0)
+Camera.OnVehicle($1604, 15, 2)
+
+:JEFF4_2382
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @JEFF4_2429 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_2382 
+jump @JEFF4_2870 
+
+:JEFF4_2429
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'CHF1_27' 4000 ms 1  // ~x~Why would you do that?
+
+:JEFF4_2461
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF4_2508 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_2461 
+jump @JEFF4_2870 
+
+:JEFF4_2508
+16@ = 0 // integer values 
+0372: set_actor $1696 anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'CHF1_29' 5000 ms 1  // Mel's been doing some digging he shouldn't have, so we need him gone.
+
+:JEFF4_2540
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF4_2587 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_2540 
+jump @JEFF4_2870 
+
+:JEFF4_2587
+16@ = 0 // integer values 
+0372: set_actor $1696 anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'CHF1_30' 5000 ms 1  // We know who you are, so consider this a personal favor for Frank.
+
+:JEFF4_2619
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF4_2666 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_2619 
+jump @JEFF4_2870 
+
+:JEFF4_2666
+16@ = 0 // integer values 
+0372: set_actor $1696 anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'CHF1_31' 4000 ms 1  // Bring any files he has on Frank that you can find.
+
+:JEFF4_2698
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF4_2745 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_2698 
+jump @JEFF4_2870 
+
+:JEFF4_2745
+16@ = 0 // integer values 
+00BC: text_highpriority 'CHF1_32' 5000 ms 1  // Now go... We'll be watching.
+Camera.SetPosition($1689, $1690, $1691, 0.0, 0.0, 0.0)
+Camera.PointAt(-222.898, -424.71, $1688, 1)
+wait 1000 
+01D4: actor $1696 go_to_car $1604 and_enter_it_as_a_passenger 
+
+:JEFF4_2823
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF4_2870 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF4_2823 
+jump @JEFF4_2870 
+
+:JEFF4_2870
+16@ = 0 // integer values 
+00BE: text_clear_all 
+fade 0 1500 
+020A: set_car $1604 door_status_to 2 
+Car.Destroy($1692)
+Car.Destroy($1693)
+Actor.DestroyInstantly($1697)
+wait 1500 
+Object.Destroy($1603)
+011C: actor $PLAYER_ACTOR clear_objective 
+fade 1 1500 
+02A3: enable_widescreen 0 
+01B1: give_player $PLAYER_CHAR weapon 19 ammo 50 // Load the weapon model before using this 
+018A: 3@ = create_checkpoint_at -372.267 -470.495 10.8 
+03BC: 4@ = create_sphere -372.267 -470.495 10.8 3.0 
+$1692 = Car.Create(#PEREN, -348.807, -426.858, 10.85)
+Car.Angle($1692) = 320.2253
+0229: set_car $1692 color_to 3 1 
+$1693 = Car.Create(#FBICAR, -359.039, -434.263, 10.85)
+Car.Angle($1693) = -15.0
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+
+:JEFF4_3072
+wait 0 
+if 
+   Actor.Dead($1696)
+else_jump @JEFF4_3119 
+00BC: text_highpriority 'C_CNT' 5000 ms 1  // ~r~The agent is dead. You've lost your connection to Frank...
+wait 3000 
+jump @JEFF4_7102 
+
+:JEFF4_3119
+wait 0 
+if 
+00F8:   player $PLAYER_CHAR stopped 0 -372.267 -470.495 10.8 radius 3.0 3.0 1.5 
+else_jump @JEFF4_3072 
+Player.CanMove($PLAYER_CHAR) = False
+Marker.Disable(3@)
+03BD: destroy_sphere 4@ 
+fade 0 1000 
+wait 1000 
+023C: load_special_actor 4 'IGMIKE2' 
+Model.Load(#BRIEFCASE)
+Model.Load(#POLMAV)
+Model.Load(#CHNSAW)
+
+:JEFF4_3226
+wait 1000 
+if or
+823D:   not special_actor 4 loaded 
+   not Model.Available(#BRIEFCASE)
+   not Model.Available(#POLMAV)
+   not Model.Available(#CHNSAW)
+else_jump @JEFF4_3267 
+jump @JEFF4_3226 
+
+:JEFF4_3267
+Car.Destroy($1604)
+Actor.DestroyInstantly($1696)
+0453: object $ST_DOOR set_rotation 0.0 0.0 -55.0 
+$1694 = Object.Init(#DYNAMITE, -366.289, -403.616, 10.499)
+0453: object $1694 set_rotation 90.0 0.0 0.0 
+fade 1 1000 
+Camera.SetPosition(-370.587, -428.951, 10.8, 0.0, 0.0, 0.0)
+Camera.OnVehicle($1692, 15, 2)
+wait 3000 
+Camera.PointAt(-367.69, -417.76, 10.392, 1)
+wait 2000 
+fade 0 1000 
+wait 0 
+$1702 = Actor.Create(CivMale, #FBI, -362.87, -402.246, 11.1)
+$1701 = Actor.Create(CivMale, #SPECIAL04, -363.674, -404.121, 11.1)
+01B2: give_actor $1701 weapon 11 ammo 1 // Load the weapon model before using this 
+Actor.Health($1701) = 2200
+Actor.Health($1702) = 3
+Actor.Angle($1702) = 200.5
+0446: set_actor $1701 dismemberment_possible 0 
+01ED: clear_actor $1701 threat_search 
+01ED: clear_actor $1702 threat_search 
+wait 2000 
+fade 1 1000 
+Camera.Restore_WithJumpCut
+Camera.SetBehindPlayer
+Player.CanMove($PLAYER_CHAR) = True
+00BC: text_highpriority 'C_HLP1' 5000 ms 1  // ~g~Inspect the house and find Mel Jefferson.
+
+:JEFF4_3564
+wait 0 
+if 
+0104:   actor $PLAYER_ACTOR near_actor $1701 radius 7.0 7.0 2.0 sphere 0 
+else_jump @JEFF4_3564 
+00BE: text_clear_all 
+Player.CanMove($PLAYER_CHAR) = False
+Camera.SetPosition(-362.77, -405.82, 12.316, 0.0, 0.0, 0.0)
+Camera.OnPed($1702, 15, 2)
+0372: set_actor $1702 anim 12 wait_state_time 2000 ms 
+01C9: actor $1701 kill_actor $1702 
+9@ = 0 // integer values 
+wait 500 
+
+:JEFF4_3684
+wait 0 
+if or
+  9@ == 5 // integer values 
+   Actor.Dead($1702)
+else_jump @JEFF4_3718 
+jump @JEFF4_4525 
+
+:JEFF4_3718
+04C4: create_coordinate $1686 $1687 $1688 from_actor $1702 offset 0.0 0.0 0.0 
+0437: scatter_particle 76 0.1 at $1686 $1687 $1688 0.0 0.0 0.0 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 7 0.0 at $1686 $1687 $1688 0.0 0.0 0.03 
+0437: scatter_particle 8 0.0 at $1686 $1687 $1688 0.0 0.1 0.03 
+0437: scatter_particle 8 0.0 at $1686 $1687 $1688 0.0 0.1 0.03 
+0437: scatter_particle 8 0.0 at $1686 $1687 $1688 0.0 0.1 0.03 
+0437: scatter_particle 8 0.0 at $1686 $1687 $1688 0.0 0.1 0.03 
+0437: scatter_particle 8 0.0 at $1686 $1687 $1688 0.0 0.1 0.03 
+0437: scatter_particle 8 0.0 at $1686 $1687 $1688 0.0 0.1 0.03 
+0437: scatter_particle 8 0.0 at $1686 $1687 $1688 0.0 0.1 0.03 
+wait 500 
+9@ += 1 // integer values 
+jump @JEFF4_3684 
+
+:JEFF4_4525
+wait 0 
+if 
+   Actor.Dead($1702)
+else_jump @JEFF4_3684 
+wait 1000 
+Camera.SetPosition(-368.524, -412.972, 13.016, 0.0, 0.0, 0.0)
+Camera.PointAt(-368.69, -417.76, 12.392, 2)
+00BC: text_highpriority 'C_HLP2' 3000 ms 1  // ~x~Bloody Hell... Nerve gas?
+wait 1000 
+0453: object $ST_DOOR set_rotation 0.0 0.0 0.0 
+018C: play_sound 5 at -368.524 -412.972 13.016 
+wait 100 
+018C: play_sound 5 at -368.524 -412.972 13.016 
+01B1: give_player $PLAYER_CHAR weapon 19 ammo 100 // Load the weapon model before using this 
+01F0: set_max_wanted_level_to 0 
+Car.Destroy($1693)
+Car.Destroy($1692)
+wait 3000 
+fade 1 1000 
+Camera.Restore_WithJumpCut
+Camera.SetBehindPlayer
+Player.CanMove($PLAYER_CHAR) = True
+039D: scatter_particles 17 1.1 0 0 0.0 99999 at -366.289 -403.616 10.999 0.05 0.05 0.3 
+0512: show_permanent_text_box 'C_HLP4' 
+018D: $1703 = create_sound 260 at -366.518 -404.971 11.15 
+wait 1000 
+01CA: actor $1701 kill_player $PLAYER_CHAR 
+0000: NOP 
+10@ = 8 // integer values 
+10@ *= 2 // integer values (never used in VC or GTA 3) 
+10@ += 8240304 // integer values 
+11@ = 9 // integer values 
+11@ *= 2 // integer values (never used in VC or GTA 3) 
+11@ += 8240304 // integer values 
+12@ = 10 // integer values 
+12@ *= 2 // integer values (never used in VC or GTA 3) 
+12@ += 8240304 // integer values 
+13@ = 11 // integer values 
+13@ *= 2 // integer values (never used in VC or GTA 3) 
+13@ += 8240304 // integer values 
+
+:JEFF4_4926
+wait 0 
+if 
+02D8:   actor $PLAYER_ACTOR current_weapon == 19 
+else_jump @JEFF4_4955 
+jump @JEFF4_4966 
+
+:JEFF4_4955
+wait 0 
+01B9: set_actor $PLAYER_ACTOR armed_weapon_to 19 
+
+:JEFF4_4966
+gosub @JEFF4_4980 
+jump @JEFF4_5304 
+
+:JEFF4_4980
+wait 0 
+Camera.Shake(100)
+0225: 8@ = player $PLAYER_CHAR health 
+if or
+00E1:   player 0 pressed_button 16 
+00E1:   player 0 pressed_button 14 
+else_jump @JEFF4_5063 
+8@ -= 13 // integer values 
+0222: set_player $PLAYER_CHAR health_to 8@ 
+Player.CanMove($PLAYER_CHAR) = False
+0372: set_actor $PLAYER_ACTOR anim 15 wait_state_time 2000 ms 
+wait 2000 
+Player.CanMove($PLAYER_CHAR) = True
+
+:JEFF4_5063
+wait 0 
+05E0: 0@ = read_memory 5600778 size 4 virtual_protect 0 
+if and
+80E0:   not player $PLAYER_CHAR driving 
+  0@ == 6850112 // integer values 
+else_jump @JEFF4_5123 
+05DF: write_memory 5600778 size 4 value 10541348 virtual_protect 1 
+
+:JEFF4_5123
+if 
+  0@ == 10541348 // integer values 
+else_jump @JEFF4_5160 
+05DF: write_memory 5600778 size 4 value 6850112 virtual_protect 1 
+
+:JEFF4_5160
+05E0: 5@ = read_memory 8801382 size 1 virtual_protect 1 
+if 
+80E0:   not player $PLAYER_CHAR driving 
+else_jump @JEFF4_5651 
+if 
+00E1:   player 0 pressed_button 8 
+else_jump @JEFF4_5218 
+05DF: write_memory 10@ size 2 value 85 virtual_protect 0 
+
+:JEFF4_5218
+if 
+00E1:   player 0 pressed_button 9 
+else_jump @JEFF4_5246 
+05DF: write_memory 11@ size 2 value 85 virtual_protect 0 
+
+:JEFF4_5246
+if 
+00E1:   player 0 pressed_button 10 
+else_jump @JEFF4_5274 
+05DF: write_memory 12@ size 2 value 85 virtual_protect 0 
+
+:JEFF4_5274
+if 
+00E1:   player 0 pressed_button 11 
+else_jump @JEFF4_5302 
+05DF: write_memory 13@ size 2 value 85 virtual_protect 0 
+
+:JEFF4_5302
+return 
+
+:JEFF4_5304
+wait 0 
+04C4: create_coordinate $1686 $1687 $1688 from_actor $PLAYER_ACTOR offset 0.0 -1.0 0.0 
+if and
+0102:   actor $1701 stopped_near_point_on_foot $1686 $1687 $1688 radius 15.0 15.0 15.0 sphere 0 
+00F8:   player $PLAYER_CHAR stopped 0 $1686 $1687 $1688 radius 3.0 3.0 1.5 
+   not Actor.Dead($1701)
+else_jump @JEFF4_5422 
+jump @JEFF4_5469 
+
+:JEFF4_5422
+wait 0 
+if 
+00FC:   player $PLAYER_CHAR 0 $1701 on_foot radius 15.0 15.0 4.0 
+else_jump @JEFF4_5545 
+jump @JEFF4_5651 
+
+:JEFF4_5469
+wait 1000 
+if 
+051A:   actor $1701 damaged_by_actor $PLAYER_ACTOR 
+else_jump @JEFF4_5500 
+jump @JEFF4_5545 
+
+:JEFF4_5500
+wait 0 
+if 
+00ED:   actor $1701 0 $1686 $1687 radius 8.0 8.0 
+else_jump @JEFF4_5545 
+jump @JEFF4_5651 
+
+:JEFF4_5545
+wait 0 
+$1709 = Actor.Health($1701)
+Camera.Shake(500)
+wait 500 
+Actor.DestroyInstantly($1701)
+$1701 = Actor.Create(CivMale, #SPECIAL04, $1686, $1687, $1688)
+Actor.Health($1701) = $1709
+01B2: give_actor $1701 weapon 11 ammo 1 // Load the weapon model before using this 
+0446: set_actor $1701 dismemberment_possible 0 
+01ED: clear_actor $1701 threat_search 
+01CA: actor $1701 kill_player $PLAYER_CHAR 
+Actor.LockInCurrentPosition($PLAYER_ACTOR) = True
+Camera.Shake(1000)
+wait 1000 
+Actor.LockInCurrentPosition($PLAYER_ACTOR) = False
+
+:JEFF4_5651
+wait 0 
+if 
+   Actor.Dead($1701)
+else_jump @JEFF4_4926 
+wait 0 
+$1707 = Pickup.Create(#BRIEFCASE, 3, -383.147, -410.042, 14.292)
+03E6: remove_text_box 
+0512: show_permanent_text_box 'C_HLP5' 
+00BC: text_highpriority 'CHF1_19' 5000 ms 1  // ~g~Search the property and retrieve the compromising files.
+
+:JEFF4_5726
+wait 0 
+gosub @JEFF4_4980 
+if 
+   Pickup.Picked_up($1707)
+else_jump @JEFF4_5726 
+00BC: text_highpriority 'C_HLP3' 5000 ms 1  // ~g~Disarm the nerve gas dispenser!
+Actor.DestroyInstantly($1701)
+Actor.DestroyInstantly($1702)
+0395: clear_area 1 at -366.28 -403.916 range 25.0 25.0 
+03BC: $1708 = create_sphere -366.289 -403.916 10.499 0.85 
+
+:JEFF4_5827
+wait 0 
+gosub @JEFF4_4980 
+if 
+00F8:   player $PLAYER_CHAR stopped 0 -366.289 -403.916 10.499 radius 0.85 0.85 1.5 
+else_jump @JEFF4_5827 
+03BD: destroy_sphere $1708 
+03E6: remove_text_box 
+Player.CanMove($PLAYER_CHAR) = False
+Camera.SetPosition(-362.77, -405.82, 12.316, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 2)
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+wait 1000 
+Actor.Angle($PLAYER_ACTOR) = 0.0
+04EB: actor $PLAYER_ACTOR crouch 1 2500 ms 
+wait 1000 
+018E: stop_sound $1703 
+03AE: remove_objects_from_cube -396.968 -432.453 5.0 -359.968 -385.453 30.0 
+018C: play_sound 16 at -362.77 -405.82 12.316 
+wait 2500 
+fade 0 1000 
+wait 1000 
+$1704 = Car.Create(#POLMAV, -380.504, -460.18, 36.0)
+01C8: $1705 = create_actor_pedtype 9 model #SPECIAL02 in_car $1704 passenger_seat 0 
+0129: $1706 = create_actor 9 #FBI in_car $1704 driverseat 
+0243: set_actor $1706 ped_stats_to 16 
+0243: set_actor $1705 ped_stats_to 16 
+01ED: clear_actor $1706 threat_search 
+01ED: clear_actor $1705 threat_search 
+0350: set_actor $1706 maintain_position_when_attacked 1 
+0350: set_actor $1705 maintain_position_when_attacked 1 
+04A2: heli $1704 fly_to -371.504 -427.18 9.5 speed 10 
+04DF: set_heli $1704 lean_and_thrust_limiter 1 
+Actor.PutAt($PLAYER_ACTOR, -368.719, -416.031, 11.218)
+Actor.Angle($PLAYER_ACTOR) = 180.0
+01B1: give_player $PLAYER_CHAR weapon 11 ammo 1 // Load the weapon model before using this 
+Camera.SetPosition(-369.534, -418.15, 10.8, 0.0, 0.0, 0.0)
+Camera.PointAt(-368.719, -416.031, 11.792, 2)
+wait 1000 
+fade 1 1000 
+wait 1000 
+039D: scatter_particles 11 0.5 0.5 0.5 0.5 3000 at -368.719 -416.8 10.218 1.5 1.5 1.5 
+$1695 = Actor.Create(CivMale, #FBI, -368.719, -417.1, 11.218)
+0337: set_actor $1695 visibility 0 
+0489: set_actor $1695 muted 1 
+01C9: actor $PLAYER_ACTOR kill_actor $1695 
+wait 500 
+Camera.SetPosition(-368.534, -421.186, 10.35, 0.0, 0.0, 0.0)
+Camera.PointAt(-368.719, -416.8, 11.792, 2)
+wait 1000 
+038C: object $ST_DOOR scatter 0.0 -8.51 0.0 
+018C: play_sound 63 at -368.534 -421.186 10.35 
+Object.ToggleInMovingList($ST_DOOR) = True
+wait 1000 
+0211: actor $PLAYER_ACTOR walk_to -368.534 -425.18 
+0319: set_actor $PLAYER_ACTOR running 1 
+wait 1000 
+Camera.PointAt(-368.534, -425.18, 10.9, 2)
+02A3: enable_widescreen 1 
+wait 500 
+0460: set_camera_pointing_time 0.0 6500 
+Camera.PointAt(-368.534, -425.18, 10.55, 1)
+wait 2000 
+04EB: actor $PLAYER_ACTOR crouch 1 700 ms 
+01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0 
+
+:JEFF4_6602
+wait 0 
+if 
+0104:   actor $PLAYER_ACTOR near_actor $1706 radius 10.0 14.0 1.25 sphere 0 
+else_jump @JEFF4_6602 
+wait 500 
+03E2: actor $1706 exit_car 
+03E2: actor $1705 exit_car 
+wait 1500 
+0211: actor $1706 walk_to -372.05 -427.68 
+0211: actor $1705 walk_to -369.534 -425.98 
+wait 1000 
+00BC: text_highpriority 'CHF1_33' 4000 ms 1  // See? What did I tell you...
+wait 4000 
+00BC: text_highpriority 'CHF1_34' 5000 ms 1  // Good work, Casie. And you've got the files, too!
+wait 5000 
+00BC: text_highpriority 'CHF1_35' 5000 ms 1  // I already told Frank you did well! 
+wait 5000 
+00BC: text_highpriority 'CHF1_36' 5000 ms 1  // We'll give VCPD credit for that... Maniac's takedown.
+wait 5000 
+00BC: text_highpriority 'CHF1_37' 5000 ms 1  // Make the whole thing look like a homicide.
+wait 5000 
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 2000 ms 
+00BC: text_highpriority 'CHF1_38' 6000 ms 1  // ~x~How 'bout I cut you two up, unless you take me to Frank, right now?
+wait 6000 
+00BC: text_highpriority 'CHF1_39' 5000 ms 1  // We don't have the time for jokes right now, you Irish prick.
+wait 5000 
+00BC: text_highpriority 'CHF1_40' 5000 ms 1  // You'll get to speak to Frank SOON ENOUGH!
+wait 5000 
+00BC: text_highpriority 'CHF1_41' 6000 ms 1  // But... As we find ourselves in the middle of a crime scene...
+wait 6000 
+00BC: text_highpriority 'CHF1_42' 5000 ms 1  // Do me a BIG favor. Get the fuck out of here.
+wait 6000 
+fade 0 1000 
+wait 1000 
+Car.Destroy($1704)
+Actor.DestroyInstantly($1705)
+Actor.DestroyInstantly($1706)
+Actor.PutAt($PLAYER_ACTOR, -372.267, -470.495, 10.8)
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+wait 1000 
+fade 1 2000 
+02A3: enable_widescreen 0 
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+Player.ClearWantedLevel($PLAYER_CHAR)
+wait 2000 
+01F0: set_max_wanted_level_to 6 
+01E3: text_1number_styled 'M_PASS' number 450 time 5000 style 1  // MISSION PASSED! $~1~
+Player.Money($PLAYER_CHAR) += 750
+$PASSED_COL1_TREACHEROUS_SWINE = 1 // integer values 
+030C: progress_made += 1 
+$366 = 1 // integer values 
+0318: set_latest_mission_passed 'COL_1'  // Starfish Chansaw Massacre
+02A7: $1775 = create_icon_marker_and_sphere 4 at 193.516 -1010.714 10.494 
+0394: play_music 1 
+Marker.Disable($1774)
+create_thread @PHI1 
+return 
+
+:JEFF4_7102
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:JEFF4_7119
+Model.Destroy(#FBI)
+Model.Destroy(#POLMAV)
+Model.Destroy(#PEREN)
+Model.Destroy(#FBICAR)
+0296: unload_special_actor 2 
+0296: unload_special_actor 4 
+Actor.RemoveReferences($1701)
+Actor.RemoveReferences($1702)
+Actor.RemoveReferences($1705)
+Actor.RemoveReferences($1706)
+Actor.RemoveReferences($1695)
+Actor.RemoveReferences($1696)
+Actor.RemoveReferences($1697)
+Object.Destroy($1694)
+018E: stop_sound $1703 
+03BD: destroy_sphere 4@ 
+Pickup.Destroy($1707)
+Car.RemoveReferences($1604)
+Car.RemoveReferences($1692)
+Car.RemoveReferences($1693)
+Car.RemoveReferences($1704)
+Marker.Disable(3@)
+01F0: set_max_wanted_level_to 6 
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+

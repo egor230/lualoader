@@ -1,0 +1,818 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 23: The Driver
+// Строки 49602-50415 исходного файла data/main.txt
+// Кол-во строк: 814
+//-------------Mission 23---------------
+// Originally: The Driver
+
+:JEFF6
+gosub @JEFF6_36 
+if 
+wasted_or_busted 
+else_jump @JEFF6_27 
+gosub @JEFF6_3266 
+
+:JEFF6_27
+gosub @JEFF6_3348 
+end_thread 
+
+:JEFF6_36
+increment_mission_attempts 
+thread 'JEFF6' 
+$ONMISSION = 1 // integer values 
+$2419 = 0 // integer values 
+$2420 = 0 // integer values 
+$2421 = 0 // integer values 
+$2422 = 0 // integer values 
+054C: use_GXT_table 'BARON3' 
+Model.Load(#TOPFUN)
+Model.Load(#RCBANDIT)
+023C: load_special_actor 3 'IGHLARY' 
+Model.Load(#RANCHER)
+Model.Load(#BURRITO)
+Model.Load(#CHEETAH)
+Model.Load(#HMYAP)
+Model.Load(#BFINJECT)
+023C: load_special_actor 4 'IGBUDDY' 
+038B: load_requested_models 
+
+:JEFF6_153
+wait 0 
+if or
+823D:   not special_actor 4 loaded 
+   not Model.Available(#CHEETAH)
+   not Model.Available(#BURRITO)
+   not Model.Available(#RANCHER)
+   not Model.Available(#BFINJECT)
+else_jump @JEFF6_199 
+jump @JEFF6_153 
+
+:JEFF6_199
+wait 0 
+if or
+   not Model.Available(#HMYAP)
+   not Model.Available(#TOPFUN)
+   not Model.Available(#RCBANDIT)
+823D:   not special_actor 3 loaded 
+else_jump @JEFF6_239 
+jump @JEFF6_153 
+
+:JEFF6_239
+wait 0 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+Player.CanMove($PLAYER_CHAR) = False
+02A3: enable_widescreen 1 
+1@ = Actor.Create(CivMale, #SPECIAL04, 192.027, -1004.924, 10.494)
+Actor.Angle(1@) = 260.0
+0350: set_actor 1@ maintain_position_when_attacked 1 
+0372: set_actor 1@ anim 24 wait_state_time 60000000 ms 
+0055: put_player $PLAYER_CHAR at 192.668 -1004.804 10.494 
+0171: set_player $PLAYER_CHAR z_angle_to 80.0 
+Camera.SetPosition(192.55, -1009.37, 11.494, 0.0, 0.0, 0.0)
+Camera.PointAt(192.277, -1004.796, 11.494, 2)
+wait 500 
+fade 1 750 
+015D: set_gamespeed 0.5 
+0460: set_camera_pointing_time 0.0 25000 
+Camera.SetPosition(194.746, -1008.561, 11.894, 0.0, 0.0, 0.0)
+Camera.PointAt(192.277, -1004.796, 11.494, 1)
+16@ = 0 // integer values 
+
+:JEFF6_483
+wait 0 
+if 
+   not 16@ > 500 // integer values 
+else_jump @JEFF6_530 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF6_483 
+jump @JEFF6_1082 
+
+:JEFF6_530
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFAA2' 2500 ms 1  // Word on the street is that you're getting quite popular, Flint.
+
+:JEFF6_552
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @JEFF6_599 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF6_552 
+jump @JEFF6_1082 
+
+:JEFF6_599
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFAA3' 2500 ms 1  // It's only a matter of time 'till we find out what happened to your brother.
+
+:JEFF6_621
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @JEFF6_668 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF6_621 
+jump @JEFF6_1082 
+
+:JEFF6_668
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFAA4' 2500 ms 1  // I've hired someone to be my head of security. He's also a part-time mechanic.
+
+:JEFF6_690
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @JEFF6_737 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF6_690 
+jump @JEFF6_1082 
+
+:JEFF6_737
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFAA5' 2500 ms 1  // ~x~You're kidding me, right?
+
+:JEFF6_759
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @JEFF6_806 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF6_759 
+jump @JEFF6_1082 
+
+:JEFF6_806
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFAA6' 2500 ms 1  // His methods may seem a little strange at first, but he's certainly one of the best in the field.
+
+:JEFF6_828
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @JEFF6_875 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF6_828 
+jump @JEFF6_1082 
+
+:JEFF6_875
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFAA7' 2500 ms 1  // Trust me, you're gonna need someone like him when times get tough.
+
+:JEFF6_897
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @JEFF6_944 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF6_897 
+jump @JEFF6_1082 
+
+:JEFF6_944
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFAA8' 1000 ms 1  // You should go see him. * sniff *
+
+:JEFF6_966
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @JEFF6_1013 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF6_966 
+jump @JEFF6_1082 
+
+:JEFF6_1013
+16@ = 0 // integer values 
+00BC: text_highpriority 'JEFFAA9' 2500 ms 1  // He's got a shop in North Beach. You can find him there.  
+
+:JEFF6_1035
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @JEFF6_1082 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF6_1035 
+jump @JEFF6_1082 
+
+:JEFF6_1082
+16@ = 0 // integer values 
+00BE: text_clear_all 
+015D: set_gamespeed 1.0 
+fade 0 1000 
+wait 2000 
+Actor.DestroyInstantly(1@)
+011C: actor $PLAYER_ACTOR clear_objective 
+02A3: enable_widescreen 0 
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+0055: put_player $PLAYER_CHAR at 200.013 -1011.782 9.451 
+0171: set_player $PLAYER_CHAR z_angle_to 270.0 
+Camera.SetBehindPlayer
+0296: unload_special_actor 4 
+fade 1 1500 
+$2423 = 10000 // integer values 
+018A: 2@ = create_checkpoint_at 284.933 29.321 10.066 
+Marker.SetColor(2@, 4)
+wait 1000 
+00BC: text_highpriority 'RODJEFF' 5000 ms 1  // ~r~Meet Rodrigo at his ~y~shop.
+
+:JEFF6_1231
+wait 0 
+if 
+00EC:   actor $PLAYER_ACTOR 0 284.933 29.321 radius 35.0 35.0 
+else_jump @JEFF6_1231 
+Marker.Disable(2@)
+fade 0 1000 
+wait 1500 
+Player.CanMove($PLAYER_CHAR) = False
+02A3: enable_widescreen 1 
+wait 0 
+if 
+80E0:   not player $PLAYER_CHAR driving 
+else_jump @JEFF6_1348 
+0055: put_player $PLAYER_CHAR at 265.071 40.696 10.28 
+jump @JEFF6_1368 
+
+:JEFF6_1348
+012A: put_player $PLAYER_CHAR at 265.071 40.696 10.28 and_remove_from_car 
+
+:JEFF6_1368
+022B: create_forbidden_for_peds_cube 300.359 70.567 9.0 200.359 20.5677 21.0 
+0395: clear_area 1 at 264.043 47.513 range 50.0 50.0 
+4@ = Actor.Create(CivMale, #SPECIAL03, 262.668, 46.513, 10.09)
+Actor.Angle(4@) = 120.0
+0372: set_actor 4@ anim 30 wait_state_time 10000 ms 
+wait 1000 
+3@ = Car.Create(#BFINJECT, 264.043, 47.513, 10.09)
+Model.Destroy(#BFINJECT)
+Camera.SetPosition(256.283, 44.582, 11.09, 0.0, 0.0, 0.0)
+Camera.OnPed(4@, 15, 2)
+wait 1000 
+0211: actor $PLAYER_ACTOR walk_to 263.993 44.94 
+0296: unload_special_actor 3 
+fade 1 1500 
+
+:JEFF6_1573
+wait 0 
+if 
+00FE:   actor $PLAYER_ACTOR 0 263.993 44.94 10.6 radius 1.0 1.0 5.0 
+else_jump @JEFF6_1573 
+00BC: text_highpriority 'JEFFAB1' 4000 ms 1  // ~x~Hey, you Jeff's guy?
+wait 2000 
+Camera.SetPosition(263.071, 41.696, 11.15, 0.0, 0.0, 0.0)
+Camera.PointAt(263.043, 45.513, 11.5, 2)
+Actor.DestroyInstantly(4@)
+4@ = Actor.Create(CivMale, #SPECIAL03, 262.677, 46.216, 10.013)
+020F: actor 4@ look_at_player $PLAYER_CHAR 
+0372: set_actor 4@ anim 23 wait_state_time 1000 ms 
+wait 2000 
+00BC: text_highpriority 'JEFFAB2' 4000 ms 1  // Well, it depends on who's asking!
+wait 4000 
+00BC: text_highpriority 'JEFFAB3' 5000 ms 1  // ~x~I'm Flint. Jeffrey told me you work in security. I could use some of that.
+wait 5000 
+00BC: text_highpriority 'JEFFAB4' 4000 ms 1  // My name is Rodrigo.
+wait 4000 
+00BC: text_highpriority 'JEFFAB5' 5000 ms 1  // Sure, I'll work for you. But only as long as the pay is good! 
+wait 5000 
+00BC: text_highpriority 'JEFFAB6' 5000 ms 1  // ~x~How about a different kind of arrangement? we could exchange some favors instead.
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3000 ms 
+wait 5000 
+00BC: text_highpriority 'JEFFAB7' 5000 ms 1  // That is convenient because I'm a little busy here and there's a job I need done.
+0372: set_actor 4@ anim 19 wait_state_time 3500 ms 
+wait 5000 
+00BC: text_highpriority 'JEFFAB8' 5000 ms 1  // I've left my van nearby. Get to that van and you'll find further instructions inside.
+0372: set_actor 4@ anim 19 wait_state_time 4000 ms 
+wait 5000 
+fade 0 1000 
+wait 1000 
+020A: set_car 3@ door_status_to 2 
+022A: remove_forbidden_for_peds_cube 300.359 70.567 9.0 200.359 20.5677 21.0 
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Player.CanMove($PLAYER_CHAR) = True
+Actor.DestroyInstantly(4@)
+5@ = Car.Create(#TOPFUN, 332.922, -556.715, 9.151)
+2@ = Marker.CreateAboveCar(5@)
+Car.Angle(5@) = 330.0
+Model.Destroy(#TOPFUN)
+fade 1 1500 
+
+:JEFF6_2040
+wait 0 
+if 
+00DC:   player $PLAYER_CHAR driving 5@ 
+else_jump @JEFF6_2837 
+Marker.Disable(2@)
+fade 0 500 
+wait 500 
+02A3: enable_widescreen 1 
+Camera.SetPosition(332.767, -556.989, 17.15, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 2)
+Player.CanMove($PLAYER_CHAR) = False
+wait 500 
+fade 1 500 
+wait 500 
+00BC: text_highpriority 'JEFFAB9' 4000 ms 1  // The client wants to remove some coke dealers in the area.
+Camera.SetPosition(336.637, -549.94, 11.157, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 1)
+0460: set_camera_pointing_time 0.0 4000 
+wait 4000 
+00BC: text_highpriority 'JEFFAC1' 4000 ms 1  // Use the RC buggies to destroy their vehicles in time.
+Camera.SetPosition(329.172, -563.048, 11.157, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 2)
+wait 0 
+Camera.SetPosition(340.703, -559.537, 11.157, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 1)
+wait 4000 
+00BC: text_highpriority 'JEFFAC2' 5000 ms 1  // Keep in mind - you only have 5 buggies with a limited range of control.
+wait 5000 
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Player.CanMove($PLAYER_CHAR) = True
+$2429 = 5 // integer values 
+$2430 = 300000 // integer values 
+03C4: set_status_text_to $2429 0 'JEFFAC3'  // RC buggies:
+014E: start_timer_at $2430 count_in_direction 1 
+010C: change_player_into_rc_buggy $PLAYER_CHAR at 344.339 -553.768 9.157 330.0 
+6@ = Car.Create(#RANCHER, 364.742, -634.442, 8.892)
+Car.Angle(6@) = 100.0
+0129: 7@ = create_actor 4 #HMYAP in_car 6@ driverseat 
+Car.SetToNormalDriver(6@)
+Car.SetMaxSpeed(6@, 21.0)
+2@ = Marker.CreateAboveCar(6@)
+Marker.SetColor(2@, 0)
+0166: set_marker 2@ brightness_to 1 
+Model.Destroy(#RANCHER)
+8@ = Car.Create(#BURRITO, 323.794, -37.614, 10.18)
+Car.Angle(8@) = 180.0
+0129: 9@ = create_actor 4 #HMYAP in_car 8@ driverseat 
+Car.SetToNormalDriver(8@)
+Car.SetMaxSpeed(8@, 18.0)
+00AE: set_vehicle 8@ traffic_behavior_to 2 
+12@ = Marker.CreateAboveCar(8@)
+Marker.SetColor(12@, 0)
+0166: set_marker 12@ brightness_to 1 
+Model.Destroy(#BURRITO)
+10@ = Car.Create(#CHEETAH, 195.101, -1491.585, 9.694)
+Car.Angle(10@) = 20.0
+0129: 11@ = create_actor 4 #HMYAP in_car 10@ driverseat 
+Car.SetToNormalDriver(10@)
+Car.SetMaxSpeed(10@, 28.0)
+00AE: set_vehicle 10@ traffic_behavior_to 2 
+13@ = Marker.CreateAboveCar(10@)
+Marker.SetColor(13@, 0)
+0166: set_marker 13@ brightness_to 1 
+Model.Destroy(#CHEETAH)
+Model.Destroy(#HMYAP)
+00BC: text_highpriority 'JEFFAC4' 5000 ms 1  // ~r~Destroy the targets before the timer runs out!
+
+:JEFF6_2717
+wait 0 
+gosub @JEFF6_3472 
+gosub @JEFF6_3283 
+if 
+   not $2430 == 0 // integer values 
+else_jump @JEFF6_3249 
+if 
+   not Car.Wrecked(5@)
+else_jump @JEFF6_3266 
+if 
+00DC:   player $PLAYER_CHAR driving 5@ 
+else_jump @JEFF6_3266 
+if 
+   Player.InRemoteMode($PLAYER_CHAR)
+else_jump @JEFF6_3061 
+if and
+   Car.Wrecked(6@)
+   Car.Wrecked(8@)
+   Car.Wrecked(10@)
+else_jump @JEFF6_2913 
+jump @JEFF6_3125 
+
+:JEFF6_2837
+if 
+   Car.Wrecked(5@)
+else_jump @JEFF6_2875 
+00BC: text_highpriority 'JEFFAC5' 5000 ms 1  // ~r~The car is wrecked!
+jump @JEFF6_3266 
+
+:JEFF6_2875
+if 
+018F:   vehicle 5@ flipped 
+else_jump @JEFF6_2040 
+00BC: text_highpriority 'JEFFAC6' 5000 ms 1  // ~r~You flipped the wheels!
+jump @JEFF6_3266 
+
+:JEFF6_2913
+if 
+  $2422 == 0 // integer values 
+else_jump @JEFF6_3054 
+$2440 = Player.RC_car($PLAYER_CHAR)
+if 
+81AD:   not car $2440 sphere 0 near_point 332.922 -556.715 radius 500.0 500.0 
+else_jump @JEFF6_2717 
+00BC: text_highpriority 'JEFFAC7' 3000 ms 1  // ~r~Your RC car is going out of range!
+if 
+81AD:   not car $2440 sphere 0 near_point 332.922 -556.715 radius 600.0 600.0 
+else_jump @JEFF6_2717 
+$2422 = 1 // integer values 
+0409: blow_up_rc_buggy 
+00BC: text_highpriority 'JEFFAC8' 3000 ms 1  // ~r~Your RC car went out of range.
+
+:JEFF6_3054
+jump @JEFF6_2717 
+
+:JEFF6_3061
+$2429 -= 1 // integer values 
+if 
+   not $2429 == 0 // integer values 
+else_jump @JEFF6_3227 
+$2422 = 0 // integer values 
+010C: change_player_into_rc_buggy $PLAYER_CHAR at 344.339 -553.768 9.157 330.0 
+jump @JEFF6_2717 
+
+:JEFF6_3125
+0151: remove_status_text $2429 
+014F: stop_timer $2430 
+$144 = 1 // integer values 
+00BA: text_styled 'M_PASS1' 5000 ms 1  // MISSION PASSED!
+Player.ClearWantedLevel($PLAYER_CHAR)
+0318: set_latest_mission_passed 'BANK_4' 
+030C: progress_made += 1 
+0394: play_music 1 
+02A7: $746 = create_icon_marker_and_sphere 11 at 268.488 42.592 10.066 
+$682 = 1 // integer values 
+create_thread @PHI2 
+create_thread @NONAME_25 
+return 
+
+:JEFF6_3227
+00BC: text_highpriority 'JEFFAC9' 5000 ms 1  // ~r~You ran out of RC buggies!
+jump @JEFF6_3266 
+
+:JEFF6_3249
+00BC: text_highpriority 'JEFFAD1' 5000 ms 1  // ~r~You didn't make it in time!
+0409: blow_up_rc_buggy 
+
+:JEFF6_3266
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:JEFF6_3283
+if 
+   Car.Wrecked(6@)
+else_jump @JEFF6_3304 
+Marker.Disable(2@)
+
+:JEFF6_3304
+if 
+   Car.Wrecked(8@)
+else_jump @JEFF6_3325 
+Marker.Disable(12@)
+
+:JEFF6_3325
+if 
+   Car.Wrecked(10@)
+else_jump @JEFF6_3346 
+Marker.Disable(13@)
+
+:JEFF6_3346
+return 
+
+:JEFF6_3348
+0151: remove_status_text $2429 
+014F: stop_timer $2430 
+Actor.RemoveReferences(1@)
+Actor.RemoveReferences(4@)
+Actor.RemoveReferences(7@)
+Actor.RemoveReferences(9@)
+Actor.RemoveReferences(11@)
+Car.RemoveReferences(5@)
+Car.RemoveReferences(6@)
+Car.RemoveReferences(8@)
+Car.RemoveReferences(10@)
+Car.RemoveReferences($2440)
+Marker.Disable(2@)
+Marker.Disable(12@)
+Marker.Disable(13@)
+03BD: destroy_sphere 3@ 
+0296: unload_special_actor 4 
+0296: unload_special_actor 3 
+Model.Destroy(#TOPFUN)
+Model.Destroy(#RCBANDIT)
+Model.Destroy(#CHEETAH)
+Model.Destroy(#BURRITO)
+Model.Destroy(#RANCHER)
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
+:JEFF6_3472
+if 
+   not Car.Wrecked(6@)
+else_jump @JEFF6_4235 
+if 
+  $2419 == 0 // integer values 
+else_jump @JEFF6_3571 
+Car.DriveTo(6@, 229.655, -920.573, 8.892)
+if 
+01AD:   car 6@ sphere 0 near_point 229.655 -920.573 radius 3.0 3.0 
+else_jump @JEFF6_4235 
+$2419 = 1 // integer values 
+
+:JEFF6_3571
+if 
+  $2419 == 1 // integer values 
+else_jump @JEFF6_3654 
+Car.DriveTo(6@, 81.969, -953.655, 9.17)
+if 
+01AD:   car 6@ sphere 0 near_point 81.969 -953.655 radius 3.0 3.0 
+else_jump @JEFF6_4235 
+$2419 = 2 // integer values 
+
+:JEFF6_3654
+if 
+  $2419 == 2 // integer values 
+else_jump @JEFF6_3737 
+Car.DriveTo(6@, 8.446, -1437.663, 9.187)
+if 
+01AD:   car 6@ sphere 0 near_point 8.446 -1437.663 radius 3.0 3.0 
+else_jump @JEFF6_4235 
+$2419 = 3 // integer values 
+
+:JEFF6_3737
+if 
+  $2419 == 3 // integer values 
+else_jump @JEFF6_3820 
+Car.DriveTo(6@, 78.927, -1483.211, 9.163)
+if 
+01AD:   car 6@ sphere 0 near_point 78.927 -1483.211 radius 3.0 3.0 
+else_jump @JEFF6_4235 
+$2419 = 4 // integer values 
+
+:JEFF6_3820
+if 
+  $2419 == 4 // integer values 
+else_jump @JEFF6_3903 
+Car.DriveTo(6@, 203.061, -1311.842, 9.006)
+if 
+01AD:   car 6@ sphere 0 near_point 203.061 -1311.842 radius 3.0 3.0 
+else_jump @JEFF6_4235 
+$2419 = 5 // integer values 
+
+:JEFF6_3903
+if 
+  $2419 == 5 // integer values 
+else_jump @JEFF6_3986 
+Car.DriveTo(6@, 267.313, -1201.814, 9.776)
+if 
+01AD:   car 6@ sphere 0 near_point 267.313 -1201.814 radius 3.0 3.0 
+else_jump @JEFF6_4235 
+$2419 = 6 // integer values 
+
+:JEFF6_3986
+if 
+  $2419 == 6 // integer values 
+else_jump @JEFF6_4069 
+Car.DriveTo(6@, 467.562, -603.341, 9.776)
+if 
+01AD:   car 6@ sphere 0 near_point 467.562 -603.341 radius 3.0 3.0 
+else_jump @JEFF6_4235 
+$2419 = 7 // integer values 
+
+:JEFF6_4069
+if 
+  $2419 == 7 // integer values 
+else_jump @JEFF6_4152 
+Car.DriveTo(6@, 443.624, -520.765, 9.314)
+if 
+01AD:   car 6@ sphere 0 near_point 443.624 -520.765 radius 3.0 3.0 
+else_jump @JEFF6_4235 
+$2419 = 8 // integer values 
+
+:JEFF6_4152
+if 
+  $2419 == 8 // integer values 
+else_jump @JEFF6_4235 
+Car.DriveTo(6@, 364.742, -634.442, 8.892)
+if 
+01AD:   car 6@ sphere 0 near_point 364.742 -634.442 radius 3.0 3.0 
+else_jump @JEFF6_4235 
+$2419 = 0 // integer values 
+
+:JEFF6_4235
+if 
+   not Car.Wrecked(8@)
+else_jump @JEFF6_5164 
+if 
+  $2420 == 0 // integer values 
+else_jump @JEFF6_4334 
+Car.DriveTo(8@, 165.448, -677.38, 10.98)
+if 
+01AD:   car 8@ sphere 0 near_point 165.448 -677.38 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 1 // integer values 
+
+:JEFF6_4334
+if 
+  $2420 == 1 // integer values 
+else_jump @JEFF6_4417 
+Car.DriveTo(8@, 217.288, -739.226, 9.504)
+if 
+01AD:   car 8@ sphere 0 near_point 217.288 -739.226 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 2 // integer values 
+
+:JEFF6_4417
+if 
+  $2420 == 2 // integer values 
+else_jump @JEFF6_4500 
+Car.DriveTo(8@, 71.472, -1014.266, 9.545)
+if 
+01AD:   car 8@ sphere 0 near_point 71.472 -1014.266 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 3 // integer values 
+
+:JEFF6_4500
+if 
+  $2420 == 3 // integer values 
+else_jump @JEFF6_4583 
+Car.DriveTo(8@, -74.52, -1062.956, 9.539)
+if 
+01AD:   car 8@ sphere 0 near_point -74.52 -1062.956 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 4 // integer values 
+
+:JEFF6_4583
+if 
+  $2420 == 4 // integer values 
+else_jump @JEFF6_4666 
+Car.DriveTo(8@, -54.72, -1535.389, 9.511)
+if 
+01AD:   car 8@ sphere 0 near_point -54.72 -1535.389 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 5 // integer values 
+
+:JEFF6_4666
+if 
+  $2420 == 5 // integer values 
+else_jump @JEFF6_4749 
+Car.DriveTo(8@, 53.338, -1592.724, 9.531)
+if 
+01AD:   car 8@ sphere 0 near_point 53.338 -1592.724 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 6 // integer values 
+
+:JEFF6_4749
+if 
+  $2420 == 6 // integer values 
+else_jump @JEFF6_4832 
+Car.DriveTo(8@, 97.352, -1532.087, 9.503)
+if 
+01AD:   car 8@ sphere 0 near_point 97.352 -1532.087 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 7 // integer values 
+
+:JEFF6_4832
+if 
+  $2420 == 7 // integer values 
+else_jump @JEFF6_4915 
+Car.DriveTo(8@, 474.765, -264.11, 11.172)
+if 
+01AD:   car 8@ sphere 0 near_point 474.765 -264.11 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 8 // integer values 
+
+:JEFF6_4915
+if 
+  $2420 == 8 // integer values 
+else_jump @JEFF6_4998 
+Car.DriveTo(8@, 500.435, 61.952, 10.175)
+if 
+01AD:   car 8@ sphere 0 near_point 500.435 61.952 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 9 // integer values 
+
+:JEFF6_4998
+if 
+  $2420 == 9 // integer values 
+else_jump @JEFF6_5081 
+Car.DriveTo(8@, 341.238, -5.646, 10.488)
+if 
+01AD:   car 8@ sphere 0 near_point 341.238 -5.646 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 10 // integer values 
+
+:JEFF6_5081
+if 
+  $2420 == 10 // integer values 
+else_jump @JEFF6_5164 
+Car.DriveTo(8@, 323.794, -37.614, 10.18)
+if 
+01AD:   car 8@ sphere 0 near_point 323.794 -37.614 radius 3.0 3.0 
+else_jump @JEFF6_5164 
+$2420 = 0 // integer values 
+
+:JEFF6_5164
+if 
+   not Car.Wrecked(10@)
+else_jump @JEFF6_5927 
+if 
+  $2421 == 0 // integer values 
+else_jump @JEFF6_5263 
+Car.DriveTo(10@, 295.237, -1020.736, 9.694)
+if 
+01AD:   car 10@ sphere 0 near_point 295.237 -1020.736 radius 3.0 3.0 
+else_jump @JEFF6_5927 
+$2421 = 1 // integer values 
+
+:JEFF6_5263
+if 
+  $2421 == 1 // integer values 
+else_jump @JEFF6_5346 
+Car.DriveTo(10@, 131.187, -918.846, 9.075)
+if 
+01AD:   car 10@ sphere 0 near_point 131.187 -918.846 radius 3.0 3.0 
+else_jump @JEFF6_5927 
+$2421 = 2 // integer values 
+
+:JEFF6_5346
+if 
+  $2421 == 2 // integer values 
+else_jump @JEFF6_5429 
+Car.DriveTo(10@, 205.543, -709.734, 9.104)
+if 
+01AD:   car 10@ sphere 0 near_point 205.543 -709.734 radius 3.0 3.0 
+else_jump @JEFF6_5927 
+$2421 = 3 // integer values 
+
+:JEFF6_5429
+if 
+  $2421 == 3 // integer values 
+else_jump @JEFF6_5512 
+Car.DriveTo(10@, 109.034, -816.144, 9.106)
+if 
+01AD:   car 10@ sphere 0 near_point 109.034 -816.144 radius 3.0 3.0 
+else_jump @JEFF6_5927 
+$2421 = 4 // integer values 
+
+:JEFF6_5512
+if 
+  $2421 == 4 // integer values 
+else_jump @JEFF6_5595 
+Car.DriveTo(10@, -105.133, -916.787, 9.106)
+if 
+01AD:   car 10@ sphere 0 near_point -105.133 -916.787 radius 3.0 3.0 
+else_jump @JEFF6_5927 
+$2421 = 5 // integer values 
+
+:JEFF6_5595
+if 
+  $2421 == 5 // integer values 
+else_jump @JEFF6_5678 
+Car.DriveTo(10@, -125.711, -1086.533, 9.087)
+if 
+01AD:   car 10@ sphere 0 near_point -125.711 -1086.533 radius 3.0 3.0 
+else_jump @JEFF6_5927 
+$2421 = 6 // integer values 
+
+:JEFF6_5678
+if 
+  $2421 == 6 // integer values 
+else_jump @JEFF6_5761 
+Car.DriveTo(10@, -203.646, -1260.899, 9.104)
+if 
+01AD:   car 10@ sphere 0 near_point -203.646 -1260.899 radius 3.0 3.0 
+else_jump @JEFF6_5927 
+$2421 = 7 // integer values 
+
+:JEFF6_5761
+if 
+  $2421 == 7 // integer values 
+else_jump @JEFF6_5844 
+Car.DriveTo(10@, -51.64, -1574.999, 9.074)
+if 
+01AD:   car 10@ sphere 0 near_point -51.64 -1574.999 radius 3.0 3.0 
+else_jump @JEFF6_5927 
+$2421 = 8 // integer values 
+
+:JEFF6_5844
+if 
+  $2421 == 8 // integer values 
+else_jump @JEFF6_5927 
+Car.DriveTo(10@, 195.101, -1491.585, 9.694)
+if 
+01AD:   car 10@ sphere 0 near_point 195.101 -1491.585 radius 3.0 3.0 
+else_jump @JEFF6_5927 
+$2421 = 0 // integer values 
+
+:JEFF6_5927
+return 
+

@@ -1,0 +1,1113 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 22: The Shootist
+// Строки 48493-49601 исходного файла data/main.txt
+// Кол-во строк: 1109
+//-------------Mission 22---------------
+// Originally: The Shootist
+
+:TOYZ3
+gosub @TOYZ3_36 
+if 
+wasted_or_busted 
+else_jump @TOYZ3_27 
+gosub @TOYZ3_7605 
+
+:TOYZ3_27
+gosub @TOYZ3_7622 
+end_thread 
+
+:TOYZ3_36
+increment_mission_attempts 
+thread 'TOYZ3' 
+$2566 = 0 // integer values 
+$ONMISSION = 1 // integer values 
+054C: use_GXT_table 'BARON5' 
+Model.Load(#TOPFUN)
+Model.Load(#RUGER)
+023C: load_special_actor 3 'IGHLARY' 
+023C: load_special_actor 4 'IGBUDDY' 
+Model.Load(#MAVERICK)
+Model.Load(#GDA)
+Model.Load(#CHROMEGUN)
+Model.Load(#PONY)
+038B: load_requested_models 
+
+:TOYZ3_127
+wait 0 
+if or
+   not Model.Available(#CHROMEGUN)
+   not Model.Available(#GDA)
+   not Model.Available(#PONY)
+   not Model.Available(#MAVERICK)
+823D:   not special_actor 3 loaded 
+823D:   not special_actor 4 loaded 
+   not Model.Available(#TOPFUN)
+   not Model.Available(#RUGER)
+else_jump @TOYZ3_186 
+jump @TOYZ3_127 
+
+:TOYZ3_186
+wait 0 
+fade 1 1500 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+03C7: set_sensitivity_to_crime_to 0.3 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+01E8: create_forbidden_for_cars_cube -260.056 36.875 0.0 318.995 -16.41 35.0 
+022B: create_forbidden_for_peds_cube -260.056 36.875 0.0 318.995 -16.41 35.0 
+0395: clear_area 1 at 264.043 47.513 range 50.0 50.0 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+Camera.SetPosition(263.395, 45.278, 11.278, 0.0, 0.0, 0.0)
+Camera.PointAt(270.186, 45.596, 11.22, 2)
+0055: put_player $PLAYER_CHAR at 270.262 38.605 10.09 
+0211: actor $PLAYER_ACTOR walk_to 270.186 45.596 
+$2584 = Car.Create(#TOPFUN, 318.995, -16.41, 10.463)
+Car.Angle($2584) = 30.0
+Model.Destroy(#TOPFUN)
+0129: $9 = create_actor 9 #SPECIAL03 in_car $2584 driverseat 
+Car.DriveTo($2584, 266.449, 32.985, 9.96)
+Car.SetMaxSpeed($2584, 20.0)
+0350: set_actor $9 maintain_position_when_attacked 1 
+0526: set_actor $9 stay_in_car_when_jacked 1 
+16@ = 0 // integer values 
+
+:TOYZ3_512
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @TOYZ3_559 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_512 
+jump @TOYZ3_1958 
+
+:TOYZ3_559
+Camera.OnVehicle($2584, 15, 1)
+16@ = 0 // integer values 
+
+:TOYZ3_575
+wait 0 
+if 
+81AF:   not car $2584 0 266.449 32.985 9.96 radius 3.0 3.0 4.0 
+else_jump @TOYZ3_651 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_575 
+jump @TOYZ3_1958 
+
+:TOYZ3_651
+Car.SetDriverBehaviour($2584, 6)
+01D3: actor $9 leave_car $2584 
+022D: set_actor $9 to_look_at_player $PLAYER_CHAR 
+0239: actor $9 run_to 262.771 34.853 
+16@ = 0 // integer values 
+
+:TOYZ3_696
+wait 0 
+if 
+80E1:   not player 0 pressed_button 15 
+else_jump @TOYZ3_1958 
+if 
+00ED:   actor $9 0 262.771 34.853 radius 0.25 0.25 
+else_jump @TOYZ3_696 
+011C: actor $9 clear_objective 
+00BC: text_highpriority 'RESQ_1A' 3000 ms 1  // Flint! get in the car.
+
+:TOYZ3_775
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @TOYZ3_822 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_775 
+jump @TOYZ3_1958 
+
+:TOYZ3_822
+020F: actor $9 look_at_player $PLAYER_CHAR 
+0372: set_actor $9 anim 16 wait_state_time 4000 ms 
+0239: actor $PLAYER_ACTOR run_to 261.771 36.853 
+16@ = 0 // integer values 
+
+:TOYZ3_862
+wait 0 
+if 
+80E1:   not player 0 pressed_button 15 
+else_jump @TOYZ3_1958 
+if 
+00ED:   actor $PLAYER_ACTOR 0 261.771 36.853 radius 0.25 0.25 
+else_jump @TOYZ3_862 
+Camera.SetPosition(258.04, 33.885, 11.278, 0.0, 0.0, 0.0)
+Camera.PointAt(261.771, 35.853, 11.22, 2)
+0210: player $PLAYER_CHAR look_at_actor $9 
+020F: actor $9 look_at_player $PLAYER_CHAR 
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'RESQ_1B' 5000 ms 1  // ~x~Hey! What's going on, man?
+
+:TOYZ3_1013
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ3_1060 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1013 
+jump @TOYZ3_1958 
+
+:TOYZ3_1060
+0372: set_actor $9 anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'RESQ_1C' 4000 ms 1  // There's no time to explain.
+16@ = 0 // integer values 
+
+:TOYZ3_1092
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @TOYZ3_1139 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1092 
+jump @TOYZ3_1958 
+
+:TOYZ3_1139
+0372: set_actor $9 anim 25 wait_state_time 10000 ms 
+00BC: text_highpriority 'RESQ_1D' 3000 ms 1  // Here... You'll need this.
+16@ = 0 // integer values 
+
+:TOYZ3_1171
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @TOYZ3_1218 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1171 
+jump @TOYZ3_1958 
+
+:TOYZ3_1218
+01B2: give_actor $9 weapon 27 ammo 9999 // Load the weapon model before using this 
+16@ = 0 // integer values 
+
+:TOYZ3_1235
+wait 0 
+if 
+   not 16@ > 750 // integer values 
+else_jump @TOYZ3_1282 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1235 
+jump @TOYZ3_1958 
+
+:TOYZ3_1282
+01B9: set_actor $9 armed_weapon_to 0 
+01B1: give_player $PLAYER_CHAR weapon 27 ammo 300 // Load the weapon model before using this 
+16@ = 0 // integer values 
+
+:TOYZ3_1306
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @TOYZ3_1353 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1306 
+jump @TOYZ3_1958 
+
+:TOYZ3_1353
+0372: set_actor $9 anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'RESQ_1E' 5000 ms 1  // Jeff's being held for ransom. We need to get to the airport...
+16@ = 0 // integer values 
+
+:TOYZ3_1385
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ3_1432 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1385 
+jump @TOYZ3_1958 
+
+:TOYZ3_1432
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'RESQ_1F' 5000 ms 1  // ~x~Wait. Aren't you responsible for Jeff's security?
+16@ = 0 // integer values 
+
+:TOYZ3_1464
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ3_1511 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1464 
+jump @TOYZ3_1958 
+
+:TOYZ3_1511
+0372: set_actor $9 anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'RESQ_1G' 5000 ms 1  // That's my job but I don't get paid to sleep with him.
+16@ = 0 // integer values 
+
+:TOYZ3_1543
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ3_1590 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1543 
+jump @TOYZ3_1958 
+
+:TOYZ3_1590
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3000 ms 
+00BC: text_highpriority 'RESQ_1N' 3000 ms 1  // ~x~So, who's got Jeff?
+16@ = 0 // integer values 
+
+:TOYZ3_1622
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @TOYZ3_1669 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1622 
+jump @TOYZ3_1958 
+
+:TOYZ3_1669
+0372: set_actor $9 anim 19 wait_state_time 3500 ms 
+00BC: text_highpriority 'RESQ_1H' 4000 ms 1  // I don't know, but they sound serious. They wanted money...
+16@ = 0 // integer values 
+
+:TOYZ3_1701
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @TOYZ3_1748 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1701 
+jump @TOYZ3_1958 
+
+:TOYZ3_1748
+0372: set_actor $9 anim 31 wait_state_time 3500 ms 
+00BC: text_highpriority 'RESQ_1I' 5000 ms 1  // I just took it from Jeff's own stash. Now take us to the airport!
+16@ = 0 // integer values 
+
+:TOYZ3_1780
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @TOYZ3_1827 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1780 
+jump @TOYZ3_1958 
+
+:TOYZ3_1827
+01D4: actor $9 go_to_car $2584 and_enter_it_as_a_passenger 
+16@ = 0 // integer values 
+
+:TOYZ3_1842
+wait 0 
+if 
+   not 16@ > 1500 // integer values 
+else_jump @TOYZ3_1889 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1842 
+jump @TOYZ3_1958 
+
+:TOYZ3_1889
+01D5: actor $PLAYER_ACTOR go_to_and_drive_car $2584 
+16@ = 0 // integer values 
+
+:TOYZ3_1904
+wait 0 
+if 
+80DE:   not player $PLAYER_CHAR driving_vehicle_type #TOPFUN 
+else_jump @TOYZ3_1958 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_1904 
+$2566 = 1 // integer values 
+jump @TOYZ3_1958 
+
+:TOYZ3_1958
+16@ = 0 // integer values 
+00BE: text_clear_all 
+011C: actor $PLAYER_ACTOR clear_objective 
+fade 0 500 
+
+:TOYZ3_1979
+wait 0 
+if 
+fading 
+else_jump @TOYZ3_2003 
+jump @TOYZ3_1979 
+
+:TOYZ3_2003
+wait 0 
+if 
+   not $2566 == 1 // integer values 
+else_jump @TOYZ3_2096 
+Car.SetDriverBehaviour($2584, Nowhere)
+Car.PutAt($2584, 266.449, 32.985, 9.96)
+Car.Angle($2584) = 40.0
+Actor.DestroyInstantly($9)
+01C8: $9 = create_actor_pedtype 9 model #SPECIAL03 in_car $2584 passenger_seat 0 
+0526: set_actor $9 stay_in_car_when_jacked 1 
+036A: put_actor $PLAYER_ACTOR in_car $2584 
+
+:TOYZ3_2096
+wait 500 
+01E7: remove_forbidden_for_cars_cube -260.056 36.875 0.0 318.995 -16.41 35.0 
+022A: remove_forbidden_for_peds_cube -260.056 36.875 0.0 318.995 -16.41 35.0 
+Player.CanMove($PLAYER_CHAR) = True
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Camera.SetBehindPlayer
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+018A: $2564 = create_checkpoint_at -1306.96 -1228.23 13.9008 
+fade 1 1500 
+
+:TOYZ3_2221
+wait 0 
+if 
+00DC:   player $PLAYER_CHAR driving $2584 
+else_jump @TOYZ3_7333 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car -1306.96 -1228.23 13.9008 radius 25.5 25.5 5.5 
+else_jump @TOYZ3_2221 
+fade 0 1000 
+Marker.Disable($2564)
+wait 1000 
+01E8: create_forbidden_for_cars_cube -1412.55 -1180.36 5.0 -1255.4 -1316.75 18.0 
+0395: clear_area 1 at -1306.96 -1228.23 range 15.0 15.0 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+Car.PutAt($2584, -1285.13, -1213.29, 14.094)
+Car.Angle($2584) = 100.0
+02C2: car $2584 drive_to_point -1306.96 -1228.23 14.094 
+Car.SetMaxSpeed($2584, 15.0)
+04BA: set_car $2584 speed_instantly 10.0 
+0407: create_coordinate $CAM1 $CAM2 $CAM3 from_car $2584 offset -13.0 33.0 -0.85 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.OnVehicle($2584, 15, 2)
+wait 1000 
+fade 1 1000 
+
+:TOYZ3_2536
+wait 0 
+if 
+01AF:   car $2584 0 -1306.96 -1228.23 14.094 radius 3.0 3.0 4.0 
+else_jump @TOYZ3_2536 
+$2567 = Car.Create(#PONY, -1337.22, -1309.35, 14.039)
+$2568 = Car.Create(#PONY, -1334.82, -1226.73, 14.039)
+0229: set_car $2567 color_to 0 0 
+0229: set_car $2568 color_to 0 0 
+01C8: $2569 = create_actor_pedtype 10 model #GDA in_car $2567 passenger_seat 1 
+01C8: $2570 = create_actor_pedtype 10 model #GDA in_car $2567 passenger_seat 2 
+01C8: $2571 = create_actor_pedtype 10 model #GDA in_car $2567 passenger_seat 3 
+0129: $2572 = create_actor 20 #GDA in_car $2567 driverseat 
+02C2: car $2567 drive_to_point -1337.056 -1259.939 14.106 
+Car.SetMaxSpeed($2567, 25.0)
+04BA: set_car $2567 speed_instantly 20.0 
+0407: create_coordinate $CAM1 $CAM2 $CAM3 from_car $2584 offset -5.0 -4.0 1.5 
+0129: $2573 = create_actor 20 #GDA in_car $2568 driverseat 
+01C8: $2574 = create_actor_pedtype 10 model #GDA in_car $2568 passenger_seat 1 
+02C2: car $2568 drive_to_point -1337.056 -1259.939 14.106 
+Car.SetMaxSpeed($2568, 15.0)
+16@ = 0 // integer values 
+
+:TOYZ3_2838
+wait 0 
+if 
+  16@ >= 1000 // integer values 
+else_jump @TOYZ3_2838 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.OnVehicle($2567, 15, 2)
+
+:TOYZ3_2896
+wait 0 
+if 
+01AF:   car $2567 0 -1337.056 -1259.939 14.106 radius 5.0 5.0 5.0 
+else_jump @TOYZ3_2896 
+0407: create_coordinate $CAM1 $CAM2 $CAM3 from_car $2567 offset -2.0 -1.0 -0.5 
+Camera.OnVehicle($2568, 15, 1)
+16@ = 0 // integer values 
+
+:TOYZ3_2993
+wait 0 
+if 
+  16@ >= 1000 // integer values 
+else_jump @TOYZ3_2993 
+02D4: car $2568 turn_off_engine 
+if 
+  16@ >= 3500 // integer values 
+else_jump @TOYZ3_2993 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.OnVehicle($2567, 15, 2)
+03E2: actor $2569 exit_car 
+0239: actor $2569 run_to -1338.07 -1226.966 
+03E2: actor $2573 exit_car 
+0239: actor $2573 run_to -1338.07 -1226.966 
+
+:TOYZ3_3115
+wait 0 
+if 
+00EC:   actor $2569 0 -1337.056 -1259.939 radius 6.5 6.5 
+else_jump @TOYZ3_3164 
+jump @TOYZ3_3115 
+
+:TOYZ3_3164
+03E2: actor $2570 exit_car 
+0239: actor $2570 run_to -1338.07 -1226.966 
+wait 500 
+03E2: actor $2571 exit_car 
+0239: actor $2571 run_to -1338.07 -1226.966 
+03E2: actor $2574 exit_car 
+0239: actor $2574 run_to -1338.07 -1226.966 
+
+:TOYZ3_3229
+wait 0 
+if 
+0202:   actor $2574 near_car $2568 radius 8.0 8.0 sphere 0 
+else_jump @TOYZ3_3271 
+jump @TOYZ3_3229 
+
+:TOYZ3_3271
+16@ = 0 // integer values 
+$2579 = Car.Create(#MAVERICK, -1400.793, -1191.333, 100.6911)
+04BA: set_car $2579 speed_instantly 15.0 
+04A2: heli $2579 fly_to -1369.21 -1254.46 35.6911 speed 15 
+04DF: set_heli $2579 lean_and_thrust_limiter 0 
+0460: set_camera_pointing_time 0.0 15000 
+Camera.SetPosition(-1369.21, -1254.46, 55.6911, 0.0, 0.0, 0.0)
+Camera.PointAt(-1369.21, -1254.46, 17.6911, 1)
+
+:TOYZ3_3401
+wait 0 
+if 
+  16@ >= 2000 // integer values 
+else_jump @TOYZ3_3401 
+Actor.DestroyInstantly($2569)
+Actor.DestroyInstantly($2570)
+Actor.DestroyInstantly($2571)
+Actor.DestroyInstantly($2572)
+Actor.DestroyInstantly($2573)
+Actor.DestroyInstantly($2574)
+
+:TOYZ3_3454
+wait 0 
+if 
+  16@ >= 4500 // integer values 
+else_jump @TOYZ3_3454 
+$2569 = Actor.Create(CivMale, #GDA, -1360.88, -1239.08, 17.6911)
+$2570 = Actor.Create(CivMale, #GDA, -1364.36, -1237.98, 17.6911)
+$2571 = Actor.Create(CivMale, #GDA, -1362.36, -1238.98, 17.6911)
+$2572 = Actor.Create(CivMale, #GDA, -1361.36, -1238.98, 17.6911)
+$2573 = Actor.Create(CivMale, #GDA, -1363.36, -1238.98, 17.6911)
+$2574 = Actor.Create(CivMale, #GDA, -1363.36, -1239.98, 17.6911)
+$2580 = Actor.Create(CivMale, #GDA, -1348.82, -1223.87, 17.5806)
+$2581 = Actor.Create(CivMale, #GDA, -1359.84, -1281.6, 14.3006)
+$2582 = Actor.Create(CivMale, #GDA, -1367.03, -1286.98, 14.3006)
+0239: actor $2569 run_to -1351.6 -1253.88 
+0239: actor $2570 run_to -1378.03 -1246.44 
+0239: actor $2571 run_to -1357.38 -1254.56 
+0239: actor $2572 run_to -1364.45 -1243.67 
+0239: actor $2573 run_to -1368.79 -1243.08 
+0239: actor $2574 run_to -1361.3 -1247.58 
+
+:TOYZ3_3783
+wait 0 
+if 
+01AF:   car $2579 0 -1369.21 -1254.46 35.6911 radius 3.5 3.5 3.5 
+else_jump @TOYZ3_3783 
+04A2: heli $2579 fly_to -1369.21 -1254.46 17.6911 speed 10 
+
+:TOYZ3_3857
+wait 0 
+if 
+01AF:   car $2579 0 -1369.21 -1254.46 17.6911 radius 2.5 2.5 3.5 
+else_jump @TOYZ3_3857 
+Car.SetDriverBehaviour($2579, 23)
+wait 3000 
+Actor.Health($9) = 10
+Camera.SetPosition(-1310.96, -1220.23, 14.5008, 0.0, 0.0, 0.0)
+Camera.OnVehicle($2584, 15, 2)
+00BC: text_highpriority 'RESQ_1L' 5000 ms 1  // Wait in the car and keep the engine running, alright?
+03E2: actor $9 exit_car 
+0211: actor $9 walk_to -1341.486 -1230.139 
+Car.Destroy($2579)
+$2579 = Car.Create(#MAVERICK, -1369.21, -1254.46, 17.6911)
+020A: set_car $2579 door_status_to 2 
+Car.SetImmunities($2579, 1, 1, 1, 1, 1)
+0129: $2575 = create_actor 4 #GDA in_car $2579 driverseat 
+01C8: $2577 = create_actor_pedtype 10 model #SPECIAL04 in_car $2579 passenger_seat 0 
+0446: set_actor $2577 dismemberment_possible 0 
+02AB: set_actor $2577 immunities BP 1 FP 1 EP 1 CP 1 MP 1 
+01C8: $2578 = create_actor_pedtype 10 model #GDA in_car $2579 passenger_seat 2 
+wait 5000 
+Camera.SetPosition(-1310.96, -1228.23, 14.5008, 0.0, 0.0, 0.0)
+Camera.OnPed($9, 15, 2)
+020E: actor $2580 look_at_actor $9 
+04C4: create_coordinate $CAM1 $CAM2 $CAM3 from_actor $2580 offset -0.3 -1.5 0.0 
+0243: set_actor $2580 ped_stats_to 16 
+01B2: give_actor $2580 weapon 19 ammo 9999 // Load the weapon model before using this 
+0350: set_actor $2580 maintain_position_when_attacked 1 
+0350: set_actor $2569 maintain_position_when_attacked 1 
+0350: set_actor $2570 maintain_position_when_attacked 1 
+0350: set_actor $2571 maintain_position_when_attacked 1 
+0350: set_actor $2572 maintain_position_when_attacked 1 
+0350: set_actor $2573 maintain_position_when_attacked 1 
+0350: set_actor $2574 maintain_position_when_attacked 1 
+0350: set_actor $2581 maintain_position_when_attacked 1 
+0350: set_actor $2582 maintain_position_when_attacked 1 
+02E2: set_actor $2580 weapon_accuracy_to 100 
+wait 2000 
+00BC: text_highpriority 'RESQ_1M' 4000 ms 1  // ~x~...Are you sure about this?
+wait 4000 
+022D: set_actor $9 to_look_at_player $PLAYER_CHAR 
+00BC: text_highpriority 'RESQ_1O' 5000 ms 1  // I got it, Flint. I'll just check up on Jeff first, gonna make sure he's okay!
+wait 3000 
+022F: set_actor $9 stop_looking 
+wait 2000 
+00BC: text_highpriority 'RESQ_1P' 5000 ms 1  // ~x~The whole thing stinks, Rodrigo. I don't like this at all.
+wait 7000 
+00BC: text_highpriority 'RESQ_1Q' 5000 ms 1  // Alright. Let's not make this complicated! Who's in charge here? 
+
+:TOYZ3_4384
+wait 0 
+if 
+00ED:   actor $9 0 -1341.486 -1230.139 radius 1.5 1.5 
+else_jump @TOYZ3_4384 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.OnPed($9, 15, 2)
+00BC: text_highpriority 'RESQ_1R' 5000 ms 1  // Where's the money? I don't see it!
+0211: actor $9 walk_to $CAM1 $CAM2 
+
+:TOYZ3_4487
+wait 0 
+if 
+00ED:   actor $9 0 $CAM1 $CAM2 radius 5.0 5.0 
+else_jump @TOYZ3_4487 
+04C4: create_coordinate $CAM1 $CAM2 $CAM3 from_actor $9 offset -0.5 -3.0 -0.5 
+0489: set_actor $2580 muted 1 
+00BC: text_highpriority 'RESQ_1S' 2000 ms 1  // Money talks, bullshit walks! Die, asshole!
+015D: set_gamespeed 0.3 
+01C9: actor $2580 kill_actor $9 
+
+:TOYZ3_4591
+wait 0 
+if 
+02E0:   actor $2580 firing_weapon 
+else_jump @TOYZ3_4591 
+wait 250 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.OnPed($9, 15, 2)
+
+:TOYZ3_4651
+wait 0 
+if 
+   Actor.Dead($9)
+else_jump @TOYZ3_4651 
+wait 500 
+00BE: text_clear_all 
+015D: set_gamespeed 1.0 
+01E7: remove_forbidden_for_cars_cube -1412.55 -1180.36 5.0 -1255.4 -1316.75 18.0 
+Camera.Restore_WithJumpCut
+Camera.SetBehindPlayer
+02A3: enable_widescreen 0 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+Player.CanMove($PLAYER_CHAR) = True
+Actor.PutAt($2570, -1364.36, -1237.98, 17.691)
+Actor.PutAt($2571, -1387.38, -1254.56, 17.691)
+Actor.PutAt($2572, -1374.32, -1272.96, 17.691)
+Actor.PutAt($2573, -1343.75, -1231.45, 14.058)
+Actor.PutAt($2574, -1339.75, -1228.57, 14.058)
+0243: set_actor $2569 ped_stats_to 16 
+0243: set_actor $2570 ped_stats_to 16 
+0243: set_actor $2571 ped_stats_to 16 
+0243: set_actor $2572 ped_stats_to 16 
+0243: set_actor $2573 ped_stats_to 16 
+0243: set_actor $2574 ped_stats_to 16 
+0243: set_actor $2581 ped_stats_to 16 
+0243: set_actor $2582 ped_stats_to 16 
+01B2: give_actor $2569 weapon 19 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $2570 weapon 19 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $2571 weapon 19 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $2572 weapon 19 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $2573 weapon 19 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $2574 weapon 19 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $2581 weapon 19 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $2582 weapon 19 ammo 9999 // Load the weapon model before using this 
+02E2: set_actor $2569 weapon_accuracy_to 50 
+02E2: set_actor $2570 weapon_accuracy_to 50 
+02E2: set_actor $2571 weapon_accuracy_to 50 
+02E2: set_actor $2572 weapon_accuracy_to 50 
+02E2: set_actor $2573 weapon_accuracy_to 50 
+02E2: set_actor $2574 weapon_accuracy_to 50 
+02E2: set_actor $2580 weapon_accuracy_to 50 
+02E2: set_actor $2581 weapon_accuracy_to 50 
+02E2: set_actor $2582 weapon_accuracy_to 50 
+01CA: actor $2569 kill_player $PLAYER_CHAR 
+01CA: actor $2570 kill_player $PLAYER_CHAR 
+01CA: actor $2571 kill_player $PLAYER_CHAR 
+01CA: actor $2572 kill_player $PLAYER_CHAR 
+01CA: actor $2573 kill_player $PLAYER_CHAR 
+01CA: actor $2574 kill_player $PLAYER_CHAR 
+01CA: actor $2580 kill_player $PLAYER_CHAR 
+01CA: actor $2581 kill_player $PLAYER_CHAR 
+01CA: actor $2582 kill_player $PLAYER_CHAR 
+054A: set_actor $2575 can_be_shot_in_a_car 0 
+054A: set_actor $2577 can_be_shot_in_a_car 0 
+054A: set_actor $2578 can_be_shot_in_a_car 0 
+01B2: give_actor $PLAYER_ACTOR weapon 27 ammo 350 // Load the weapon model before using this 
+00BC: text_highpriority 'RESQ_1T' 5000 ms 1  // ~r~You have 60 seconds to get to the chopper!
+16@ = 0 // integer values 
+
+:TOYZ3_5170
+wait 0 
+if 
+  16@ >= 2000 // integer values 
+else_jump @TOYZ3_5170 
+03E6: remove_text_box 
+$2583 = 60000 // integer values 
+014E: start_timer_at $2583 count_in_direction 1 
+
+:TOYZ3_5212
+wait 0 
+if 
+80F6:   not player $PLAYER_CHAR 0 -1369.21 -1254.46 17.6911 radius 5.0 5.0 5.0 
+else_jump @TOYZ3_5411 
+if 
+   not $2583 >= 1 // integer values 
+else_jump @TOYZ3_5212 
+02A3: enable_widescreen 1 
+04A2: heli $2579 fly_to -1437.12 -1150.82 84.8335 speed 30 
+0407: create_coordinate $CAM1 $CAM2 $CAM3 from_car $2579 offset 0.0 -5.0 3.0 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.OnPed($2575, 15, 2)
+16@ = 0 // integer values 
+
+:TOYZ3_5379
+wait 0 
+if 
+  16@ >= 5000 // integer values 
+else_jump @TOYZ3_5379 
+jump @TOYZ3_7605 
+end_thread 
+
+:TOYZ3_5411
+wait 0 
+014F: stop_timer $2583 
+00BA: text_styled 'RESQ_1U' 5000 ms 5  // Press JUMP to grab onto the chopper!
+
+:TOYZ3_5435
+wait 0 
+04A2: heli $2579 fly_to -1437.12 -1150.82 84.8335 speed 30 
+if 
+   Player.Defined($PLAYER_CHAR)
+else_jump @TOYZ3_7605 
+if 
+01AF:   car $2579 0 -1369.21 -1254.46 17.6911 radius 8.5 8.5 8.5 
+else_jump @TOYZ3_7605 
+if 
+00E1:   player 0 pressed_button 14 
+else_jump @TOYZ3_5435 
+00BE: text_clear_all 
+0464: put_actor $PLAYER_ACTOR into_turret_on_car $2579 at_car_offset -1.0 0.1 -2.0 position 0 angle 90.0 with_weapon 0 
+0372: set_actor $PLAYER_ACTOR anim 17 wait_state_time 5000 ms 
+Actor.Angle($PLAYER_ACTOR) = -90.0
+02A3: enable_widescreen 1 
+16@ = 0 // integer values 
+
+:TOYZ3_5607
+wait 0 
+Actor.Angle($PLAYER_ACTOR) = -90.0
+0407: create_coordinate $CAM1 $CAM2 $CAM3 from_car $2579 offset 10.0 -10.0 -3.0 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.OnPed($PLAYER_ACTOR, 15, 2)
+if 
+  16@ >= 5000 // integer values 
+else_jump @TOYZ3_5607 
+04A2: heli $2579 fly_to -523.576 765.06 232.851 speed 30 
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Player.CanMove($PLAYER_CHAR) = True
+16@ = 0 // integer values 
+00BA: text_styled 'RESQ_1V' 5000 ms 5  // Press SPACE to pull yourself up!
+
+:TOYZ3_5761
+wait 0 
+if 
+80E1:   not player 0 pressed_button 14 
+else_jump @TOYZ3_5813 
+if 
+  16@ >= 3000 // integer values 
+else_jump @TOYZ3_5761 
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+jump @TOYZ3_7277 
+
+:TOYZ3_5813
+wait 0 
+00BE: text_clear_all 
+16@ = 0 // integer values 
+00BA: text_styled 'RESQ_1W' 5000 ms 5  // Press SHIFT to pull yourself up!
+
+:TOYZ3_5841
+wait 0 
+if 
+80E1:   not player 0 pressed_button 16 
+else_jump @TOYZ3_5893 
+if 
+  16@ >= 2500 // integer values 
+else_jump @TOYZ3_5841 
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+jump @TOYZ3_7277 
+
+:TOYZ3_5893
+wait 0 
+00BE: text_clear_all 
+16@ = 0 // integer values 
+00BA: text_styled 'RESQ_1V' 5000 ms 5  // Press SPACE to pull yourself up!
+
+:TOYZ3_5921
+wait 0 
+if 
+80E1:   not player 0 pressed_button 14 
+else_jump @TOYZ3_5973 
+if 
+  16@ >= 2000 // integer values 
+else_jump @TOYZ3_5921 
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+jump @TOYZ3_7277 
+
+:TOYZ3_5973
+wait 0 
+00BE: text_clear_all 
+16@ = 0 // integer values 
+00BA: text_styled 'RESQ_1W' 5000 ms 5  // Press SHIFT to pull yourself up!
+
+:TOYZ3_6001
+wait 0 
+if 
+80E1:   not player 0 pressed_button 16 
+else_jump @TOYZ3_6053 
+if 
+  16@ >= 2000 // integer values 
+else_jump @TOYZ3_6001 
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+jump @TOYZ3_7277 
+
+:TOYZ3_6053
+wait 0 
+00BE: text_clear_all 
+16@ = 0 // integer values 
+00BA: text_styled 'RESQ_1V' 5000 ms 5  // Press SPACE to pull yourself up!
+
+:TOYZ3_6081
+wait 0 
+if 
+80E1:   not player 0 pressed_button 14 
+else_jump @TOYZ3_6133 
+if 
+  16@ >= 2000 // integer values 
+else_jump @TOYZ3_6081 
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+jump @TOYZ3_7277 
+
+:TOYZ3_6133
+wait 0 
+00BE: text_clear_all 
+16@ = 0 // integer values 
+00BA: text_styled 'RESQ_1W' 5000 ms 5  // Press SHIFT to pull yourself up!
+
+:TOYZ3_6161
+wait 0 
+if 
+80E1:   not player 0 pressed_button 16 
+else_jump @TOYZ3_6213 
+if 
+  16@ >= 2000 // integer values 
+else_jump @TOYZ3_6161 
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+jump @TOYZ3_7277 
+
+:TOYZ3_6213
+wait 0 
+00BE: text_clear_all 
+16@ = 0 // integer values 
+00BA: text_styled 'RESQ_1V' 5000 ms 5  // Press SPACE to pull yourself up!
+
+:TOYZ3_6241
+wait 0 
+if 
+80E1:   not player 0 pressed_button 14 
+else_jump @TOYZ3_6293 
+if 
+  16@ >= 2000 // integer values 
+else_jump @TOYZ3_6241 
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+jump @TOYZ3_7277 
+
+:TOYZ3_6293
+wait 0 
+00BE: text_clear_all 
+0464: put_actor $PLAYER_ACTOR into_turret_on_car $2579 at_car_offset -1.2 0.1 0.6 position 0 angle 360.0 with_weapon 27 
+00BA: text_styled 'RESQ_1X' 5000 ms 5  // CROUCH to get into position!
+
+:TOYZ3_6346
+wait 0 
+if 
+00E1:   player 0 pressed_button 18 
+else_jump @TOYZ3_6346 
+00BE: text_clear_all 
+02A3: enable_widescreen 1 
+00BC: text_highpriority 'RESQ_2A' 3000 ms 1  // ~x~Hold on, Jeff! I'll get you out of there!
+16@ = 0 // integer values 
+
+:TOYZ3_6395
+wait 0 
+if 
+  16@ >= 3000 // integer values 
+else_jump @TOYZ3_6395 
+00BC: text_highpriority 'RESQ_2B' 3000 ms 1  // Get inside, you idiot!
+16@ = 0 // integer values 
+
+:TOYZ3_6440
+wait 0 
+if 
+  16@ >= 3000 // integer values 
+else_jump @TOYZ3_6440 
+00BE: text_clear_all 
+02A3: enable_widescreen 0 
+00BA: text_styled 'RESQ_1Y' 5000 ms 5  // Press ENTER to climb into the cabin!
+
+:TOYZ3_6484
+wait 0 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ3_6484 
+00BE: text_clear_all 
+02A3: enable_widescreen 1 
+0321: kill_actor $2578 
+16@ = 0 // integer values 
+0464: put_actor $PLAYER_ACTOR into_turret_on_car $2579 at_car_offset -0.5 0.0 0.6 position 0 angle 360.0 with_weapon 27 
+
+:TOYZ3_6555
+wait 0 
+0407: create_coordinate $CAM1 $CAM2 $CAM3 from_car $2579 offset 5.0 -10.0 -3.0 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.OnPed($2578, 15, 2)
+if 
+  16@ >= 5000 // integer values 
+else_jump @TOYZ3_6555 
+Camera.Restore_WithJumpCut
+00BC: text_highpriority 'RESQ_2C' 2000 ms 1  // My hands are tied... Help me get in control!
+16@ = 0 // integer values 
+
+:TOYZ3_6666
+wait 0 
+if 
+  16@ >= 2000 // integer values 
+else_jump @TOYZ3_6666 
+02A3: enable_widescreen 0 
+02A9: set_actor $2575 immune_to_nonplayer 0 
+02A9: set_actor $2577 immune_to_nonplayer 0 
+054A: set_actor $2575 can_be_shot_in_a_car 1 
+054A: set_actor $2577 can_be_shot_in_a_car 1 
+
+:TOYZ3_6721
+wait 0 
+if 
+   not Actor.Dead($2577)
+else_jump @TOYZ3_7605 
+if 
+8448:   not actor $2575 in_car $2579 
+else_jump @TOYZ3_6721 
+00BC: text_highpriority 'RESQ_2D' 5000 ms 1  // Good, now undo the ropes!
+wait 1500 
+015D: set_gamespeed 0.15 
+wait 500 
+00BC: text_highpriority 'RESQ_2E' 2000 ms 1  // ~x~I won't make it, Jeff! We're going down.
+wait 500 
+Player.CanMove($PLAYER_CHAR) = False
+0169: set_fade_color 255 255 255 
+fade 0 1000 
+
+:TOYZ3_6837
+wait 0 
+if 
+   not fading 
+else_jump @TOYZ3_6837 
+0169: set_fade_color 0 0 0 
+00BE: text_clear_all 
+fade 0 0 
+015D: set_gamespeed 1.0 
+wait 1000 
+033F: set_text_draw_letter_width_height 0.8 2.0 
+033E: text_draw 221.0 200.333 'TITL_1'  // ~y~TO
+033F: set_text_draw_letter_width_height 0.8 2.0 
+033E: text_draw 264.0 200.333 'TITL_2'  // ~y~BE
+033F: set_text_draw_letter_width_height 0.8 2.0 
+033E: text_draw 304.0 200.333 'TITL_3'  // ~y~CONTINUED...
+wait 5000 
+03F0: enable_text_draw 0 
+wait 1000 
+03F0: enable_text_draw 1 
+0390: load_txd_dictionary 'DRAW' // never used in VC or GTA 3 
+038F: load_texture 'TITLES' as 1 // Load dictionary with 0390 first 
+16@ = 0 // integer values 
+
+:TOYZ3_7025
+wait 0 
+if 
+   not 16@ >= 10000 // integer values 
+else_jump @TOYZ3_7091 
+038D: draw_texture 1 position 918.0 530.0 size 1920.0 1080.0 RGBA 255 255 255 255 // never used in VC or GTA 3 
+jump @TOYZ3_7025 
+
+:TOYZ3_7091
+0391: release_textures 
+0465: remove_actor $PLAYER_ACTOR from_turret_mode 
+fade 1 1500 
+0055: put_player $PLAYER_CHAR at 355.808 275.8 18.703 
+0171: set_player $PLAYER_CHAR z_angle_to 0.0 
+Camera.Restore_WithJumpCut
+Player.CanMove($PLAYER_CHAR) = True
+Player.ClearWantedLevel($PLAYER_CHAR)
+Object.Destroy($NCONDO1)
+$NCONDO2 = Object.Init(#NBT_DOORS1, 381.649, 303.97, 18.8986)
+Object.RemoveFromMissionCleanupList($NCONDO2)
+wait 2000 
+00BA: text_styled 'TITL_4' 5000 ms 1  // FREEROAM MODE UNLOCKED!
+$143 = 1 // integer values 
+030C: progress_made += 1 
+0318: set_latest_mission_passed 'PORN_3'  // Shady Business
+0394: play_music 1 
+wait 4000 
+03E5: text_box 'TITL_5'  // Congratulations! You have successfully completed Act 1. The story will continue in Act 2, meanwhile enjoy freeroam mode!
+create_thread @NONAME_27 
+Marker.Disable($746)
+014C: set_parked_car_generator $REWARD1 cars_to_generate_to 101 
+014C: set_parked_car_generator $REWARD2 cars_to_generate_to 101 
+014C: set_parked_car_generator $REWARD3 cars_to_generate_to 101 
+return 
+
+:TOYZ3_7277
+wait 0 
+$2576 = Actor.Health($PLAYER_ACTOR)
+$2576 -= 1 // integer values 
+
+:TOYZ3_7296
+wait 0 
+if 
+0184:   actor $PLAYER_ACTOR health >= $2576 
+else_jump @TOYZ3_7326 
+jump @TOYZ3_7296 
+
+:TOYZ3_7326
+0321: kill_actor $PLAYER_ACTOR 
+end_thread 
+
+:TOYZ3_7333
+wait 0 
+if and
+   not Actor.Dead($9)
+   not Car.Wrecked($2584)
+else_jump @TOYZ3_7605 
+Marker.Disable($2564)
+$2565 = Marker.CreateAboveCar($2584)
+00BC: text_highpriority 'RESQ_1J' 5000 ms 1  // ~r~Get back in the car!
+16@ = 0 // integer values 
+
+:TOYZ3_7393
+wait 0 
+if and
+   not Actor.Dead($9)
+   not Car.Wrecked($2584)
+else_jump @TOYZ3_7605 
+if 
+  16@ >= 15000 // integer values 
+else_jump @TOYZ3_7550 
+fade 0 500 
+
+:TOYZ3_7444
+wait 0 
+if 
+fading 
+else_jump @TOYZ3_7468 
+jump @TOYZ3_7444 
+
+:TOYZ3_7468
+Actor.DestroyInstantly($9)
+Car.Destroy($2584)
+Player.CanMove($PLAYER_CHAR) = False
+Camera.SetBehindPlayer
+wait 1000 
+Player.CanMove($PLAYER_CHAR) = True
+fade 1 500 
+
+:TOYZ3_7506
+wait 0 
+if 
+   not fading 
+else_jump @TOYZ3_7506 
+00BC: text_highpriority 'RESQ_1K' 3000 ms 1  //  ~r~You took too long! Jeff's probably dead by now.
+wait 3000 
+jump @TOYZ3_7605 
+
+:TOYZ3_7550
+wait 0 
+if 
+00DC:   player $PLAYER_CHAR driving $2584 
+else_jump @TOYZ3_7393 
+Marker.Disable($2565)
+018A: $2564 = create_checkpoint_at -1306.96 -1228.23 13.9008 
+jump @TOYZ3_2221 
+
+:TOYZ3_7605
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:TOYZ3_7622
+Marker.Disable($2564)
+Marker.Disable($2565)
+Actor.RemoveReferences($9)
+Actor.RemoveReferences($2569)
+Actor.RemoveReferences($2570)
+Actor.RemoveReferences($2571)
+Actor.RemoveReferences($2572)
+Actor.RemoveReferences($2573)
+Actor.RemoveReferences($2574)
+Actor.RemoveReferences($2575)
+Actor.RemoveReferences($2577)
+Actor.RemoveReferences($2578)
+Actor.RemoveReferences($2580)
+Actor.RemoveReferences($2581)
+Actor.RemoveReferences($2582)
+Car.RemoveReferences($2584)
+Car.RemoveReferences($2567)
+Car.RemoveReferences($2568)
+Car.RemoveReferences($2579)
+014F: stop_timer $2583 
+03C7: set_sensitivity_to_crime_to 1.0 
+Model.Destroy(#GDA)
+Model.Destroy(#TOPFUN)
+Model.Destroy(#MAVERICK)
+Model.Destroy(#PONY)
+Model.Destroy(#RUGER)
+Model.Destroy(#CHROMEGUN)
+0296: unload_special_actor 3 
+0296: unload_special_actor 4 
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
