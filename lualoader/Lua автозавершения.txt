@@ -1,0 +1,364 @@
+<?xml version="1.0" ?>
+<NotepadPlus>
+    <AutoComplete>
+		<KeyWord name="findplayer()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setpedhealth(player,100)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setarmour(player,100)" func="yes" >
+		</KeyWord>
+		<KeyWord name="wait(100)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getpedhealth(ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getpedangle(ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="worldcoord()" func="yes" >
+		</KeyWord>
+		<KeyWord name="getpedcoordinates_on_x(player,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getpedcoordinates_on_y(player,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcoordinates_on_x(player,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcoordinates_on_y(player,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setarmour(player,100)" func="yes" >
+		</KeyWord>
+		<KeyWord name="givemoney(100)" func="yes" >
+		</KeyWord>
+		<KeyWord name="keypress(VK_)" func="yes" >
+		</KeyWord>
+		<KeyWord name="Keypress(VK_)" func="yes" >
+		</KeyWord>
+		<KeyWord name="printmessage(ok,2000,1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getpedcoordes(ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="randomfindped()" func="yes" >
+		</KeyWord>
+		<KeyWord name="Giveweaponped(ped,200,...)" func="yes" >
+		</KeyWord>
+		<KeyWord name="incar(ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="loadmodel()" func="yes" >
+		</KeyWord>
+		<KeyWord name="availablemodel(144)" func="yes" >
+		</KeyWord>
+		<KeyWord name="releasemodel(144)" func="yes" >
+		</KeyWord>
+		<KeyWord name="createcar(144,x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="createped(x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="Createcar(x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="Createped(x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="load_requested_models()" func="yes" >
+		</KeyWord>
+		<KeyWord name="giveweaponped()" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_sprint_to_point(ped,x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_walk_to_point(ped,x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="kill_ped_on_foot(ped,ped1))" func="yes" >
+		</KeyWord>
+		<KeyWord name="kill_char_any_means(ped,ped1))" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_aim_at_ped(ped,ped1))" func="yes" >
+		</KeyWord>
+		<KeyWord name="is_current_weapon_ped()" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_marker_actor(ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="removemarker(m)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setpedcoordes(ped,x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="remove_car(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="car_in_water(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="set_wanted(3)" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_in_point_in_radius(player,20)" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_sphere(x,y,z,n)" func="yes" >
+		</KeyWord>
+		<KeyWord name="clear_wanted()" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcarhealth(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcarhealth(car,1000)" func="yes" >
+		</KeyWord>
+		<KeyWord name="remove_sphere(sp)" func="yes" >
+		</KeyWord>
+		<KeyWord name="remove_ped(ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="kill_ped(ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getflagmission()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setflagmission()" func="yes" >
+		</KeyWord>
+		<KeyWord name="showtext()" func="yes" >
+		</KeyWord>
+		<KeyWord name="remove_blip(blip)" func="yes" >
+		</KeyWord>
+		<KeyWord name="createblip()" func="yes" >
+		</KeyWord>
+		<KeyWord name="play_sound(1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="isped(p)" func="yes" >
+		</KeyWord>
+		<KeyWord name="isvehicle(p)" func="yes" >
+		</KeyWord>
+		<KeyWord name="cardrive(car,x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="heli_to_fly(car,x,y,z,speed)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcarspeed(car,45)" func="yes" >
+		</KeyWord>
+		<KeyWord name="opendoorcar(car,1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="randomfindcar()" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcarcoordes(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_money_pickup()" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcarcoordinates_on_x(car,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcarcoordinates_on_y(car,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="car_in_point_in_radius()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setdrivingstyle()" func="yes" >
+		</KeyWord>
+		<KeyWord name="findped()" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_weapon_pickup()" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_pickup()" func="yes" >
+		</KeyWord>
+		<KeyWord name="Create_weapon_pickup()" func="yes" >
+		</KeyWord>
+		<KeyWord name="Create_pickup(335,3,x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="remove_pickup(pikcup)" func="yes" >
+		</KeyWord>
+		<KeyWord name="picked_up(pikcup)" func="yes" >
+		</KeyWord>
+		<KeyWord name="play_voice()" func="yes" >
+		</KeyWord>
+		<KeyWord name="fade(1,900)" func="yes" >
+		</KeyWord>
+		<KeyWord name="draw_corona()" func="yes" >
+		</KeyWord>
+		<KeyWord name="sound_coordinate()" func="yes" >
+		</KeyWord>
+		<KeyWord name="show_text_styled()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcarangle(car,180)" func="yes" >
+		</KeyWord>
+		<KeyWord name="createmarker(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setsizemarker()" func="yes" >
+		</KeyWord>
+		<KeyWord name="cheat()" func="yes" >
+		</KeyWord>
+		<KeyWord name="destroy()" func="yes" >
+		</KeyWord>
+		<KeyWord name="yield()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcardrive(car,1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcarpassenger(ped,1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcarfirstcolor(car,1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcarseconscolor(car,1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="set_traffic()" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_marker_car(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="car_explode(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="is_car_stopped(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_explosion()" func="yes" >
+		</KeyWord>
+		<KeyWord name="set_status_engine()" func="yes" >
+		</KeyWord>
+		<KeyWord name="player_defined()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setclock(car,1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="arrested()" func="yes" >
+		</KeyWord>
+		<KeyWord name="lockstatus()" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_marker_pickup()" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_obj()" func="yes" >
+		</KeyWord>
+		<KeyWord name="remove_obj()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setobjîcoordes()" func="yes" >
+		</KeyWord>
+		<KeyWord name="getobjcoordes()" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_marker_obj()" func="yes" >
+		</KeyWord>
+		<KeyWord name="isobject()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setpedangle(ped,90)" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcaraction(car,1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="move_obj()" func="yes" >
+		</KeyWord>
+		<KeyWord name="move_rotate(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getobjangle()" func="yes" >
+		</KeyWord>
+		<KeyWord name="findcar()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcartask()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcarcoordes(car,x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="is_car_stuck()" func="yes" >
+		</KeyWord>
+		<KeyWord name="is_car_upsidedown()" func="yes" >
+		</KeyWord>
+		<KeyWord name="is_car_upright()" func="yes" >
+		</KeyWord>
+		<KeyWord name="find_road_for_car()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcarstrong(car,1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="putincar(player,car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="print_front()" func="yes" >
+		</KeyWord>
+		<KeyWord name="star_timer()" func="yes" >
+		</KeyWord>
+		<KeyWord name="stop_timer()" func="yes" >
+		</KeyWord>
+		<KeyWord name="timer_donw()" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_attack_car()" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_frozen(1)" func="yes" >
+		</KeyWord>
+		<KeyWord name="hold_cellphone()" func="yes" >
+		</KeyWord>
+		<KeyWord name="car_lastweapondamage(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="car_currentgear()" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcar_model()" func="yes" >
+		</KeyWord>
+		<KeyWord name="setcarsiren()" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_car_as_driver()" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_car_as_passenger(player,car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_atack()" func="yes" >
+		</KeyWord>
+		<KeyWord name="show_text_gtx()" func="yes" >
+		</KeyWord>
+		<KeyWord name="camera_at_point()" func="yes" >
+		</KeyWord>
+		<KeyWord name="restore_camera()" func="yes" >
+		</KeyWord>
+		<KeyWord name="is_wanted_level()" func="yes" >
+		</KeyWord>
+		<KeyWord name="set_camera_position()" func="yes" >
+		</KeyWord>
+		<KeyWord name="flash_hud()" func="yes" >
+		</KeyWord>
+		<KeyWord name="set_radio(0,0)" func="yes" >
+		</KeyWord>
+		<KeyWord name="set_car_tires()" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_spec_ped()" func="yes" >
+		</KeyWord>
+		<KeyWord name="set_wheel_status()" func="yes" >
+		</KeyWord>
+		<KeyWord name="set_skin()" func="yes" >
+		</KeyWord>
+		<KeyWord name="remove_spec_ped()" func="yes" >
+		</KeyWord>
+		<KeyWord name="go_to_route(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="add_stuck_car_check()" func="yes" >
+		</KeyWord>
+		<KeyWord name="load_scene(0,0,0)" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_anim()" func="yes" >
+		</KeyWord>
+		<KeyWord name="del_anim()" func="yes" >
+		</KeyWord>
+		<KeyWord name="get_current_name_luascript()" func="yes" >
+		</KeyWord>
+		<KeyWord name="star_mission_marker()" func="yes" >
+		</KeyWord>
+		<KeyWord name="getobjcoordinates_on_x(player,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getobjcoordinates_on_y(player,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="set_widescreen(true)" func="yes" >
+		</KeyWord>
+		<KeyWord name="follow_the_leader(player,ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcarspeed(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="newthread()" func="yes" >
+		</KeyWord>
+		<KeyWord name="tostring(ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="exitcar(ped)" func="yes" >
+		</KeyWord>
+		<KeyWord name="carmoveforce(car,x,y,z)" func="yes" >
+		</KeyWord>
+		<KeyWord name="carturnforce(car,0,0,0,0,0,0)"func="yes" >
+		</KeyWord>
+		<KeyWord name="car_turn_speed(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="carmovespeed_on_x(car,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="carmovespeed_on_y(car,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="carmovespeed_on_z(car,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="read_memory(res,4)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcar_resistance(car)" func="yes" >
+		</KeyWord>
+		<KeyWord name="show_save_menu()" func="yes" >
+		</KeyWord>
+		<KeyWord name="Star_mission_marker(30,45.8,-871.1,10.5)" func="yes" >
+		</KeyWord>
+		<KeyWord name="getcarangle(car)" func="yes" >	
+		</KeyWord>
+		<KeyWord name="heli_change_height(car,14,10)" func="yes" >
+		</KeyWord>
+		<KeyWord name="create_newthread(func)" func="yes" >
+		</KeyWord>	
+		<KeyWord name="create_marker_and_sphere(-209.1,-1204.3,10.5,3,3.0)" func="yes" >
+		</KeyWord>
+		<KeyWord name="ped_in_point_in_radius(player,-209.1,-1204.3,10.5,2.0,2.0,2.0)" func="yes" >
+		</KeyWord>
+		<KeyWord name="miss(1000)" func="yes" >
+		</KeyWord>
+		<KeyWord name="is_ped_in_car(player)" func="yes" >
+		</KeyWord>
+		
+    </AutoComplete>)
+</NotepadPlus>

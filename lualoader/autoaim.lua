@@ -3,15 +3,29 @@ function main()
 while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
  if Keypress("VK_G") -- если клавиша H.
-  then mod_autoaim("M40", "on")  printmessage("~r~on autoaim", 3400,1 )
+  then mod_autoaim("M4", "on")  printmessage("~r~on autoaim", 3400,1 )
+      incarstatus, mycar = incar(player) -- проверить игрок в машине?.
+    if incarstatus == true then -- если в машине.
+      set_car_mass(mycar, 200) -- дать этой машине массу 3000.
+      printmessage("~r~mass 200", 3400,1 )
+    end
  end
 
  if Keypress("VK_H") -- если клавиша H.
   then  mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
  end
  
-	if Keypress("VK_J") -- если клавиша H.
-     then Giveweaponped(player,600,"M40")-- дать педу оружие.
+    if Keypress("VK_J") -- если клавиша J.
+     then 
+
+        Giveweaponped(player,600,"m4")-- дать педу оружие.
+         printmessage("~r~give M40", 3400,1 )
+        set_clip_current_weapon(player, 10)-- поставить обойму 10 (проверка: HUD должен показать 10/600).
+        incarstatus, mycar = incar(player) -- проверить игрок в машине?.
+        if incarstatus == true then -- если в машине.
+          set_car_mass(mycar, 3000) -- дать этой машине массу 3000.
+          printmessage("~r~mass 3000", 3400,1 )
+        end
     end 
   end
  

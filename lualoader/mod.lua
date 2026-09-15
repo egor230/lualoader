@@ -36,19 +36,14 @@ VK_OEM_AUTO = 0xF3,VK_OEM_ENLW = 0xF4,VK_OEM_BACKTAB = 0xF5,VK_ATTN = 0xF6,VK_CR
 VK_EXSEL = 0xF8, VK_EREOF = 0xF9,VK_PLAY = 0xFA,VK_ZOOM = 0xFB,VK_PA1 = 0xFD, VK_OEM_CLEAR = 0xFE} 
 
 MODEL_CARS = { MODEL_LANDSTAL = 130, MODEL_IDAHO = 131, MODEL_STINGER = 132,MODEL_LINERUN = 133, 
-
 MODEL_PEREN = 134, MODEL_SENTINEL = 135, MODEL_RIO = 136, MODEL_FIRETRUK = 137, MODEL_TRASH = 138,
-
 MODEL_STRETCH = 139, MODEL_MANANA = 140, MODEL_INFERNUS = 141, MODEL_VOODOO = 142, MODEL_PONY = 143,
-
 MODEL_MULE = 144, MODEL_CHEETAH = 145, MODEL_AMBULAN = 146, MODEL_FBICAR = 147,MODEL_MOONBEAM = 148,
-
 MODEL_ESPERANT = 149, MODEL_TAXI = 150, MODEL_WASHING = 151, MODEL_BOBCAT = 152, MODEL_MRWHOOP = 153,
-
-MODEL_BFINJECT = 154, MODEL_HUNTER = 155, MODEL_POLICE = 156, MODEL_ENFORCER = 157, MODEL_SECURICA = 158,
-MODEL_BANSHEE = 159, MODEL_PREDATOR = 160, MODEL_BUS = 161,MODEL_RHINO = 162, MODEL_BARRACKS = 163, MODEL_CUBAN = 164,
-MODEL_CHOPPER = 165,MODEL_ANGEL = 166,MODEL_COACH = 167, MODEL_CABBIE = 168,MODEL_STALLION = 169,MODEL_RUMPO = 170,
-MODEL_RCBANDIT = 171,MODEL_ROMERO = 172,
+MODEL_BFINJECT = 154, MODEL_HUNTER = 155, MODEL_POLICE = 156, MODEL_ENFORCER = 157,
+MODEL_SECURICA = 158, MODEL_BANSHEE = 159, MODEL_PREDATOR = 160, MODEL_BUS = 161,MODEL_RHINO = 162,
+MODEL_BARRACKS = 163,MODEL_CUBAN = 164,MODEL_CHOPPER = 165,MODEL_ANGEL = 166,MODEL_COACH = 167,
+MODEL_CABBIE = 168,MODEL_STALLION = 169,MODEL_RUMPO = 170,MODEL_RCBANDIT = 171,MODEL_ROMERO = 172,
 MODEL_PACKER = 173,MODEL_SENTXS = 174,MODEL_ADMIRAL = 175,MODEL_SQUALO = 176,MODEL_SEASPAR = 177,
 MODEL_PIZZABOY = 178,MODEL_GANGBUR = 179,MODEL_AIRTRAIN = 180,MODEL_DEADDODO = 181,
 MODEL_SPEEDER = 182, MODEL_REEFER = 183,MODEL_TROPIC = 184,MODEL_FLATBED = 185,MODEL_YANKEE = 186,
@@ -306,7 +301,13 @@ AMINATIONS_LIST ={
 -- 172 - висит на тросе
 }
 
+--for k, v in pairs(KEYS) do _G[k] = v end	
+--for k, v in pairs(MODEL_CARS) do _G[k] = v end
+--for k, v in pairs(MODEL_WEAPONS) do _G[k] = v end
+--for k, v in pairs(PED_MODELS_AND_TYPES) do _G[k] = v end
+--for k, v in pairs(WEAPONS_MODELS_AND_TYPES) do _G[k] = v end
 for k, v in pairs(DOORS_CAR) do _G[k] = v end	
+--for k, v in pairs(SPEC_PED_MODELS_AND_TYPES) do _G[k] = v end	
 
 
 function delay()
@@ -358,6 +359,14 @@ end
  3 - бесплатно, одноразовый 9,11 - бомба 
  15 - эти регенерируется за 6 часов игрового времени или за 6 минут по-нормальному
 ]]-- 
+-- function Create_pickup(model, typepickup, x,y,z) -- создать пикап.
+-- loadmodel(model)
+-- load_requested_models() 
+-- while not availablemodel(model) do wait(1) loadmodel(model) end
+-- local pickup = create_pickup(model,typepickup, x,y,z)
+-- releasemodel(model)  
+-- return pickup
+-- end
 
 function remove_current_weapon_ped(ped)	-- удалить текущее оружие.
   local m = get_model_current_weapon_ped(ped) -- получить текущее оружие.
@@ -474,8 +483,8 @@ function end_mission(text)
   draw_corona(false, 4.5, 6, 0, 255, 0, 0, 0,0, 0)
  setflagmission(false) -- установить флаг миссии
  wait(200)
- destroy()-- удалить все объекты, которые были созданы скриптом.	
- showtext(text, 2500,0)-- вывод статуса миссии. 
+ showtext(text, 2500,0)-- вывод статуса миссии.
+ destroy()-- удалить все объекты, которые были созданы скриптом.	 
 end
 
 function miss(money)  text="mission passed $"..tostring(money)
@@ -793,10 +802,8 @@ function foel(model, player,weapon,x,y,z)
  return ped, m
 end
 
-function foel1(model, player,weapon,x,y,z, angle)
-local angle=angle or 0
+function foel1(model, player,weapon,x,y,z)
  local ped = Createped(model, x,y,z)
- setpedangle(ped, angle)
  Giveweaponped(ped,600, weapon)
  kill_ped_on_foot(ped, player)
  return ped
@@ -1012,49 +1019,24 @@ function mod_block_second_bridge()-- создать баррикаду на мо
    wait(2000)  end
   end
  
-
- function mod_block_second_bridge_on_exit()-- создать баррикаду на мосте к острову диаса на выходе.
-
- if not check_obj_in_cord( -712.5, -489.4, 10.15, 1)-- проверить нет ли объект в радиусе с координатами.
- then obj = get_obj_in_cord( -712.5, -489.4, 10.15, 4) -- получить объект в координатах.
-    m = getmodelindex(obj)-- получить id объекта.
-  if tonumber(m) == 2444 -- проверить соответствует id модели баррикады.   
-  then remove_obj(obj)--- удалить объект.
-   cleanarea(-712.5, -489.4, 12.5, 50,0)  wait(500)
-    obj = Createobj(2446, -715.1, -489.7, 10.10)
-	car_road_off(-870.656, -594.54, 5.0, -810.656, -144.54, 25.0)
-	ped_road_off(-918.5, -355.0, 5.0, -898.0, -328.0, 16.0)
-
-	ped_road_off(-896.098, -593.101, 0.0, -855.09, -548.64, 30.0)
-	ped_road_off(-877.0, -368.0, 5.0, -832.0, -317.0, 25.0)
-	ped_road_off(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
-
-	ped_road_off(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
-   
-   wait(2000)   
-   end
- end
- end
-  function mod_del_block_second_bridge_on_exit()-- удалить баррикаду на мосте к острову диаса на выходе.
- if check_obj_in_cord(-712.5, -489.4, 10.15, 4)-- проверить есть ли объект в радиусе с координатами.
- then obj = get_obj_in_cord(-712.5, -489.4, 10.15, 4) -- получить объект в координатах.
+ function mod_del_block_second_bridge_on_exit()-- удалить баррикаду на мосте к острову диаса на выходе.
+ if check_obj_in_cord(-712.5, -489.4, 12.5, 4)-- проверить есть ли объект в радиусе с координатами.
+ then obj = get_obj_in_cord(-712.5, -489.4, 12.5, 4) -- получить объект в координатах.
     m = getmodelindex(obj)-- получить id объекта.
   if tonumber(m) == 2446 -- проверить соответствует id модели баррикады.   
   then remove_obj(obj)--- удалить объект.
-		car_road_on(-870.656, -594.54, 5.0, -810.656, -144.54, 25.0)
-		ped_road_on(-918.5, -355.0, 5.0, -898.0, -328.0, 16.0)
-
-		ped_road_on(-896.098, -593.101, 0.0, -855.09, -548.64, 30.0)
-		ped_road_on(-877.0, -368.0, 5.0, -832.0, -317.0, 25.0)
-		ped_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
-
-		ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
-
-    obj1 = Createobj(2444, -712.5, -489.7, 10.15)
+  
+  obj1 = Createobj(2444, -712.5, -489.4, 10.15)
    wait(2000)   end
   end
  end
-
+ 
+ function mod_block_second_bridge_on_exit()-- создать баррикаду на мосте к острову диаса на выходе.
+ if not check_obj_in_cord(-712.5, -489.4, 12.5, 4)-- проверить нет ли объект в радиусе с координатами.
+ then  obj1 = Createobj(2446, -712.5, -489.4, 12.5)
+   wait(2000)   end
+ end
+ 
  function mod_del_block_third_bridge()-- удалить баррикаду на мосту около гольфа клуба.
   if check_obj_in_cord(-81.5, 81.4, 21.0, 8)-- проверить есть ли объект в радиусе с координатами.
   then obj = get_obj_in_cord(-81.5, 81.4, 21.0, 8) -- получить объект в координатах.
@@ -1075,76 +1057,7 @@ function mod_block_second_bridge()-- создать баррикаду на мо
   end
   end
   end
-  function check_car(player, car)
- m=create_marker(car) -- создать маркер над авто.
-while getflagmission() do wait(100)
-if 0 == getcarhealth(car) or iscarfire(car) or is_ped_in_this_car(player, car) 
-then removemarker(m)  break
- end
-  if is_car_stuck(car)
- then printmessage("~r~Car stuck", 4000,1) end 
-end
-
-while getflagmission() do wait(10)
-
-if is_ped_in_this_car(player, car) 
-then m,sp = create_marker_and_sphere(-165.7, -1344.4, 3.6, 3, 3.0) -- создать метку на карте с размером и сферу с радиусом.
-
-while getflagmission() do wait(10)
-if not is_ped_in_this_car(player, car) 
-then remove_blip(m) remove_sphere(sp) break end
-end
-end
-end
-
-remove_blip(m) remove_sphere(sp)
-end
-function create_car_with_driver(model, model_ped, x,y,z, angle)
-
-   car = Createcar(model, x,y,z) -- создать авто на 5 впереди. 
-   ped = set_ped_in_car(car, model_ped ) -- создать педа в авто
-   setcarangle(car, angle  )-- уст угол авто
-   setcartask(car, 1)-- авто едет.
-   lockstatus(car, 1)-- закрыть двери авто.  
-   setcarspeed(car, 35) setdrivingstyle(car, 2) setcarstrong(car,1)
-   create_newthread(check_car, player, car) -- запуск функции в новом потоке. 
-   wait(1500)
-   return car
-end
-  
-  
-function create_car_with_driver_back_car(model, model_ped, x,y,z, angle)
-local angle=angle or 0
-   car = Createcar(model, x,y,z) -- создать авто на 5 впереди. 
-   ped = set_ped_in_car(car, model_ped ) -- создать педа в авто
-   setcarangle(car, angle  )-- уст угол авто
-  
-   return car, ped
-end
-  
-  
  --[[
-   
-   
--- ped_road_on( -787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
--- car_road_on( -787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
--- ped_road_on( -99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
--- car_road_on( -99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
--- ped_road_on( 189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
--- ped_road_on( -38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
--- car_road_on( 189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
--- car_road_on( -38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
--- car_road_on( 175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
--- car_road_on( 149.8, 231.4, 0.0, 136.0, 235.3, 30.0)
--- car_road_on( 63.4, 188.6, 0.0, 49.4, 189.7, 30.0)
--- ped_road_on( -214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
--- car_road_on( -214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
--- ped_road_on( -787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
--- car_road_on( -787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
-
--- ped_road_on( -99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
--- car_road_on( -99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
-
 
 -- ped_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
 -- car_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
@@ -1181,100 +1094,20 @@ end
 -- car_road_on(175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
 -- ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
 -- car_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
--- ped_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
--- car_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
-
--- ped_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
--- car_road_on(-214.6, -948.8, 0.0, -258.7, -920.6, 30.0)
-   
--- ped_road_on(-99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
--- car_road_on(-99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
--- ped_road_on(-38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
--- car_road_on(-38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
-
--- car_road_on(63.4, 188.6, 0.0, 49.4, 189.7, 30.0)
--- car_road_on(149.8, 231.4, 0.0, 136.0, 235.3, 30.0)
--- car_road_on(175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
--- ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
--- car_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
 
 
-
-
--- 022A: remove_forbidden_for_peds_cube -787.8 -519.4 10.0 -657.5 -475.2 20.0 
--- 01E7: remove_forbidden_for_cars_cube -787.8 -519.4 10.0 -657.5 -475.2 20.0
  
-
--- 022A: remove_forbidden_for_peds_cube -214.6 -948.8 0.0 -258.7 -920.6 30.0 
--- 01E7: remove_forbidden_for_cars_cube -214.6 -948.8 0.0 -258.7 -920.6 30.0 
-   
-
--- car_road_on(-721.211, 243.998, 5.0, -651.211, 693.998, 25.0)
--- car_road_on(-760.362, 101.883, 5.0, -700.362, 251.883, 25.0)
--- car_road_on(-783.906, -46.826, 5.0, -723.906, 103.174, 25.0)
--- ped_road_on(-230.0, -464.5, 10.0, 56.85, -459.8, 20.0)
--- ped_road_on(-271.6, -504.3, 0.0, -510.5, -661.2, 55.0)
-
--- car_road_on(-230.0, -464.5, 10.0, 165.85, -459.8, 20.0)
--- car_road_on(-283.0, 372.0, 0.0, -137.0, 608.0, 35.0)
--- car_road_on(-291.0, -287.0, 0.0, 208.0, 648.0, 35.0)
-   
-
--- 022A: remove_forbidden_for_peds_cube -99.8 1041.9 0.0 -129.0 1097.4 30.0 
--- 01E7: remove_forbidden_for_cars_cube -99.8 1041.9 0.0 -129.0 1097.4 30.0 
-
--- 01E7: remove_forbidden_for_cars_cube -38.0 84.3 0.0 -102.3 95.1 30.0 
--- 022A: remove_forbidden_for_peds_cube -38.0 84.3 0.0 -102.3 95.1 30.0 
-
--- 01E7: remove_forbidden_for_cars_cube 63.4 188.6 0.0 49.4 189.7 30.0 
--- 01E7: remove_forbidden_for_cars_cube 149.8 231.4 0.0 136.0 235.3 30.0 
-
--- 01E7: remove_forbidden_for_cars_cube 175.0 236.1 0.0 161.0 242.4 30.0 
-  -- 022A: remove_forbidden_for_peds_cube 189.8 230.3 0.0 248.0 258.5 30.0 
--- 01E7: remove_forbidden_for_cars_cube 189.8 230.3 0.0 248.0 258.5 30.0    
-   -- 022B: create_forbidden_for_peds_cube 378.103 -785.55 -10.908 448.572 -365.738 15.096 
--- 01E8: create_forbidden_for_cars_cube 378.103 -785.55 -10.908 448.572 -365.738 15.096 
--- 022B: create_forbidden_for_peds_cube 461.047 -407.806 -5.549 470.15 -391.0296 16.9967 
--- 01E8: create_forbidden_for_cars_cube 461.047 -407.806 -5.549 470.15 -391.0296 16.9967 
--- 022B: create_forbidden_for_peds_cube 435.0 -524.0 8.06 471.0 -543.0 10.22 
--- 01E8: create_forbidden_for_cars_cube 435.0 -524.0 8.06 471.0 -543.0 10.22 
--- 022B: create_forbidden_for_peds_cube 459.0238 -516.2858 -9.8426 442.6711 -521.8006 9.3815 
--- 022B: create_forbidden_for_peds_cube 453.827 -521.7261 -9.8193 458.1206 -518.6826 9.8448 
--- 022B: create_forbidden_for_peds_cube 463.6935 -522.5222 -9.9304 458.2091 -523.7589 9.9072 
--- 01E8: create_forbidden_for_cars_cube 360.1251 -718.2709 5.6599 358.0144 -714.4711 15.5665 
-
-
-
-
-car_road_on(63.4, 188.6, 0.0, 49.4, 189.7, 30.0)
-ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
-
-car_road_on(130.4, 368.4, 50.7, -228.4, 724.5, 0.0)
-car_road_on(149.8, 231.4, 0.0, 136.0, 235.3, 30.0)
-car_road_on(175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
-car_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
-car_road_on(-38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
-car_road_on(-99.8, 1041.9, 0.0, -129.0, 1097.4, 30.0)
-
-ped_road_on(-112.495, 920.349, 0.0, 9.705, 1025.694, 30.0)
-
-car_road_on(63.4, 188.6, 0.0, 49.4, 189.7, 30.0)
-car_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
-
-ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
-car_road_on(-38.0, 84.3, 0.0, -102.3, 95.1, 30.0)
-
-car_road_on(149.8, 231.4, 0.0, 136.0, 235.3, 30.0)
-car_road_on(175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
-
-
-car_road_on(63.4, 188.6, 0.0, 49.4, 189.7, 30.0)
-car_road_on(149.8, 231.4, 0.0, 136.0, 235.3, 30.0)
-car_road_on(175.0, 236.1, 0.0, 161.0, 242.4, 30.0)
-ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
-car_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
-
-
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
  
  
 ped_road_on(189.8, 230.3, 0.0, 248.0, 258.5, 30.0)
@@ -1339,133 +1172,135 @@ car_road_on(-648.52, 629.85, 8.0, -499.21, 702.38, 15.0)
 ped_road_on(-692.193, -1522.901, 0.0, -575.311, -1453.378, 30.0)
 ped_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
 
--- car_road_on(-721.211, 243.998, 5.0, -651.211, 693.998, 25.0)
--- car_road_on(-760.362, 101.883, 5.0, -700.362, 251.883, 25.0)
--- car_road_on(-783.906, -46.826, 5.0, -723.906, 103.174, 25.0)
--- car_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
+car_road_on(-721.211, 243.998, 5.0, -651.211, 693.998, 25.0)
+car_road_on(-760.362, 101.883, 5.0, -700.362, 251.883, 25.0)
+car_road_on(-783.906, -46.826, 5.0, -723.906, 103.174, 25.0)
+car_road_on(-787.8, -519.4, 10.0, -657.5, -475.2, 20.0)
 
--- ped_road_on(-877.0, -368.0, 5.0, -832.0, -317.0, 25.0)
--- ped_road_on(-896.098, -593.101, 0.0, -855.09, -548.64, 30.0)
--- ped_road_on(-918.5, -355.0, 5.0, -898.0, -328.0, 16.0)
+ped_road_on(-877.0, -368.0, 5.0, -832.0, -317.0, 25.0)
+ped_road_on(-896.098, -593.101, 0.0, -855.09, -548.64, 30.0)
+ped_road_on(-918.5, -355.0, 5.0, -898.0, -328.0, 16.0)
 
--- car_road_on(-827.532, -1539.617, 5.0, -747.532, -1039.617, 25.0)
--- car_road_on(-837.282, -1041.814, 5.0, -777.282, -591.814, 25.0)
--- car_road_on(-853.397, -149.692, 5.0, -773.397, 0.308, 25.0)
--- car_road_on(-870.656, -594.54, 5.0, -810.656, -144.54, 25.0)
--- car_road_on(-875.1, 1156.89, 8.0, -662.04, 738.48, 20.0)
+car_road_on(-827.532, -1539.617, 5.0, -747.532, -1039.617, 25.0)
+car_road_on(-837.282, -1041.814, 5.0, -777.282, -591.814, 25.0)
+car_road_on(-853.397, -149.692, 5.0, -773.397, 0.308, 25.0)
+car_road_on(-870.656, -594.54, 5.0, -810.656, -144.54, 25.0)
+car_road_on(-875.1, 1156.89, 8.0, -662.04, 738.48, 20.0)
 
 
--- ped_road_on(-1012.06, 181.561, 0.0, -982.06, 216.561, 30.0)
--- ped_road_on(-1031.494, -902.312, 0.0, -949.479, -821.592, 30.0)
--- car_road_on(-1090.0, 0.0, 14.0, -1030.0, 90.0, 20.0)
--- ped_road_on(-1176.038, -266.898, 0.0, -1012.796, -158.26, 30.0)
--- car_road_on(-1208.09, 1.78, 6.0, -1172.68, 18.66, 20.0)
--- car_road_on(-1400.423, -788.7123, 12.2184, -1284.43, -778.7008, 27.3309)
+ped_road_on(-1012.06, 181.561, 0.0, -982.06, 216.561, 30.0)
+ped_road_on(-1031.494, -902.312, 0.0, -949.479, -821.592, 30.0)
+car_road_on(-1090.0, 0.0, 14.0, -1030.0, 90.0, 20.0)
+ped_road_on(-1176.038, -266.898, 0.0, -1012.796, -158.26, 30.0)
+car_road_on(-1208.09, 1.78, 6.0, -1172.68, 18.66, 20.0)
+car_road_on(-1400.423, -788.7123, 12.2184, -1284.43, -778.7008, 27.3309)
 
--- ped_road_on(-1385.123, -855.1205, 10.0263, -1383.952, -853.1511, 28.5218)
--- ped_road_on(-1386.247, -863.7204, 8.8377, -1393.27, -859.9062, 16.8377)
--- ped_road_on(-1407.059, -869.3946, -5.8549, -1408.656, -873.5172, 23.8402)
--- ped_road_on(-1424.038, -876.6656, 10.8537, -1422.422, -873.6301, 29.8434)
+ped_road_on(-1385.123, -855.1205, 10.0263, -1383.952, -853.1511, 28.5218)
+ped_road_on(-1386.247, -863.7204, 8.8377, -1393.27, -859.9062, 16.8377)
+ped_road_on(-1407.059, -869.3946, -5.8549, -1408.656, -873.5172, 23.8402)
+ped_road_on(-1424.038, -876.6656, 10.8537, -1422.422, -873.6301, 29.8434)
 
 
 
 
  
--- 022A: remove_forbidden_for_peds_cube 0.778 -944.7307 14.4913 7.0235 -931.7332 23.0981 
--- 022A: remove_forbidden_for_peds_cube -38.0 84.3 0.0 -102.3 95.1 30.0 
--- 022A: remove_forbidden_for_peds_cube -99.8 1041.9 0.0 -129.0 1097.4 30.0 
+022A: remove_forbidden_for_peds_cube 0.778 -944.7307 14.4913 7.0235 -931.7332 23.0981 
+022A: remove_forbidden_for_peds_cube -38.0 84.3 0.0 -102.3 95.1 30.0 
+022A: remove_forbidden_for_peds_cube -99.8 1041.9 0.0 -129.0 1097.4 30.0 
 
--- 01E7: remove_forbidden_for_cars_cube $5181 $5182 $5183 $5184 $5185 $5186 
--- 01E7: remove_forbidden_for_cars_cube $7477 $7478 $7479 $7480 $7481 $7482 
+01E7: remove_forbidden_for_cars_cube $5181 $5182 $5183 $5184 $5185 $5186 
+01E7: remove_forbidden_for_cars_cube $7477 $7478 $7479 $7480 $7481 $7482 
 
--- 01E7: remove_forbidden_for_cars_cube -38.0 84.3 0.0 -102.3 95.1 30.0
--- 01E7: remove_forbidden_for_cars_cube 63.4 188.6 0.0 49.4 189.7 30.0 
--- 01E7: remove_forbidden_for_cars_cube -99.8 1041.9 0.0 -129.0 1097.4 30.0 
+01E7: remove_forbidden_for_cars_cube -38.0 84.3 0.0 -102.3 95.1 30.0
+01E7: remove_forbidden_for_cars_cube 63.4 188.6 0.0 49.4 189.7 30.0 
+01E7: remove_forbidden_for_cars_cube -99.8 1041.9 0.0 -129.0 1097.4 30.0 
  
 
--- 022A: remove_forbidden_for_peds_cube -112.495 920.349 0.0 9.705 1025.694 30.0 
--- 022A: remove_forbidden_for_peds_cube 189.8 230.3 0.0 248.0 258.5 30.0 
+022A: remove_forbidden_for_peds_cube -112.495 920.349 0.0 9.705 1025.694 30.0 
+022A: remove_forbidden_for_peds_cube 189.8 230.3 0.0 248.0 258.5 30.0 
   
--- 01E7: remove_forbidden_for_cars_cube 130.4 368.4 50.7 -228.4 724.5 0.0 
--- 01E7: remove_forbidden_for_cars_cube 149.8 231.4 0.0 136.0 235.3 30.0 
--- 01E7: remove_forbidden_for_cars_cube 175.0 236.1 0.0 161.0 242.4 30.0 
--- 01E7: remove_forbidden_for_cars_cube 189.8 230.3 0.0 248.0 258.5 30.0 
+01E7: remove_forbidden_for_cars_cube 130.4 368.4 50.7 -228.4 724.5 0.0 
+01E7: remove_forbidden_for_cars_cube 149.8 231.4 0.0 136.0 235.3 30.0 
+01E7: remove_forbidden_for_cars_cube 175.0 236.1 0.0 161.0 242.4 30.0 
+01E7: remove_forbidden_for_cars_cube 189.8 230.3 0.0 248.0 258.5 30.0 
 
--- 022A: remove_forbidden_for_peds_cube -214.6 -948.8 0.0 -258.7 -920.6 30.0 
--- 022A: remove_forbidden_for_peds_cube -230.0 -464.5 10.0 56.85 -459.8 20.0 
--- 022A: remove_forbidden_for_peds_cube -271.6 -504.3 0.0 -510.5 -661.2 55.0 
+022A: remove_forbidden_for_peds_cube -214.6 -948.8 0.0 -258.7 -920.6 30.0 
+022A: remove_forbidden_for_peds_cube -230.0 -464.5 10.0 56.85 -459.8 20.0 
+022A: remove_forbidden_for_peds_cube -271.6 -504.3 0.0 -510.5 -661.2 55.0 
 
--- 01E7: remove_forbidden_for_cars_cube -214.6 -948.8 0.0 -258.7 -920.6 30.0 
--- 01E7: remove_forbidden_for_cars_cube -230.0 -464.5 10.0 165.85 -459.8 20.0 
--- 01E7: remove_forbidden_for_cars_cube -283.0 372.0 0.0 -137.0 608.0 35.0 
--- 01E7: remove_forbidden_for_cars_cube -291.0 -287.0 0.0 208.0 648.0 35.0 
-
-
--- 022A: remove_forbidden_for_peds_cube 306.885 179.0982 -10.0907 413.129 203.139 10.89 
--- 022A: remove_forbidden_for_peds_cube 354.9 -483.1 21.0 406.0 -490.0 0.0 
--- 022A: remove_forbidden_for_peds_cube 369.0032 -563.5308 8.19 374.3449 -563.1741 10.09998 
--- 022A: remove_forbidden_for_peds_cube 376.66 -453.85 -10.0 328.91 -504.02 30.0 
--- 022A: remove_forbidden_for_peds_cube 378.103 -785.55 -10.908 448.572 -365.738 15.096 
--- 022A: remove_forbidden_for_peds_cube 387.9402 -553.2854 5.080599 388.5724 -557.2783 11.06856 
-
--- 01E7: remove_forbidden_for_cars_cube 360.1251 -718.2709 5.6599 358.0144 -714.4711 15.5665 
--- 01E7: remove_forbidden_for_cars_cube 378.103 -785.55 -10.908 448.572 -365.738 15.096 
--- 01E7: remove_forbidden_for_cars_cube 397.0 220.0 -9.71 402.61 191.618 9.89 
+01E7: remove_forbidden_for_cars_cube -214.6 -948.8 0.0 -258.7 -920.6 30.0 
+01E7: remove_forbidden_for_cars_cube -230.0 -464.5 10.0 165.85 -459.8 20.0 
+01E7: remove_forbidden_for_cars_cube -283.0 372.0 0.0 -137.0 608.0 35.0 
+01E7: remove_forbidden_for_cars_cube -291.0 -287.0 0.0 208.0 648.0 35.0 
 
 
+022A: remove_forbidden_for_peds_cube 306.885 179.0982 -10.0907 413.129 203.139 10.89 
+022A: remove_forbidden_for_peds_cube 354.9 -483.1 21.0 406.0 -490.0 0.0 
+022A: remove_forbidden_for_peds_cube 369.0032 -563.5308 8.19 374.3449 -563.1741 10.09998 
+022A: remove_forbidden_for_peds_cube 376.66 -453.85 -10.0 328.91 -504.02 30.0 
+022A: remove_forbidden_for_peds_cube 378.103 -785.55 -10.908 448.572 -365.738 15.096 
+022A: remove_forbidden_for_peds_cube 387.9402 -553.2854 5.080599 388.5724 -557.2783 11.06856 
 
--- 022A: remove_forbidden_for_peds_cube 403.8958 -706.7869 5.047491 401.1646 -707.5736 12.05998 
--- 022A: remove_forbidden_for_peds_cube 409.0673 -567.9186 5.203645 407.8025 -563.9974 11.11817 
--- 022A: remove_forbidden_for_peds_cube -414.0 -597.0 12.0 -332.0 -555.0 30.0 
--- 022A: remove_forbidden_for_peds_cube 435.0 -524.0 8.06 471.0 -543.0 10.22 
--- 022A: remove_forbidden_for_peds_cube 453.827 -521.7261 -9.8193 458.1206 -518.6826 9.8448 
-
--- 022A: remove_forbidden_for_peds_cube 459.0238 -516.2858 -9.8426 442.6711 -521.8006 9.3815 
--- 022A: remove_forbidden_for_peds_cube 461.047 -407.806 -5.549 470.15 -391.0296 16.9967 
--- 022A: remove_forbidden_for_peds_cube 463.6935 -522.5222 -9.9304 458.2091 -523.7589 9.9072 
--- 022A: remove_forbidden_for_peds_cube 467.448 -562.4217 10.0455 498.3176 -559.6038 10.0255 
--- 022A: remove_forbidden_for_peds_cube 468.0 -77.0 0.0 490.0 -54.0 30.0 
--- 022A: remove_forbidden_for_peds_cube 474.0 1250.0 17.0 356.0 1003.0 32.0 
--- 022A: remove_forbidden_for_peds_cube 479.9 -1.4 11.0 450.3 59.5 40.0 
-
--- 01E7: remove_forbidden_for_cars_cube 435.0 -524.0 8.06 471.0 -543.0 10.22 
--- 01E7: remove_forbidden_for_cars_cube 439.691 -319.016 8.0 533.378 139.155 14.0 
--- 01E7: remove_forbidden_for_cars_cube 444.9 -203.82 8.0 572.14 133.77 20.0 
--- 01E7: remove_forbidden_for_cars_cube 461.047 -407.806 -5.549 470.15 -391.0296 16.9967 
+01E7: remove_forbidden_for_cars_cube 360.1251 -718.2709 5.6599 358.0144 -714.4711 15.5665 
+01E7: remove_forbidden_for_cars_cube 378.103 -785.55 -10.908 448.572 -365.738 15.096 
+01E7: remove_forbidden_for_cars_cube 397.0 220.0 -9.71 402.61 191.618 9.89 
 
 
--- 022A: remove_forbidden_for_peds_cube 512.5228 -414.8388 5.066745 515.016 -419.5481 12.06674 
--- 022A: remove_forbidden_for_peds_cube -522.414 -662.451 -9.357 -222.414 -502.451 90.643 
--- 022A: remove_forbidden_for_peds_cube -692.193 -1522.901 0.0 -575.311 -1453.378 30.0 
--- 022A: remove_forbidden_for_peds_cube -787.8 -519.4 10.0 -657.5 -475.2 20.0 
 
--- 01E7: remove_forbidden_for_cars_cube -721.211 243.998 5.0 -651.211 693.998 25.0 
--- 01E7: remove_forbidden_for_cars_cube -760.362 101.883 5.0 -700.362 251.883 25.0 
--- 01E7: remove_forbidden_for_cars_cube -783.906 -46.826 5.0 -723.906 103.174 25.0 
--- 01E7: remove_forbidden_for_cars_cube -787.8 -519.4 10.0 -657.5 -475.2 20.0 
+022A: remove_forbidden_for_peds_cube 403.8958 -706.7869 5.047491 401.1646 -707.5736 12.05998 
+022A: remove_forbidden_for_peds_cube 409.0673 -567.9186 5.203645 407.8025 -563.9974 11.11817 
+022A: remove_forbidden_for_peds_cube -414.0 -597.0 12.0 -332.0 -555.0 30.0 
+022A: remove_forbidden_for_peds_cube 435.0 -524.0 8.06 471.0 -543.0 10.22 
+022A: remove_forbidden_for_peds_cube 453.827 -521.7261 -9.8193 458.1206 -518.6826 9.8448 
 
--- 022A: remove_forbidden_for_peds_cube -877.0 -368.0 5.0 -832.0 -317.0 25.0 
--- 022A: remove_forbidden_for_peds_cube -896.098 -593.101 0.0 -855.09 -548.64 30.0 
--- 022A: remove_forbidden_for_peds_cube -918.5 -355.0 5.0 -898.0 -328.0 16.0 
+022A: remove_forbidden_for_peds_cube 459.0238 -516.2858 -9.8426 442.6711 -521.8006 9.3815 
+022A: remove_forbidden_for_peds_cube 461.047 -407.806 -5.549 470.15 -391.0296 16.9967 
+022A: remove_forbidden_for_peds_cube 463.6935 -522.5222 -9.9304 458.2091 -523.7589 9.9072 
+022A: remove_forbidden_for_peds_cube 467.448 -562.4217 10.0455 498.3176 -559.6038 10.0255 
+022A: remove_forbidden_for_peds_cube 468.0 -77.0 0.0 490.0 -54.0 30.0 
+022A: remove_forbidden_for_peds_cube 474.0 1250.0 17.0 356.0 1003.0 32.0 
+022A: remove_forbidden_for_peds_cube 479.9 -1.4 11.0 450.3 59.5 40.0 
 
--- 01E7: remove_forbidden_for_cars_cube -827.532 -1539.617 5.0 -747.532 -1039.617 25.0 
--- 01E7: remove_forbidden_for_cars_cube -837.282 -1041.814 5.0 -777.282 -591.814 25.0 
--- 01E7: remove_forbidden_for_cars_cube -853.397 -149.692 5.0 -773.397 0.308 25.0 
--- 01E7: remove_forbidden_for_cars_cube -870.656 -594.54 5.0 -810.656 -144.54 25.0 
--- 01E7: remove_forbidden_for_cars_cube -875.1 1156.89 8.0 -662.04 738.48 20.0 
-
-
--- 022A: remove_forbidden_for_peds_cube -1012.06 181.561 0.0 -982.06 216.561 30.0 
--- 022A: remove_forbidden_for_peds_cube -1031.494 -902.312 0.0 -949.479 -821.592 30.0 
--- 01E7: remove_forbidden_for_cars_cube -1090.0 0.0 14.0 -1030.0 90.0 20.0 
--- 022A: remove_forbidden_for_peds_cube -1176.038 -266.898 0.0 -1012.796 -158.26 30.0 
--- 01E7: remove_forbidden_for_cars_cube -1208.09 1.78 6.0 -1172.68 18.66 20.0 
--- 022A: remove_forbidden_for_peds_cube -1385.123 -855.1205 10.0263 -1383.952 -853.1511 28.5218 
--- 022A: remove_forbidden_for_peds_cube -1386.247 -863.7204 8.8377 -1393.27 -859.9062 16.8377 
--- 022A: remove_forbidden_for_peds_cube -1407.059 -869.3946 -5.8549 -1408.656 -873.5172 23.8402 
--- 022A: remove_forbidden_for_peds_cube -1424.038 -876.6656 10.8537 -1422.422 -873.6301 29.8434 
+01E7: remove_forbidden_for_cars_cube 435.0 -524.0 8.06 471.0 -543.0 10.22 
+01E7: remove_forbidden_for_cars_cube 439.691 -319.016 8.0 533.378 139.155 14.0 
+01E7: remove_forbidden_for_cars_cube 444.9 -203.82 8.0 572.14 133.77 20.0 
+01E7: remove_forbidden_for_cars_cube 461.047 -407.806 -5.549 470.15 -391.0296 16.9967 
 
 
+022A: remove_forbidden_for_peds_cube 512.5228 -414.8388 5.066745 515.016 -419.5481 12.06674 
+022A: remove_forbidden_for_peds_cube -522.414 -662.451 -9.357 -222.414 -502.451 90.643 
+022A: remove_forbidden_for_peds_cube -692.193 -1522.901 0.0 -575.311 -1453.378 30.0 
+022A: remove_forbidden_for_peds_cube -787.8 -519.4 10.0 -657.5 -475.2 20.0 
+
+01E7: remove_forbidden_for_cars_cube -721.211 243.998 5.0 -651.211 693.998 25.0 
+01E7: remove_forbidden_for_cars_cube -760.362 101.883 5.0 -700.362 251.883 25.0 
+01E7: remove_forbidden_for_cars_cube -783.906 -46.826 5.0 -723.906 103.174 25.0 
+01E7: remove_forbidden_for_cars_cube -787.8 -519.4 10.0 -657.5 -475.2 20.0 
+
+022A: remove_forbidden_for_peds_cube -877.0 -368.0 5.0 -832.0 -317.0 25.0 
+022A: remove_forbidden_for_peds_cube -896.098 -593.101 0.0 -855.09 -548.64 30.0 
+022A: remove_forbidden_for_peds_cube -918.5 -355.0 5.0 -898.0 -328.0 16.0 
+
+01E7: remove_forbidden_for_cars_cube -827.532 -1539.617 5.0 -747.532 -1039.617 25.0 
+01E7: remove_forbidden_for_cars_cube -837.282 -1041.814 5.0 -777.282 -591.814 25.0 
+01E7: remove_forbidden_for_cars_cube -853.397 -149.692 5.0 -773.397 0.308 25.0 
+01E7: remove_forbidden_for_cars_cube -870.656 -594.54 5.0 -810.656 -144.54 25.0 
+01E7: remove_forbidden_for_cars_cube -875.1 1156.89 8.0 -662.04 738.48 20.0 
+
+
+022A: remove_forbidden_for_peds_cube -1012.06 181.561 0.0 -982.06 216.561 30.0 
+022A: remove_forbidden_for_peds_cube -1031.494 -902.312 0.0 -949.479 -821.592 30.0 
+01E7: remove_forbidden_for_cars_cube -1090.0 0.0 14.0 -1030.0 90.0 20.0 
+022A: remove_forbidden_for_peds_cube -1176.038 -266.898 0.0 -1012.796 -158.26 30.0 
+01E7: remove_forbidden_for_cars_cube -1208.09 1.78 6.0 -1172.68 18.66 20.0 
+022A: remove_forbidden_for_peds_cube -1385.123 -855.1205 10.0263 -1383.952 -853.1511 28.5218 
+022A: remove_forbidden_for_peds_cube -1386.247 -863.7204 8.8377 -1393.27 -859.9062 16.8377 
+022A: remove_forbidden_for_peds_cube -1407.059 -869.3946 -5.8549 -1408.656 -873.5172 23.8402 
+022A: remove_forbidden_for_peds_cube -1424.038 -876.6656 10.8537 -1422.422 -873.6301 29.8434 
+
+
+
+ ]]
 -- res = read_memory(adres,2)
 -- write_memory(adres, 2, 0x9090)
 -- 05DF: write_memory 0x5349DB size 2 value 0x9090 virtual_protect 1 //M4 -125627532

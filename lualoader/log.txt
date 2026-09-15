@@ -1,3 +1,0 @@
-loaded F:\games\GTA Vice City\lualoader\test.lua 30-06-2021 12:17:51 
-loaded F:\games\GTA Vice City\lualoader\mod.lua 30-06-2021 12:17:51 
-loaded F:\games\GTA Vice City\lualoader\mission Dirty Laundry.lua 30-06-2021 12:17:51 

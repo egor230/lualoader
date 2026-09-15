@@ -1,0 +1,7 @@
+# Исключения: кэш/мусор Visual Studio и локальный лог
+Lua_Project/.vs/
+Lua_Project/.obj/
+lualoader/log.txt
+
+# Этот скрипт (чтобы не отправлять токен на GitHub)
+/updata git.sh
