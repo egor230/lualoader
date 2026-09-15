@@ -1,16 +1,10 @@
-# Исключения: кэш/мусор Visual Studio и локальный лог
-Lua_Project/.vs/
-Lua_Project/.obj/
+# Исключения: кэш/мусор сборки, бэкапы, сторонние исходники Lua, локальный лог
+lualoader-src/obj/
+lualoader-src/lua/
+lualoader-src/*.bak12
+lualoader-src/*.bak13
 lualoader/log.txt
+lualoader/lualoader.tar
 
 # Этот скрипт (чтобы не отправлять токен на GitHub)
 /updata git.sh
-
-# Старые файлы (>4 лет) — не отправлять, копия остаётся только на диске
-Lua_Project/lua/
-Lua_Project/III.VC.CLEO-2.0.0.6/
-lualoader/mod.lua
-lualoader/write_coordinate.lua
-lualoader/open and close first bridge.lua
-lualoader/Lua автозавершения.txt
-lualoader/Lua автозавершения для notepad++.rar
