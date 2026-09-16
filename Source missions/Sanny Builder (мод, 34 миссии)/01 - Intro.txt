@@ -1,0 +1,331 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 1: Intro
+// Строки 29907-30233 исходного файла data/main.txt
+// Кол-во строк: 327
+//-------------Mission 1---------------
+// Originally: Intro
+
+:INTRO
+gosub @INTRO_36 
+if 
+wasted_or_busted 
+else_jump @INTRO_27 
+gosub @INTRO_2142 
+
+:INTRO_27
+gosub @INTRO_2159 
+end_thread 
+
+:INTRO_36
+thread 'INTRO' 
+$ONMISSION = 1 // integer values 
+054C: use_GXT_table 'INTRO' 
+Camera.SetPosition(478.327, -644.074, 17.0712, 0.0, 0.0, 0.0)
+Camera.PointAt(440.6147, -634.9813, 15.0712, 2)
+Model.Load(#TAXI)
+Model.Load(#CELLPHONE)
+038B: load_requested_models 
+
+:INTRO_126
+wait 0 
+if and
+   Model.Available(#TAXI)
+   Model.Available(#CELLPHONE)
+else_jump @INTRO_126 
+set_weather 3 
+fade 0 0 
+wait 1000 
+033F: set_text_draw_letter_width_height 0.8 2.0 
+033E: text_draw 222.0 200.333 'STRT1'  // ~y~1987.
+033F: set_text_draw_letter_width_height 0.8 2.0 
+033E: text_draw 294.0 200.333 'STRT2'  // ~y~VICE
+033F: set_text_draw_letter_width_height 0.8 2.0 
+033E: text_draw 360.0 200.333 'STRT3'  // ~y~CITY.
+wait 3500 
+022B: create_forbidden_for_peds_cube 420.551 -657.805 5.0 478.161 -604.092 20.0 
+02A3: enable_widescreen 1 
+0@ = Car.Create(#TAXI, 457.232, -602.333, 10.526)
+Car.Angle(0@) = 169.8709
+02C2: car 0@ drive_to_point 444.412 -629.28 10.526 
+03A1: clear_area_with_center_at_3D_coord 456.1372 -629.28 10.9015 radius 800.0 
+Player.CanMove($PLAYER_CHAR) = False
+fade 1 3000 
+wait 1500 
+03F0: enable_text_draw 0 
+wait 5000 
+Actor.PutAt($PLAYER_ACTOR, 442.311, -628.576, 10.9015)
+Actor.Angle($PLAYER_ACTOR) = 90.0
+Camera.SetPosition(443.1894, -626.333, 10.9015, 0.0, 0.0, 0.0)
+Camera.PointAt(441.097, -629.2557, 9.1915, 2)
+wait 3000 
+02C2: car 0@ drive_to_point 404.1751 -722.3333 10.8806 
+wait 2000 
+Camera.PointAt(441.852, -628.2557, 11.0015, 1)
+wait 2000 
+0211: actor $PLAYER_ACTOR walk_to 437.024 -621.814 
+wait 3000 
+Actor.PutAt($PLAYER_ACTOR, 417.081, -622.534, 15.8)
+0211: actor $PLAYER_ACTOR walk_to 417.081 -622.534 
+wait 1000 
+Camera.SetPosition(423.222, -617.693, 16.1, 0.0, 0.0, 0.0)
+Camera.PointAt(417.385, -621.754, 15.6, 2)
+wait 1000 
+052B: actor $PLAYER_ACTOR hold_cellphone 1 
+0460: set_camera_pointing_time 0.0 65000 
+Camera.SetPosition(418.145, -623.857, 16.2, 0.0, 0.0, 0.0)
+Camera.PointAt(417.081, -622.534, 16.0, 1)
+16@ = 0 // integer values 
+
+:INTRO_734
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @INTRO_781 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_734 
+jump @INTRO_1747 
+
+:INTRO_781
+16@ = 0 // integer values 
+00BC: text_highpriority 'INTRO1' 3000 ms 1  // ...H-hello? Flint? 
+
+:INTRO_803
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @INTRO_850 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_803 
+jump @INTRO_1747 
+
+:INTRO_850
+00BC: text_highpriority 'INTRO2' 4000 ms 1  // ~x~Yeah. Hi, Jeffrey. I made it to the hotel.
+16@ = 0 // integer values 
+
+:INTRO_872
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @INTRO_919 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_872 
+jump @INTRO_1747 
+
+:INTRO_919
+00BC: text_highpriority 'INTRO3' 5000 ms 1  // I was expecting your call hours ago, what the hell took you so long?
+16@ = 0 // integer values 
+
+:INTRO_941
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @INTRO_988 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_941 
+jump @INTRO_1747 
+
+:INTRO_988
+00BC: text_highpriority 'INTRO4' 4000 ms 1  // ~x~ The flight was delayed 'cause of the damn fog.
+16@ = 0 // integer values 
+
+:INTRO_1010
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @INTRO_1057 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1010 
+jump @INTRO_1747 
+
+:INTRO_1057
+00BC: text_highpriority 'INTRO5' 5000 ms 1  // Listen uh... I'll be closing up the joint real soon.
+16@ = 0 // integer values 
+
+:INTRO_1079
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @INTRO_1126 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1079 
+jump @INTRO_1747 
+
+:INTRO_1126
+00BC: text_highpriority 'INTRO6' 5000 ms 1  // If you hurry up, we can still make it to the funeral on time.
+16@ = 0 // integer values 
+
+:INTRO_1148
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @INTRO_1195 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1148 
+jump @INTRO_1747 
+
+:INTRO_1195
+00BC: text_highpriority 'INTRO7' 5000 ms 1  // ~x~You want me to come pick you up, is that it?
+16@ = 0 // integer values 
+
+:INTRO_1217
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @INTRO_1264 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1217 
+jump @INTRO_1747 
+
+:INTRO_1264
+00BC: text_highpriority 'INTRO8' 4000 ms 1  // I uh... * sniff * just had my license suspended...
+16@ = 0 // integer values 
+
+:INTRO_1286
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @INTRO_1333 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1286 
+jump @INTRO_1747 
+
+:INTRO_1333
+00BC: text_highpriority 'INTRO9' 6000 ms 1  // ~x~Sure. Your place was called The... Prime... Something?
+16@ = 0 // integer values 
+
+:INTRO_1355
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @INTRO_1402 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1355 
+jump @INTRO_1747 
+
+:INTRO_1402
+00BC: text_highpriority 'INTRO9A' 5000 ms 1  // It's The Premier. Just around the corner from RAFAEL's? You remember...
+16@ = 0 // integer values 
+
+:INTRO_1424
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @INTRO_1471 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1424 
+jump @INTRO_1747 
+
+:INTRO_1471
+00BC: text_highpriority 'INTRO9B' 5000 ms 1  // Look, Flint. I'm really sorry about your brother, man. It's a real shame, what happened.
+16@ = 0 // integer values 
+
+:INTRO_1493
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @INTRO_1540 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1493 
+jump @INTRO_1747 
+
+:INTRO_1540
+00BC: text_highpriority 'INTRO9C' 4000 ms 1  // You know, I heard a cop saying it wasn't a regular house fire...
+16@ = 0 // integer values 
+
+:INTRO_1562
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @INTRO_1609 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1562 
+jump @INTRO_1747 
+
+:INTRO_1609
+00BC: text_highpriority 'INTRO9D' 4000 ms 1  // I'll go get ready * sniff *. Don't get lost, yeah?
+16@ = 0 // integer values 
+
+:INTRO_1631
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @INTRO_1678 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1631 
+jump @INTRO_1747 
+
+:INTRO_1678
+00BC: text_highpriority 'INTRO9E' 3000 ms 1  // ~x~ Yeah, yeah... I'll keep that in mind, Jeff. See you soon.
+16@ = 0 // integer values 
+
+:INTRO_1700
+wait 0 
+if 
+   not 16@ > 2000 // integer values 
+else_jump @INTRO_1747 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @INTRO_1700 
+jump @INTRO_1747 
+
+:INTRO_1747
+052B: actor $PLAYER_ACTOR hold_cellphone 0 
+wait 500 
+fade 0 2000 
+wait 3000 
+fade 1 1000 
+0581: enable_radar 0 
+05DF: write_memory 8820282 size 1 value 0 virtual_protect 0 
+02A3: enable_widescreen 0 
+Camera.SetPosition(463.52, -642.13, 14.03, 0.0, 0.0, 0.0)
+Camera.PointAt(438.12, -631.43, 14.03, 2)
+03E5: text_box 'TEXT1'  // This is the Stardust Hotel.
+wait 4000 
+create_thread_wb @FASHION 
+022A: remove_forbidden_for_peds_cube 425.551 -657.805 5.0 478.161 -604.092 20.0 
+1@ = Pickup.Create(#PICKUPSAVE, 3, 426.03, -618.23, 11.06)
+Camera.SetPosition(431.47, -618.12, 11.1, 0.0, 0.0, 0.0)
+Camera.PointAt(426.25, -618.23, 11.06, 2)
+03E5: text_box 'TEXT2'  // When not on a mission, you can save your progress by collecting the floppy disk pickup.
+wait 7000 
+Camera.SetPosition(422.5, -618.86, 15.61, 0.0, 0.0, 0.0)
+Camera.PointAt(418.5, -617.46, 15.06, 2)
+03E5: text_box 'TEXT3'  // You can also change your outfit at any time by collecting the t-shirt pickup.
+wait 6000 
+fade 0 2000 
+wait 3000 
+Pickup.Destroy(1@)
+0581: enable_radar 1 
+05DF: write_memory 8820282 size 1 value 1 virtual_protect 0 
+fade 1 1000 
+Camera.Restore_WithJumpCut
+014C: set_parked_car_generator $1536 cars_to_generate_to 101 
+02A7: $748 = create_icon_marker_and_sphere 4 at 201.503 -1011.79 12.0712 
+create_thread @NONAME_7 
+return 
+
+:INTRO_2142
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:INTRO_2159
+Model.Destroy(#TAXI)
+Model.Destroy(#CELLPHONE)
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+

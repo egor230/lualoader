@@ -1,0 +1,722 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 9: Guardian Angels
+// Строки 35488-36205 исходного файла data/main.txt
+// Кол-во строк: 718
+//-------------Mission 9---------------
+// Originally: Guardian Angels
+
+:ERICO1
+gosub @ERICO1_36 
+if 
+wasted_or_busted 
+else_jump @ERICO1_27 
+gosub @ERICO1_4208 
+
+:ERICO1_27
+gosub @ERICO1_4225 
+end_thread 
+
+:ERICO1_36
+increment_mission_attempts 
+thread 'ERICO1' 
+$ONMISSION = 1 // integer values 
+$M09STUFF = 0 // integer values 
+054C: use_GXT_table 'BANKJ3' 
+Model.Load(#BENSON)
+Model.Load(#VOODOO)
+Model.Load(#HNA)
+Model.Load(#INGRAMSL)
+Model.Load(#CBA)
+Model.Load(#COLT45)
+Model.Load(#CBB)
+023C: load_special_actor 1 'IGCOLON' 
+Model.Load(#GUNBOX)
+Model.Load(#TAR_UPLEFT)
+Model.Load(#ELECTRICGATE)
+038B: load_requested_models 
+
+:ERICO1_130
+wait 0 
+if or
+823D:   not special_actor 1 loaded 
+   not Model.Available(#CBB)
+   not Model.Available(#CBA)
+   not Model.Available(#BENSON)
+   not Model.Available(#VOODOO)
+else_jump @ERICO1_174 
+jump @ERICO1_130 
+
+:ERICO1_174
+wait 0 
+if or
+   not Model.Available(#HNA)
+   not Model.Available(#TAR_UPLEFT)
+   not Model.Available(#INGRAMSL)
+   not Model.Available(#COLT45)
+   not Model.Available(#GUNBOX)
+   not Model.Available(#ELECTRICGATE)
+else_jump @ERICO1_222 
+jump @ERICO1_174 
+
+:ERICO1_222
+wait 0 
+fade 1 1500 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+0055: put_player $PLAYER_CHAR at -1195.989 -426.975 9.965 
+0211: actor $PLAYER_ACTOR walk_to -1189.451 -420.042 
+$1831 = Actor.Create(CivMale, #HNA, -1192.824, -404.682, 9.748)
+$1832 = Actor.Create(CivMale, #SPECIAL01, -1188.659, -419.873, 9.914)
+Actor.Angle($1832) = 90.0
+0372: set_actor $1832 anim 24 wait_state_time 13000 ms 
+$1833 = Actor.Create(CivMale, #CBB, -1188.053, -421.629, 9.908)
+$1834 = Actor.Create(CivMale, #CBB, -1186.374, -418.884, 10.729)
+$1835 = Actor.Create(CivMale, #CBB, -1186.307, -421.193, 10.729)
+0350: set_actor $1831 maintain_position_when_attacked 1 
+02A9: set_actor $1831 immune_to_nonplayer 1 
+0350: set_actor $1832 maintain_position_when_attacked 1 
+0350: set_actor $1833 maintain_position_when_attacked 1 
+0350: set_actor $1834 maintain_position_when_attacked 1 
+0350: set_actor $1835 maintain_position_when_attacked 1 
+Actor.Angle($1834) = 180.0
+03F9: make_actors $1833 $1835 converse_in 5000 ms 
+Camera.SetPosition(-1190.807, -420.25, 10.941, 0.0, 0.0, 0.0)
+Camera.PointAt(-1186.92, -420.113, 10.929, 2)
+16@ = 0 // integer values 
+
+:ERICO1_562
+wait 0 
+if 
+   not 16@ > 2000 // integer values 
+else_jump @ERICO1_609 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_562 
+jump @ERICO1_1886 
+
+:ERICO1_609
+16@ = 0 // integer values 
+0460: set_camera_pointing_time 0.0 10000 
+Camera.SetPosition(-1193.689, -420.115, 10.965, 0.0, 0.0, 0.0)
+Camera.OnPed($1832, 15, 1)
+
+:ERICO1_667
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO1_714 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_667 
+jump @ERICO1_1886 
+
+:ERICO1_714
+16@ = 0 // integer values 
+01B2: give_actor $1833 weapon 17 ammo 9999 // Load the weapon model before using this 
+04C6: actor $1833 do_kung_fu_stance_towards_actor $PLAYER_ACTOR 
+01B2: give_actor $1834 weapon 17 ammo 9999 // Load the weapon model before using this 
+04C6: actor $1834 do_kung_fu_stance_towards_actor $PLAYER_ACTOR 
+01B2: give_actor $1835 weapon 17 ammo 9999 // Load the weapon model before using this 
+04C6: actor $1835 do_kung_fu_stance_towards_actor $PLAYER_ACTOR 
+00BC: text_highpriority 'ERIC1_0' 5000 ms 1  // Hey, muchacho! You lookin' for trouble?
+
+:ERICO1_790
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO1_837 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_790 
+jump @ERICO1_1886 
+
+:ERICO1_837
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC1_1' 5000 ms 1  // ~x~Why don't you tell the ladies to stop waving those guns?
+
+:ERICO1_859
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO1_906 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_859 
+jump @ERICO1_1886 
+
+:ERICO1_906
+16@ = 0 // integer values 
+011C: actor $1833 clear_objective 
+011C: actor $1834 clear_objective 
+011C: actor $1835 clear_objective 
+020F: actor $1832 look_at_player $PLAYER_CHAR 
+0372: set_actor $1832 anim 3 wait_state_time 2000 ms 
+00BC: text_highpriority 'ERIC1_2' 5000 ms 1  // Hahaha... Alright, boys...
+
+:ERICO1_961
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO1_1008 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_961 
+jump @ERICO1_1886 
+
+:ERICO1_1008
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 31 wait_state_time 4000 ms 
+00BC: text_highpriority 'ERIC1_3' 5000 ms 1  // ~x~You said you could use some help? Well, here I am.
+
+:ERICO1_1040
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO1_1087 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_1040 
+jump @ERICO1_1886 
+
+:ERICO1_1087
+16@ = 0 // integer values 
+0372: set_actor $1832 anim 8 wait_state_time 4000 ms 
+00BC: text_highpriority 'ERIC1_4' 6000 ms 1  // Bueno... haha... muy bueno. I have something you could do for us.
+
+:ERICO1_1119
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @ERICO1_1166 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_1119 
+jump @ERICO1_1886 
+
+:ERICO1_1166
+16@ = 0 // integer values 
+0372: set_actor $1832 anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'ERIC1_5' 6000 ms 1  // There's a truck with some goods over at the docks. The shipment just came in.
+
+:ERICO1_1198
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO1_1245 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_1198 
+jump @ERICO1_1886 
+
+:ERICO1_1245
+16@ = 0 // integer values 
+0372: set_actor $1832 anim 19 wait_state_time 5000 ms 
+00BC: text_highpriority 'ERIC1_6' 5000 ms 1  // Be a good boy and deliver it to our warehouse.
+
+:ERICO1_1277
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @ERICO1_1324 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_1277 
+jump @ERICO1_1886 
+
+:ERICO1_1324
+16@ = 0 // integer values 
+04C4: create_coordinate $CAM1 $CAM2 $CAM3 from_actor $1832 offset -1.5 1.0 0.5 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.PointAt(-1188.659, -419.873, 11.314, 2)
+0211: actor $PLAYER_ACTOR walk_to -1189.05 -420.042 
+00BC: text_highpriority 'ERIC1_7' 5000 ms 1  // ~x~Good boy? Do I look like a dog to you?
+
+:ERICO1_1435
+wait 0 
+if 
+   not 16@ > 6500 // integer values 
+else_jump @ERICO1_1482 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_1435 
+jump @ERICO1_1886 
+
+:ERICO1_1482
+16@ = 0 // integer values 
+0372: set_actor $1832 anim 31 wait_state_time 4000 ms 
+00BC: text_highpriority 'ERIC1_8' 5000 ms 1  // Sorry amigo, my bad. Just do what I ask, ok?
+
+:ERICO1_1514
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO1_1561 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_1514 
+jump @ERICO1_1886 
+
+:ERICO1_1561
+Camera.SetPosition(-1193.689, -420.115, 10.965, 0.0, 0.0, 0.0)
+Camera.OnPed($1832, 15, 2)
+16@ = 0 // integer values 
+0211: actor $PLAYER_ACTOR walk_to -1195.539 -421.493 
+
+:ERICO1_1624
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @ERICO1_1671 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_1624 
+jump @ERICO1_1886 
+
+:ERICO1_1671
+16@ = 0 // integer values 
+022C: set_actor $1832 to_look_at_actor $1834 
+022C: set_actor $1834 to_look_at_actor $1832 
+0372: set_actor $1832 anim 31 wait_state_time 4000 ms 
+00BC: text_highpriority 'ERIC1_9' 4000 ms 1  // Ha ha! un perro airado, eh?
+
+:ERICO1_1719
+wait 0 
+if 
+   not 16@ > 2000 // integer values 
+else_jump @ERICO1_1766 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_1719 
+jump @ERICO1_1886 
+
+:ERICO1_1766
+16@ = 0 // integer values 
+0239: actor $1831 run_to -1202.167 -362.985 
+0460: set_camera_pointing_time 0.0 4000 
+Camera.SetPosition(-1204.691, -416.102, 18.795, 0.0, 0.0, 0.0)
+Camera.OnPed($1831, 15, 1)
+
+:ERICO1_1839
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO1_1886 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO1_1839 
+jump @ERICO1_1886 
+
+:ERICO1_1886
+16@ = 0 // integer values 
+00BE: text_clear_all 
+fade 0 1500 
+
+:ERICO1_1902
+wait 0 
+if 
+fading 
+else_jump @ERICO1_1926 
+jump @ERICO1_1902 
+
+:ERICO1_1926
+wait 500 
+fade 1 1500 
+03AD: set_rubbish 1 
+011C: actor $PLAYER_ACTOR clear_objective 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+Actor.DestroyInstantly($1832)
+Actor.DestroyInstantly($1833)
+Actor.DestroyInstantly($1834)
+Actor.DestroyInstantly($1835)
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+02A3: enable_widescreen 0 
+0506: vehicle_model 186 set_next_variation -1 4 
+$1836 = Car.Create(#BENSON, -1027.848, -1265.041, 10.712)
+$1837 = Marker.CreateAboveCar($1836)
+Car.Health($1836) = 760
+$1838 = Object.Create(#GUNBOX, -1076.756, -1444.511, 10.712)
+Object.CollisionDetection($1838) = False
+$1839 = Object.Create(#GUNBOX, -1076.756, -1443.511, 10.712)
+Object.CollisionDetection($1839) = False
+$1840 = Object.Create(#GUNBOX, -1077.756, -1443.511, 10.712)
+Object.CollisionDetection($1840) = False
+$1841 = Object.Create(#GUNBOX, -1077.756, -1444.511, 10.712)
+Object.CollisionDetection($1841) = False
+03F1: pedtype 8 add_threat 1 
+Actor.DestroyInstantly($1831)
+Model.Destroy(#BENSON)
+Model.Destroy(#GUNBOX)
+$M09PANEL = Object.Create(#TAR_UPLEFT, -989.134, -1252.637, 12.251)
+Object.Angle($M09PANEL) = 70.0
+$M09GATE = Object.Init(#ELECTRICGATE, -986.272, -1243.532, 10.4)
+Object.Angle($M09GATE) = 249.0
+Model.Destroy(#TAR_UPLEFT)
+Model.Destroy(#ELECTRICGATE)
+00BC: text_highpriority 'TXT3_2' 5000 ms 1  // ~r~Steal the truck at Vice Port.
+
+:ERICO1_2265
+wait 0 
+gosub @ERICO1_4432 
+gosub @ERICO1_4526 
+if 
+00DC:   player $PLAYER_CHAR driving $1836 
+else_jump @ERICO1_3628 
+Marker.Disable($1837)
+018A: $1842 = create_checkpoint_at -863.471 272.224 10.282 
+03BC: $1843 = create_sphere -863.471 272.224 10.282 1.75 
+$1844 = Car.Create(#VOODOO, -968.638, -1263.037, 10.571)
+$1845 = Car.Create(#VOODOO, -922.346, -1083.205, 13.89)
+Car.Angle($1845) = 270.0
+$1846 = Car.Create(#VOODOO, -722.015, -1251.612, 10.091)
+Car.Angle($1846) = 90.0
+$1847 = Car.Create(#VOODOO, -774.729, -1266.866, 10.214)
+Car.Angle($1847) = 270.0
+$1848 = Car.Create(#VOODOO, -820.741, -11.363, 10.15)
+Car.Angle($1848) = 270.0
+0129: $1849 = create_actor 4 #HNA in_car $1845 driverseat 
+Car.SetDriverBehaviour($1845, 11)
+$1850 = Car.Create(#VOODOO, -916.308, -1251.047, 10.79)
+Car.Angle($1850) = 170.0
+0129: $1851 = create_actor 4 #HNA in_car $1850 driverseat 
+Car.SetDriverBehaviour($1850, 11)
+$1852 = Car.Create(#VOODOO, -1162.059, -681.641, 10.587)
+Car.Angle($1852) = 270.0
+0129: $1853 = create_actor 4 #HNA in_car $1852 driverseat 
+Car.SetDriverBehaviour($1852, 11)
+0129: $1854 = create_actor 4 #HNA in_car $1846 driverseat 
+Car.SetDriverBehaviour($1846, 11)
+0129: $1855 = create_actor 4 #HNA in_car $1847 driverseat 
+Car.SetDriverBehaviour($1847, 11)
+0129: $1856 = create_actor 4 #HNA in_car $1848 driverseat 
+Car.SetDriverBehaviour($1848, 11)
+$1857 = Actor.Create(CivMale, #HNA, -971.54, -1261.008, 10.525)
+$1858 = Actor.Create(CivMale, #HNA, -964.895, -1261.58, 10.627)
+01B2: give_actor $1857 weapon 24 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1858 weapon 24 ammo 9999 // Load the weapon model before using this 
+0350: set_actor $1857 maintain_position_when_attacked 1 
+0350: set_actor $1858 maintain_position_when_attacked 1 
+01CA: actor $1857 kill_player $PLAYER_CHAR 
+01CA: actor $1858 kill_player $PLAYER_CHAR 
+03F1: pedtype 8 add_threat 1 
+00BC: text_highpriority 'TXT3_3' 5000 ms 1  // ~r~Get the truck to the warehouse.
+
+:ERICO1_2806
+wait 0 
+gosub @ERICO1_3704 
+gosub @ERICO1_4432 
+gosub @ERICO1_4526 
+if 
+00DC:   player $PLAYER_CHAR driving $1836 
+else_jump @ERICO1_3359 
+if 
+01AF:   car $1836 0 -863.471 272.224 10.282 radius 1.5 1.5 3.0 
+else_jump @ERICO1_3552 
+fade 0 1500 
+Player.CanMove($PLAYER_CHAR) = False
+Marker.Disable($1842)
+03BD: destroy_sphere $1843 
+
+:ERICO1_2922
+wait 0 
+gosub @ERICO1_4432 
+if 
+fading 
+else_jump @ERICO1_2953 
+jump @ERICO1_2922 
+
+:ERICO1_2953
+wait 1000 
+Object.Destroy($1838)
+Object.Destroy($1839)
+Object.Destroy($1840)
+Object.Destroy($1841)
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+fade 1 1500 
+02A3: enable_widescreen 1 
+Camera.SetPosition(-856.473, 259.889, 9.362, 0.0, 0.0, 0.0)
+$1832 = Actor.Create(CivMale, #SPECIAL01, -859.354, 263.872, 8.304)
+Actor.Angle($1832) = 180.0
+0296: unload_special_actor 1 
+012A: put_player $PLAYER_CHAR at -859.354 262.872 8.304 and_remove_from_car 
+0157: camera_on_player $PLAYER_CHAR mode 15 switchstyle 2 
+$1859 = Actor.Create(CivMale, #CBB, -872.428, 269.139, 10.282)
+01D5: actor $1859 go_to_and_drive_car $1836 
+Model.Destroy(#CBB)
+Model.Destroy(#HNA)
+Model.Destroy(#VOODOO)
+Model.Destroy(#COLT45)
+Model.Destroy(#INGRAMSL)
+00BC: text_highpriority 'ERIC2_1' 4000 ms 1  // Good job, man. You've got some cojones.
+wait 4000 
+00BC: text_highpriority 'ERIC2_2' 6000 ms 1  // ~x~I was chased by bunch of Haitians. What kind of goods were you talkin' about?
+wait 6000 
+00BC: text_highpriority 'ERIC2_3' 4000 ms 1  // In that truck? Guns, amigo. Lots of guns.
+wait 4000 
+
+:ERICO1_3217
+wait 0 
+if 
+   Actor.Driving($1859)
+else_jump @ERICO1_3217 
+02C2: car $1836 drive_to_point -886.466 271.379 8.304 
+Car.SetMaxSpeed($1836, 20.0)
+fade 0 2000 
+
+:ERICO1_3274
+wait 0 
+if 
+fading 
+else_jump @ERICO1_3298 
+jump @ERICO1_3274 
+
+:ERICO1_3298
+wait 500 
+fade 1 2000 
+Actor.DestroyInstantly($1832)
+Car.Destroy($1836)
+Actor.DestroyInstantly($1859)
+Camera.Restore_WithJumpCut
+02A3: enable_widescreen 0 
+Player.CanMove($PLAYER_CHAR) = True
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+jump @ERICO1_4136 
+
+:ERICO1_3359
+Marker.Disable($1842)
+03BD: destroy_sphere $1843 
+0151: remove_status_text $1860 
+$1837 = Marker.CreateAboveCar($1836)
+
+:ERICO1_3382
+wait 0 
+gosub @ERICO1_3704 
+gosub @ERICO1_4432 
+if 
+00DC:   player $PLAYER_CHAR driving $1836 
+else_jump @ERICO1_3476 
+Marker.Disable($1837)
+018A: $1842 = create_checkpoint_at -863.471 272.224 10.282 
+03BC: $1843 = create_sphere -863.471 272.224 10.282 1.75 
+jump @ERICO1_2806 
+
+:ERICO1_3476
+if 
+   Car.Wrecked($1836)
+else_jump @ERICO1_3514 
+00BC: text_highpriority 'TXT3_4' 5000 ms 1  // ~r~The truck is trashed!
+jump @ERICO1_4208 
+
+:ERICO1_3514
+if 
+018F:   vehicle $1836 flipped 
+else_jump @ERICO1_3382 
+00BC: text_highpriority 'TXT3_5' 5000 ms 1  // ~r~You flipped the wheels! The cargo is destroyed.
+jump @ERICO1_4208 
+
+:ERICO1_3552
+if 
+   Car.Wrecked($1836)
+else_jump @ERICO1_3590 
+00BC: text_highpriority 'TXT3_4' 5000 ms 1  // ~r~The truck is trashed!
+jump @ERICO1_4208 
+
+:ERICO1_3590
+if 
+018F:   vehicle $1836 flipped 
+else_jump @ERICO1_2806 
+00BC: text_highpriority 'TXT3_5' 5000 ms 1  // ~r~You flipped the wheels! The cargo is destroyed.
+jump @ERICO1_4208 
+
+:ERICO1_3628
+if 
+   Car.Wrecked($1836)
+else_jump @ERICO1_3666 
+00BC: text_highpriority 'TXT3_4' 5000 ms 1  // ~r~The truck is trashed!
+jump @ERICO1_4208 
+
+:ERICO1_3666
+if 
+018F:   vehicle $1836 flipped 
+else_jump @ERICO1_2265 
+00BC: text_highpriority 'TXT3_5' 5000 ms 1  // ~r~You flipped the wheels! The cargo is destroyed.
+jump @ERICO1_4208 
+
+:ERICO1_3704
+if 
+   not Car.Wrecked($1845)
+else_jump @ERICO1_3782 
+if 
+0056:   player $PLAYER_CHAR 0 -920.128 -1090.404 -895.128 -1064.404 
+else_jump @ERICO1_3782 
+Car.SetMaxSpeed($1845, 50.0)
+Car.SetDriverBehaviour($1845, KillThePlayer)
+00AE: set_vehicle $1845 traffic_behavior_to 2 
+
+:ERICO1_3782
+if 
+0056:   player $PLAYER_CHAR 0 -771.035 -1286.881 -716.035 -1231.881 
+else_jump @ERICO1_3900 
+if 
+   not Car.Wrecked($1846)
+else_jump @ERICO1_3860 
+Car.SetMaxSpeed($1846, 50.0)
+Car.SetDriverBehaviour($1846, KillThePlayer)
+00AE: set_vehicle $1846 traffic_behavior_to 2 
+
+:ERICO1_3860
+if 
+   not Car.Wrecked($1847)
+else_jump @ERICO1_3900 
+Car.SetMaxSpeed($1847, 50.0)
+Car.SetDriverBehaviour($1847, KillThePlayer)
+00AE: set_vehicle $1847 traffic_behavior_to 2 
+
+:ERICO1_3900
+if 
+   not Car.Wrecked($1848)
+else_jump @ERICO1_3978 
+if 
+0056:   player $PLAYER_CHAR 0 -810.233 -27.624 -770.233 5.624 
+else_jump @ERICO1_3978 
+Car.SetMaxSpeed($1848, 50.0)
+Car.SetDriverBehaviour($1848, KillThePlayer)
+00AE: set_vehicle $1848 traffic_behavior_to 2 
+
+:ERICO1_3978
+if 
+   not Car.Wrecked($1850)
+else_jump @ERICO1_4056 
+if 
+0056:   player $PLAYER_CHAR 0 -950.66 -1273.044 -970.66 -1253.044 
+else_jump @ERICO1_4056 
+Car.SetMaxSpeed($1850, 50.0)
+Car.SetDriverBehaviour($1850, KillThePlayer)
+00AE: set_vehicle $1850 traffic_behavior_to 2 
+
+:ERICO1_4056
+if 
+   not Car.Wrecked($1852)
+else_jump @ERICO1_4134 
+if 
+0056:   player $PLAYER_CHAR 0 -1155.898 -675.336 -1125.898 -700.336 
+else_jump @ERICO1_4134 
+Car.SetMaxSpeed($1852, 50.0)
+Car.SetDriverBehaviour($1852, KillThePlayer)
+00AE: set_vehicle $1852 traffic_behavior_to 2 
+
+:ERICO1_4134
+return 
+
+:ERICO1_4136
+$PASSED_COL4_SIR_YES_SIR = 1 // integer values 
+01E3: text_1number_styled 'M_PASS' number 350 time 5000 style 1  // MISSION PASSED! $~1~
+Player.Money($PLAYER_CHAR) += 350
+Player.ClearWantedLevel($PLAYER_CHAR)
+0394: play_music 1 
+03F2: pedtype 8 remove_threat 1 
+030C: progress_made += 1 
+0318: set_latest_mission_passed 'COL_4'  // Delivery Service
+create_thread @NONAME_13 
+return 
+
+:ERICO1_4208
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:ERICO1_4225
+Model.Destroy(#HNA)
+Model.Destroy(#CBA)
+Model.Destroy(#CBB)
+Model.Destroy(#COLT45)
+Model.Destroy(#VOODOO)
+Model.Destroy(#BENSON)
+Model.Destroy(#INGRAMSL)
+0296: unload_special_actor 1 
+Model.Destroy(#GUNBOX)
+03F2: pedtype 8 remove_threat 1 
+Actor.RemoveReferences($1831)
+Actor.RemoveReferences($1832)
+Actor.RemoveReferences($1833)
+Actor.RemoveReferences($1834)
+Actor.RemoveReferences($1835)
+Actor.RemoveReferences($1849)
+Actor.RemoveReferences($1851)
+Actor.RemoveReferences($1853)
+Actor.RemoveReferences($1854)
+Actor.RemoveReferences($1855)
+Actor.RemoveReferences($1857)
+Actor.RemoveReferences($1858)
+Actor.RemoveReferences($1859)
+Car.RemoveReferences($1836)
+Car.RemoveReferences($1844)
+Car.RemoveReferences($1845)
+Car.RemoveReferences($1846)
+Car.RemoveReferences($1847)
+Car.RemoveReferences($1848)
+Car.RemoveReferences($1850)
+Car.RemoveReferences($1852)
+Object.RemoveReferences($1838)
+Object.RemoveReferences($1839)
+Object.RemoveReferences($1840)
+Object.RemoveReferences($1841)
+Object.RemoveReferences($M09GATE)
+Object.RemoveReferences($M09PANEL)
+Marker.Disable($1837)
+Marker.Disable($1842)
+03BD: destroy_sphere $1843 
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
+:ERICO1_4432
+035C: place_object $1838 relative_to_car $1836 offset 0.6 -0.8 0.3 
+035C: place_object $1839 relative_to_car $1836 offset -0.6 -0.8 0.3 
+035C: place_object $1840 relative_to_car $1836 offset 0.6 -1.7 0.3 
+035C: place_object $1841 relative_to_car $1836 offset -0.6 -1.7 0.3 
+return 
+
+:ERICO1_4526
+if 
+  $M09STUFF == 0 // integer values 
+else_jump @ERICO1_4604 
+if 
+0056:   player $PLAYER_CHAR 0 -950.676 -1276.477 -999.538 -1228.162 
+else_jump @ERICO1_4756 
+00BC: text_highpriority 'TXT3_6' 5000 ms 1  // ~r~Find a way to open the gate.
+$M09STUFF = 1 // integer values 
+
+:ERICO1_4604
+if 
+  $M09STUFF == 1 // integer values 
+else_jump @ERICO1_4667 
+if 
+0366:   object $M09PANEL damaged 
+else_jump @ERICO1_4756 
+$M09STUFF = 2 // integer values 
+018D: $130 = create_sound 2 at -986.15 -1243.61 10.4375 
+
+:ERICO1_4667
+if 
+  $M09STUFF == 2 // integer values 
+else_jump @ERICO1_4756 
+if 
+834E:   not move_object $M09GATE to -989.9 -1252.2 10.4 speed 0.05 0.12 0.0 collision_check 0 
+else_jump @ERICO1_4744 
+wait 0 
+jump @ERICO1_4756 
+
+:ERICO1_4744
+$M09STUFF = 3 // integer values 
+018E: stop_sound $130 
+
+:ERICO1_4756
+return 
+

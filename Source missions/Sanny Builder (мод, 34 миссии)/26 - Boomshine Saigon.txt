@@ -1,0 +1,13 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 26: Boomshine Saigon
+// Строки 50434-50442 исходного файла data/main.txt
+// Кол-во строк: 9
+//-------------Mission 26---------------
+// Originally: Boomshine Saigon
+
+:LOOP5
+thread 'LOOP5' 
+
+:LOOP5_10
+jump @LOOP5_10 
+

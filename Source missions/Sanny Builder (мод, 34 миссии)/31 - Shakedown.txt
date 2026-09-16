@@ -1,0 +1,511 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 31: Shakedown
+// Строки 54258-54764 исходного файла data/main.txt
+// Кол-во строк: 507
+//-------------Mission 31---------------
+// Originally: Shakedown
+
+:CADDY
+gosub @CADDY_36 
+if 
+wasted_or_busted 
+else_jump @CADDY_27 
+gosub @CADDY_4086 
+
+:CADDY_27
+gosub @CADDY_4184 
+end_thread 
+
+:CADDY_36
+$ONMISSION = 1 // integer values 
+if 
+  $3556 == 0 // integer values 
+else_jump @CADDY_63 
+increment_mission_attempts 
+
+:CADDY_63
+thread 'CADDY' 
+054C: use_GXT_table 'OVALRIG' 
+$3557 = 180000 // integer values 
+03C1: $3558 = player $PLAYER_CHAR car_no_save 
+$3559 = 0 // integer values 
+$3560 = 0 // integer values 
+$3561 = 0 // integer values 
+$3562 = 0 // integer values 
+$3563 = 0 // integer values 
+$3564 = 0 // integer values 
+$3565 = 0 // integer values 
+$3566 = 0 // integer values 
+$3567 = 0 // integer values 
+$3568 = 0 // integer values 
+$3569 = 0 // integer values 
+$3570 = 0 // integer values 
+$3571 = 0 // integer values 
+$3572 = 0 // integer values 
+$3573 = 0 // integer values 
+$3574 = 0 // integer values 
+$3575 = 0 // integer values 
+$3576 = 0 // integer values 
+$3577 = 0 // integer values 
+$3578 = 0 // integer values 
+$3579 = 0 // integer values 
+02A3: enable_widescreen 1 
+Camera.SetPosition(155.214, 501.974, 17.001, 0.0, 0.0, 0.0)
+Camera.PointAt(92.05, 405.401, 18.972, 2)
+fade 1 500 
+wait 0 
+0460: set_camera_pointing_time 0.0 10000 
+Camera.SetPosition(150.214, 499.974, 17.001, 0.0, 0.0, 0.0)
+Camera.PointAt(92.05, 405.401, 18.972, 1)
+00BC: text_highpriority 'HOTR_01' 5000 ms 1  // ~g~Collect all the checkpoints before time runs out.
+16@ = 0 // integer values 
+
+:CADDY_397
+wait 0 
+04D5: create_corona_at 90.94 399.006 19.644 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at 144.419 487.69 16.01 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+  5000 > 16@ // integer values 
+else_jump @CADDY_493 
+jump @CADDY_397 
+
+:CADDY_493
+16@ = 0 // integer values 
+00BC: text_highpriority 'HOTR_05' 5000 ms 1  // ~g~You can collect them in any order. Each checkpoint will grant you with 1 second.
+
+:CADDY_515
+wait 0 
+04D5: create_corona_at 90.94 399.006 19.644 radius 1.3 type 1 flare 0 RGB 0 255 0 
+04D5: create_corona_at 144.419 487.69 16.01 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+  5000 > 16@ // integer values 
+else_jump @CADDY_611 
+jump @CADDY_515 
+
+:CADDY_611
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Player.CanMove($PLAYER_CHAR) = True
+018A: $3580 = create_checkpoint_at 90.94 399.006 19.044 
+018A: $3581 = create_checkpoint_at -2.0 476.054 10.623 
+018A: $3582 = create_checkpoint_at -110.613 564.414 12.858 
+018A: $3583 = create_checkpoint_at -190.429 561.44 17.119 
+018A: $3584 = create_checkpoint_at -214.502 467.188 15.481 
+018A: $3585 = create_checkpoint_at -158.734 430.611 8.79 
+018A: $3586 = create_checkpoint_at 144.419 487.69 15.41 
+018A: $3587 = create_checkpoint_at 267.447 510.526 7.982 
+018A: $3588 = create_checkpoint_at 90.414 584.269 13.664 
+018A: $3589 = create_checkpoint_at 189.673 376.475 16.75 
+018A: $3590 = create_checkpoint_at 167.815 239.89 11.256 
+018A: $3591 = create_checkpoint_at 82.99 116.041 19.736 
+018A: $3592 = create_checkpoint_at 166.601 -10.033 9.403 
+018A: $3593 = create_checkpoint_at 161.684 -136.217 10.48 
+018A: $3594 = create_checkpoint_at 44.53 -149.174 11.684 
+018A: $3595 = create_checkpoint_at 58.88 -232.963 8.255 
+018A: $3596 = create_checkpoint_at -37.645 -113.264 10.676 
+018A: $3597 = create_checkpoint_at 39.993 21.43 22.152 
+018A: $3598 = create_checkpoint_at -28.74 149.503 26.462 
+018A: $3599 = create_checkpoint_at -13.025 291.118 22.66 
+03DE: set_pedestrians_density_multiplier_to 7.0 
+014E: start_timer_at $3557 count_in_direction 1 
+
+:CADDY_1038
+wait 0 
+if 
+   not Car.Wrecked($3558)
+else_jump @CADDY_1099 
+if 
+00E0:   player $PLAYER_CHAR driving 
+else_jump @CADDY_1128 
+if 
+  $3557 > 0 // integer values 
+else_jump @CADDY_1106 
+jump @CADDY_1296 
+
+:CADDY_1099
+jump @CADDY_4086 
+
+:CADDY_1106
+00BC: text_highpriority 'HOTR_09' 5000 ms 1  // ~r~What, too hard?
+jump @CADDY_4086 
+
+:CADDY_1128
+Car.RemoveReferences($3558)
+if 
+  $3557 >= 10000 // integer values 
+else_jump @CADDY_1166 
+$3600 = 10 // integer values 
+jump @CADDY_1182 
+
+:CADDY_1166
+0084: $3600 = $3557 // integer values and handles 
+$3601 /= 1000 // integer values 
+
+:CADDY_1182
+16@ = 0 // integer values 
+
+:CADDY_1189
+wait 0 
+if 
+  $3600 > 0 // integer values 
+else_jump @CADDY_1106 
+if 
+   not 16@ > 999 // integer values 
+else_jump @CADDY_1264 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #CADDY 
+else_jump @CADDY_1189 
+03C1: $3558 = player $PLAYER_CHAR car_no_save 
+jump @CADDY_1038 
+
+:CADDY_1264
+$3600 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_06' $3600 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a Caddy!!
+jump @CADDY_1182 
+
+:CADDY_1296
+if 
+  $3559 == 0 // integer values 
+else_jump @CADDY_1431 
+04D5: create_corona_at 90.94 399.006 19.644 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 90.94 399.006 radius 1.5 1.5 
+else_jump @CADDY_1431 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3580)
+$3559 = 1 // integer values 
+
+:CADDY_1431
+if 
+  $3560 == 0 // integer values 
+else_jump @CADDY_1566 
+04D5: create_corona_at -2.0 476.054 11.223 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point -2.0 476.054 radius 1.5 1.5 
+else_jump @CADDY_1566 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3581)
+$3560 = 1 // integer values 
+
+:CADDY_1566
+if 
+  $3561 == 0 // integer values 
+else_jump @CADDY_1701 
+04D5: create_corona_at -110.613 564.414 13.458 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point -110.613 564.414 radius 1.5 1.5 
+else_jump @CADDY_1701 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3582)
+$3561 = 1 // integer values 
+
+:CADDY_1701
+if 
+  $3562 == 0 // integer values 
+else_jump @CADDY_1836 
+04D5: create_corona_at -190.429 561.44 17.719 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point -190.429 561.44 radius 1.5 1.5 
+else_jump @CADDY_1836 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3583)
+$3562 = 1 // integer values 
+
+:CADDY_1836
+if 
+  $3563 == 0 // integer values 
+else_jump @CADDY_1971 
+04D5: create_corona_at -214.502 467.188 16.081 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point -214.502 467.188 radius 1.5 1.5 
+else_jump @CADDY_1971 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3584)
+$3563 = 1 // integer values 
+
+:CADDY_1971
+if 
+  $3564 == 0 // integer values 
+else_jump @CADDY_2106 
+04D5: create_corona_at -158.734 430.611 9.39 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point -158.734 430.611 radius 1.5 1.5 
+else_jump @CADDY_2106 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3585)
+$3564 = 1 // integer values 
+
+:CADDY_2106
+if 
+  $3565 == 0 // integer values 
+else_jump @CADDY_2241 
+04D5: create_corona_at 144.419 487.69 16.01 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 144.419 487.69 radius 1.5 1.5 
+else_jump @CADDY_2241 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3586)
+$3565 = 1 // integer values 
+
+:CADDY_2241
+if 
+  $3566 == 0 // integer values 
+else_jump @CADDY_2376 
+04D5: create_corona_at 267.447 510.526 8.582 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 267.447 510.526 radius 1.5 1.5 
+else_jump @CADDY_2376 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3587)
+$3566 = 1 // integer values 
+
+:CADDY_2376
+if 
+  $3567 == 0 // integer values 
+else_jump @CADDY_2511 
+04D5: create_corona_at 90.414 584.269 14.264 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 90.414 584.269 radius 1.5 1.5 
+else_jump @CADDY_2511 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3588)
+$3567 = 1 // integer values 
+
+:CADDY_2511
+if 
+  $3568 == 0 // integer values 
+else_jump @CADDY_2646 
+04D5: create_corona_at 189.673 376.475 17.35 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 189.673 376.475 radius 1.5 1.5 
+else_jump @CADDY_2646 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3589)
+$3568 = 1 // integer values 
+
+:CADDY_2646
+if 
+  $3569 == 0 // integer values 
+else_jump @CADDY_2781 
+04D5: create_corona_at 167.815 239.89 11.856 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 167.815 239.89 radius 1.5 1.5 
+else_jump @CADDY_2781 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3590)
+$3569 = 1 // integer values 
+
+:CADDY_2781
+if 
+  $3570 == 0 // integer values 
+else_jump @CADDY_2916 
+04D5: create_corona_at 82.99 116.041 20.336 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 82.99 116.041 radius 1.5 1.5 
+else_jump @CADDY_2916 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3591)
+$3570 = 1 // integer values 
+
+:CADDY_2916
+if 
+  $3571 == 0 // integer values 
+else_jump @CADDY_3051 
+04D5: create_corona_at 166.601 -10.033 10.003 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 166.601 -10.033 radius 1.5 1.5 
+else_jump @CADDY_3051 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3592)
+$3571 = 1 // integer values 
+
+:CADDY_3051
+if 
+  $3572 == 0 // integer values 
+else_jump @CADDY_3186 
+04D5: create_corona_at 161.684 -136.217 11.08 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 161.684 -136.217 radius 1.5 1.5 
+else_jump @CADDY_3186 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3593)
+$3572 = 1 // integer values 
+
+:CADDY_3186
+if 
+  $3573 == 0 // integer values 
+else_jump @CADDY_3321 
+04D5: create_corona_at 44.53 -149.174 12.284 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 44.53 -149.174 radius 1.5 1.5 
+else_jump @CADDY_3321 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3594)
+$3573 = 1 // integer values 
+
+:CADDY_3321
+if 
+  $3574 == 0 // integer values 
+else_jump @CADDY_3456 
+04D5: create_corona_at 58.88 -232.963 8.855 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 58.88 -232.963 radius 1.5 1.5 
+else_jump @CADDY_3456 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3595)
+$3574 = 1 // integer values 
+
+:CADDY_3456
+if 
+  $3575 == 0 // integer values 
+else_jump @CADDY_3591 
+04D5: create_corona_at -37.645 -113.264 11.276 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point -37.645 -113.264 radius 1.5 1.5 
+else_jump @CADDY_3591 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3596)
+$3575 = 1 // integer values 
+
+:CADDY_3591
+if 
+  $3576 == 0 // integer values 
+else_jump @CADDY_3726 
+04D5: create_corona_at 39.993 21.43 22.752 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point 39.993 21.43 radius 1.5 1.5 
+else_jump @CADDY_3726 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3597)
+$3576 = 1 // integer values 
+
+:CADDY_3726
+if 
+  $3577 == 0 // integer values 
+else_jump @CADDY_3861 
+04D5: create_corona_at -28.74 149.503 27.062 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point -28.74 149.503 radius 1.5 1.5 
+else_jump @CADDY_3861 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3598)
+$3577 = 1 // integer values 
+
+:CADDY_3861
+if 
+  $3578 == 0 // integer values 
+else_jump @CADDY_3996 
+04D5: create_corona_at -13.025 291.118 23.26 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+01AD:   car $3558 sphere 0 near_point -13.025 291.118 radius 1.5 1.5 
+else_jump @CADDY_3996 
+$3557 += 1000 // integer values 
+$3579 += 1 // integer values 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($3599)
+$3578 = 1 // integer values 
+
+:CADDY_3996
+if 
+  $3579 == 20 // integer values 
+else_jump @CADDY_4021 
+jump @CADDY_4103 
+
+:CADDY_4021
+if 
+  $3579 == 0 // integer values 
+else_jump @CADDY_4061 
+00BC: text_highpriority 'MOB_40F' 1000 ms 1  // ~p~Checkpoints collected: 0 / 20
+jump @CADDY_1038 
+
+:CADDY_4061
+01E5: text_1number_highpriority 'MOB_40G' $3579 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 20
+jump @CADDY_1038 
+
+:CADDY_4086
+00BA: text_styled 'M_FAIL' 2000 ms 1  // MISSION FAILED!
+return 
+
+:CADDY_4103
+if 
+  $3556 == 0 // integer values 
+else_jump @CADDY_4142 
+0318: set_latest_mission_passed 'ROCK_3'  // Golf Course
+030C: progress_made += 1 
+$3556 = 1 // integer values 
+
+:CADDY_4142
+014F: stop_timer $3557 
+Player.Money($PLAYER_CHAR) += 500
+01E3: text_1number_styled 'M_PASS' number 500 time 5000 style 1  // MISSION PASSED! $~1~
+Player.ClearWantedLevel($PLAYER_CHAR)
+0394: play_music 1 
+return 
+
+:CADDY_4184
+Marker.Disable($3580)
+Marker.Disable($3581)
+Marker.Disable($3582)
+Marker.Disable($3583)
+Marker.Disable($3584)
+Marker.Disable($3585)
+Marker.Disable($3586)
+Marker.Disable($3587)
+Marker.Disable($3588)
+Marker.Disable($3589)
+Marker.Disable($3590)
+Marker.Disable($3591)
+Marker.Disable($3592)
+Marker.Disable($3593)
+Marker.Disable($3594)
+Marker.Disable($3595)
+Marker.Disable($3596)
+Marker.Disable($3597)
+Marker.Disable($3598)
+Marker.Disable($3599)
+03DE: set_pedestrians_density_multiplier_to 1.0 
+Car.RemoveReferences($3558)
+014F: stop_timer $3557 
+$ONMISSION = 0 // integer values 
+$1141 = 1 // integer values 
+mission_cleanup 
+return 
+

@@ -1,0 +1,778 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 29: Martha's Mug Shot
+// Строки 51595-52368 исходного файла data/main.txt
+// Кол-во строк: 774
+//-------------Mission 29---------------
+// Originally: Martha's Mug Shot
+
+:TOYZ2
+gosub @TOYZ2_36 
+if 
+wasted_or_busted 
+else_jump @TOYZ2_27 
+gosub @TOYZ2_5025 
+
+:TOYZ2_27
+gosub @TOYZ2_4883 
+end_thread 
+
+:TOYZ2_36
+increment_mission_attempts 
+thread 'TOYZ2' 
+$ONMISSION = 1 // integer values 
+$2521 = 0 // integer values 
+$2522 = 0 // integer values 
+$2523 = 0 // integer values 
+$2524 = 0 // integer values 
+$2525 = 1100 // integer values 
+$2527 = 0 // integer values 
+$2528 = 0 // integer values 
+054C: use_GXT_table 'BARON5' 
+Model.Load(#RCBARON)
+Model.Load(#BFINJECT)
+023C: load_special_actor 3 'IGHLARY' 
+038B: load_requested_models 
+
+:TOYZ2_139
+wait 0 
+if or
+   not Model.Available(#RCBARON)
+   not Model.Available(#BFINJECT)
+823D:   not special_actor 3 loaded 
+else_jump @TOYZ2_175 
+jump @TOYZ2_139 
+
+:TOYZ2_175
+5@ = Car.Create(#BFINJECT, 264.043, 47.513, 10.09)
+Model.Destroy(#BFINJECT)
+4@ = Car.Create(#RCBARON, 266.556, 47.205, 10.013)
+wait 1000 
+fade 1 1500 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+022B: create_forbidden_for_peds_cube 300.359 70.567 9.0 2.359 20.5677 21.0 
+0395: clear_area 1 at 264.043 47.513 range 50.0 50.0 
+0055: put_player $PLAYER_CHAR at 272.795 33.415 10.09 
+$2349 = Actor.Create(CivMale, #SPECIAL03, 273.698, 41.367, 9.75)
+0350: set_actor $2349 maintain_position_when_attacked 1 
+0372: set_actor $2349 anim 24 wait_state_time 20000 ms 
+Actor.Angle($2349) = 90.0
+Camera.SetPosition(265.256, 42.28, 10.75, 0.0, 0.0, 0.0)
+Camera.PointAt(264.043, 47.513, 10.85, 2)
+16@ = 0 // integer values 
+
+:TOYZ2_456
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @TOYZ2_503 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_456 
+jump @TOYZ2_1674 
+
+:TOYZ2_503
+16@ = 0 // integer values 
+0460: set_camera_pointing_time 0.0 15500 
+Camera.SetPosition(268.407, 41.3135, 11.242, 0.0, 0.0, 0.0)
+Camera.OnPed($2349, 15, 1)
+
+:TOYZ2_561
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_608 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_561 
+jump @TOYZ2_1674 
+
+:TOYZ2_608
+0211: actor $PLAYER_ACTOR walk_to 272.363 40.197 
+16@ = 0 // integer values 
+
+:TOYZ2_630
+wait 0 
+if 
+   not 16@ > 8000 // integer values 
+else_jump @TOYZ2_677 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_630 
+jump @TOYZ2_1674 
+
+:TOYZ2_677
+00BC: text_highpriority 'RC_CS1' 4000 ms 1  // ~x~That's a nice plane you got there.
+16@ = 0 // integer values 
+
+:TOYZ2_699
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_746 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_699 
+jump @TOYZ2_1674 
+
+:TOYZ2_746
+00BC: text_highpriority 'RC_CS2' 5000 ms 1  // You surely remember it from last time... Now behold - my latest project is completed!
+16@ = 0 // integer values 
+
+:TOYZ2_768
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_815 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_768 
+jump @TOYZ2_1674 
+
+:TOYZ2_815
+00BC: text_highpriority 'RC_CS3' 5000 ms 1  // ~x~Sweet. You mean you finally got that thing fixed?
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_847
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_894 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_847 
+jump @TOYZ2_1674 
+
+:TOYZ2_894
+00BC: text_highpriority 'RC_CS4' 5000 ms 1  // I wasn't repairing it at all, actually. Rather converting it into a full-sized RC car.
+16@ = 0 // integer values 
+
+:TOYZ2_916
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_963 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_916 
+jump @TOYZ2_1674 
+
+:TOYZ2_963
+00BC: text_highpriority 'RC_CS5' 5000 ms 1  // I know you specialize in killing people but I'm going to need your help to test it.
+0372: set_actor $2349 anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_995
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_1042 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_995 
+jump @TOYZ2_1674 
+
+:TOYZ2_1042
+00BC: text_highpriority 'RC_CS6' 5000 ms 1  // ~x~You're a nice guy and all but, I'm not willing to sign up to be your crash test dummy.
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_1074
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_1121 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_1074 
+jump @TOYZ2_1674 
+
+:TOYZ2_1121
+00BC: text_highpriority 'RC_CS7' 6000 ms 1  // Relax, neither of us is going anywhere. Pretend it's one of those video-games... 
+0372: set_actor $2349 anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_1153
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @TOYZ2_1200 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_1153 
+jump @TOYZ2_1674 
+
+:TOYZ2_1200
+00BC: text_highpriority 'RC_CS8' 5000 ms 1  // I'll be operating this plane like an eye in the sky.
+0372: set_actor $2349 anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_1232
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_1279 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_1232 
+jump @TOYZ2_1674 
+
+:TOYZ2_1279
+00BC: text_highpriority 'RC_CS9' 6000 ms 1  // Simultaneously, you'll drive the car using a remote controller from this bench here.
+0372: set_actor $2349 anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_1311
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @TOYZ2_1358 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_1311 
+jump @TOYZ2_1674 
+
+:TOYZ2_1358
+00BC: text_highpriority 'RC_CT1' 5000 ms 1  // ~x~I still don't get it. Why do we need the plane?
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_1390
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_1437 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_1390 
+jump @TOYZ2_1674 
+
+:TOYZ2_1437
+00BC: text_highpriority 'RC_CT2' 6000 ms 1  // You'll need to rely on it for a video transmission to see where the car is going!
+0372: set_actor $2349 anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_1469
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @TOYZ2_1516 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_1469 
+jump @TOYZ2_1674 
+
+:TOYZ2_1516
+00BC: text_highpriority 'RC_CT3' 6000 ms 1  // It's important that you can keep up with the plane and remain within a visible radius.
+0372: set_actor $2349 anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_1548
+wait 0 
+if 
+   not 16@ > 6000 // integer values 
+else_jump @TOYZ2_1595 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_1548 
+jump @TOYZ2_1674 
+
+:TOYZ2_1595
+00BC: text_highpriority 'RC_CT4' 5000 ms 1  // I need to obtain some speed readings. Push the car to its limits when instructed.
+0372: set_actor $2349 anim 19 wait_state_time 3500 ms 
+16@ = 0 // integer values 
+
+:TOYZ2_1627
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @TOYZ2_1674 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_1627 
+jump @TOYZ2_1674 
+
+:TOYZ2_1674
+00BE: text_clear_all 
+16@ = 0 // integer values 
+fade 0 1500 
+
+:TOYZ2_1690
+wait 0 
+if 
+fading 
+else_jump @TOYZ2_1714 
+jump @TOYZ2_1690 
+
+:TOYZ2_1714
+Car.Destroy(4@)
+Car.PutAt(5@, 290.467, -164.583, 10.375)
+Actor.DestroyInstantly($2349)
+Player.CanMove($PLAYER_CHAR) = True
+02A3: enable_widescreen 0 
+0369: put_player $PLAYER_CHAR in_car 5@ 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+wait 1000 
+4@ = Car.Create(#RCBARON, 228.818, -129.976, 30.774)
+Model.Destroy(#RCBARON)
+wait 500 
+fade 1 1000 
+04BA: set_car 4@ speed_instantly 20.0 
+04D2: set_plane 4@ fly_autopilot_around_point 159.932 -184.408 50.965 35 
+0507: set_camera_interference 1 
+01EB: set_traffic_density_multiplier_to 3.0 
+05DF: write_memory 8820282 size 1 value 0 virtual_protect 0 
+01F0: set_max_wanted_level_to 0 
+03E5: text_box 'RC_1C'  // Follow the drone and obtain a speed reading as you clear the marked checkpoints. 
+
+:TOYZ2_1892
+if or
+8448:   not actor $PLAYER_ACTOR in_car 5@ 
+00E1:   player 0 pressed_button 15 
+else_jump @TOYZ2_1931 
+$2527 = 1 // integer values 
+jump @TOYZ2_4093 
+
+:TOYZ2_1931
+if 
+01FC:   player $PLAYER_CHAR near_car 4@ radius 200.0 200.0 0 
+else_jump @TOYZ2_4093 
+if 
+  $2528 == 0 // integer values 
+else_jump @TOYZ2_2021 
+if 
+8185:   not car 5@ health >= 550 
+else_jump @TOYZ2_2054 
+00BC: text_highpriority 'RC_1K' 5000 ms 1  // ~r~The buggy is taking too much damage. Be more careful! 
+$2528 = 1 // integer values 
+
+:TOYZ2_2021
+if 
+8185:   not car 5@ health >= 349 
+else_jump @TOYZ2_2054 
+$2527 = 2 // integer values 
+jump @TOYZ2_4093 
+
+:TOYZ2_2054
+wait 0 
+if and
+   not $2522 == 12 // integer values 
+   not $2521 == 10 // integer values 
+else_jump @TOYZ2_4736 
+wait 0 
+if 
+  $2521 == 0 // integer values 
+else_jump @TOYZ2_2182 
+if 
+01AF:   car 4@ 0 159.932 -184.408 50.965 radius 5.5 5.5 5.0 
+else_jump @TOYZ2_3040 
+$2521 = 1 // integer values 
+04D2: set_plane 4@ fly_autopilot_around_point 195.255 -290.938 50.965 85 
+
+:TOYZ2_2182
+if 
+  $2521 == 1 // integer values 
+else_jump @TOYZ2_2281 
+wait 0 
+if 
+01AF:   car 4@ 0 195.255 -290.938 50.965 radius 5.5 5.5 5.0 
+else_jump @TOYZ2_3040 
+$2521 = 2 // integer values 
+04D2: set_plane 4@ fly_autopilot_around_point 307.91 -512.65 59.888 35 
+
+:TOYZ2_2281
+wait 0 
+if 
+  $2521 == 2 // integer values 
+else_jump @TOYZ2_2380 
+if 
+01AF:   car 4@ 0 307.91 -512.65 59.888 radius 5.5 5.5 5.0 
+else_jump @TOYZ2_3040 
+$2521 = 3 // integer values 
+04D2: set_plane 4@ fly_autopilot_around_point 492.544 -534.866 59.888 35 
+
+:TOYZ2_2380
+wait 0 
+if 
+  $2521 == 3 // integer values 
+else_jump @TOYZ2_2479 
+if 
+01AF:   car 4@ 0 492.544 -534.866 59.888 radius 5.5 5.5 5.0 
+else_jump @TOYZ2_3040 
+$2521 = 4 // integer values 
+04D2: set_plane 4@ fly_autopilot_around_point 516.112 -1179.56 59.888 55 
+
+:TOYZ2_2479
+wait 0 
+if 
+  $2521 == 4 // integer values 
+else_jump @TOYZ2_2578 
+if 
+01AF:   car 4@ 0 516.112 -1179.56 59.888 radius 5.5 5.5 5.0 
+else_jump @TOYZ2_3040 
+$2521 = 5 // integer values 
+04D2: set_plane 4@ fly_autopilot_around_point 187.681 -1539.47 59.888 85 
+
+:TOYZ2_2578
+wait 0 
+if 
+  $2521 == 5 // integer values 
+else_jump @TOYZ2_2677 
+if 
+01AF:   car 4@ 0 187.681 -1539.47 59.888 radius 5.5 5.5 5.0 
+else_jump @TOYZ2_3040 
+$2521 = 6 // integer values 
+04D2: set_plane 4@ fly_autopilot_around_point 22.9576 -1412.06 59.88 15 
+
+:TOYZ2_2677
+wait 0 
+if 
+  $2521 == 6 // integer values 
+else_jump @TOYZ2_2776 
+if 
+01AF:   car 4@ 0 22.9576 -1412.06 59.88 radius 5.5 5.5 5.0 
+else_jump @TOYZ2_3040 
+$2521 = 7 // integer values 
+04D2: set_plane 4@ fly_autopilot_around_point -84.5233 -887.686 59.888 45 
+
+:TOYZ2_2776
+wait 0 
+if 
+  $2521 == 7 // integer values 
+else_jump @TOYZ2_2875 
+if 
+01AF:   car 4@ 0 -84.5233 -887.686 59.888 radius 5.5 5.5 5.0 
+else_jump @TOYZ2_3040 
+$2521 = 8 // integer values 
+04D2: set_plane 4@ fly_autopilot_around_point 140.501 -665.73 59.888 45 
+
+:TOYZ2_2875
+wait 0 
+if 
+  $2521 == 8 // integer values 
+else_jump @TOYZ2_2974 
+if 
+01AF:   car 4@ 0 140.501 -665.73 59.888 radius 5.5 5.5 5.0 
+else_jump @TOYZ2_3040 
+$2521 = 9 // integer values 
+04D2: set_plane 4@ fly_autopilot_around_point 403.251 -227.625 59.888 35 
+
+:TOYZ2_2974
+wait 0 
+if 
+01AF:   car 4@ 0 403.251 -227.625 59.888 radius 59.888 5.5 5.5 
+else_jump @TOYZ2_3040 
+$2521 = 10 // integer values 
+jump @TOYZ2_1892 
+
+:TOYZ2_3040
+gosub @TOYZ2_3061 
+gosub @TOYZ2_3127 
+jump @TOYZ2_1892 
+
+:TOYZ2_3061
+0407: create_coordinate $CAM1 $CAM2 $CAM3 from_car 4@ offset 0.0 3.0 -2.0 
+Camera.SetPosition($CAM1, $CAM2, $CAM3, 0.0, 0.0, 0.0)
+Camera.OnVehicle(5@, 15, 2)
+return 
+
+:TOYZ2_3127
+if 
+  $2522 == 0 // integer values 
+else_jump @TOYZ2_3182 
+$PNT_X = 298.554 // floating-point values 
+$PNT_Y = -460.632 // floating-point values 
+$PNT_Z = 14.703 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3182
+if 
+  $2522 == 1 // integer values 
+else_jump @TOYZ2_3269 
+03C4: set_status_text_to $2524 0 'RC_1D'  // Points:
+04F7: status_text $2525 0 line 2 'RC_1E'  // Target:
+$PNT_X = 539.798 // floating-point values 
+$PNT_Y = -623.09 // floating-point values 
+$PNT_Z = 9.814 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3269
+if 
+  $2522 == 2 // integer values 
+else_jump @TOYZ2_3324 
+$PNT_X = 506.127 // floating-point values 
+$PNT_Y = -1103.401 // floating-point values 
+$PNT_Z = 9.765 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3324
+if 
+  $2522 == 3 // integer values 
+else_jump @TOYZ2_3379 
+$PNT_X = 189.048 // floating-point values 
+$PNT_Y = -1540.927 // floating-point values 
+$PNT_Z = 9.616 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3379
+if 
+  $2522 == 4 // integer values 
+else_jump @TOYZ2_3434 
+$PNT_X = 88.499 // floating-point values 
+$PNT_Y = -1576.897 // floating-point values 
+$PNT_Z = 9.025 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3434
+if 
+  $2522 == 5 // integer values 
+else_jump @TOYZ2_3489 
+$PNT_X = 100.733 // floating-point values 
+$PNT_Y = -1485.537 // floating-point values 
+$PNT_Z = 9.026 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3489
+if 
+  $2522 == 6 // integer values 
+else_jump @TOYZ2_3544 
+$PNT_X = -0.274 // floating-point values 
+$PNT_Y = -1471.257 // floating-point values 
+$PNT_Z = 9.054 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3544
+if 
+  $2522 == 7 // integer values 
+else_jump @TOYZ2_3599 
+$PNT_X = 49.174 // floating-point values 
+$PNT_Y = -1353.747 // floating-point values 
+$PNT_Z = 9.056 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3599
+if 
+  $2522 == 8 // integer values 
+else_jump @TOYZ2_3654 
+$PNT_X = -97.341 // floating-point values 
+$PNT_Y = -897.064 // floating-point values 
+$PNT_Z = 9.477 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3654
+if 
+  $2522 == 9 // integer values 
+else_jump @TOYZ2_3709 
+$PNT_X = 174.93 // floating-point values 
+$PNT_Y = -620.246 // floating-point values 
+$PNT_Z = 17.762 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3709
+if 
+  $2522 == 10 // integer values 
+else_jump @TOYZ2_3764 
+$PNT_X = 222.869 // floating-point values 
+$PNT_Y = -448.396 // floating-point values 
+$PNT_Z = 10.979 // floating-point values 
+jump @TOYZ2_3888 
+
+:TOYZ2_3764
+00BC: text_highpriority 'RC_1L' 5000 ms 1  // ~r~Park the buggy by the checkpoint to conclude the test.
+$PNT_X = 347.923 // floating-point values 
+$PNT_Y = -199.616 // floating-point values 
+$PNT_Z = 10.98 // floating-point values 
+jump @TOYZ2_3816 
+
+:TOYZ2_3816
+if 
+  $2523 == 0 // integer values 
+else_jump @TOYZ2_4091 
+03BC: 6@ = create_sphere $PNT_X $PNT_Y $PNT_Z 15.0 
+018A: 9@ = create_checkpoint_at $PNT_X $PNT_Y $PNT_Z 
+Marker.SetColor(9@, 0)
+$2523 = 1 // integer values 
+jump @TOYZ2_4091 
+
+:TOYZ2_3888
+if 
+  $2523 == 0 // integer values 
+else_jump @TOYZ2_3953 
+03BC: 6@ = create_sphere $PNT_X $PNT_Y $PNT_Z 15.0 
+018A: 9@ = create_checkpoint_at $PNT_X $PNT_Y $PNT_Z 
+$2523 = 1 // integer values 
+jump @TOYZ2_3953 
+
+:TOYZ2_3953
+if and
+   not $2522 == 11 // integer values 
+01AD:   car 5@ sphere 0 near_point $PNT_X $PNT_Y radius 12.5 12.5 
+else_jump @TOYZ2_4091 
+02E3: 7@ = car 5@ speed 
+7@ *= 3.6 // floating-point values (never used in VC or GTA 3) 
+0092: 8@ = float_to_integer 7@ // never used in VC or GTA 3 
+005E: $2524 += 8@ // integer values (never used VC or GTA 3) 
+00BE: text_clear_all 
+01E3: text_1number_styled 'RC_1B' number 8@ time 3000 style 5  // SPEED ~1~ KM/H
+018C: play_sound 1 at 0.0 0.0 0.0 
+03BD: destroy_sphere 6@ 
+Marker.Disable(9@)
+$2522 += 1 // integer values 
+$2523 = 0 // integer values 
+
+:TOYZ2_4091
+return 
+
+:TOYZ2_4093
+00BE: text_clear_all 
+Player.CanMove($PLAYER_CHAR) = False
+0581: enable_radar 0 
+fade 0 500 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+03E6: remove_text_box 
+0151: remove_status_text $2524 
+0151: remove_status_text $2525 
+0395: clear_area 1 at 264.043 47.513 range 50.0 50.0 
+012A: put_player $PLAYER_CHAR at 273.652 41.845 9.751 and_remove_from_car 
+0171: set_player $PLAYER_CHAR z_angle_to 90.0 
+Model.Load(#BOMB)
+038B: load_requested_models 
+
+:TOYZ2_4200
+wait 0 
+if 
+   not Model.Available(#BOMB)
+else_jump @TOYZ2_4227 
+jump @TOYZ2_4200 
+
+:TOYZ2_4227
+wait 1000 
+02A3: enable_widescreen 1 
+05DF: write_memory 8820282 size 1 value 1 virtual_protect 0 
+0507: set_camera_interference 0 
+$2349 = Actor.Create(CivMale, #SPECIAL03, 273.004, 41.167, 9.812)
+0350: set_actor $2349 maintain_position_when_attacked 1 
+0372: set_actor $2349 anim 33 wait_state_time 5000 ms 
+020F: actor $2349 look_at_player $PLAYER_CHAR 
+0372: set_actor $PLAYER_ACTOR anim 24 wait_state_time 4000 ms 
+Camera.SetPosition(268.407, 41.3135, 11.242, 0.0, 0.0, 0.0)
+Camera.OnPed($2349, 15, 2)
+04C4: create_coordinate $PNT_X $PNT_Y $PNT_Z from_actor $PLAYER_ACTOR offset 0.0 0.15 -0.4 
+$2526 = Object.Init(#BOMB, $PNT_X, $PNT_Y, $PNT_Z)
+0453: object $2526 set_rotation 0.0 300.0 200.0 
+fade 1 500 
+wait 0 
+if 
+  $2527 == 1 // integer values 
+else_jump @TOYZ2_4475 
+00BC: text_highpriority 'RC_1H' 5000 ms 1  // The hell did you press!? The system isn't responding...
+wait 4000 
+jump @TOYZ2_4600 
+
+:TOYZ2_4475
+wait 0 
+if 
+  $2527 == 2 // integer values 
+else_jump @TOYZ2_4524 
+00BC: text_highpriority 'RC_1I' 5000 ms 1  // You've destroyed it... Well done, Flint. I'll just start over now.
+wait 4000 
+jump @TOYZ2_4600 
+
+:TOYZ2_4524
+wait 0 
+if 
+  $2527 == 3 // integer values 
+else_jump @TOYZ2_4573 
+00BC: text_highpriority 'RC1_F' 5000 ms 1 
+wait 4000 
+jump @TOYZ2_4600 
+
+:TOYZ2_4573
+00BC: text_highpriority 'RC_1J' 5000 ms 1  // We lost the damn car, Flint!  
+wait 4000 
+jump @TOYZ2_4600 
+
+:TOYZ2_4600
+fade 0 750 
+Object.ToggleInMovingList($2526) = True
+Object.Throw($2526, 0.3, -0.3, 4.5)
+wait 900 
+0055: put_player $PLAYER_CHAR at 267.61 38.026 10.09 
+0171: set_player $PLAYER_CHAR z_angle_to 180.0 
+Object.ToggleInMovingList($2526) = False
+Actor.DestroyInstantly($2526)
+Camera.Restore_WithJumpCut
+Camera.SetBehindPlayer
+02A3: enable_widescreen 0 
+0581: enable_radar 1 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+Actor.DestroyInstantly($2349)
+wait 1500 
+fade 1 500 
+wait 500 
+jump @TOYZ2_5025 
+
+:TOYZ2_4736
+wait 0 
+00BE: text_clear_all 
+if 
+   not $2524 >= 1100 // integer values 
+else_jump @TOYZ2_4775 
+  $2527 == 3 // integer values 
+jump @TOYZ2_4093 
+
+:TOYZ2_4775
+fade 0 500 
+wait 900 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+03E6: remove_text_box 
+0151: remove_status_text $2524 
+0151: remove_status_text $2525 
+05DF: write_memory 8820282 size 1 value 1 virtual_protect 0 
+0507: set_camera_interference 0 
+012A: put_player $PLAYER_CHAR at 267.61 38.026 10.09 and_remove_from_car 
+0171: set_player $PLAYER_CHAR z_angle_to 180.0 
+Camera.Restore_WithJumpCut
+Camera.SetBehindPlayer
+fade 1 500 
+wait 500 
+jump @TOYZ2_4970 
+
+:TOYZ2_4883
+wait 0 
+0296: unload_special_actor 3 
+03BD: destroy_sphere 6@ 
+Marker.Disable(9@)
+Car.Destroy(4@)
+Car.Destroy(5@)
+Object.RemoveReferences($2526)
+01EB: set_traffic_density_multiplier_to 1.0 
+01F0: set_max_wanted_level_to 6 
+022A: remove_forbidden_for_peds_cube 300.359 70.567 9.0 2.359 20.5677 21.0 
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
+:TOYZ2_4970
+00BA: text_styled 'M_PASS3' 5000 ms 1  // MISSION PASSED!
+Player.ClearWantedLevel($PLAYER_CHAR)
+0318: set_latest_mission_passed 'BANK_3'  // Skyline Flavour
+030C: progress_made += 1 
+0394: play_music 1 
+$149 = 1 // integer values 
+create_thread @NONAME_24 
+return 
+
+:TOYZ2_5025
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+

@@ -1,0 +1,13 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 27: Recruitment Drive
+// Строки 50443-50451 исходного файла data/main.txt
+// Кол-во строк: 9
+//-------------Mission 27---------------
+// Originally: Recruitment Drive
+
+:LOOP6
+thread 'LOOP6' 
+
+:LOOP6_10
+jump @LOOP6_10 
+

@@ -1,31 +1,34 @@
 require("lualoader/mod")
 function main()
-while true do wait()-- Р·Р°РґРµСЂР¶РєР°.
-  player = findplayer()-- РїРѕР»СѓС‡РёС‚СЊ РёРіСЂРѕРєР°.
- if Keypress("VK_G") -- РµСЃР»Рё РєР»Р°РІРёС€Р° H.
+while true do wait()-- задержка.
+  player = findplayer()-- получить игрока.
+ if Keypress("VK_G") -- если клавиша H.
   then mod_autoaim("M4", "on")  printmessage("~r~on autoaim", 3400,1 )
-      incarstatus, mycar = incar(player) -- РїСЂРѕРІРµСЂРёС‚СЊ РёРіСЂРѕРє РІ РјР°С€РёРЅРµ?.
-    if incarstatus == true then -- РµСЃР»Рё РІ РјР°С€РёРЅРµ.
-      set_car_mass(mycar, 200) -- РґР°С‚СЊ СЌС‚РѕР№ РјР°С€РёРЅРµ РјР°СЃСЃСѓ 3000.
+      incarstatus, mycar = incar(player) -- проверить игрок в машине?.
+    if incarstatus == true then -- если в машине.
+      set_car_mass(mycar, 6000) -- дать этой машине массу 3000.
       printmessage("~r~mass 200", 3400,1 )
     end
  end
 
- if Keypress("VK_H") -- РµСЃР»Рё РєР»Р°РІРёС€Р° H.
+ if Keypress("VK_H") -- если клавиша H.
   then  mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
  end
-  if Keypress("VK_S") -- РµСЃР»Рё РєР»Р°РІРёС€Р° H.
+  if Keypress("VK_S") -- если клавиша H.
   then show_save_menu()
  end
-    if Keypress("VK_J") -- РµСЃР»Рё РєР»Р°РІРёС€Р° J.
+  if Keypress("VK_T") -- если клавиша H.
+   then setcord(player,  118.0, -825.9, 10.5) --show_save_menu()
+  end
+    if Keypress("VK_J") -- если клавиша J.
      then
 
-        Giveweaponped(player,600,"m4")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
+        Giveweaponped(player,600,"m4")-- дать педу оружие.
         printmessage("~r~give M40", 3400,1 )
-        --set_clip_current_weapon(player, 10)-- РїРѕСЃС‚Р°РІРёС‚СЊ РѕР±РѕР№РјСѓ 10 (РїСЂРѕРІРµСЂРєР°: HUD РґРѕР»Р¶РµРЅ РїРѕРєР°Р·Р°С‚СЊ 10/600).
-        incarstatus, mycar = incar(player) -- РїСЂРѕРІРµСЂРёС‚СЊ РёРіСЂРѕРє РІ РјР°С€РёРЅРµ?.
-        if incarstatus == true then -- РµСЃР»Рё РІ РјР°С€РёРЅРµ.
-          set_car_mass(mycar, 3000) -- РґР°С‚СЊ СЌС‚РѕР№ РјР°С€РёРЅРµ РјР°СЃСЃСѓ 3000.
+        --set_clip_current_weapon(player, 10)-- поставить обойму 10 (проверка: HUD должен показать 10/600).
+        incarstatus, mycar = incar(player) -- проверить игрок в машине?.
+        if incarstatus == true then -- если в машине.
+          set_car_mass(mycar, 3000) -- дать этой машине массу 3000.
           printmessage("~r~mass 3000", 3400,1 )
         end
     end
@@ -33,19 +36,19 @@ while true do wait()-- Р·Р°РґРµСЂР¶РєР°.
 
 end
 
-  --Giveweaponped(player,600,"sniper")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
+  --Giveweaponped(player,600,"sniper")-- дать педу оружие.
    -- wait(1000)
 
-	-- if Keypress("VK_J") -- РµСЃР»Рё РєР»Р°РІРёС€Р° H.
+	-- if Keypress("VK_J") -- если клавиша H.
      -- then -- show_save_menu()
 	-- setcord(player, 325.5, 1199.1, 27.6)
 
    -- end
  -- printmessage("value = "..tostring(string.format("%.d", res)), 3400,1 )
-  -- file = io.open('autoaim.txt', 'a') -- РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё
+  -- file = io.open('autoaim.txt', 'a') -- открыть файл для записи
   -- file:write(tostring(string.format("%.d", res)))
   -- file:close()
-		  -- if Keypress("VK_J") -- РµСЃР»Рё РєР»Р°РІРёС€Р° H.
+		  -- if Keypress("VK_J") -- если клавиша H.
    -- then  setcord(player, 495.7, -1734.3, 13.7)
 
   -- end
@@ -53,13 +56,13 @@ end
 	-- -- car = Createcar("MODEL_SECURICA",x,y,z)
 	-- -- setcarangle(car, getpedangle(player))
 
-	-- set_radio(9,1)-- РІС‹РєР»СЋС‡РёС‚СЊ СЂР°РґРёРѕ.
+	-- set_radio(9,1)-- выключить радио.
 	-- car = Createcar("MODEL_PCJ600",x,y,z)
 -- --	set_skin(player, "IGMIKE")
 	 -- -- wait(3100)
 	-- -- delete_entity(car)
 	-- remove_car(car)
-  -- -- set_skin(player, "PLAYER")-- РІРѕСЃСЃС‚Р°РЅРѕРІРёС‚СЊ СЃРєРёРЅ.
+  -- -- set_skin(player, "PLAYER")-- восстановить скин.
 
 	--
 	-- set_skin("IGKEN")
@@ -67,22 +70,22 @@ end
 	--ped1 = create_spec_ped("SAM",x,y,z)
       --p =	  Createped("HMYST", x,y,z)
 
-	  -- ped_from_turret_on_car(ped)--СѓР±СЂР°С‚СЊ РїРµРґР° РёР· С‚СѓСЂРµР»Рё Р°РІС‚Рѕ.
-      -- destroy()-- СѓРґР°Р»РёС‚СЊ РІСЃРµ РѕР±СЉРµРєС‚С‹, РєРѕС‚РѕСЂС‹Рµ Р±С‹Р»Рё СЃРѕР·РґР°РЅС‹ СЃРєСЂРёРїС‚РѕРј.
+	  -- ped_from_turret_on_car(ped)--убрать педа из турели авто.
+      -- destroy()-- удалить все объекты, которые были созданы скриптом.
 	  -- printmessage("~r~end script 1", 3400,1 )
--- local ped1 = set_ped_in_car(car, "HFORI",1) -- СѓСЃС‚ РїР°СЃСЃР°Р¶РёСЂР° Р°РІС‚Рѕ.
+-- local ped1 = set_ped_in_car(car, "HFORI",1) -- уст пассажира авто.
 	-- car = Createcar("MODEL_PCJ600",x,y,z)
 	--
 -- local
 -- m2 = create_marker(car)
-  -- Giveweaponped(player,600,"uzi")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
+  -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
    -- wait(300)
 
 -- if isvehicle(car)
 -- then  m = create_marker_car(car)
 -- end
 
- -- -- pickup = Create_pickup(335,3,606.5, -255.9, 13.8) -- СЃРѕР·РґР°С‚СЊ РїРёРєР°Рї
+ -- -- pickup = Create_pickup(335,3,606.5, -255.9, 13.8) -- создать пикап
 
  -- restore_camera()
  -- -- remove_pickup(pickup)
@@ -95,17 +98,17 @@ end
 
 -- if is_button_pressed(17)
      -- --wait(300)
-   -- ped1 = set_ped_in_car(car, "HFORI") -- СѓСЃС‚ РІРѕРґРёС‚РµР»СЏ Р°РІС‚Рѕ.
-  -- ped2 = set_ped_in_car(car, "HFORI",0) -- СѓСЃС‚ РїР°СЃСЃР°Р¶РёСЂР° Р°РІС‚Рѕ.
-  -- ped3 = set_ped_in_car(car, "HFORI",1) -- СѓСЃС‚ РїР°СЃСЃР°Р¶РёСЂР° Р°РІС‚Рѕ.
-  -- ped4 = set_ped_in_car(car, "HFORI",2) -- СѓСЃС‚ РїР°СЃСЃР°Р¶РёСЂР° Р°РІС‚Рѕ.
+   -- ped1 = set_ped_in_car(car, "HFORI") -- уст водителя авто.
+  -- ped2 = set_ped_in_car(car, "HFORI",0) -- уст пассажира авто.
+  -- ped3 = set_ped_in_car(car, "HFORI",1) -- уст пассажира авто.
+  -- ped4 = set_ped_in_car(car, "HFORI",2) -- уст пассажира авто.
   --ped = Createped("BMYBB", x,y,z)
---  p1, m1 = Create_ped_and_give_weapon("BMYBB", "uzi", x,y,z)-- СЃРѕР·РґР°С‚СЊ РІСЂР°РіР°.
+--  p1, m1 = Create_ped_and_give_weapon("BMYBB", "uzi", x,y,z)-- создать врага.
 --   remove_car(car)
-  -- if Keypress("VK_J") -- РµСЃР»Рё РєР»Р°РІРёС€Р° H.
+  -- if Keypress("VK_J") -- если клавиша H.
   -- then x,y,z = getcoordinates_on_y(player, 15)
-  -- -- Giveweaponped(ped,600,"m4")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
-  -- Giveweaponped(player,600,"uzi")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
+  -- -- Giveweaponped(ped,600,"m4")-- дать педу оружие.
+  -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
   -- wait(200)
   -- --addmoney_ped(ped,100)
  -- --  create_shots_on_car(car,1,100 )
@@ -118,7 +121,7 @@ end
 	--set_car_tank(car, 0)
 
  --ped = Createped("HMYST",x,y,z) --setmoney_ped(ped,100)
--- Giveweaponped(ped,600,"uzi")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
+-- Giveweaponped(ped,600,"uzi")-- дать педу оружие.
 --setmoney_ped(ped, 10)
 --wait(300)
 -- addmoney_ped(ped,100)
@@ -129,10 +132,10 @@ end
 -- kill_ped(ped)
 --setpedhealth(ped,0)
 --setmoney_ped(player, 10)
-   -- ped1 = set_ped_in_car(car, "HFORI") -- СѓСЃС‚ РІРѕРґРёС‚РµР»СЏ Р°РІС‚Рѕ.
-  -- ped2 = set_ped_in_car(car, "HFORI",0) -- СѓСЃС‚ РїР°СЃСЃР°Р¶РёСЂР° Р°РІС‚Рѕ.
-  -- ped3 = set_ped_in_car(car, "HFORI",1) -- СѓСЃС‚ РїР°СЃСЃР°Р¶РёСЂР° Р°РІС‚Рѕ.
-  -- ped4 = set_ped_in_car(car, "HFORI",2) -- СѓСЃС‚ РїР°СЃСЃР°Р¶РёСЂР° Р°РІС‚Рѕ.
+   -- ped1 = set_ped_in_car(car, "HFORI") -- уст водителя авто.
+  -- ped2 = set_ped_in_car(car, "HFORI",0) -- уст пассажира авто.
+  -- ped3 = set_ped_in_car(car, "HFORI",1) -- уст пассажира авто.
+  -- ped4 = set_ped_in_car(car, "HFORI",2) -- уст пассажира авто.
   -- wait(2200)
   -- all_exit_from_car(car, 4)
     -- while true do wait(100)
@@ -151,7 +154,7 @@ end
    --ped_in_turret_on_car(ped, car, 0.424, -0.067, 1.13, 0, 360, 26)
 
 	-- printmessage("stam = "..tostring(string.format("%.d", stam)), 3400,1 )
- -- if Keypress("VK_J") -- РµСЃР»Рё РєР»Р°РІРёС€Р° H.
+ -- if Keypress("VK_J") -- если клавиша H.
    -- then x,y,z = getcoordinates_on_y(player, 5)
    -- gravity_default()
    --    setgravity(0.002)
@@ -163,7 +166,7 @@ end
 
   -- car = Createcar("MODEL_PCJ600",x,y,z)
 
-  -- Giveweaponped(player,600,"colt45","chromegun","uzi")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
+  -- Giveweaponped(player,600,"colt45","chromegun","uzi")-- дать педу оружие.
  	 -- while true do wait(1010)
 	 -- stam = getstamina_ped(player)
      -- printmessage("stam = "..tostring(string.format("%.f", stam)), 1400,1 )
@@ -186,8 +189,8 @@ end
 
  -- end
 -- end	--
--- camera -67.383, -851.841, 11.123  СѓРіРѕР» 90
--- cord -67.4, -848.5, 10.5 СѓРіРѕР» 270
+-- camera -67.383, -851.841, 11.123  угол 90
+-- cord -67.4, -848.5, 10.5 угол 270
 -- function f(player)
 
 -- local x1,y1,z1 =  getcameracoordes()--getcoordinates_on_y(player, 10)
@@ -198,7 +201,7 @@ end
 -- x2, y2 = findpoints(x1,y1, 8, i)
 -- camera_at_point(x1, y1, z1, 1)
 -- set_camera_position(x2,y2,z1, 0.0, 0.0, 0.0)
--- pickup =Create_weapon_pickup("sniper",3, 30, x2,y2,z1)-- СЃРѕР·РґР°С‚СЊ РїРёРєР°Рї РѕСЂСѓР¶РёРµ.
+-- pickup =Create_weapon_pickup("sniper",3, 30, x2,y2,z1)-- создать пикап оружие.
 -- printmessage("x = "..tostring(string.format("%.3f", x2))..", y = "..tostring(string.format("%.3f", y2))..", angle = "..tostring(string.format("%.d", i)), 400,1 )
 -- wait(2100)
 -- end
@@ -209,7 +212,7 @@ end
    -- ped1 = Createped("HMYST",x,y,z)
    -- ped_aim_at_ped(ped, ped1)
 
- -- if Keypress(VK_G) -- РµСЃР»Рё РєР»Р°РІРёС€Р° G.
+ -- if Keypress(VK_G) -- если клавиша G.
  -- then printmessage("fire bullets included", 3000,1)
  -- while true do wait(100)
  -- local b, p = Ped_in_targetting()
@@ -228,23 +231,23 @@ end
  --printmessage("throw current weapon", 3000,1)
  -- if ped_targetting_in_ped(player, ped1)
  -- then
- -- Giveweaponped(ped,600,"uzi","python","chromegun")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
+ -- Giveweaponped(ped,600,"uzi","python","chromegun")-- дать педу оружие.
   -- restore_camera()
 	 -- set_wanted(6)
 	 -- --throw_current_weapon(player)
 
  -- end
- -- if Keypress(VK_N) -- РµСЃР»Рё РєР»Р°РІРёС€Р° N.
+ -- if Keypress(VK_N) -- если клавиша N.
  -- then printmessage("remove current weapon", 3000,1)
  -- remove_current_weapon_ped(player)
 
  -- end   --
- -- Giveweaponped(player,600,"uzi","python","chromegun")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
-  -- if Keypress(VK_G) -- РµСЃР»Рё РєР»Р°РІРёС€Р° G.
+ -- Giveweaponped(player,600,"uzi","python","chromegun")-- дать педу оружие.
+  -- if Keypress(VK_G) -- если клавиша G.
  -- then printmessage("throw current weapon", 3000,1)
      -- throw_current_weapon(player)
 -- end
- -- if Keypress(VK_N) -- РµСЃР»Рё РєР»Р°РІРёС€Р° N.
+ -- if Keypress(VK_N) -- если клавиша N.
  -- then remove_current_weapon_ped(player)
       -- printmessage("remove current weapon", 3000,1)
  -- end
@@ -268,14 +271,14 @@ end
   -- ped_shutdown(ped1)
     --createfireoncords(x,y,z)
   --g =createfireonped(ped1)
-  -- wait(600)-- Р·Р°РґРµСЂР¶РєР°.
+  -- wait(600)-- задержка.
 -- g = get_ammo_weapon_ped(ped1)
 -- g = tonumber(g)
 -- printmessage("x = "..tostring(string.format("%.d", g)), 1400,1 )
-  -- wait(3600)-- Р·Р°РґРµСЂР¶РєР°.
+  -- wait(3600)-- задержка.
   -- -- end
-    -- if Keypress(VK_H) -- РµСЃР»Рё РєР»Р°РІРёС€Р° H.
- -- then   Giveweaponped(player,600,"uzi","python","chromegun")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
+    -- if Keypress(VK_H) -- если клавиша H.
+ -- then   Giveweaponped(player,600,"uzi","python","chromegun")-- дать педу оружие.
 -- end	--
  -- wait(300)
  -- g = getweaponslot(player,"uzi")
@@ -287,7 +290,7 @@ end
 -- while lualoader == nil do
 -- -- g = get_damage_weapon_ped(ped)
 -- g =greatefireonped(ped1)
-   -- if Keypress(VK_H) -- РµСЃР»Рё РєР»Р°РІРёС€Р° H.
+   -- if Keypress(VK_H) -- если клавиша H.
  -- then restore_camera()--
  -- remove_sphere(sp)
 -- end	--
@@ -306,32 +309,32 @@ end
  --wait(1000)
 
  -- set_camera_position(-67.4, -848.5, 10.5, 0.0, 0.0, 0.0)
- -- camera_at_point(-67.4, -848.5, 10.5, 1) --РїРµСЂРµРјРµСЃС‚РёС‚СЊ РєР°РјРµСЂСѓ РІ РєРѕРѕСЂРґРёРЅР°С‚Р°С….
+ -- camera_at_point(-67.4, -848.5, 10.5, 1) --переместить камеру в координатах.
  -- setcord(player, -260.678, -1214.5, 8.773)
 -- set_camera_position(-250.123, -1218.243, 8.773, 0.0, 0.0, 0.0)
 -- camera_at_point(-248.406, -1228.094, 8.773, 1)
 -- camera_at_point(x1, y1, z, 1)
 -- set_camera_position(x,y,z, 0.0, 0.0, 0.0)
  -- cord = "set_camera_position("..tostring(string.format("%.3f", x))..", "..tostring(string.format("%.3f", y))..", " .. tostring(string.format("%.3f", z))..", 0.0, 0.0, 0.0)\n".."camera_at_point("..tostring(string.format("%.3f", x1))..", "..tostring(string.format("%.3f", y1))..", " .. tostring(string.format("%.3f", z))..", 1)"
-  -- file = io.open('camera.txt', 'w') -- РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё
+  -- file = io.open('camera.txt', 'w') -- открыть файл для записи
   -- file:write(cord)
   -- file:close()
   -- printmessage("write cordinat", 3000, 1)
  -- wait(600)
 
- -- x,y,z = getcoordinates_on_y(player,10)-- РїРѕР»СѓС‡РёС‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РЅР° 5 Рј РІРїРµСЂРµРґРё.--
+ -- x,y,z = getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.--
  -- printmessage("car", 2000,1)--
 -- x,y,z = getcameracoordes()
 -- a1="cord "..x..", "..y..", "..z
 -- printmessage(a1, 1000,1)
-  -- set_camera_position(91.813, -1131.116, 17.251, 0.0, 0.0, 0.0) --СѓСЃС‚ РєР°РјРµСЂСѓ РІ РєРѕРѕСЂРґРёРЅР°С‚Р°С….
-  -- camera_at_point(92.39, -1131.74, 16.724, 1) --РїРµСЂРµРјРµСЃС‚РёС‚СЊ РєР°РјРµСЂСѓ РІ РєРѕРѕСЂРґРёРЅР°С‚Р°С….
+  -- set_camera_position(91.813, -1131.116, 17.251, 0.0, 0.0, 0.0) --уст камеру в координатах.
+  -- camera_at_point(92.39, -1131.74, 16.724, 1) --переместить камеру в координатах.
  -- for i=1, 6 do
  -- set_wanted(i)
  -- wait(2500)
  -- end
--- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- СЃРѕР·РґР°С‚СЊ Р°РІС‚Рѕ РЅР° 5 РІРїРµСЂРµРґРё.
- --Giveweaponped(player,600,"uzi")-- РґР°С‚СЊ РїРµРґСѓ РѕСЂСѓР¶РёРµ.
+-- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
+ --Giveweaponped(player,600,"uzi")-- дать педу оружие.
    -- set_widescreen(true)--
  -- setcord(player,0.0,0.0,0.0)
 -- givemoney(3000) setcarcoordes(mycar,0.0,0.0,0.0)
@@ -342,21 +345,21 @@ end
  -- printmessage(s, 2000,1)--
  --
  --
--- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- СЃРѕР·РґР°С‚СЊ Р°РІС‚Рѕ РЅР° 5 РІРїРµСЂРµРґРё.
+-- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
 -- go_to_route(mycar, road)
   -- setpedhealth(player, 300)
-  -- x,y,z =getcoordinates_on_y(player,5)-- РїРѕР»СѓС‡РёС‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РЅР° 5 Рј РІРїРµСЂРµРґРё.
+  -- x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
   -- ped1 = create_spec_ped("SAM", x,y,z) --  --
    -- -- if isped(ped)
 -- -- then
 -- -- printmessage("ped", 2000,1)
 -- -- end
  -- printmessage("star talking", 2000,1)
- -- wait(3000)-- x,y,z =getcoordinates_on_y(player,10)-- РїРѕР»СѓС‡РёС‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РЅР° 5 Рј РІРїРµСЂРµРґРё.--
+ -- wait(3000)-- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.--
   -- setpedhealth(ped1, 0)
  -- -- wait(300)
  -- -- ped = Createped("HMYST",x,y,z)
  -- -- setpedhealth(ped, 0)
-    -- x,y,z =getcoordinates_on_y(player,10)-- РїРѕР»СѓС‡РёС‚СЊ РєРѕРѕСЂРґРёРЅР°С‚С‹ РЅР° 5 Рј РІРїРµСЂРµРґРё.--
-	-- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- СЃРѕР·РґР°С‚СЊ Р°РІС‚Рѕ РЅР° 5 РІРїРµСЂРµРґРё.
+    -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.--
+	-- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
  -- ped = Createped("HMYST",x,y,z)

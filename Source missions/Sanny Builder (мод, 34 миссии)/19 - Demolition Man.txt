@@ -1,0 +1,13 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 19: Demolition Man
+// Строки 44034-44042 исходного файла data/main.txt
+// Кол-во строк: 9
+//-------------Mission 19---------------
+// Originally: Demolition Man
+
+:LOOP2
+thread 'LOOP2' 
+
+:LOOP2_10
+jump @LOOP2_10 
+

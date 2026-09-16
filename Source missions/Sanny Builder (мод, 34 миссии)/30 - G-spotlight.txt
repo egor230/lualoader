@@ -1,0 +1,1893 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 30: G-spotlight
+// Строки 52369-54257 исходного файла data/main.txt
+// Кол-во строк: 1889
+//-------------Mission 30---------------
+// Originally: G-spotlight
+
+:PCJ
+gosub @PCJ_36 
+if 
+wasted_or_busted 
+else_jump @PCJ_27 
+gosub @PCJ_13346 
+
+:PCJ_27
+gosub @PCJ_13363 
+end_thread 
+
+:PCJ_36
+thread 'PCJ' 
+054C: use_GXT_table 'OVALRIG' 
+$ONMISSION = 1 // integer values 
+if 
+  $1376 == 0 // integer values 
+else_jump @PCJ_83 
+increment_mission_attempts 
+
+:PCJ_83
+fade 1 1500 
+$5728 = 180000 // integer values 
+$5729 = 0 // integer values 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+Camera.SetPosition(-133.709, -1593.246, 12.08, 0.0, 0.0, 0.0)
+0157: camera_on_player $PLAYER_CHAR mode 15 switchstyle 2 
+wait 0 
+0460: set_camera_pointing_time 0.0 5000 
+Camera.SetPosition(-138.724, -1597.372, 12.675, 0.0, 0.0, 0.0)
+0157: camera_on_player $PLAYER_CHAR mode 15 switchstyle 1 
+00BC: text_highpriority 'HOTR_01' 5000 ms 1  // ~g~Collect all the checkpoints before time runs out.
+16@ = 0 // integer values 
+
+:PCJ_244
+wait 0 
+if 
+  5000 > 16@ // integer values 
+else_jump @PCJ_274 
+jump @PCJ_244 
+
+:PCJ_274
+00BC: text_highpriority 'HOTR_22' 5000 ms 1  // ~g~You will have to collect them in an order.
+0460: set_camera_pointing_time 0.0 2500 
+Camera.PointAt(-110.75, -1616.918, 10.163, 1)
+16@ = 0 // integer values 
+
+:PCJ_325
+wait 0 
+024F: create_corona_with_radius 1.5 type 1 lensflares 0 with_color 0 255 0 at -110.75 -1616.918 10.163 
+if 
+  5000 > 16@ // integer values 
+else_jump @PCJ_388 
+jump @PCJ_325 
+
+:PCJ_388
+16@ = 0 // integer values 
+02A3: enable_widescreen 0 
+Camera.Restore_WithJumpCut
+Camera.SetBehindPlayer
+Player.CanMove($PLAYER_CHAR) = True
+014E: start_timer_at $5728 count_in_direction 1 
+018A: $5731 = create_checkpoint_at -110.75 -1616.918 9.163 
+0167: $5732 = create_marker_at 5.561 -1648.96 8.081 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+
+:PCJ_468
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_699 
+00BC: text_highpriority 'MOB_40D' 1000 ms 1  // ~p~Checkpoints collected: 0 / 32
+04D5: create_corona_at -110.75 -1616.918 10.163 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car -110.75 -1616.918 9.163 radius 2.0 2.0 2.0 
+else_jump @PCJ_468 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 5.561 -1648.96 8.081 
+0167: $5732 = create_marker_at 87.425 -1633.728 8.052 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_867 
+
+:PCJ_699
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_737 
+$5733 = 10 // integer values 
+jump @PCJ_753 
+
+:PCJ_737
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_753
+16@ = 0 // integer values 
+
+:PCJ_760
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_835 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_760 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_468 
+
+:PCJ_835
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_753 
+
+:PCJ_867
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_1101 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 5.561 -1648.96 9.081 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 5.561 -1648.96 8.081 radius 2.0 2.0 2.0 
+else_jump @PCJ_867 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 87.425 -1633.728 8.052 
+0167: $5732 = create_marker_at 190.873 -1579.255 9.441 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_1269 
+
+:PCJ_1101
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_1139 
+$5733 = 10 // integer values 
+jump @PCJ_1155 
+
+:PCJ_1139
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_1155
+16@ = 0 // integer values 
+
+:PCJ_1162
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_1237 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_1162 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_867 
+
+:PCJ_1237
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_1155 
+
+:PCJ_1269
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_1503 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 87.425 -1633.728 9.052 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 87.425 -1633.728 8.052 radius 2.0 2.0 2.0 
+else_jump @PCJ_1269 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 190.873 -1579.255 9.441 
+0167: $5732 = create_marker_at 275.44 -1456.859 9.611 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_1671 
+
+:PCJ_1503
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_1541 
+$5733 = 10 // integer values 
+jump @PCJ_1557 
+
+:PCJ_1541
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_1557
+16@ = 0 // integer values 
+
+:PCJ_1564
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_1639 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_1564 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_1269 
+
+:PCJ_1639
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_1557 
+
+:PCJ_1671
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_1905 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 190.873 -1579.255 10.441 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 190.873 -1579.255 9.441 radius 2.0 2.0 2.0 
+else_jump @PCJ_1671 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 275.44 -1456.859 9.611 
+0167: $5732 = create_marker_at 307.957 -1329.802 9.611 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_2073 
+
+:PCJ_1905
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_1943 
+$5733 = 10 // integer values 
+jump @PCJ_1959 
+
+:PCJ_1943
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_1959
+16@ = 0 // integer values 
+
+:PCJ_1966
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_2041 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_1966 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_1671 
+
+:PCJ_2041
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_1959 
+
+:PCJ_2073
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_2307 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 275.44 -1456.859 10.611 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 275.44 -1456.859 9.611 radius 2.0 2.0 2.0 
+else_jump @PCJ_2073 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 307.957 -1329.802 9.611 
+0167: $5732 = create_marker_at 333.997 -1199.773 9.606 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_2475 
+
+:PCJ_2307
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_2345 
+$5733 = 10 // integer values 
+jump @PCJ_2361 
+
+:PCJ_2345
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_2361
+16@ = 0 // integer values 
+
+:PCJ_2368
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_2443 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_2368 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_2073 
+
+:PCJ_2443
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_2361 
+
+:PCJ_2475
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_2709 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 307.957 -1329.802 10.611 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 307.957 -1329.802 9.611 radius 2.0 2.0 2.0 
+else_jump @PCJ_2475 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 333.997 -1199.773 9.606 
+0167: $5732 = create_marker_at 361.21 -1057.041 9.609 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_2877 
+
+:PCJ_2709
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_2747 
+$5733 = 10 // integer values 
+jump @PCJ_2763 
+
+:PCJ_2747
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_2763
+16@ = 0 // integer values 
+
+:PCJ_2770
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_2845 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_2770 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_2475 
+
+:PCJ_2845
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_2763 
+
+:PCJ_2877
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_3111 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 333.997 -1199.773 10.606 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 333.997 -1199.773 9.606 radius 2.0 2.0 2.0 
+else_jump @PCJ_2877 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 361.21 -1057.041 9.609 
+0167: $5732 = create_marker_at 393.27 -910.353 9.609 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_3279 
+
+:PCJ_3111
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_3149 
+$5733 = 10 // integer values 
+jump @PCJ_3165 
+
+:PCJ_3149
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_3165
+16@ = 0 // integer values 
+
+:PCJ_3172
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_3247 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_3172 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_2877 
+
+:PCJ_3247
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_3165 
+
+:PCJ_3279
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_3513 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 361.21 -1057.041 10.609 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 361.21 -1057.041 9.609 radius 2.0 2.0 2.0 
+else_jump @PCJ_3279 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 393.27 -910.353 9.609 
+0167: $5732 = create_marker_at 463.529 -781.545 9.611 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_3681 
+
+:PCJ_3513
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_3551 
+$5733 = 10 // integer values 
+jump @PCJ_3567 
+
+:PCJ_3551
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_3567
+16@ = 0 // integer values 
+
+:PCJ_3574
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_3649 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_3574 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_3279 
+
+:PCJ_3649
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_3567 
+
+:PCJ_3681
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_3915 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 393.27 -910.353 10.609 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 393.27 -910.353 9.609 radius 2.0 2.0 2.0 
+else_jump @PCJ_3681 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 463.529 -781.545 9.611 
+0167: $5732 = create_marker_at 546.687 -611.877 9.613 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_4083 
+
+:PCJ_3915
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_3953 
+$5733 = 10 // integer values 
+jump @PCJ_3969 
+
+:PCJ_3953
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_3969
+16@ = 0 // integer values 
+
+:PCJ_3976
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_4051 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_3976 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_3681 
+
+:PCJ_4051
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_3969 
+
+:PCJ_4083
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_4317 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 463.529 -781.545 10.611 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 463.529 -781.545 9.611 radius 2.0 2.0 2.0 
+else_jump @PCJ_4083 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 546.687 -611.877 9.613 
+0167: $5732 = create_marker_at 576.821 -435.418 9.596 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_4485 
+
+:PCJ_4317
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_4355 
+$5733 = 10 // integer values 
+jump @PCJ_4371 
+
+:PCJ_4355
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_4371
+16@ = 0 // integer values 
+
+:PCJ_4378
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_4453 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_4378 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_4083 
+
+:PCJ_4453
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_4371 
+
+:PCJ_4485
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_4719 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 546.687 -611.877 10.613 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 546.687 -611.877 9.613 radius 2.0 2.0 2.0 
+else_jump @PCJ_4485 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 576.821 -435.418 9.596 
+0167: $5732 = create_marker_at 647.159 -346.526 8.92 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_4887 
+
+:PCJ_4719
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_4757 
+$5733 = 10 // integer values 
+jump @PCJ_4773 
+
+:PCJ_4757
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_4773
+16@ = 0 // integer values 
+
+:PCJ_4780
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_4855 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_4780 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_4485 
+
+:PCJ_4855
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_4773 
+
+:PCJ_4887
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_5121 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 576.821 -435.418 10.596 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 576.821 -435.418 9.596 radius 2.0 2.0 2.0 
+else_jump @PCJ_4887 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 647.159 -346.526 8.92 
+0167: $5732 = create_marker_at 648.264 -227.224 8.446 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_5289 
+
+:PCJ_5121
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_5159 
+$5733 = 10 // integer values 
+jump @PCJ_5175 
+
+:PCJ_5159
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_5175
+16@ = 0 // integer values 
+
+:PCJ_5182
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_5257 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_5182 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_468 
+
+:PCJ_5257
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_5175 
+
+:PCJ_5289
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_5523 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 647.159 -346.526 9.92 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 647.159 -346.526 8.92 radius 2.0 2.0 2.0 
+else_jump @PCJ_5289 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 648.264 -227.224 8.446 
+0167: $5732 = create_marker_at 597.634 -124.673 8.134 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_5691 
+
+:PCJ_5523
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_5561 
+$5733 = 10 // integer values 
+jump @PCJ_5577 
+
+:PCJ_5561
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_5577
+16@ = 0 // integer values 
+
+:PCJ_5584
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_5659 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_5584 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_5289 
+
+:PCJ_5659
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_5577 
+
+:PCJ_5691
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_5925 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 648.264 -227.224 9.446 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 648.264 -227.224 8.446 radius 2.0 2.0 2.0 
+else_jump @PCJ_5691 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 597.634 -124.673 8.134 
+0167: $5732 = create_marker_at 562.444 -65.851 12.841 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_6093 
+
+:PCJ_5925
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_5963 
+$5733 = 10 // integer values 
+jump @PCJ_5979 
+
+:PCJ_5963
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_5979
+16@ = 0 // integer values 
+
+:PCJ_5986
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_6061 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_5986 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_5691 
+
+:PCJ_6061
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_5979 
+
+:PCJ_6093
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_6327 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 597.634 -124.673 9.134 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 597.634 -124.673 8.134 radius 2.0 2.0 2.0 
+else_jump @PCJ_6093 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 562.444 -65.851 12.841 
+0167: $5732 = create_marker_at 547.13 21.625 12.541 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_6495 
+
+:PCJ_6327
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_6365 
+$5733 = 10 // integer values 
+jump @PCJ_6381 
+
+:PCJ_6365
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_6381
+16@ = 0 // integer values 
+
+:PCJ_6388
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_6463 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_6388 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_6093 
+
+:PCJ_6463
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_6381 
+
+:PCJ_6495
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_6729 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 562.444 -65.851 13.841 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 562.444 -65.851 12.841 radius 2.0 2.0 2.0 
+else_jump @PCJ_6495 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 547.13 21.625 12.541 
+0167: $5732 = create_marker_at 617.651 55.72 12.85 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_6897 
+
+:PCJ_6729
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_6767 
+$5733 = 10 // integer values 
+jump @PCJ_6783 
+
+:PCJ_6767
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_6783
+16@ = 0 // integer values 
+
+:PCJ_6790
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_6865 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_6790 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_6495 
+
+:PCJ_6865
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_6783 
+
+:PCJ_6897
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_7131 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 547.13 21.625 13.541 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 547.13 21.625 12.541 radius 2.0 2.0 2.0 
+else_jump @PCJ_6897 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 617.651 55.72 12.85 
+0167: $5732 = create_marker_at 570.499 130.64 8.345 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_7299 
+
+:PCJ_7131
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_7169 
+$5733 = 10 // integer values 
+jump @PCJ_7185 
+
+:PCJ_7169
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_7185
+16@ = 0 // integer values 
+
+:PCJ_7192
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_7267 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_7192 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_6897 
+
+:PCJ_7267
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_7185 
+
+:PCJ_7299
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_7533 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 617.651 55.72 13.85 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 617.651 55.72 12.85 radius 2.0 2.0 2.0 
+else_jump @PCJ_7299 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 570.499 130.64 8.345 
+0167: $5732 = create_marker_at 584.687 355.449 11.075 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_7701 
+
+:PCJ_7533
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_7571 
+$5733 = 10 // integer values 
+jump @PCJ_7587 
+
+:PCJ_7571
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_7587
+16@ = 0 // integer values 
+
+:PCJ_7594
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_7669 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_7594 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_7299 
+
+:PCJ_7669
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_7587 
+
+:PCJ_7701
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_7935 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 570.499 130.64 9.345 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 570.499 130.64 8.345 radius 2.0 2.0 2.0 
+else_jump @PCJ_7701 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 584.687 355.449 11.075 
+0167: $5732 = create_marker_at 607.236 534.105 8.261 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_8103 
+
+:PCJ_7935
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_7973 
+$5733 = 10 // integer values 
+jump @PCJ_7989 
+
+:PCJ_7973
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_7989
+16@ = 0 // integer values 
+
+:PCJ_7996
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_8071 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_7996 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_7701 
+
+:PCJ_8071
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_7989 
+
+:PCJ_8103
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_8337 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 584.687 355.449 12.075 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 584.687 355.449 11.075 radius 2.0 2.0 2.0 
+else_jump @PCJ_8103 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 623.236 549.105 9.261 
+0167: $5732 = create_marker_at 616.366 727.938 8.047 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_8505 
+
+:PCJ_8337
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_8375 
+$5733 = 10 // integer values 
+jump @PCJ_8391 
+
+:PCJ_8375
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_8391
+16@ = 0 // integer values 
+
+:PCJ_8398
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_8473 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_8398 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_8103 
+
+:PCJ_8473
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_8391 
+
+:PCJ_8505
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_8739 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 623.236 549.105 9.261 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 623.236 549.105 9.261 radius 2.0 2.0 2.0 
+else_jump @PCJ_8505 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 616.366 727.938 8.047 
+0167: $5732 = create_marker_at 565.044 784.669 10.27 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_8907 
+
+:PCJ_8739
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_8777 
+$5733 = 10 // integer values 
+jump @PCJ_8793 
+
+:PCJ_8777
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_8793
+16@ = 0 // integer values 
+
+:PCJ_8800
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_8875 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_8800 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_8505 
+
+:PCJ_8875
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_8793 
+
+:PCJ_8907
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_9141 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 616.366 727.938 9.047 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 616.366 727.938 8.047 radius 2.0 2.0 2.0 
+else_jump @PCJ_8907 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 565.044 784.669 10.27 
+0167: $5732 = create_marker_at 561.504 909.32 13.714 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_9309 
+
+:PCJ_9141
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_9179 
+$5733 = 10 // integer values 
+jump @PCJ_9195 
+
+:PCJ_9179
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_9195
+16@ = 0 // integer values 
+
+:PCJ_9202
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_9277 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_9202 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_8907 
+
+:PCJ_9277
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_9195 
+
+:PCJ_9309
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_9543 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 565.044 784.669 11.27 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 565.044 784.669 10.27 radius 2.0 2.0 2.0 
+else_jump @PCJ_9309 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 561.504 909.32 13.714 
+0167: $5732 = create_marker_at 595.088 981.294 16.543 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_9711 
+
+:PCJ_9543
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_9581 
+$5733 = 10 // integer values 
+jump @PCJ_9597 
+
+:PCJ_9581
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_9597
+16@ = 0 // integer values 
+
+:PCJ_9604
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_9679 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_9604 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_9309 
+
+:PCJ_9679
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_9597 
+
+:PCJ_9711
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_9945 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 561.504 909.32 14.714 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 561.504 909.32 13.714 radius 2.0 2.0 2.0 
+else_jump @PCJ_9711 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 595.088 981.294 16.543 
+0167: $5732 = create_marker_at 575.934 1146.369 14.69 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_10113 
+
+:PCJ_9945
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_9983 
+$5733 = 10 // integer values 
+jump @PCJ_9999 
+
+:PCJ_9983
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_9999
+16@ = 0 // integer values 
+
+:PCJ_10006
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_10081 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_10006 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_9711 
+
+:PCJ_10081
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_9999 
+
+:PCJ_10113
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_10347 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 595.088 981.294 17.543 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 595.088 981.294 16.543 radius 2.0 2.0 2.0 
+else_jump @PCJ_10113 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 575.934 1146.369 14.69 
+0167: $5732 = create_marker_at 585.639 1267.946 19.111 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_10515 
+
+:PCJ_10347
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_10385 
+$5733 = 10 // integer values 
+jump @PCJ_10401 
+
+:PCJ_10385
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_10401
+16@ = 0 // integer values 
+
+:PCJ_10408
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_10483 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_10408 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_10113 
+
+:PCJ_10483
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_10401 
+
+:PCJ_10515
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_10749 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 575.934 1146.369 15.69 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 575.934 1146.369 14.69 radius 2.0 2.0 2.0 
+else_jump @PCJ_10515 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 585.639 1267.946 19.111 
+0167: $5732 = create_marker_at 422.347 1332.867 23.99 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_10917 
+
+:PCJ_10749
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_10787 
+$5733 = 10 // integer values 
+jump @PCJ_10803 
+
+:PCJ_10787
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_10803
+16@ = 0 // integer values 
+
+:PCJ_10810
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_10885 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_10810 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_10515 
+
+:PCJ_10885
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_10803 
+
+:PCJ_10917
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_11151 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 585.639 1267.946 20.111 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 585.639 1267.946 19.111 radius 2.0 2.0 2.0 
+else_jump @PCJ_10917 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 422.347 1332.867 23.99 
+0167: $5732 = create_marker_at 315.351 1305.402 16.419 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_11319 
+
+:PCJ_11151
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_11189 
+$5733 = 10 // integer values 
+jump @PCJ_11205 
+
+:PCJ_11189
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_11205
+16@ = 0 // integer values 
+
+:PCJ_11212
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_11287 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_11212 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_10917 
+
+:PCJ_11287
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_11205 
+
+:PCJ_11319
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_11553 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 422.347 1332.867 24.99 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 422.347 1332.867 23.99 radius 2.0 2.0 2.0 
+else_jump @PCJ_11319 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 315.351 1305.402 16.419 
+0167: $5732 = create_marker_at 180.84 1259.167 24.494 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_11721 
+
+:PCJ_11553
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_11591 
+$5733 = 10 // integer values 
+jump @PCJ_11607 
+
+:PCJ_11591
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_11607
+16@ = 0 // integer values 
+
+:PCJ_11614
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_11689 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_11614 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_11319 
+
+:PCJ_11689
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_11607 
+
+:PCJ_11721
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_11955 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 315.351 1305.402 17.419 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 315.351 1305.402 16.419 radius 2.0 2.0 2.0 
+else_jump @PCJ_11721 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 180.84 1259.167 24.494 
+0167: $5732 = create_marker_at 228.633 1179.828 25.1 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_12123 
+
+:PCJ_11955
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_11993 
+$5733 = 10 // integer values 
+jump @PCJ_12009 
+
+:PCJ_11993
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_12009
+16@ = 0 // integer values 
+
+:PCJ_12016
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_12091 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_12016 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_11721 
+
+:PCJ_12091
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_12009 
+
+:PCJ_12123
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_12357 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 180.84 1259.167 25.494 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 180.84 1259.167 24.494 radius 2.0 2.0 2.0 
+else_jump @PCJ_12123 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 228.633 1179.828 25.1 
+0167: $5732 = create_marker_at 231.152 1083.521 14.139 color 5 flag 2 
+0166: set_marker $5732 brightness_to 1 
+jump @PCJ_12525 
+
+:PCJ_12357
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_12395 
+$5733 = 10 // integer values 
+jump @PCJ_12411 
+
+:PCJ_12395
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_12411
+16@ = 0 // integer values 
+
+:PCJ_12418
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_12493 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_12418 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_12123 
+
+:PCJ_12493
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_12411 
+
+:PCJ_12525
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_12728 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 228.633 1179.828 26.1 radius 1.3 type 1 flare 0 RGB 0 255 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 228.633 1179.828 25.1 radius 2.0 2.0 2.0 
+else_jump @PCJ_12525 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+Marker.Disable($5732)
+$5729 += 1 // integer values 
+018A: $5731 = create_checkpoint_at 231.152 1083.521 14.139 
+jump @PCJ_12896 
+
+:PCJ_12728
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_12766 
+$5733 = 10 // integer values 
+jump @PCJ_12782 
+
+:PCJ_12766
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_12782
+16@ = 0 // integer values 
+
+:PCJ_12789
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_12864 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_12789 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_12525 
+
+:PCJ_12864
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_12782 
+
+:PCJ_12896
+wait 0 
+if 
+   not $5728 == 0 // integer values 
+else_jump @PCJ_13346 
+if 
+00DC:   player $PLAYER_CHAR driving $5730 
+else_jump @PCJ_13097 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+04D5: create_corona_at 231.152 1083.521 15.139 radius 1.3 type 1 flare 0 RGB 255 0 0 
+if 
+00F7:   player $PLAYER_CHAR sphere 0 near_point_in_car 231.152 1083.521 14.139 radius 2.0 2.0 2.0 
+else_jump @PCJ_12896 
+018C: play_sound 1 at 0.0 0.0 0.0 
+Marker.Disable($5731)
+$5729 += 1 // integer values 
+014F: stop_timer $5728 
+01E5: text_1number_highpriority 'MOB_40E' $5729 flag 1000 time 1  // ~p~Checkpoints collected: ~1~ / 32
+jump @PCJ_13265 
+
+:PCJ_13097
+Car.RemoveReferences($5730)
+if 
+  $5728 >= 10000 // integer values 
+else_jump @PCJ_13135 
+$5733 = 10 // integer values 
+jump @PCJ_13151 
+
+:PCJ_13135
+0084: $5733 = $5728 // integer values and handles 
+$5734 /= 1000 // integer values 
+
+:PCJ_13151
+16@ = 0 // integer values 
+
+:PCJ_13158
+wait 0 
+if 
+  $5733 > 0 // integer values 
+else_jump @PCJ_13346 
+if 
+   not 16@ > 999 // integer values 
+else_jump @PCJ_13233 
+if 
+00DE:   player $PLAYER_CHAR driving_vehicle_type #PCJ600 
+else_jump @PCJ_13158 
+03C1: $5730 = player $PLAYER_CHAR car_no_save 
+jump @PCJ_12896 
+
+:PCJ_13233
+$5733 -= 1 // integer values 
+01E5: text_1number_highpriority 'HOTR_19' $5733 flag 1000 time 1  // ~g~You have ~1~ seconds to get yourself a FCR900!!
+jump @PCJ_13151 
+
+:PCJ_13265
+014F: stop_timer $5728 
+01E3: text_1number_styled 'M_PASS' number 500 time 5000 style 1  // MISSION PASSED! $~1~
+Player.Money($PLAYER_CHAR) += 500
+0394: play_music 1 
+Player.ClearWantedLevel($PLAYER_CHAR)
+if 
+  $1376 == 0 // integer values 
+else_jump @PCJ_13344 
+0318: set_latest_mission_passed 'BMX_2'  // Beach Run
+030C: progress_made += 1 
+$1376 = 1 // integer values 
+
+:PCJ_13344
+return 
+
+:PCJ_13346
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:PCJ_13363
+$1142 = 1 // integer values 
+014F: stop_timer $5728 
+Car.RemoveReferences($5730)
+Marker.Disable($5731)
+Marker.Disable($5732)
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+

@@ -1,0 +1,864 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 14: The Fastest Boat
+// Строки 39686-40545 исходного файла data/main.txt
+// Кол-во строк: 860
+//-------------Mission 14---------------
+// Originally: The Fastest Boat
+
+:ERICO3
+gosub @ERICO3_36 
+if 
+wasted_or_busted 
+else_jump @ERICO3_27 
+gosub @ERICO3_5101 
+
+:ERICO3_27
+gosub @ERICO3_5118 
+end_thread 
+
+:ERICO3_36
+increment_mission_attempts 
+thread 'ERICO3' 
+$ONMISSION = 1 // integer values 
+054C: use_GXT_table 'BANKJ2' 
+$1936 = 0 // integer values 
+$1937 = 0 // integer values 
+$1938 = 0 // integer values 
+$1939 = 0 // integer values 
+Model.Load(#HNA)
+Model.Load(#HNB)
+Model.Load(#VOODOO)
+Model.Load(#COLT45)
+Model.Load(#UZI)
+Model.Load(#CBA)
+Model.Load(#CBB)
+023C: load_special_actor 1 'IGCOLON' 
+038B: load_requested_models 
+
+:ERICO3_138
+wait 0 
+if or
+   not Model.Available(#CBA)
+   not Model.Available(#CBB)
+   not Model.Available(#HNA)
+   not Model.Available(#HNB)
+else_jump @ERICO3_176 
+jump @ERICO3_138 
+
+:ERICO3_176
+wait 0 
+if or
+823D:   not special_actor 1 loaded 
+   not Model.Available(#VOODOO)
+   not Model.Available(#COLT45)
+   not Model.Available(#UZI)
+else_jump @ERICO3_217 
+jump @ERICO3_138 
+
+:ERICO3_217
+wait 0 
+fade 0 0 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+01E8: create_forbidden_for_cars_cube -1250.0 -500.0 0.0 -1000.0 -300.0 15.0 
+022B: create_forbidden_for_peds_cube -1250.0 -500.0 0.0 -1000.0 -300.0 15.0 
+0395: clear_area 0 at -1188.493 -420.728 range 100.0 100.0 
+02A3: enable_widescreen 1 
+Player.CanMove($PLAYER_CHAR) = False
+$1940 = Actor.Create(CivMale, #SPECIAL01, -1188.659, -419.873, 9.914)
+0350: set_actor $1940 maintain_position_when_attacked 1 
+Actor.Angle($1940) = 90.0
+0372: set_actor $1940 anim 24 wait_state_time 12000 ms 
+0296: unload_special_actor 1 
+0055: put_player $PLAYER_CHAR at -1188.093 -420.728 9.916 
+0171: set_player $PLAYER_CHAR z_angle_to 90.0 
+Camera.SetPosition(-1186.591, -421.015, 11.029, 0.0, 0.0, 0.0)
+Camera.PointAt(-1191.792, -418.707, 10.75, 2)
+wait 0 
+0460: set_camera_pointing_time 0.0 15000 
+Camera.SetPosition(-1186.591, -420.515, 11.029, 0.0, 0.0, 0.0)
+Camera.PointAt(-1191.792, -419.707, 10.75, 1)
+wait 1000 
+0372: set_actor $PLAYER_ACTOR anim 24 wait_state_time 15000 ms 
+015D: set_gamespeed 0.3 
+16@ = 0 // integer values 
+fade 1 1000 
+
+:ERICO3_585
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @ERICO3_632 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_585 
+jump @ERICO3_1744 
+
+:ERICO3_632
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC3A' 2000 ms 1  // So... What's about this funeral, Flint?
+
+:ERICO3_654
+wait 0 
+if 
+   not 16@ > 2000 // integer values 
+else_jump @ERICO3_701 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_654 
+jump @ERICO3_1744 
+
+:ERICO3_701
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC3B' 1500 ms 1  // ~x~My brother... It was his funeral.
+
+:ERICO3_723
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @ERICO3_770 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_723 
+jump @ERICO3_1744 
+
+:ERICO3_770
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC3C' 2000 ms 1  // I know what it's like to lose family... 
+
+:ERICO3_792
+wait 0 
+if 
+   not 16@ > 2000 // integer values 
+else_jump @ERICO3_839 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_792 
+jump @ERICO3_1744 
+
+:ERICO3_839
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC3D' 2500 ms 1  // My own brother, Rico... was killed not long ago.
+
+:ERICO3_861
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @ERICO3_908 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_861 
+jump @ERICO3_1744 
+
+:ERICO3_908
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC3E' 2500 ms 1  // ~x~When we arrived at the funeral, we heard shooting and...
+
+:ERICO3_930
+wait 0 
+if 
+   not 16@ > 1000 // integer values 
+else_jump @ERICO3_977 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_930 
+jump @ERICO3_1744 
+
+:ERICO3_977
+015D: set_gamespeed 1.0 
+16@ = 0 // integer values 
+$1941 = Actor.Create(CivMale, #CBA, -1193.702, -427.722, 9.965)
+0350: set_actor $1941 maintain_position_when_attacked 1 
+0239: actor $1941 run_to -1190.255 -419.581 
+00BC: text_highpriority 'ERIC3F' 4000 ms 1  // ERICO, ERICO!
+
+:ERICO3_1052
+wait 0 
+if 
+   not 16@ > 2000 // integer values 
+else_jump @ERICO3_1099 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_1052 
+jump @ERICO3_1744 
+
+:ERICO3_1099
+16@ = 0 // integer values 
+Camera.SetPosition(-1192.003, -421.03, 11.245, 0.0, 0.0, 0.0)
+Camera.OnPed($1940, 15, 2)
+022C: set_actor $1941 to_look_at_actor $1940 
+
+:ERICO3_1155
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @ERICO3_1202 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_1155 
+jump @ERICO3_1744 
+
+:ERICO3_1202
+16@ = 0 // integer values 
+00BC: text_highpriority 'ERIC3G' 3000 ms 1  // Que pasa, man?
+
+:ERICO3_1224
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @ERICO3_1271 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_1224 
+jump @ERICO3_1744 
+
+:ERICO3_1271
+16@ = 0 // integer values 
+0372: set_actor $1941 anim 31 wait_state_time 4000 ms 
+00BC: text_highpriority 'ERIC3H' 4000 ms 1  // The Haitias, they're attacking us!
+
+:ERICO3_1303
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @ERICO3_1350 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_1303 
+jump @ERICO3_1744 
+
+:ERICO3_1350
+16@ = 0 // integer values 
+0372: set_actor $1940 anim 3 wait_state_time 2000 ms 
+00BC: text_highpriority 'ERIC3I' 5000 ms 1  // They want some more? I thought they got the message.
+
+:ERICO3_1382
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @ERICO3_1429 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_1382 
+jump @ERICO3_1744 
+
+:ERICO3_1429
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'ERIC3J' 4000 ms 1  // ~x~We'll take care of it, Erico.
+
+:ERICO3_1461
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @ERICO3_1508 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_1461 
+jump @ERICO3_1744 
+
+:ERICO3_1508
+16@ = 0 // integer values 
+0372: set_actor $1940 anim 16 wait_state_time 2000 ms 
+00BC: text_highpriority 'ERIC3K' 5000 ms 1  // I'll go round up the others. Make yourselves useful!
+
+:ERICO3_1540
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @ERICO3_1587 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_1540 
+jump @ERICO3_1744 
+
+:ERICO3_1587
+16@ = 0 // integer values 
+Camera.SetPosition(-1192.003, -421.03, 11.245, 0.0, 0.0, 0.0)
+Camera.PointAt(-1188.659, -419.873, 11.245, 1)
+0211: actor $PLAYER_ACTOR walk_to -1193.679 -423.54 
+0319: set_actor $PLAYER_ACTOR running 1 
+0239: actor $1940 run_to -1188.659 -414.873 
+0239: actor $1941 run_to -1190.255 -415.581 
+
+:ERICO3_1697
+wait 0 
+if 
+   not 16@ > 2500 // integer values 
+else_jump @ERICO3_1744 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @ERICO3_1697 
+jump @ERICO3_1744 
+
+:ERICO3_1744
+16@ = 0 // integer values 
+015D: set_gamespeed 1.0 
+00BE: text_clear_all 
+fade 0 1500 
+
+:ERICO3_1767
+wait 0 
+if 
+fading 
+else_jump @ERICO3_1791 
+jump @ERICO3_1767 
+
+:ERICO3_1791
+0372: set_actor $PLAYER_ACTOR anim 31 wait_state_time 2000 ms 
+0055: put_player $PLAYER_CHAR at -1194.336 -419.393 9.965 
+wait 2000 
+fade 1 1500 
+Camera.Restore_WithJumpCut
+01E7: remove_forbidden_for_cars_cube -1250.0 -500.0 0.0 -1000.0 -300.0 15.0 
+022A: remove_forbidden_for_peds_cube -1250.0 -500.0 0.0 -1000.0 -300.0 15.0 
+02A3: enable_widescreen 0 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+011C: actor $PLAYER_ACTOR clear_objective 
+Actor.DestroyInstantly($1940)
+Actor.DestroyInstantly($1941)
+Player.CanMove($PLAYER_CHAR) = True
+$1942 = Car.Create(#VOODOO, -1084.39, -542.107, 10.159)
+$1328 = Actor.Create(CivMale, #CBA, -1073.229, -523.636, 10.265)
+$1331 = Actor.Create(CivMale, #CBB, -1098.396, -528.467, 10.329)
+$1943 = Actor.Create(CivMale, #HNA, -1083.261, -539.943, 10.159)
+$1944 = Actor.Create(CivMale, #HNB, -1086.261, -539.943, 10.159)
+$1945 = Actor.Create(CivMale, #HNA, -1080.261, -539.943, 10.159)
+01B2: give_actor $1943 weapon 23 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1944 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1945 weapon 23 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1328 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1331 weapon 17 ammo 9999 // Load the weapon model before using this 
+$1946 = Marker.CreateAboveActor($1943)
+Marker.SetColor($1946, 0)
+0166: set_marker $1946 brightness_to 1 
+$1947 = Marker.CreateAboveActor($1944)
+Marker.SetColor($1947, 0)
+0166: set_marker $1947 brightness_to 1 
+$1948 = Marker.CreateAboveActor($1945)
+Marker.SetColor($1948, 0)
+0166: set_marker $1948 brightness_to 1 
+01C9: actor $1328 kill_actor $1943 
+01C9: actor $1331 kill_actor $1944 
+01C9: actor $1943 kill_actor $1328 
+01C9: actor $1944 kill_actor $1331 
+01C9: actor $1945 kill_actor $1328 
+00BC: text_highpriority 'ERIC3L' 5000 ms 1  // ~r~Kill the attacking Haitians.
+
+:ERICO3_2253
+wait 0 
+gosub @ERICO3_5359 
+if 
+   not Actor.Dead($1943)
+else_jump @ERICO3_2319 
+if 
+   not Actor.Dead($1944)
+else_jump @ERICO3_2462 
+if 
+   not Actor.Dead($1945)
+else_jump @ERICO3_2605 
+jump @ERICO3_2253 
+
+:ERICO3_2319
+Marker.Disable($1946)
+
+:ERICO3_2324
+wait 0 
+gosub @ERICO3_5359 
+if 
+   not Actor.Dead($1944)
+else_jump @ERICO3_2374 
+if 
+   not Actor.Dead($1945)
+else_jump @ERICO3_2418 
+jump @ERICO3_2324 
+
+:ERICO3_2374
+Marker.Disable($1947)
+
+:ERICO3_2379
+wait 0 
+gosub @ERICO3_5359 
+if 
+   Actor.Dead($1945)
+else_jump @ERICO3_2379 
+Marker.Disable($1948)
+jump @ERICO3_2748 
+
+:ERICO3_2418
+Marker.Disable($1948)
+
+:ERICO3_2423
+wait 0 
+gosub @ERICO3_5359 
+if 
+   Actor.Dead($1944)
+else_jump @ERICO3_2423 
+Marker.Disable($1947)
+jump @ERICO3_2748 
+
+:ERICO3_2462
+Marker.Disable($1947)
+
+:ERICO3_2467
+wait 0 
+gosub @ERICO3_5359 
+if 
+   not Actor.Dead($1943)
+else_jump @ERICO3_2517 
+if 
+   not Actor.Dead($1945)
+else_jump @ERICO3_2561 
+jump @ERICO3_2467 
+
+:ERICO3_2517
+Marker.Disable($1946)
+
+:ERICO3_2522
+wait 0 
+gosub @ERICO3_5359 
+if 
+   Actor.Dead($1945)
+else_jump @ERICO3_2522 
+Marker.Disable($1948)
+jump @ERICO3_2748 
+
+:ERICO3_2561
+Marker.Disable($1948)
+
+:ERICO3_2566
+wait 0 
+gosub @ERICO3_5359 
+if 
+   Actor.Dead($1943)
+else_jump @ERICO3_2566 
+Marker.Disable($1946)
+jump @ERICO3_2748 
+
+:ERICO3_2605
+Marker.Disable($1948)
+
+:ERICO3_2610
+wait 0 
+gosub @ERICO3_5359 
+if 
+   not Actor.Dead($1943)
+else_jump @ERICO3_2660 
+if 
+   not Actor.Dead($1944)
+else_jump @ERICO3_2704 
+jump @ERICO3_2610 
+
+:ERICO3_2660
+Marker.Disable($1946)
+
+:ERICO3_2665
+wait 0 
+gosub @ERICO3_5359 
+if 
+   Actor.Dead($1944)
+else_jump @ERICO3_2665 
+Marker.Disable($1947)
+jump @ERICO3_2748 
+
+:ERICO3_2704
+Marker.Disable($1947)
+
+:ERICO3_2709
+wait 0 
+gosub @ERICO3_5359 
+if 
+   Actor.Dead($1943)
+else_jump @ERICO3_2709 
+Marker.Disable($1946)
+jump @ERICO3_2748 
+
+:ERICO3_2748
+wait 0 
+if 
+  $1936 == 1 // integer values 
+else_jump @ERICO3_3101 
+if 
+   not $1937 == 1 // integer values 
+else_jump @ERICO3_3414 
+$1949 = Car.Create(#VOODOO, -973.196, -660.522, 10.286)
+$1334 = Actor.Create(CivMale, #CBA, -971.202, -635.568, 10.457)
+$62 = Actor.Create(CivMale, #CBB, -986.389, -665.059, 10.64)
+$1943 = Actor.Create(CivMale, #HNA, -971.599, -652.852, 10.303)
+$1944 = Actor.Create(CivMale, #HNB, -972.599, -654.852, 10.303)
+$1945 = Actor.Create(CivMale, #HNA, -972.599, -650.852, 10.303)
+01B2: give_actor $1943 weapon 23 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1944 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1945 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1334 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $62 weapon 17 ammo 9999 // Load the weapon model before using this 
+$1946 = Marker.CreateAboveActor($1943)
+Marker.SetColor($1946, 0)
+0166: set_marker $1946 brightness_to 1 
+$1947 = Marker.CreateAboveActor($1944)
+Marker.SetColor($1947, 0)
+0166: set_marker $1947 brightness_to 1 
+$1948 = Marker.CreateAboveActor($1945)
+Marker.SetColor($1948, 0)
+0166: set_marker $1948 brightness_to 1 
+01C9: actor $1334 kill_actor $1943 
+01C9: actor $62 kill_actor $1944 
+01C9: actor $1943 kill_actor $1334 
+01C9: actor $1944 kill_actor $62 
+01C9: actor $1945 kill_actor $62 
+$1937 = 1 // integer values 
+jump @ERICO3_2253 
+
+:ERICO3_3101
+$1332 = Actor.Create(CivMale, #CBA, -1081.846, -346.908, 9.965)
+$1333 = Actor.Create(CivMale, #CBB, -1083.846, -349.908, 9.965)
+$1950 = Car.Create(#VOODOO, -1076.049, -337.794, 9.795)
+$1943 = Actor.Create(CivMale, #HNA, -1080.139, -335.455, 9.795)
+$1944 = Actor.Create(CivMale, #HNB, -1080.139, -331.455, 9.795)
+$1945 = Actor.Create(CivMale, #HNB, -1083.139, -331.455, 9.795)
+01B2: give_actor $1943 weapon 23 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1945 weapon 23 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1944 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1332 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1333 weapon 17 ammo 9999 // Load the weapon model before using this 
+$1946 = Marker.CreateAboveActor($1943)
+Marker.SetColor($1946, 0)
+0166: set_marker $1946 brightness_to 1 
+$1947 = Marker.CreateAboveActor($1944)
+Marker.SetColor($1947, 0)
+0166: set_marker $1947 brightness_to 1 
+$1948 = Marker.CreateAboveActor($1945)
+Marker.SetColor($1948, 0)
+0166: set_marker $1948 brightness_to 1 
+01C9: actor $1332 kill_actor $1943 
+01C9: actor $1333 kill_actor $1944 
+01C9: actor $1943 kill_actor $1332 
+01C9: actor $1944 kill_actor $1333 
+01C9: actor $1945 kill_actor $1332 
+$1936 = 1 // integer values 
+jump @ERICO3_2253 
+
+:ERICO3_3414
+$1951 = Actor.Create(CivMale, #CBB, -1187.624, -341.581, 9.965)
+$177 = Actor.Create(CivMale, #CBB, -1189.624, -342.581, 9.965)
+$1952 = Car.Create(#VOODOO, -1070.787, 118.672, 10.247)
+Car.Angle($1952) = 180.0
+0129: $1953 = create_actor 4 #HNA in_car $1952 driverseat 
+01C8: $1954 = create_actor_pedtype 10 model #HNB in_car $1952 passenger_seat 0 
+Car.SetMaxSpeed($1952, 30.0)
+00AE: set_vehicle $1952 traffic_behavior_to 2 
+Car.DriveTo($1952, -1177.601, -348.238, 9.687)
+$1955 = Marker.CreateAboveCar($1952)
+Marker.SetColor($1955, 0)
+0166: set_marker $1955 brightness_to 1 
+020A: set_car $1952 door_status_to 2 
+
+:ERICO3_3587
+wait 0 
+if 
+81AF:   not car $1952 0 -1177.601 -348.238 9.687 radius 10.0 10.0 4.0 
+else_jump @ERICO3_3667 
+if 
+   Car.Wrecked($1952)
+else_jump @ERICO3_3587 
+Marker.Disable($1955)
+jump @ERICO3_3926 
+
+:ERICO3_3667
+01B2: give_actor $1951 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $177 weapon 17 ammo 9999 // Load the weapon model before using this 
+01C9: actor $1951 kill_actor $1953 
+01C9: actor $177 kill_actor $1954 
+Marker.Disable($1955)
+01D3: actor $1953 leave_car $1952 
+$1956 = Marker.CreateAboveActor($1953)
+Marker.SetColor($1956, 0)
+0166: set_marker $1956 brightness_to 1 
+01B2: give_actor $1953 weapon 23 ammo 9999 // Load the weapon model before using this 
+01D3: actor $1954 leave_car $1952 
+$1957 = Marker.CreateAboveActor($1954)
+Marker.SetColor($1957, 0)
+0166: set_marker $1957 brightness_to 1 
+01B2: give_actor $1954 weapon 17 ammo 9999 // Load the weapon model before using this 
+wait 1500 
+01C9: actor $1953 kill_actor $177 
+01C9: actor $1954 kill_actor $1951 
+
+:ERICO3_3809
+wait 0 
+if 
+   not Actor.Dead($1953)
+else_jump @ERICO3_3852 
+if 
+   not Actor.Dead($1954)
+else_jump @ERICO3_3889 
+jump @ERICO3_3809 
+
+:ERICO3_3852
+Marker.Disable($1956)
+
+:ERICO3_3857
+wait 0 
+if 
+   Actor.Dead($1954)
+else_jump @ERICO3_3857 
+Marker.Disable($1957)
+jump @ERICO3_3926 
+
+:ERICO3_3889
+Marker.Disable($1957)
+
+:ERICO3_3894
+wait 0 
+if 
+   Actor.Dead($1953)
+else_jump @ERICO3_3894 
+Marker.Disable($1956)
+jump @ERICO3_3926 
+
+:ERICO3_3926
+$1958 = Car.Create(#VOODOO, -1015.905, -351.342, 9.534)
+Car.Angle($1958) = 180.0
+0129: $1959 = create_actor 4 #HNA in_car $1958 driverseat 
+01C8: $1960 = create_actor_pedtype 10 model #HNB in_car $1958 passenger_seat 0 
+Car.SetMaxSpeed($1958, 30.0)
+00AE: set_vehicle $1958 traffic_behavior_to 2 
+Car.DriveTo($1958, -1134.586, -598.332, 10.353)
+$1961 = Marker.CreateAboveCar($1958)
+Marker.SetColor($1961, 0)
+0166: set_marker $1961 brightness_to 1 
+$1962 = Car.Create(#VOODOO, -1011.633, -382.809, 9.549)
+Car.Angle($1962) = 180.0
+0129: $1963 = create_actor 4 #HNA in_car $1962 driverseat 
+01C8: $1964 = create_actor_pedtype 10 model #HNB in_car $1962 passenger_seat 0 
+Car.SetMaxSpeed($1962, 30.0)
+00AE: set_vehicle $1962 traffic_behavior_to 2 
+Car.DriveTo($1962, -1142.466, -591.633, 10.231)
+$1965 = Marker.CreateAboveCar($1962)
+Marker.SetColor($1965, 0)
+0166: set_marker $1965 brightness_to 1 
+$1153 = Actor.Create(CivMale, #CBB, -1159.848, -604.891, 10.661)
+$1154 = Actor.Create(CivMale, #CBB, -1152.687, -604.64, 10.661)
+$1155 = Actor.Create(CivMale, #CBB, -1171.724, -581.166, 10.66)
+$1124 = Actor.Create(CivMale, #CBB, -1179.225, -588.037, 10.66)
+
+:ERICO3_4258
+wait 0 
+gosub @ERICO3_4519 
+gosub @ERICO3_4433 
+gosub @ERICO3_4331 
+if and
+   Actor.Dead($1959)
+   Actor.Dead($1960)
+   Actor.Dead($1963)
+   Actor.Dead($1964)
+else_jump @ERICO3_4258 
+Marker.Disable($1961)
+Marker.Disable($1965)
+jump @ERICO3_5028 
+
+:ERICO3_4331
+if and
+  $1938 == 1 // integer values 
+  $1939 == 1 // integer values 
+else_jump @ERICO3_4431 
+if or
+0123:   actor $1959 spotted_player $PLAYER_CHAR 
+0123:   actor $1960 spotted_player $PLAYER_CHAR 
+0123:   actor $1963 spotted_player $PLAYER_CHAR 
+0123:   actor $1964 spotted_player $PLAYER_CHAR 
+else_jump @ERICO3_4431 
+01CA: actor $1959 kill_player $PLAYER_CHAR 
+01CA: actor $1960 kill_player $PLAYER_CHAR 
+01CA: actor $1963 kill_player $PLAYER_CHAR 
+01CA: actor $1964 kill_player $PLAYER_CHAR 
+
+:ERICO3_4431
+return 
+
+:ERICO3_4433
+if 
+   Actor.Dead($1959)
+else_jump @ERICO3_4454 
+Marker.Disable($1966)
+
+:ERICO3_4454
+if 
+   Actor.Dead($1960)
+else_jump @ERICO3_4475 
+Marker.Disable($1967)
+
+:ERICO3_4475
+if 
+   Actor.Dead($1963)
+else_jump @ERICO3_4496 
+Marker.Disable($1968)
+
+:ERICO3_4496
+if 
+   Actor.Dead($1964)
+else_jump @ERICO3_4517 
+Marker.Disable($1969)
+
+:ERICO3_4517
+return 
+
+:ERICO3_4519
+if 
+  $1938 == 0 // integer values 
+else_jump @ERICO3_4776 
+if 
+   not Car.Wrecked($1958)
+else_jump @ERICO3_4757 
+if 
+01AF:   car $1958 0 -1134.586 -598.332 10.353 radius 5.5 5.5 3.0 
+else_jump @ERICO3_4776 
+01B2: give_actor $1155 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1124 weapon 17 ammo 9999 // Load the weapon model before using this 
+01C9: actor $1155 kill_actor $1959 
+01C9: actor $1124 kill_actor $1960 
+Marker.Disable($1961)
+01D3: actor $1959 leave_car $1958 
+$1966 = Marker.CreateAboveActor($1959)
+Marker.SetColor($1966, 0)
+0166: set_marker $1966 brightness_to 1 
+01B2: give_actor $1959 weapon 23 ammo 9999 // Load the weapon model before using this 
+01D3: actor $1960 leave_car $1958 
+$1967 = Marker.CreateAboveActor($1960)
+Marker.SetColor($1967, 0)
+0166: set_marker $1967 brightness_to 1 
+01B2: give_actor $1960 weapon 17 ammo 9999 // Load the weapon model before using this 
+wait 1500 
+01C9: actor $1959 kill_actor $1155 
+01C9: actor $1960 kill_actor $1124 
+$1938 = 1 // integer values 
+jump @ERICO3_4776 
+
+:ERICO3_4757
+Marker.Disable($1961)
+$1938 = 1 // integer values 
+jump @ERICO3_4776 
+
+:ERICO3_4776
+if 
+  $1939 == 0 // integer values 
+else_jump @ERICO3_5026 
+if 
+   not Car.Wrecked($1962)
+else_jump @ERICO3_5014 
+if 
+01AF:   car $1962 0 -1142.466 -591.633 10.231 radius 5.5 5.5 3.0 
+else_jump @ERICO3_5026 
+01B2: give_actor $1153 weapon 17 ammo 9999 // Load the weapon model before using this 
+01B2: give_actor $1154 weapon 17 ammo 9999 // Load the weapon model before using this 
+01C9: actor $1153 kill_actor $1963 
+01C9: actor $1154 kill_actor $1964 
+Marker.Disable($1965)
+01D3: actor $1963 leave_car $1962 
+$1968 = Marker.CreateAboveActor($1963)
+Marker.SetColor($1968, 0)
+0166: set_marker $1968 brightness_to 1 
+01B2: give_actor $1963 weapon 23 ammo 9999 // Load the weapon model before using this 
+01D3: actor $1964 leave_car $1962 
+$1969 = Marker.CreateAboveActor($1964)
+Marker.SetColor($1969, 0)
+0166: set_marker $1969 brightness_to 1 
+01B2: give_actor $1964 weapon 17 ammo 9999 // Load the weapon model before using this 
+wait 1500 
+01C9: actor $1963 kill_actor $1153 
+01C9: actor $1964 kill_actor $1154 
+$1939 = 1 // integer values 
+jump @ERICO3_5026 
+
+:ERICO3_5014
+Marker.Disable($1965)
+$1939 = 1 // integer values 
+
+:ERICO3_5026
+return 
+
+:ERICO3_5028
+$PASSED_COK4_SUPPLY_AND_DEMAND = 1 // integer values 
+01E3: text_1number_styled 'M_PASS' number 400 time 5000 style 1  // MISSION PASSED! $~1~
+Player.Money($PLAYER_CHAR) += 400
+Player.ClearWantedLevel($PLAYER_CHAR)
+0394: play_music 1 
+$361 = 1 // integer values 
+create_thread @NONAME_14 
+030C: progress_made += 1 
+0318: set_latest_mission_passed 'COK_4'  // Big Trouble in Little Havana
+return 
+
+:ERICO3_5101
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:ERICO3_5118
+Model.Destroy(#CBA)
+Model.Destroy(#CBB)
+Model.Destroy(#HNA)
+Model.Destroy(#HNB)
+Model.Destroy(#VOODOO)
+Model.Destroy(#COLT45)
+Model.Destroy(#UZI)
+0296: unload_special_actor 1 
+Actor.RemoveReferences($1941)
+Actor.RemoveReferences($1943)
+Actor.RemoveReferences($1944)
+Actor.RemoveReferences($1945)
+Actor.RemoveReferences($1953)
+Actor.RemoveReferences($1954)
+Actor.RemoveReferences($1328)
+Actor.RemoveReferences($1331)
+Actor.RemoveReferences($1332)
+Actor.RemoveReferences($1333)
+Actor.RemoveReferences($1334)
+Actor.RemoveReferences($62)
+Actor.RemoveReferences($1951)
+Actor.RemoveReferences($177)
+Actor.RemoveReferences($1940)
+Actor.RemoveReferences($1153)
+Actor.RemoveReferences($1154)
+Actor.RemoveReferences($1155)
+Actor.RemoveReferences($1124)
+Actor.RemoveReferences($1959)
+Actor.RemoveReferences($1960)
+Actor.RemoveReferences($1963)
+Actor.RemoveReferences($1964)
+Car.RemoveReferences($1942)
+Car.RemoveReferences($1950)
+Car.RemoveReferences($1949)
+Car.RemoveReferences($1952)
+Car.RemoveReferences($1958)
+Car.RemoveReferences($1962)
+Marker.Disable($1946)
+Marker.Disable($1947)
+Marker.Disable($1948)
+Marker.Disable($1956)
+Marker.Disable($1957)
+Marker.Disable($1970)
+Marker.Disable($1966)
+Marker.Disable($1967)
+Marker.Disable($1968)
+Marker.Disable($1939)
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
+:ERICO3_5359
+wait 0 
+if or
+0123:   actor $1943 spotted_player $PLAYER_CHAR 
+0123:   actor $1944 spotted_player $PLAYER_CHAR 
+0123:   actor $1945 spotted_player $PLAYER_CHAR 
+else_jump @ERICO3_5422 
+01CA: actor $1943 kill_player $PLAYER_CHAR 
+01CA: actor $1944 kill_player $PLAYER_CHAR 
+01CA: actor $1945 kill_player $PLAYER_CHAR 
+
+:ERICO3_5422
+return 
+

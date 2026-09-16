@@ -2191,77 +2191,83 @@ int destroy(lua_State* L) {// удаления объектов из памят�
 	int i;
 	map<int, lua_State*>::iterator it;
 
-	for (auto it = markeron.begin(); it != markeron.end(); ++it) {
+	for (auto it = markeron.begin(); it != markeron.end();) {
 		if (L == it->second) {
 			i = it->first;
 			Command<COMMAND_REMOVE_BLIP>(i);//удалить маркер.
-			markeron.erase(i);
+			it = markeron.erase(it);
 		}
+		else { ++it; }
 	}
 
-	for (auto it = spheres.begin(); it != spheres.end(); ++it) {
+	for (auto it = spheres.begin(); it != spheres.end();) {
 		if (L == it->second) {
 			i = it->first;
 			Command<COMMAND_REMOVE_SPHERE>(i);// удалить сферу.
-			spheres.erase(i);
+			it = spheres.erase(it);
 		}
+		else { ++it; }
 	}
 
 	//map<int, lua_State*>::iterator pick;
 
-	for (auto pick = pickupsids.begin(); pick != pickupsids.end(); ++pick) {
+	for (auto pick = pickupsids.begin(); pick != pickupsids.end();) {
 		if (L == pick->second) {
 			i = pick->first;
 			Command<COMMAND_REMOVE_PICKUP>(i);// удалить пикап.
-			pickupsids.erase(i);
+			pick = pickupsids.erase(pick);
 		}
+		else { ++pick; }
 	}
-	for (auto it = firesids.begin(); it != firesids.end(); ++it) {
+	for (auto it = firesids.begin(); it != firesids.end();) {
 		if (L == it->second) {
 			i = it->first;
 			Command<COMMAND_REMOVE_SCRIPT_FIRE>(i);// удалить огонь.
-			firesids.erase(i);
+			it = firesids.erase(it);
 		}
+		else { ++it; }
 	}
 
-	for (auto pick = mappeds.begin(); pick != mappeds.end(); ++pick) {
+	for (auto pick = mappeds.begin(); pick != mappeds.end();) {
 		if (L == pick->second) {
 			CPed* ped = pick->first; ped->ClearInvestigateEvent();// пед уходит, опустить педа.
 
 			ped->ClearObjective(); // снять задачи с педа.
 			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
-			mappeds.erase(pick);
 			CEntity* p1 = (CEntity*)ped;
 			if (p1 != NULL) {//obj->Remove();
 				CWorld::Remove(p1);
 			}
+			pick = mappeds.erase(pick);
 		}
+		else { ++pick; }
 	}
 
-	for (auto cars = mapcars.begin(); cars != mapcars.end(); ++cars) {
+	for (auto cars = mapcars.begin(); cars != mapcars.end();) {
 		if (L == cars->second) {
 			CVehicle* car = cars->first;
 			Command<COMMAND_MARK_CAR_AS_NO_LONGER_NEEDED>(CPools::GetVehicleRef(car));// удалить авто.
-			mapcars.erase(cars);
 			CEntity* p1 = (CEntity*)car;
 			CPed* player = FindPlayerPed();// найти томми.
-			if (p1 != NULL && p1 != player->m_pVehicle) {//obj->Remove();
+			if (p1 != NULL && (player == NULL || p1 != player->m_pVehicle)) {//obj->Remove();
 				CWorld::Remove(p1);
 			}
+			cars = mapcars.erase(cars);
 		}
+		else { ++cars; }
 	}
 
-	for (auto objs = mapobjs.begin(); objs != mapobjs.end(); ++objs) {
+	for (auto objs = mapobjs.begin(); objs != mapobjs.end();) {
 		if (L == objs->second) {
 			CObject* obj = objs->first;
 			Command<COMMAND_DELETE_OBJECT>(CPools::GetObjectRef(obj));// удалить объект.
-			mapobjs.erase(objs);
-
 			CEntity* p1 = (CEntity*)obj;
 			if (p1 != NULL) {//obj->Remove();
 				CWorld::Remove(p1);
 			}
+			objs = mapobjs.erase(objs);
 		}
+		else { ++objs; }
 	}
 	bool s = false;
 	corona::set(s, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -2272,59 +2278,58 @@ int all_destroy() {// удаления объектов из памяти. пр�
 	int i;
 	map<int, lua_State*>::iterator it;
 
-	for (auto it = markeron.begin(); it != markeron.end(); ++it) {
+	for (auto it = markeron.begin(); it != markeron.end();) {
 		i = it->first;
 		Command<COMMAND_REMOVE_BLIP>(i);//удалить маркер.
-		markeron.erase(i);
+		it = markeron.erase(it);
 	}
 
-	for (auto it = spheres.begin(); it != spheres.end(); ++it) {
+	for (auto it = spheres.begin(); it != spheres.end();) {
 		i = it->first;
 		Command<COMMAND_REMOVE_SPHERE>(i);// удалить сферу.
-		spheres.erase(i);
+		it = spheres.erase(it);
 	}
 
 	//map<int, lua_State*>::iterator pick;
 
-	for (auto pick = pickupsids.begin(); pick != pickupsids.end(); ++pick) {
+	for (auto pick = pickupsids.begin(); pick != pickupsids.end();) {
 		i = pick->first;
 		Command<COMMAND_REMOVE_PICKUP>(i);// удалить пикап.
-		pickupsids.erase(i);
+		pick = pickupsids.erase(pick);
 	}
 
-	for (auto pick = mappeds.begin(); pick != mappeds.end(); ++pick) {
+	for (auto pick = mappeds.begin(); pick != mappeds.end();) {
 		CPed* ped = pick->first; ped->ClearInvestigateEvent();// пед уходит, опустить педа.
 		Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
-		mappeds.erase(pick);
 		CEntity* p1 = (CEntity*)ped;
 		if (p1 != NULL) {//obj->Remove();
 			CWorld::Remove(p1);
 		}
-
-		for (auto cars = mapcars.begin(); cars != mapcars.end(); ++cars) {
-			CVehicle* car = cars->first;
-			Command<COMMAND_MARK_CAR_AS_NO_LONGER_NEEDED>(CPools::GetVehicleRef(car));// удалить авто.
-			mapcars.erase(cars);
-			CEntity* p1 = (CEntity*)car;
-
-			CPed* player = FindPlayerPed();// найти томми.
-			if (p1 != NULL && p1 != player->m_pVehicle) {//obj->Remove();
-				CWorld::Remove(p1);
-			}
-		}
-
-		for (auto objs = mapobjs.begin(); objs != mapobjs.end(); ++objs) {
-			CObject* obj = objs->first;
-			Command<COMMAND_DELETE_OBJECT>(CPools::GetObjectRef(obj));// удалить объект.
-			mapobjs.erase(objs);
-			CEntity* p1 = (CEntity*)obj;
-			if (p1 != NULL) {//obj->Remove();
-				CWorld::Remove(p1);
-			}
-		}
-		bool s = false;
-		corona::set(s, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		pick = mappeds.erase(pick);
 	}
+
+	for (auto cars = mapcars.begin(); cars != mapcars.end();) {
+		CVehicle* car = cars->first;
+		Command<COMMAND_MARK_CAR_AS_NO_LONGER_NEEDED>(CPools::GetVehicleRef(car));// удалить авто.
+		CEntity* p1 = (CEntity*)car;
+		CPed* player = FindPlayerPed();// найти томми.
+		if (p1 != NULL && (player == NULL || p1 != player->m_pVehicle)) {//obj->Remove();
+			CWorld::Remove(p1);
+		}
+		cars = mapcars.erase(cars);
+	}
+
+	for (auto objs = mapobjs.begin(); objs != mapobjs.end();) {
+		CObject* obj = objs->first;
+		Command<COMMAND_DELETE_OBJECT>(CPools::GetObjectRef(obj));// удалить объект.
+		CEntity* p1 = (CEntity*)obj;
+		if (p1 != NULL) {//obj->Remove();
+			CWorld::Remove(p1);
+		}
+		objs = mapobjs.erase(objs);
+	}
+	bool s = false;
+	corona::set(s, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 
 	return 0;
 };

@@ -1,0 +1,13 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 8: Mall Shootout
+// Строки 35479-35487 исходного файла data/main.txt
+// Кол-во строк: 9
+//-------------Mission 8---------------
+// Originally: Mall Shootout
+
+:LOOP1
+thread 'LOOP1' 
+
+:LOOP1_10
+jump @LOOP1_10 
+

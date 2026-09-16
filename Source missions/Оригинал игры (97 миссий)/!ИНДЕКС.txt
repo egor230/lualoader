@@ -1,0 +1,122 @@
+GTA VICE CITY — полный список миссий оригинальной игры
+Источник: data/main.scm (оригинальный скрипт, 97 слотов в таблице миссий)
+Все 97 слотов реально запускаются главным скриптом игры.
+Всего миссий: 97, инструкций в миссиях: 132433
+
+N   | Название                        | Thread      | размер | инстр.
+------------------------------------------------------------------------------
+  0 | Initial                         | INITIAL     |  30586 |  1390
+  1 | Intro                           | INTRO       |  14531 |  1951
+  2 | An Old Friend                   | HOTEL       |   1876 |   252
+  3 | The Party                       | LAWYER1     |  12968 |  1555
+  4 | Back Alley Brawl                | LAWYER2     |  13557 |  1709
+  5 | Jury Fury                       | LAWYER3     |   9227 |  1253
+  6 | Riot                            | LAWYER4     |  11766 |  1647
+  7 | Treacherous Swine               | GENERL1     |   9568 |  1093
+  8 | Mall Shootout                   | COL2        |  10155 |  1333
+  9 | Guardian Angels                 | GENERL3     |  27988 |  3689
+ 10 | Sir, Yes Sir!                   | COL_4       |  31926 |  4325
+ 11 | All Hands On Deck!              | COL_5       |  31508 |  4014
+ 12 | The Chase                       | BARON1      |   8867 |  1030
+ 13 | Phnom Penh '86                  | BARON2      |  15612 |  1908
+ 14 | The Fastest Boat                | BARON3      |  10635 |  1252
+ 15 | Supply & Demand                 | BARON4      |  12908 |  1529
+ 16 | Rub Out                         |             |  14231 |  1696
+ 17 | Death Row                       | KENT1       |  15745 |  2110
+ 18 | Four Iron                       | SERG1       |  11523 |  1543
+ 19 | Demolition Man                  | SERG3       |  23780 |  2593
+ 20 | Two Bit Hit                     | SERG2       |  10610 |  1431
+ 21 | No Escape?                      | BANKJO1     |  26048 |  3117
+ 22 | The Shootist                    | BANKJO2     |  27572 |  3598
+ 23 | The Driver                      | BANKJO3     |  10510 |  1311
+ 24 | The Job                         | BANKJO4     |  32408 |  4019
+ 25 | Gun Runner                      | PHIL1       |  17132 |  2220
+ 26 | Boomshine Saigon                | PHIL2       |   8917 |  1004
+ 27 | Recruitment Drive               | PORNO1      |  11342 |  1546
+ 28 | Dildo Dodo                      | PORNO2      |   7669 |   963
+ 29 | Martha's Mug Shot               | PORNO3      |  11020 |  1419
+ 30 | G-spotlight                     | PORNO4      |  11676 |  1336
+ 31 | Shakedown                       | PROTEC1     |   7291 |   917
+ 32 | Bar Brawl                       | PROTEC2     |  12304 |  1556
+ 33 | Cop Land                        | PROTEC3     |  13237 |  1554
+ 34 | Spilling the Beans              | COUNT1      |  16566 |  2169
+ 35 | Hit the Courier                 | COUNT2      |  21734 |  2868
+ 36 | Printworks Buy                  | BUYPRO1     |    738 |    97
+ 37 | Sunshine Autos                  | CARBUY1     |   1838 |   243
+ 38 | Interglobal Films Buy           | BUYPRO2     |    837 |   106
+ 39 | Cherry Popper Icecreams Buy     | ICECUT      |   2316 |   310
+ 40 | Kaufman Cabs Buy                | TAXCUT      |   2302 |   299
+ 41 | Malibu Club Buy                 | BUYPRO3     |    671 |    99
+ 42 | The Boatyard Buy                | BOATBY      |   1671 |   215
+ 43 | Pole Position Club Buy          | BUYPRO4     |    622 |    92
+ 44 | El Swanko Casa Buy              | BUYPRO5     |    611 |    83
+ 45 | Links View Apartment Buy        | LNKVBUY     |    611 |    83
+ 46 | Hyman Condo Buy                 | HYCOBUY     |    647 |    86
+ 47 | Ocean Heighs Aprt. Buy          | OCHEBUY     |    611 |    83
+ 48 | 1102 Washington Street Buy      | WASHBUY     |    533 |    78
+ 49 | Vice Point Buy                  | VCPTBUY     |    533 |    78
+ 50 | Skumole Shack Buy               | SKUMBUY     |    533 |    78
+ 51 | Cap the Collector               | CAP_1       |  18707 |  2503
+ 52 | Keep your Friends Close         | FIN_1       |  27740 |  3505
+ 53 | Alloy Wheels of Steel           | BIKE1       |  11556 |  1454
+ 54 | Messing with the Man            | BIKE2       |   2135 |   298
+ 55 | Hog Tied                        | BIKE3       |  13012 |  1654
+ 56 | Stunt Boat Challenge            | CUBAN1      |  10867 |  1393
+ 57 | Cannon Fodder                   | CUBAN2      |  22981 |  2991
+ 58 | Naval Engagement                | CUBAN3      |  11714 |  1421
+ 59 | Trojan Voodoo                   | CUBAN4      |  21930 |  2385
+ 60 | Juju Scramble                   | HAIT1       |  12651 |  1754
+ 61 | Bombs Away!                     | HAIT2       |  17858 |  2314
+ 62 | Dirty Lickin's                  | HAIT3       |  17845 |  2666
+ 63 | Love Juice                      | ROCKB1      |   8816 |  1190
+ 64 | Psycho Killer                   | ROCKB2      |  12104 |  1596
+ 65 | Publicity Tour                  | ROCKB3      |  14492 |  1990
+ 66 | Weapon Range                    | RANGE       |   6477 |   863
+ 67 | Road Kill                       | ASSIN1      |   1953 |   284
+ 68 | Waste the Wife                  | ASSIN2      |   4271 |   583
+ 69 | Autocide                        | ASSIN3      |   6829 |   972
+ 70 | Check Out at the Check In       | ASSIN4      |   8648 |  1147
+ 71 | Loose Ends                      | ASSIN5      |  12722 |  1701
+ 72 | V.I.P.                          | TAXWAR1     |   4055 |   469
+ 73 | Friendly Rivalry                | TAXWAR2     |   1744 |   257
+ 74 | Cabmaggedon                     | TAXWAR3     |   5642 |   702
+ 75 | TAXI DRIVER                     | TAXI        |   7113 |   951
+ 76 | PARAMEDIC                       | AMBULAN     |   8559 |  1137
+ 77 | FIREFIGHTER                     | FIRETRU     |   8476 |  1115
+ 78 | VIGILANTE                       | COPCAR      |  17063 |  2309
+ 79 | HOTRING                         | OVALRNG     |  19194 |  2233
+ 80 | BLOODRING                       | MM          |  15885 |  1993
+ 81 | DIRTRING                        | KICKST      |  17098 |  1823
+ 82 | Sunshine Autos Races            | RACE        |  31468 |  3693
+ 83 | Distribution                    | ICECRE1     |   4276 |   615
+ 84 | Downtown Chopper Checkpoint     | HELI1SC     |   3763 |   475
+ 85 | Ocean Beach Chopper Checkpoint  | HELI2SC     |   3403 |   439
+ 86 | Vice Point Chopper Checkpoint   | HELI3SC     |   3403 |   439
+ 87 | Little Haiti Chopper Checkpoint | HELI4SC     |   3553 |   454
+ 88 | Trial by Dirt                   | BMX_1       |   4944 |   544
+ 89 | Test Track                      | BMX_2       |   4555 |   475
+ 90 | PCJ Playground                  | T4X4_1      |   6805 |   727
+ 91 | Cone Crazy                      | CARPRK1     |   4968 |   631
+ 92 | PIZZA BOY                       | PIZZA       |  13818 |  1968
+ 93 | RC Raider Pickup                | RCHELI      |   6444 |   741
+ 94 | RC Bandit Race                  | RCRACE1     |   8797 |  1094
+ 95 | RC Plane Race                   | RCPLNE1     |   6706 |   830
+ 96 | Coke Run                        | COKERUN     |   7430 |   725
+
+Группировка:
+  0-33   сюжетные миссии (Ken / Cortez / Diaz / Avery / активы / финал)
+  34-35  Print Works (Spilling the Beans, Hit the Courier)
+  36-50  покупка активов и жилья
+  51-52  Cap the Collector / Keep your Friends Close (финал)
+  53-65  банды (Cuban, Haitian, Biker, Love Fist: 63-65)
+  66     Rifle/Weapon Range
+  67-71  убийства (Road Kill, Waste the Wife, Autocide, ...) и такси-гонки 72-74
+  75-78  TAXI / PARAMEDIC / FIREFIGHTER / VIGILANTE
+  79-81  арена (Hotring, Bloodring, Dirtring)
+  82     гонки Sunshine Autos
+  83     Distribution (Cherry Popper)
+  84-87  чекпойнты на вертолёте
+  88-91  Trial by Dirt, Test Track, PCJ Playground, Cone Crazy
+  92-96  Pizza Boy, RC Raider, RC Bandit, RC Plane, Coke Run
+
+См. также файл '99 - MAIN SCRIPT (справка).txt' — главный скрипт игры.

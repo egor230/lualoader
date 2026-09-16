@@ -3,94 +3,94 @@ require("lualoader/mod")
 function main()
 while true do wait() player = findplayer()-- получить игрока
 
- if Star_mission_marker(9, 118.0, -825.9, 10.5) -- создать маркер миссии на карте. 
- then showtext(" patry", 500,1)-- вывод названия миссии. 
+ if Star_mission_marker(9, 118.0, -825.9, 10.5) -- создать маркер миссии на карте.
+ then showtext(" patry", 500,1)-- вывод названия миссии.
  setcord(player, 118.0, -825.9, 10.5) setangle(player, 54.0) -- установить угол для педа.
  bike = Createcar("MODEL_FREEWAY", 123.8, -810.9, 10.5)
  setangle(bike,  320) -- установить угол для байка.
- fade(1,2900) --просветления, 600 время.   
+ fade(1,2900) --просветления, 600 время.
  blip = createmarker(1,2, 95.4, -1136.2, 10.5) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
  setsizemarker(blip,3)--уст размер маркера. Принимает маркер, значение его размера
- sp = create_sphere(95.4, -1136.2, 10.5,3.0)-- создать сферу.   
- printmessage("~r~Go get some new threads from Rafael's clothes shop",3000,1) 
- 
-while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменится.  
+ sp = create_sphere(95.4, -1136.2, 10.5,3.0)-- создать сферу.
+ printmessage("~r~Go get some new threads from Rafael's clothes shop",3000,1)
+
+while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменится.
   if ped_in_point_in_radius(player,95.4, -1136.2, 10.5, 2.0,2.0,2.0) and not is_ped_in_car(player) and step == nil
    then ped_frozen(0) fade(0,1100) --затенение, 600 время.
    remove_blip(blip)  remove_sphere(sp)-- удалить сферу.
    set_widescreen(true) wait(3000) set_skin(player, "PLAYER9")
    setcord(player, 95.5, -1135.8, 10.5 ) setangle(player, 42.0 ) -- установить угол для педа.
-   fade(1,1100) --просветления, 600 время.   
+   fade(1,1100) --просветления, 600 время.
    set_camera_position(91.813, -1131.116, 17.251, 0.0, 0.0, 0.0) --уст камеру в координатах.
    camera_at_point(92.39, -1131.74, 16.724, 1) --переместить камеру в координатах.
    wait(3000) ped_frozen(1) restore_camera()-- восстановить камеру.
-   set_widescreen(false)   printmessage("~r~Get to then Colonel's boat",3000,1) 
+   set_widescreen(false)   printmessage("~r~Get to then Colonel's boat",3000,1)
    blip1 = createmarker(1,2, -251.2, -1360.8, 8.1 ) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
    setsizemarker(blip1,3)--уст размер маркера. Принимает маркер, значение его размера
-   sp1 = create_sphere(-251.2, -1360.8, 8.1 ,3.0,3.0,2.0)-- создать сферу.   
+   sp1 = create_sphere(-251.2, -1360.8, 8.1 ,3.0,3.0,2.0)-- создать сферу.
    load_scene(-236.6, -1374.6, 10.0)
-     car1 = Createcar("MODEL_INFERNUS",-242.5, -1349.2, 8.1) 
+     car1 = Createcar("MODEL_INFERNUS",-242.5, -1349.2, 8.1)
      setangle(car1, 278)
-     car2 = Createcar("MODEL_BANSHEE",-243.0, -1345.6, 8.1) 
+     car2 = Createcar("MODEL_BANSHEE",-243.0, -1345.6, 8.1)
      setangle(car2, 286)
-     car3 = Createcar("MODEL_COMET",-244.6, -1340.6, 8.1) 
+     car3 = Createcar("MODEL_COMET",-244.6, -1340.6, 8.1)
      setangle(car3, 287)
-     car4 = Createcar("MODEL_PHEONIX",-245.3, -1336.6, 8.1) 
+     car4 = Createcar("MODEL_PHEONIX",-245.3, -1336.6, 8.1)
      setangle(car4, 276)
-     step = 1   
+     step = 1
    end
    if step == 1 and ped_in_point_in_radius(player,-251.2, -1360.8, 8.1, 2.0,2.0,2.0) and not is_ped_in_car(player)
    then step = 2 remove_blip(blip1)  remove_sphere(sp1)-- удалить сферу.
-   printmessage("~r~You are on the site",3000,1)  
-   fade(0,1100) -- тьма, 600 время.   
+   printmessage("~r~You are on the site",3000,1)
+   fade(0,1100) -- тьма, 600 время.
    wait(2000) setcord(player, -241.7, -1362.3, 8.1 )
 	setangle(player, 269.0 ) -- установить угол для педа.
 	ped1 = create_spec_ped("IGMERC", -241.7, -1360.3, 8.1 )-- создать педа на координатах.
-	wait(2000) fade(1,1100) --просветления, 600 время.    
-	printmessage("~r~Take the Colonel's daughter to the Pole Position club", 4000,1)  
+	wait(2000) fade(1,1100) --просветления, 600 время.
+	printmessage("~r~Take the Colonel's daughter to the Pole Position club", 4000,1)
 	blip2 = createmarker(1,2,  100.7, -1477.6, 10.1  ) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
 	setsizemarker(blip2,3)--уст размер маркера. Принимает маркер, значение его размера
-	sp2 = create_sphere( 100.7, -1477.6, 10.1, 3.0,3.0,2.0)-- создать сферу.   
+	sp2 = create_sphere( 100.7, -1477.6, 10.1, 3.0,3.0,2.0)-- создать сферу.
 	p,m = foel("HFOST", player,"uzi", -179.4, -1442.7, 9.5)-- создать врага.
 	follow_the_leader(ped1)
 	def = true-- враг жив
 	ped_save_pos_attack(ped1,1)
-	end	    
- if step == 2  
-    then 
+	end
+ if step == 2
+    then
     if def == true -- если враг жив.
-      then if getpedhealth(p) == 0 
-	  then  def = false removemarker(m) --remove_ped(p)   
+      then if getpedhealth(p) == 0
+	  then  def = false removemarker(m) --remove_ped(p)
 	  end
     end
-    if ped_in_point_in_radius(player, 100.7, -1477.6, 10.1, 2.0,2.0,2.0) and ped_in_point_in_radius(ped1, 100.7, -1477.6, 10.1, 2.0,2.0,2.0) 
+    if ped_in_point_in_radius(player, 100.7, -1477.6, 10.1, 2.0,2.0,2.0) and ped_in_point_in_radius(ped1, 100.7, -1477.6, 10.1, 2.0,2.0,2.0)
         then remove_blip(blip2) -- удалить метку.
-            remove_sphere(sp2)-- удалить сферу. 
+            remove_sphere(sp2)-- удалить сферу.
 			clean_leader(ped1)-- перестать следовать за лидером.
            if is_ped_in_car(ped1)-- проверка пед в авто?
            then  exitcar(ped1)-- пед выходит из авто.
 	     wait(900) x,y,z = getcoordinates_on_y(ped1, 10)
-		 ped_walk_to_point(ped1,x,y,z) wait(6000) 
+		 ped_walk_to_point(ped1,x,y,z) wait(6000)
          remove_ped(ped1) miss(1000)-- миссия выполнена сколько денег получено за выполнение.
     step = nil
      break
    end
    end
-   if getpedhealth(ped1) == 0 -- если мердес мертва, миссия провалена. 
+   if getpedhealth(ped1) == 0 -- если мердес мертва, миссия провалена.
     then printmessage("mesgess dead", 3000,1) end_mission("mission failed!")
      step = nil-- шаги обнуляются.
      break
-    end 
+    end
    end
  end
- end   
  end
- end 
+ end
+ end
 
- 
- 
- 
- 
+
+
+
+
  -- while true == getflagmission() do  wait()
   -- local mer, car = incar(ped)
   -- if mer == false
@@ -100,23 +100,23 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- end
   -- local car1 = Createcar(MODEL_CHEETAH, -236.6, -1374.6, 10.0)
  -- setangle(car1,  280.3) -- установить угол для авто.
-  -- wait(10) 
+  -- wait(10)
 -- car2 = Create(MODEL_INFERNUS, -240.8, -1355.3, 10.0)
  -- setangle(car2, 99.8) -- установить угол для авто.
-  -- wait(10) 
+  -- wait(10)
 -- car3 = Create(MODEL_STRETCH, -244.2, -1339.2, 10.0)
  -- setangle(car3,  103.8) -- установить угол для авто.
 -- car4 = Create(MODEL_BANSHEE, -233.3, -1386.0, 10.0)
  -- setangle(car4,  96.8) -- установить угол для авто.
 -- break
- -- if 
+ -- if
  -- then
  -- break
  -- end
   -- if not player_defined(ped) -- если враг убит.
    -- then  miss(3000)-- миссия выполнена сколько денег получено за выполнение.
-   -- break   end  end-- 
-  -- destroy()-- удалить все объекты, которые были созданы скриптом.	 
+   -- break   end  end--
+  -- destroy()-- удалить все объекты, которые были созданы скриптом.
   -- ped = create_spec_ped("IGDIAZ", 487.2, -98.8, 10.6 )-- создать педа на координатах.
   -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
   -- Giveweaponped(ped,600,"m4")-- дать педу оружие.
@@ -126,14 +126,14 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 --ped_anim(ped, 14)
 
  -- fade(1,3100) --просветления, 600 время.
-   -- ped = Createped("HFOST", 513.7, -51.8, 10.8)-- 
- -- while true == getflagmission() do  wait(100) 
+   -- ped = Createped("HFOST", 513.7, -51.8, 10.8)--
+ -- while true == getflagmission() do  wait(100)
   -- -- if not player_defined(ped) -- если враги убиты.
  -- -- then miss(3000)--миссия выполнена
  -- -- break
- -- -- end 
+ -- -- end
  -- end
--- destroy()-- удалить все объекты	 
+-- destroy()-- удалить все объекты
 
 
 
@@ -143,7 +143,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 
    -- ,446.3, -372.3, 9.6 --2
   -- ,363.4, -450.0, 9.4 --3
- 
+
  -- ,117.8, -893.3, 10.2 -- 4
 -- ,219.5, -957.8, 9.9 -- 5
 -- , 97.9, -1480.6, 9.9 -- 6
@@ -159,45 +159,45 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- 489.7, 83.2, 10.8, --16
  -- 516.7, -72.5, 10.2,--17
  -- 478.2, -117.4, 10.1--18
- -- } 
+ -- }
 
 
 -- function main()
 -- while lualoader == nil do
  -- wait()
  -- player = findplayer()-- получить игрока
- -- if star_mission(player, "cb") --Keypress(VK_H) 
--- then set_traffic(0) mycar = Createcar(MODEL_STINGER,485.5, -111.2, 10.1) 
+ -- if star_mission(player, "cb") --Keypress(VK_H)
+-- then set_traffic(0) mycar = Createcar(MODEL_STINGER,485.5, -111.2, 10.1)
  -- putincar(player, mycar) setcarcoordes(mycar, 485.5, -111.2, 10.1)-- установить координаты авто.
- -- setcarangle(mycar, 180.0)-- уст угол авто. 
- 
--- car = Createcar(MODEL_SENTXS,478.2, -117.4, 10.1) -- создать авто на 5 впереди. 
+ -- setcarangle(mycar, 180.0)-- уст угол авто.
+
+-- car = Createcar(MODEL_SENTXS,478.2, -117.4, 10.1) -- создать авто на 5 впереди.
   -- mar1 = create_marker_car(car) -- создать маркер над авто
 -- ped = create_spec_ped("IGHLARY", 0.0,0.0,0.0) --
  -- putincar(ped, car)--  поместить педа в авто.
- 
- -- setcarangle(car, 180.0)-- уст угол авто. 
+
+ -- setcarangle(car, 180.0)-- уст угол авто.
   -- setcarspeed(car, 25) setdrivingstyle(car, 3) setcarstrong(car, 1) -- wait(3300) -- printmessage("race",2000,1)
  -- restore_camera()
- -- t = races() 
-   -- go_to_route(car, road)	
+ -- t = races()
+   -- go_to_route(car, road)
     -- while lualoader == nil do  wait()
-    -- b1 = follow_route_for_corona_for_playercar(mycar, road) 
+    -- b1 = follow_route_for_corona_for_playercar(mycar, road)
    -- if b1 == true
 	   -- then printmessage("you win",2000,1)  miss(money)
        -- break
-       -- end 
+       -- end
    -- if finish_road(car, road)
 	   -- then printmessage("you lose",2000,1)  end_mission("mission failed!")
        -- break
-       -- end 
-  -- end  
+       -- end
+  -- end
   -- remove_blip(blip)
   -- stop_timer(t)-- удалить таймер.
   -- destroy()
   -- set_traffic(1) local t = {false, 0, 0, 0, 0, 0, 0, 0,0,0}
-  -- draw_corona(t) 
- -- end 
+  -- draw_corona(t)
+ -- end
  -- end
  -- end
 
@@ -214,28 +214,28 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- wait()-- задержка.
   -- player = findplayer()-- получить игрока
   -- if Keypress(VK_H) -- если клавиша H.
- -- then  x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.-- 
+ -- then  x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.--
 	-- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
 -- go_to_route(mycar, road)
-  -- end  
+  -- end
  -- end
 -- end
   -- -- setpedhealth(player, 300)
   -- x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
-  -- ped1 = create_spec_ped("SAM", x,y,z) --  -- 
+  -- ped1 = create_spec_ped("SAM", x,y,z) --  --
    -- -- if isped(ped)
--- -- then 
+-- -- then
 -- -- printmessage("ped", 2000,1)
--- -- end 
+-- -- end
  -- printmessage("star talking", 2000,1)
- -- wait(3000)-- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.-- 
+ -- wait(3000)-- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.--
   -- setpedhealth(ped1, 0)
  -- -- wait(300)
- -- -- ped = Createped("HMYST",x,y,z) 
+ -- -- ped = Createped("HMYST",x,y,z)
  -- -- setpedhealth(ped, 0)
-    -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.-- 
+    -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.--
 	-- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
- -- ped = Createped("HMYST",x,y,z) 
+ -- ped = Createped("HMYST",x,y,z)
  -- printmessage("ok", 2000,1)
  -- set_skin(player, "IGDIAZ")
 	--m = create_marker_actor(ped1)
@@ -247,29 +247,29 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- ped_atack(ped)
 -- end
  -- if isped(ped)
--- then 
+-- then
 -- printmessage("star talking", 2000,1)
--- end 
- 
--- Giveweaponped(player,600,"tec9")-- дать педу оружие. 
+-- end
+
+-- Giveweaponped(player,600,"tec9")-- дать педу оружие.
 -- mycar = Createcar(MODEL_INFERNUS,x,y,z) -- создать авто на 5 впереди.
 
   -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.
- -- ped = Createped("HMYST",x,y,z) 
+ -- ped = Createped("HMYST",x,y,z)
 -- ped_car_as_driver(ped, mycar)-- пед садится в авто как водитель.
  -- wait(20)-- задержка.
   -- x,y,z =getcoordinates_on_y(player,15)-- получить координаты на 5 м впереди.
- -- ped1 = Createped("HFOBE",x,y,z) 
- 
+ -- ped1 = Createped("HFOBE",x,y,z)
+
 -- ped_car_as_passenger(ped1, mycar)-- пед садится в авто как пассажир.
   -- Hold_cellphone(player, 1)-- понять телефон.
   -- wait(3200)
   -- printmessage("star talking", 2000,1)
   -- Hold_cellphone(player, 0)-- положить телефон.
    -- mycar = Createcar(MODEL_SENTXS,x,y,z) -- создать авто на 5 впереди.
-   -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 10 м впереди. 
-   -- ped = Createped("HMYST",x,y,z) 
-   -- Giveweaponped(ped,600,"buddyshot")-- дать педу оружие. 
+   -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 10 м впереди.
+   -- ped = Createped("HMYST",x,y,z)
+   -- Giveweaponped(ped,600,"buddyshot")-- дать педу оружие.
    -- ped_attack_car(ped, mycar)--  пед атакует  авто.
  --putincar(ped, mycar)--  поместить педа в авто.
  -- while lualoader == nil do wait()
@@ -277,7 +277,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- x = tonumber(string.format("%d", x))
  -- a1="cord "..x
  -- printmessage(a1, 3000,1)
--- end 
+-- end
  -- while lualoader == nil do wait()
 -- b, mycar = incar(player)
 -- if b == true
@@ -286,14 +286,14 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- x = tonumber(string.format("%d", x))
  -- a1="cord "..x
  -- printmessage(a1, 3000,1)
--- end 
+-- end
 -- end
 --cheat("zx")
  -- if Keypress(VK_T) -- если клавиша T.
  -- then
  -- timer_donw(60,"R_TIME",1)-- Таймер на уменьшения
  -- end
- 
+
  -- if Keypress(VK_U) -- если клавиша U.
  -- then
  -- stop_timer("R_TIME")-- удалить таймер.
@@ -303,8 +303,8 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
   -- z = z-1
   -- obj = Create_obj(350, x,y,z) -- создать объект(бочка).
   -- printmessage("the bomb is planted", 2000,1)
- -- while countdown(8) do wait()-- таймер на 8 секунд. 
-      
+ -- while countdown(8) do wait()-- таймер на 8 секунд.
+
 -- end
  -- create_explosion(3,x,y,z ) --Создать взрыв на координатах.
 -- remove_obj(obj)
@@ -313,7 +313,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- if Keypress(VK_G) -- если клавиша G.
 -- then printmessage("star timer", 2000,1)
 -- t =turn_default_timer(true,"TIMER:")
--- end 
+-- end
  -- if Keypress(VK_N) -- если клавиша N.
 -- then printmessage("stop timer", 2000,1)
 -- turn_default_timer(false,t)
@@ -329,17 +329,17 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- if Keypress(VK_G) -- если клавиша H.
 -- then printmessage("star timer", 2000,1)
 -- t =turn_default_timer(true,"TIMER:")
--- end 
+-- end
  -- if Keypress(VK_N) -- если клавиша H.
 -- then printmessage("stop timer", 2000,1)
 -- turn_default_timer(false,t)
 
--- end 
+-- end
 -- end end
 -- end
 
 --open_doors = coroutine.wrap(function(car)
--- while true == getflagmission() do wait() 
+-- while true == getflagmission() do wait()
   -- coroutine.yield()
   -- local health = getcarhealth(car)
  -- if health < 800 and status == nil
@@ -347,19 +347,19 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- opendoorcar(car, DRL) opendoorcar(car, DRR)
  -- status = 1
  -- for i = 1, 30 do x,y,z = getcarcoordinates_on_y(car,-3)
-  -- wait(600)  z = z -0.9 create_money_pickup(2000, x,y,z) 
+  -- wait(600)  z = z -0.9 create_money_pickup(2000, x,y,z)
   -- coroutine.yield()
- -- end 
  -- end
  -- end
  -- end
- -- ) 
+ -- end
+ -- )
 -- exit_foel = coroutine.wrap(function(car,ped)
--- while true == getflagmission() do wait()  coroutine.yield()  
+-- while true == getflagmission() do wait()  coroutine.yield()
   -- local health = getcarhealth(car)-- получить здоровье авто.
- -- if health < 500 
+ -- if health < 500
  -- then printmessage("~r~i kill you", 2500,1)
-   -- Giveweaponped(ped,600,"buddyshot")-- дать педу оружие. 
+   -- Giveweaponped(ped,600,"buddyshot")-- дать педу оружие.
  -- exitcar(ped)-- выход педа из авто.
  -- Kill_ped_on_foot(ped, player)-- пед хочет убить игрока.
  -- break
@@ -367,22 +367,22 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- end
  -- end
  -- )
- 
+
 -- function main()
 -- while lualoader == nil do wait()
  -- player = findplayer()-- получить игрока.
  -- if  star_mission(player,"nm")-- чит-код для активации миссии.
  -- then fade(0,200) -- затенение, 200 время.
  -- showtext("collection car", 500,1)-- вывод названия миссии.
-   -- Giveweaponped(player,600,"uzi")-- дать педу оружие. 
+   -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
    -- setpedcoordes(player, -212.4, -1433.0, 8.1)-- переместить игрока в координаты.
    -- setpedangle(player, 220.0)-- уст угол педа.
- -- mycar = Createcar(MODEL_PCJ600, 97.1, -1520.8, 10.0) -- создать авто. 
+ -- mycar = Createcar(MODEL_PCJ600, 97.1, -1520.8, 10.0) -- создать авто.
   -- setcarangle(mycar, 169)-- уст угол авто игрока.
   -- putincar(player, mycar)--  поместить педа в авто.
-  
- -- car = Createcar(MODEL_SECURICA, 86.4, -1590.9, 10.0, 265) -- создать авто. 
-  -- setcarangle(car, 270) -- уст угол авто педа. 
+
+ -- car = Createcar(MODEL_SECURICA, 86.4, -1590.9, 10.0, 265) -- создать авто.
+  -- setcarangle(car, 270) -- уст угол авто педа.
   -- m = create_marker_car(car)-- создать маркер над авто.
   -- ped = set_ped_in_car(car, "WMYSK" )-- уст педа водителя авто.
  -- setcarspeed(car, 75) setdrivingstyle(car, 2) setcarstrong(car, 1)
@@ -391,8 +391,8 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
   -- fade(1,2600) --просветления, 2600 время.
   -- printmessage("~r~kill driver and car!",4000,1)
   -- newthread(checkmission, player) -- в новом потоке, постоянная проверка жив ли игрок?
- -- while true == getflagmission() do wait() 
-  -- exit_foe(car, ped) -- потока выхода педа из авто. 
+ -- while true == getflagmission() do wait()
+  -- exit_foe(car, ped) -- потока выхода педа из авто.
   -- open_doors(car) -- выпадения денег.
  -- if follow_route(car, road) -- ехать по маршруту.
  -- then  end_mission("mission failed!")--миссия провалена.
@@ -401,7 +401,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- if 0 == getcarhealth(car) and 0 == getpedhealth(ped)-- если враг убит и машина уничтожена.
  -- then miss(100) -- миссия выполнена дать 100$
  -- break
- -- end 
+ -- end
  -- end
 -- destroy()-- удалить все объекты
 -- end end
@@ -411,31 +411,31 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- if  star_mission(player,"mn")-- чит-код для активации миссии.
  -- then fade(0,600) -- затенение, 600 время.
  -- showtext("collection car", 500,1)-- вывод названия миссии.
-   -- Giveweaponped(player,600,"uzi")-- дать педу оружие. 
- -- mycar = Createcar(MODEL_PCJ600, 97.1, -1520.8, 10.0) -- создать авто 
+   -- Giveweaponped(player,600,"uzi")-- дать педу оружие.
+ -- mycar = Createcar(MODEL_PCJ600, 97.1, -1520.8, 10.0) -- создать авто
   -- setcarangle(mycar, 169)
   -- putincar(player, mycar)
-  
- -- car = Createcar(MODEL_SECURICA, 86.4, -1590.9, 10.0, 265) -- создать авто 
+
+ -- car = Createcar(MODEL_SECURICA, 86.4, -1590.9, 10.0, 265) -- создать авто
  -- m = create_marker_car(car)
   -- setcarangle(car, 270)
  -- ped = set_ped_in_car(car, "WMYSK" )
 -- setcarspeed(car, 15) setdrivingstyle(car, 2) setcarstrong(car, 1)
-    -- wait(1900)-- задержка.  
+    -- wait(1900)-- задержка.
  -- fade(1,2600) --просветления, 600 время.
 
  -- newthread(checkmission, player) -- в новом потоке, постоянная жив ли игрок?
  -- --printmessage("main", 6500,1)
  -- while  true == getflagmission() do  wait()
-   -- if follow_route(car, road) 
+   -- if follow_route(car, road)
     -- then end_mission("mission failed!")
     -- break
 	-- end
 	-- if 0 == getcarhealth(car) or 0 == getpedhealth(ped)
 	-- then miss(100) -- дать 100$
 	-- break
-     -- end 
- -- end 
+     -- end
+ -- end
  -- removemarker(m)
  -- remove_ped(ped)
  -- remove_car(car)
@@ -447,47 +447,47 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- printmessage("star timer", 2000,1)
 -- t = star_timer("R_TIME",1,1)
 
--- wait(4100) 
+-- wait(4100)
 -- printmessage("yes stop_timer", 3000,1)
 -- stop_timer(t)
 -- end
- 
- 
+
+
  -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди от игрока.
   -- mycar = Createcar(MODEL_SENTXS,x,y,z) -- создать авто на 5 впереди.
 -- putincar(player, mycar)-- переместить педа в авто
 -- wait(600)
    -- while lualoader == nil do  wait()
-   -- if follow_route_for_corona_for_playercar(mycar, road) 
+   -- if follow_route_for_corona_for_playercar(mycar, road)
     -- then miss(100) -- дать 100$
     -- break
-     -- end 
+     -- end
 
- -- end 
- 
+ -- end
+
  -- function main()
 -- while lualoader == nil do
  -- wait()-- задержка.
  -- player = findplayer()-- получить игрока
  -- if Keypress(VK_H) -- если клавиша H.
 
--- end 
+-- end
 -- end
 -- end
 
--- end 
+-- end
 -- then  t={"yes"}
 -- while lualoader == nil do
  -- wait()-- задержка.
 -- print_front(t)
- -- Giveweaponped(player,300,"ingramsl")-- дать педу оружие.   
+ -- Giveweaponped(player,300,"ingramsl")-- дать педу оружие.
  -- setpedhealth(player,200)-- уст 200 здоровье педу
  -- setarmour(player,200)-- уст 200 броню педу
  -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди от игрока.
  -- mycar = Createcar(MODEL_SENTXS,x,y,z) -- создать авто на 5 впереди.
 --cheat("zx")
   -- x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
- -- ped = Createped("HMYST",x,y,z) 
+ -- ped = Createped("HMYST",x,y,z)
  -- if isped(ped)
  -- then
  -- printmessage("yes", 3000,1)
@@ -496,7 +496,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- then
  -- printmessage("yes", 3000,1)
  -- setpedhealth(mycar,10)
- -- else 
+ -- else
  -- printmessage("not", 3000,1)
   -- x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
 -- ped = Createped("HMYST",x,y,z)
@@ -515,18 +515,18 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 
 -- setcarspeed(mycar, 25)-- уст скорость авто.
 -- setdrivingstyle(mycar, 2)-- уст стиль вождения.
--- while true  do wait() 
+-- while true  do wait()
 -- if follow_route(mycar, road) -- ехать по маршруту.
- -- then 
+ -- then
  -- break
- -- end 
+ -- end
 -- end
  -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.
 -- mycar = Createcar(MODEL_SENTXS,x,y,z) -- создать авто на 5 впереди.
   -- ped1 = set_ped_in_car(mycar, "HMOST") -- уст водителя авто.
   -- end
  -- if Keypress(VK_G) --cheat("zx")
--- then 
+-- then
  -- wait(200)
  -- setcartask(mycar, 5)
   -- --setcaraction(mycar, 9,2000)
@@ -536,7 +536,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- obj = Create_obj(577, x,y,z) -- создать объект.
  -- marobj = create_marker_obj(obj)-- создать маркер над объектом
 --x,y,z =getcoordinates_on_y(player,20)-- получить координаты на 5 м впереди.
--- for i=1,360 do--while lualoader == nil do 
+-- for i=1,360 do--while lualoader == nil do
 -- wait(9)
 -- angle = getobjangle(obj)
 -- printmessage(string.format("%.1f", angle), 3000,1)
@@ -551,26 +551,26 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- z = tonumber(string.format("%.1f", z))
  -- a1="cord "..x.." "..y.." "..z
  -- printmessage(a1, 3000,1)
- -- ped = Createped("HFOST",x,y,z)-- 
+ -- ped = Createped("HFOST",x,y,z)--
 -- mycar = Createcar(MODEL_ENFORCER,x,y,z) -- создать авто на 5 впереди.
 
   -- ped1 = set_ped_in_car(mycar, "HMOST") -- уст водителя авто.
--- setcaraction(mycar, 2, 20000)  
--- Giveweaponped(player,300,"tec9")-- дать педу оружие. 
+-- setcaraction(mycar, 2, 20000)
+-- Giveweaponped(player,300,"tec9")-- дать педу оружие.
 --  mar1 = create_marker_actor(ped) -- создать маркер педа.
 -- if isped(ped)
 -- then printmessage("yes", 3000,1)
 -- else  printmessage("dead", 3000,1)
 -- end
 --end
---destroy() 
- -- if  not player_defined(player)-- 
- -- then 
+--destroy()
+ -- if  not player_defined(player)--
+ -- then
  -- printmessage("dead", 3000,1)
 
 -- end
 -- x,y = getworldcoordped(player,1.0,7)
---mycar = Createcar(MODEL_ENFORCER,x,y,z) -- создать авто на 5 впереди.  
+--mycar = Createcar(MODEL_ENFORCER,x,y,z) -- создать авто на 5 впереди.
  -- ped = Createped("HFOST",x,y,z)
  -- Giveweaponped(ped,tec9,100)
 -- tw = Get_type_weapon_ped(ped)
@@ -581,7 +581,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- h2=tostring(tw)
  -- h3 = "type weapon "..h2
  -- printmessage(h3, 3000)
- -- x,y = getworldcoordped(player,2.0,8)  
+ -- x,y = getworldcoordped(player,2.0,8)
  -- ped2 = Createped("HFYBU",x,y,z)
 --is_current_weapon_ped(ped,22)-- проверить пед держит в руках это оружие?
  -- if keypress(VK_H)-- клавиша h.
@@ -592,9 +592,9 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- Giveweaponped(player,tec9,100)
 -- while keypress(VK_H) do wait(1) end
   -- x,y,z =getcoordes(player)
- -- x,y = getworldcoordped(player,1.0,6)  
+ -- x,y = getworldcoordped(player,1.0,6)
  -- ped = Createped("HFOST",x,y,z)
--- end 
+-- end
 -- Giveweaponped(ped,buddyshot,100)
 -- Giveweaponped(ped,tec9,100)
 
@@ -603,18 +603,18 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 --   h2=tostring(t)
 -- loadmodel(model)
 -- ped = Createped("HFOST",x,y,z)
- --while keypress(VK_H) do wait(1) 
+ --while keypress(VK_H) do wait(1)
 --releasemodel(model)
 --while not availablemodel(model) do  wait(1) end
 -- x,y,z =getcoordes(player)
--- x,y = getworldcoordped(player,1.0,13)  
+-- x,y = getworldcoordped(player,1.0,13)
 -- h1=tostring(x)
   -- h2=tostring(y)
  -- h3 = h1.." "..h2
  -- printmessage(h3, 3000)
  -- car = createcar(model, x,y,z)
 -- angle = getangleped(player)
---x,y= 
+--x,y=
   -- h1=tostring(x)
  -- printmessage(h1, 3000)
 
@@ -624,32 +624,32 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 
 -- car = createcar(model, x,y,z)
  --if keypress(key("M"))-- клавиша m.
---  then 
+--  then
  -- res, car = randomfindcar(player, 30.0)-- найти авто
- -- if res == true 
+ -- if res == true
  -- then drivecar(car, -766.3, -1119.3, 11.0)
- 
-  --res1 =in_point_car_in_radius(car,  -766.3, -1119.3, 11.0, 4, 3,2) 
 
--- if res1 == true 
+  --res1 =in_point_car_in_radius(car,  -766.3, -1119.3, 11.0, 4, 3,2)
+
+-- if res1 == true
  -- then
 -- end
 --end
 --end
- --res, car = incar(player)--в авто?   
- -- if res == true 
+ --res, car = incar(player)--в авто?
+ -- if res == true
   -- then
  -- -- if res1 == true
  -- -- then
  -- res, car = randomfindcar(player, 30.0)-- найти авто
- -- if res == true 
+ -- if res == true
  -- then drivecar(car, -787.8, -1143.1, 11.05)
  -- end
 -- end
 
  ---drivecar(mycar, -159.2, -1458.0, 10.6)
 -- printmessage(" mission ",3000,1)
--- mycar = Createcar(MODEL_RANCHER, 227.6, -707.6, 10.3) -- создать авто  
+-- mycar = Createcar(MODEL_RANCHER, 227.6, -707.6, 10.3) -- создать авто
 
 -- setcarangle(mycar, 163.0)-- уст угол авто.
 -- mar = create_marker_car(mycar)-- создать маркер над авто.
@@ -659,10 +659,10 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 
 
 -- Keypress(VK_G) --cheat("zx")
--- then 
+-- then
  -- x,y,z =getcoordinates_on_y(player,15)-- получить координаты на 5 м впереди.
- -- ped = Createped("HFOST", x,y,z)-- 
--- mycar = Createcar(MODEL_REGINA, x,y,z) -- создать авто  
+ -- ped = Createped("HFOST", x,y,z)--
+-- mycar = Createcar(MODEL_REGINA, x,y,z) -- создать авто
 -- -- wait(1000)
 -- if isped(mycar)
 -- then printmessage(" this is ped",3000,1)
@@ -674,7 +674,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 --obj = Create_obj(588, x,y,z) -- создать объект.
  --marobj = create_marker_obj(obj)-- создать маркер над объектом
  -- if Keypress(VK_H) --cheat("zx")
--- then 
+-- then
 -- remove_blip(marobj)
 -- remove_obj(obj)
 -- Giveweaponped(player,300,"grenade")-- дать педу оружие.
@@ -684,7 +684,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- local x = 0
 -- while true do
 
--- x = x+1  
+-- x = x+1
 -- printmessage(tostring(x),1000,1)
 -- wait(1200)
 
@@ -693,22 +693,22 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- then
 -- return true
 -- end
--- else 
+-- else
  -- while not player_defined(player) do wait()
  -- end
 -- return true
 -- end
 -- if not player_defined(player) --or Arrested()
--- then 
+-- then
 -- givemoney(1000)
 -- printmessage("arrested", 3000,1)
  -- while not player_defined(player) do wait()
- -- end 
+ -- end
 
 -- x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
 -- Giveweaponped(player,1300,"buddyshot")-- дать педу оружие.
 -- Giveweaponped(player,1300,"flame")-- дать педу оружие.
--- -- mycar = Createcar(MODEL_REGINA, x,y,z) -- создать авто  
+-- -- mycar = Createcar(MODEL_REGINA, x,y,z) -- создать авто
 -- -- lockstatus(mycar, 2)
 -- -- setcarfirstcolor(mycar, 0)
 
@@ -719,7 +719,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- if Keypress(VK_H) --cheat("zx")
 -- then destroy()
 -- --set_wanted(3)
--- --local car1 = Createcar(MODEL_REGINA, 154.8, -837.2, 10.3 ) -- создать авто на 5 впереди.  
+-- --local car1 = Createcar(MODEL_REGINA, 154.8, -837.2, 10.3 ) -- создать авто на 5 впереди.
 -- -- Giveweaponped(player,300,"grenade")-- дать педу оружие.
 -- --drivecar(car1, 76.9, -1055.7, 10.3)
 -- end
@@ -732,15 +732,15 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- mar = create_marker_car(mycar)-- создать маркер над авто.
  -- x,y,z =getcoordinates_on_y(player,10)-- получить координаты на 5 м впереди.
 
--- man = Createped("BMYBB",x,y,z) 
+-- man = Createped("BMYBB",x,y,z)
  -- mar1 = create_marker_actor(man) -- создать маркер педа.
- 
+
  -- x,y,z =getcoordinates_on_y(player,15)-- получить координаты на 5 м впереди.
- -- sp = create_sphere(x,y,z, 6.5)-- создать сферу, последний параметр радиус. 
- 
+ -- sp = create_sphere(x,y,z, 6.5)-- создать сферу, последний параметр радиус.
+
  -- x,y,z =getcoordinates_on_y(player,25)-- получить координаты на 5 м впереди.
  -- adrealin = Create_pickup(367, 15, x,y,z )-- создать пикап адреалина.
-  
+
  -- x,y,z =getcoordinates_on_y(player,35)-- получить координаты на 5 м впереди.
  -- pickup =Create_weapon_pickup("sniper",3, 30, x,y,z)-- создать пикап оружие.
 
@@ -750,44 +750,44 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- printmessage("key 1",1200,1)
 -- --wait(2000)
 -- while lualoader == nil  do
- -- wait() 
--- if  Car_in_radius(mycar, 64.4, -1060.2, 10.5) 
+ -- wait()
+-- if  Car_in_radius(mycar, 64.4, -1060.2, 10.5)
  -- then break
- -- end 
  -- end
- 
+ -- end
+
 -- while lualoader == nil  do
- -- wait() 
--- if  Car_in_radius(mycar, 56.2, -1059.0, 10.5) 
+ -- wait()
+-- if  Car_in_radius(mycar, 56.2, -1059.0, 10.5)
  -- then break
- -- end 
+ -- end
  -- end
 -- while lualoader == nil  do
- -- wait() 
--- if  Car_in_radius(mycar, 55.1, -1078.3, 10.5) 
+ -- wait()
+-- if  Car_in_radius(mycar, 55.1, -1078.3, 10.5)
  -- then break
- -- end 
+ -- end
  -- end
 
  --printmessage("key h",1200,1)
--- end 
 -- end
- -- if Keypress(VK_B) 
- -- then 
+-- end
+ -- if Keypress(VK_B)
+ -- then
 --set_traffic(0)
- 
+
 --setcarhealth(mycar,150)--уст здоровье авто.
- -- then local car1 = Createcar(MODEL_REGINA, 154.8, -837.2, 10.3 ) -- создать авто на 5 впереди.  
- 
+ -- then local car1 = Createcar(MODEL_REGINA, 154.8, -837.2, 10.3 ) -- создать авто на 5 впереди.
+
 -- drivecar(car1, 76.9, -1055.7, 10.3)
 -- end
 -- end
  -- end
- 
- 
+
+
 -- while lualoader == nil  do
--- wait() 
--- i =f(mycar, 73.3, -1025.1, 10.3, 4.0,4.0,2,0) 
+-- wait()
+-- i =f(mycar, 73.3, -1025.1, 10.3, 4.0,4.0,2,0)
 -- if i == true
 
 -- then printmessage("key h",1500,1)
@@ -800,31 +800,31 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
   -- then remove_pickup(adrealin)
 -- --printmessage("key h",1500,1) Giveweaponped(player,300,"ingramsl")-- дать педу оружие.
  -- end end
- 
- 
+
+
  -- setcarangle(mycar, 145.0)
 -- ped = set_ped_in_car(mycar,"SWAT")-- уст педа в авто, без третного параметра то водитель.
 -- setcarspeed(mycar,30)
  -- setdrivingstyle(mycar, 2 )
 --mycar = Createcar(MODEL_CHEETAH,x,y,z) -- создать авто  -- if Keypress(VK_G)
--- then 
--- mycar = Createcar(MODEL_REGINA, 79.0, -965.8, 10.3 ) -- создать авто на 5 впереди.  
+-- then
+-- mycar = Createcar(MODEL_REGINA, 79.0, -965.8, 10.3 ) -- создать авто на 5 впереди.
 
- -- end 
- -- if Keypress(VK_B) 
- -- then printmessage("key h",1500,1) 
+ -- end
+ -- if Keypress(VK_B)
+ -- then printmessage("key h",1500,1)
 -- x,y,z =getcoordinates_on_y(player,35)
 -- setcarspeed(mycar, 35)
  -- drivecar(mycar,x,y,z)
   -- end
--- end 
+-- end
  -- setcarangle(mycar, 153.0)
  --x,y,z =getcoordinates_on_y(player,5)
 -- function foo()
 -- local x = 0
 -- while true do
 
--- x = x+1  
+-- x = x+1
 -- printmessage(tostring(x),1000,1)
 -- wait(1200)
 -- --givemoney(m)
@@ -833,16 +833,16 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 
 -- f = coroutine.wrap(
  -- function(car, x1, y1, z1, rx, ry, rz)
--- while lualoader == nil  do wait() 
+-- while lualoader == nil  do wait()
 -- b = Car_in_radius(car, x1, y1, z1, rx, ry, rz)
--- coroutine.yield(b) 
+-- coroutine.yield(b)
   -- end
  -- end
  -- )
 --setcarspeed(mycar,30)
 -- while lualoader == nil  do
--- wait() 
--- i =f(mycar, 73.3, -1025.1, 10.3, 4.0,4.0,2,0) 
+-- wait()
+-- i =f(mycar, 73.3, -1025.1, 10.3, 4.0,4.0,2,0)
 -- if i == true
 
 -- then printmessage("key h",1500,1)
@@ -860,46 +860,46 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- [[ 1 - за деньги, регенерируется почти сразу
 -- 2 - бесплатно, регенерация за 30 минут игрового времени, надо отойти недалеко
 -- 3 - бесплатно, одноразовый 9,11 - бомба
--- 15 - эти регенерируется за 6 часов игрового времени или за 6 минут по-нормальному--]] 
- 
-  
- 
- 
- 
+-- 15 - эти регенерируется за 6 часов игрового времени или за 6 минут по-нормальному--]]
+
+
+
+
+
  --showtext("p", 800,0)
  --newthread(foo)
 --yield()
   -- if cheat("go")-- чит введен
   -- then printmessage("cheat action",2000,1)
   -- Giveweaponped(player,300,"ingramsl")-- дать педу оружие.
- 
+
  --x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
- -- man = Createped("BMYBB",x,y,z) 
+ -- man = Createped("BMYBB",x,y,z)
  -- mar = create_marker_actor(man) -- создать маркер педа.
-  -- --printmessage("h1",1500,1) 
+  -- --printmessage("h1",1500,1)
 -- sound_coordinate(7, 0.0,0.0,0.0)
 -- show_text_styled("RACE4", 1500, 4)-- 1 для гонки
 -- m = createmarker(1,3,x,y,z)
 -- setsizemarker(m,3)
 -- end
   -- if Keypress(VK_H)
- -- then 
+ -- then
 -- remove_blip(m)
  -- -- while lualoader == nil do
  -- -- wait()
 -- -- Draw_corona(4.5, 6, 0, 255, 0, 0, x,y,z) --5.5, 6, 0,255, 0, 0, x,y,z
  -- -- --Newthread(player)
- 
- 
- 
- 
--- function funs(x)	 -- 
+
+
+
+
+-- function funs(x)	 --
    -- peds = findped() -- все педы -- end
    -- for i1, v1 in pairs(peds) do
 -- sethealth(v1,10)
-      -- v2 = tostring(v1) 
-	  -- if x == v2 
-	   -- then 
+      -- v2 = tostring(v1)
+	  -- if x == v2
+	   -- then
 -- printmessage("h1",1500,1)
 	   -- break
  -- end
@@ -907,7 +907,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- end
 -- function Newthread( p)-- преобразовать указатели в строки
     -- if ("userdata" == type(p))-- если указател, то преобразовать в строку
-	 -- then 
+	 -- then
 	 -- x =tostring(p)
  -- funs(x)
  -- end
@@ -924,9 +924,9 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
    -- then    -- sethealth(i1,310)
 	-- -- printmessage("h1",1500,1)
     -- -- for i1, v1 in pairs(peds) do
- -- -- end end  
- -- end  
- -- end 
+ -- -- end end
+ -- end
+ -- end
  -- t={...}--таблица
   -- t1={}
  -- for i,v in pairs(t) do
@@ -935,15 +935,15 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 	-- table.insert(t1, y) --  end
  -- end func,
  -- peds= findped()
- -- printmessage("h1",1500,1) 
+ -- printmessage("h1",1500,1)
  -- for i, v in pairs(peds) do
     -- sethealth(i,10)
 -- end
   -- x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
  -- p = Create_pickup(335,3,x,y,z)-- создать пикап
- -- end 
+ -- end
  -- if picked_up(p)
- -- then printmessage("h1",1500,1) 
+ -- then printmessage("h1",1500,1)
 -- remove_pickup(p)
  -- end
   -- if Keypress(VK_H)
@@ -953,8 +953,8 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  --fade(0,600)--затенение 0, 600 время.
  --x,y,z =getcoordinates_on_y(player,8)-- получить координаты на 5 м впереди.
 -- givemoney(3000)
--- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие. 
- --printmessage("h1",1500,1) 
+-- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие.
+ --printmessage("h1",1500,1)
   -- showtext("h", 2500,0)-- вывод статуса миссии.
   -- z1=tostring(player)
   -- b, h =findped(z1)
@@ -962,7 +962,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- if b == true
 -- then Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие.
 -- sethealth(h, 52)
--- end  
+-- end
  -- --newthread(funs, "BMYBB")
 -- thr = effil.thread(foo)()
 -- thr:wait()
@@ -970,30 +970,30 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
  -- givemoney(3000)
  -- pickup = Create_pickup(335,3,x,y,z)
--- end 
+-- end
 
 -- if picked_up(pickup)
  -- then remove_pickup(pickup)
  -- printmessage("ok",2000,1)
- 
+
  --pickup =Create_weapon_pickup("buddyshot",1, 100,x,y,z)
  -- [[ 1 - за деньги, регенерируется почти сразу
 -- 2 - бесплатно, регенерация за 30 минут игрового времени, надо отойти недалеко
 -- 3 - бесплатно, одноразовый 9,11 - бомба
--- 15 - эти регенерируется за 6 часов игрового времени или за 6 минут по-нормальному--]] 
--- mycar = Createcar(MODEL_CHEETAH,x,y,z) -- создать авто   
+-- 15 - эти регенерируется за 6 часов игрового времени или за 6 минут по-нормальному--]]
+-- mycar = Createcar(MODEL_CHEETAH,x,y,z) -- создать авто
 -- x,y,z =getcoordinates_on_y(player,45)-- получить координаты на 5 м впереди.
-  -- setdrivingstyle(mycar, 1) setcarspeed(mycar, 55) 
- -- cardrive(mycar, x,y,z) 
+  -- setdrivingstyle(mycar, 1) setcarspeed(mycar, 55)
+ -- cardrive(mycar, x,y,z)
  -- f = coroutine.wrap(function ()
 -- while true do  wait()  coroutine.yield()
  -- if  Car_in_point_in_radius(car, x,y,z, 4.0,4.0,2.0)
  -- then printmessage("ok",2000,1)
 -- end end end)
- -- end 
+ -- end
  -- f(mycar, x,y,z)
- -- end  
- -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие. 
+ -- end
+ -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие.
 -- function funs(ped)
  -- sethealth(ped,30)
 -- end
@@ -1007,10 +1007,10 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- b, p = findped(ped)
 -- sethealth(ped,30)
 -- if b == true
--- then 
--- -- while true do 
+-- then
+-- -- while true do
  -- -- if 0 == gethealth(man)
- -- -- then  
+ -- -- then
  -- -- printmessage(m, 1500,1)
  -- -- remove_ped(man)
  -- -- removemarker(mar)-- удалить маркер над педом.
@@ -1019,7 +1019,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- else
  -- printmessage("no",3500,1)
  -- end
- --man = Createped("BMYBB",x,y,z) 
+ --man = Createped("BMYBB",x,y,z)
 -- mar = create_marker_actor(man) -- создать маркер педа.
 
 
@@ -1035,9 +1035,9 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
   -- printmessage("Give weapon ped", 1500,1)
  -- end
  -- if Keypress(VK_H)
- -- then 
-  -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие. 
- -- end 
+ -- then
+  -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие.
+ -- end
 --x,y,z =getcoordinates_on_y(player,6)
   -- printmessage("run forward", 1500,1)
  -- ped_sprint_to_point(man, x,y,z)
@@ -1046,18 +1046,18 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- if res ==true and man~= ped and false == incar(ped)
  -- then  printmessage("find ped", 1500,1)
 -- mar = create_marker_actor(ped) -- создать маркер педа.
-  -- end 
+  -- end
   -- end
   -- if Keypress(VK_K)
  -- then Kill_ped_on_foot(man, ped)-- пед хочет убить другого педа.
   -- printmessage("kill ped", 1500,1)
- -- end 
+ -- end
 
  -- if Keypress(VK_Y) or 0 == gethealth(man)
  -- then printmessage("remove ped", 1500,1)
   -- remove_ped(ped)
  -- end
- 
+
  -- if 0 == gethealth(ped)
  -- then  removemarker(mar)-- удалить маркер над педом.
  -- end
@@ -1076,7 +1076,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- if Keypress(VK_H)
  -- then  x,y,z =getcoordinates_on_y(player,6)
  -- ped_sprint_to_point(man, x,y,z)
- -- end 
+ -- end
 -- end
 
 
@@ -1084,11 +1084,11 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 
 --  Giveweaponped(man,300,ruger,uzi)-- дать педу оружие.
 -- printmessage("sphere", 1500,1)
--- sp = create_sphere(x,y,z, 1.5)-- создать сферу, последний параметр радиус. 
+-- sp = create_sphere(x,y,z, 1.5)-- создать сферу, последний параметр радиус.
 -- end
 -- if Keypress(VK_J)
   -- -- if Ped_in_point_in_radius(player, 241.6, -1283.0, 10.9, 2.0,2.0,2.0)
- -- then 
+ -- then
 -- -- printmessage("on place", 1500,1)
   -- remove_sphere(sp) -- удалить сферу.
 --  setcoordesped(player, 241.6, -1283.0, 10.9)
@@ -1116,7 +1116,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- removemarker(mar)-- удалить маркер над педом.
 
 -- if Keypress(VK_H)
--- then   
+-- then
 -- sethealth(player, 200) -- 150 хп.
 -- setarmour(player, 250) -- уст броню
 -- givemoney(1000)-- дать денег.
@@ -1125,7 +1125,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- man = Createped("WMYPI",x,y,z)
 -- end
 -- if Keypress(VK_M)
--- then   
+-- then
 -- remove_ped(man)
 -- kill_ped(man)
 -- printmessage("remove ped", 2500, 3)
@@ -1152,8 +1152,8 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- then Kill_ped_on_foot(man, woman)-- пед хочет убить другого педа.
 -- removemarker(mar)-- удалить маркер над педом.
 -- remove_sphere(sp) -- удалить сферу.
- -- end 
--- while not in_point_actor_in_radius(man, x, y, z, 2.0,2.0,2.0) do 
+ -- end
+-- while not in_point_actor_in_radius(man, x, y, z, 2.0,2.0,2.0) do
 -- ped_sprint_to_point(man, x,y,z) wait(10) end
 --end
  -- man = Createped("HFOST",x,y,z)
@@ -1170,7 +1170,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- h1=tostring(m)
  --Giveweaponped(ped2,m4,100)
 -- x,y = getworldcoordped(player,1.0,7)
---mycar = Createcar(MODEL_ENFORCER,x,y,z) -- создать авто на 5 впереди.  
+--mycar = Createcar(MODEL_ENFORCER,x,y,z) -- создать авто на 5 впереди.
  -- ped = Createped("HFOST",x,y,z)
  -- Giveweaponped(ped,tec9,100)
 -- tw = Get_type_weapon_ped(ped)
@@ -1181,7 +1181,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- h2=tostring(tw)
  -- h3 = "type weapon "..h2
  -- printmessage(h3, 3000)
- -- x,y = getworldcoordped(player,2.0,8)  
+ -- x,y = getworldcoordped(player,2.0,8)
  -- ped2 = Createped("HFYBU",x,y,z)
 --is_current_weapon_ped(ped,22)-- проверить пед держит в руках это оружие?
  -- if keypress(VK_H)-- клавиша h.
@@ -1192,9 +1192,9 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- Giveweaponped(player,tec9,100)
 -- while keypress(VK_H) do wait(1) end
   -- x,y,z =getcoordes(player)
- -- x,y = getworldcoordped(player,1.0,6)  
+ -- x,y = getworldcoordped(player,1.0,6)
  -- ped = Createped("HFOST",x,y,z)
--- end 
+-- end
 -- Giveweaponped(ped,buddyshot,100)
 -- Giveweaponped(ped,tec9,100)
 
@@ -1203,18 +1203,18 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 --   h2=tostring(t)
 -- loadmodel(model)
 -- ped = Createped("HFOST",x,y,z)
- --while keypress(VK_H) do wait(1) 
+ --while keypress(VK_H) do wait(1)
 --releasemodel(model)
 --while not availablemodel(model) do  wait(1) end
 -- x,y,z =getcoordes(player)
--- x,y = getworldcoordped(player,1.0,13)  
+-- x,y = getworldcoordped(player,1.0,13)
 -- h1=tostring(x)
   -- h2=tostring(y)
  -- h3 = h1.." "..h2
  -- printmessage(h3, 3000)
  -- car = createcar(model, x,y,z)
 -- angle = getangleped(player)
---x,y= 
+--x,y=
   -- h1=tostring(x)
  -- printmessage(h1, 3000)
 
@@ -1224,31 +1224,31 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 
 -- car = createcar(model, x,y,z)
  --if keypress(key("M"))-- клавиша m.
---  then 
+--  then
  -- res, car = randomfindcar(player, 30.0)-- найти авто
- -- if res == true 
+ -- if res == true
  -- then drivecar(car, -766.3, -1119.3, 11.0)
- 
-  --res1 =in_point_car_in_radius(car,  -766.3, -1119.3, 11.0, 4, 3,2) 
 
--- if res1 == true 
+  --res1 =in_point_car_in_radius(car,  -766.3, -1119.3, 11.0, 4, 3,2)
+
+-- if res1 == true
  -- then
 -- end
 --end
 --end
- --res, car = incar(player)--в авто?   
- -- if res == true 
+ --res, car = incar(player)--в авто?
+ -- if res == true
   -- then
  -- -- if res1 == true
  -- -- then
  -- res, car = randomfindcar(player, 30.0)-- найти авто
- -- if res == true 
+ -- if res == true
  -- then drivecar(car, -787.8, -1143.1, 11.05)
  -- end
 -- end
- -- while true do 
- -- res1 =in_point_car_in_radius(car, -787.8, -1143.1, 11.05,  2,2,2) 
- -- if res1 == true 
+ -- while true do
+ -- res1 =in_point_car_in_radius(car, -787.8, -1143.1, 11.05,  2,2,2)
+ -- if res1 == true
  -- then
  -- break
  -- end
@@ -1287,19 +1287,19 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- res,p = randomfindped(player, 10.0)-- найти педа
  -- if res == true
  -- then
- 
+
  --else printmessage("not in car", 1000)
 -- givemoney(1)-- дать денег.
  -- sethealth(p, 0) -- 150 хп.
  -- end
 --sethealth(p, 0) -- 150 хп.
-----.x,y,z=getcoordes(player)--.pri()b= 
+----.x,y,z=getcoordes(player)--.pri()b=
 --sethealth(p, 0) -- 150 хп.
 --end
  -- if keypress(key("M"))-- клавиша T.
- -- then 	
+ -- then
 
---.x,y,z=getcoordes(player)--.pri()b= 
+--.x,y,z=getcoordes(player)--.pri()b=
 --p = randomfindped(player, 20)--// название функции в lua и c
 --printmessage("yes", 1000)
 
@@ -1310,7 +1310,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- setarmour(player, 250) -- уст броню
 -- givemoney(1000)-- дать денег.
 -- printmessage(a1, 1000)
--- end 
+-- end
 
 -- end
 --
@@ -1339,7 +1339,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- then printmessage("this is ped", 3000, 1)
  -- else printmessage("this is NOT ped", 3000, 1)
  -- end
--- mycar = Createcar(MODEL_ENFORCER,x,y,z) -- создать авто 
+-- mycar = Createcar(MODEL_ENFORCER,x,y,z) -- создать авто
  -- if isped(mycar) --это транспорт?
  -- then printmessage("this is vehicle", 3000, 1)
  -- else printmessage("this is NOT vehicle", 3000, 1)
@@ -1348,14 +1348,14 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- ax = string.format("a =% s", player)
  -- cord = tostring(ax)
   -- printmessage(cord, 3000, 1)
- -- if Keypress(VK_L) 
+ -- if Keypress(VK_L)
  -- then x,y,z = getcoordes(player)
  -- cord = tostring(x)..", "..tostring(y)..", " .. tostring(z).."\n"
-  -- file = io.open('cordinat.txt', 'a') -- открыть файл для записи 
-  -- file:write(cord)    
+  -- file = io.open('cordinat.txt', 'a') -- открыть файл для записи
+  -- file:write(cord)
   -- file:close()
   -- printmessage("write cordinat", 3000, 1)
- -- end  
+ -- end
 
  --newthread(func)--func,
  --woman = Createped("HFYPR",x,y,z)
@@ -1368,7 +1368,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- showtext("on", 2500,0)
  -- else setflagmission(1)
 -- end
- -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие. 
+ -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие.
  -- newthread(funs, 6000, "dead", "BMYBB")--, "remove ped")
 
  -- x,y,z =getcoordes(player)
@@ -1380,7 +1380,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- sethealth(player, 10)
  -- player = findplayer()-- получить игрока
  -- x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
- -- man = Createped(ped,x,y,z) -- создать педа. 
+ -- man = Createped(ped,x,y,z) -- создать педа.
 
 
 
@@ -1395,14 +1395,14 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- player = findplayer()-- получить игрока
  -- if Keypress(VK_G)
  -- then  newthread(func)
- 
+
  -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие. function func()
 -- end
- -- end 
- -- end  
+ -- end
+ -- end
 --sethealth(player, 0)
 --sethealth(player, 0)
-  --  foo() -- expected to print "Hello world", by 
+  --  foo() -- expected to print "Hello world", by
 --/local lanes = require "lanes".configure()
 -- local launcher = lanes.gen("*", func)
 -- thread = launcher()
@@ -1415,9 +1415,9 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- man = Createped(ped,x,y,z) -- создать педа.
  -- mar = create_marker_actor(man) -- создать маркер педа.
 -- h = tostring(man)
--- while true do 
+-- while true do
  -- if 0 == gethealth(man)-- проверить его здоровье.
- -- then  
+ -- then
 -- -- printmessage(text, 1500,1)
  -- remove_ped(man)-- удалить педа.
  -- removemarker(mar)-- удалить маркер над педом.
@@ -1425,9 +1425,9 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- end
 -- end
  -- if Keypress(VK_T)
- -- then 
-  -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие. 
- -- end 
+ -- then
+  -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие.
+ -- end
 
 
 -- x,y,z =getcoordinates_on_y(player,5)-- получить координаты на 5 м впереди.
@@ -1441,9 +1441,9 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
   -- printmessage("Give weapon ped", 1500,1)
  -- end
  -- if Keypress(VK_H)
- -- then 
-  -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие. 
- -- end 
+ -- then
+  -- Giveweaponped(player,300,"colt45","ruger","uzi")-- дать педу оружие.
+ -- end
 --x,y,z =getcoordinates_on_y(player,6)
   -- printmessage("run forward", 1500,1)
  -- ped_sprint_to_point(man, x,y,z)
@@ -1452,18 +1452,18 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- if res ==true and man~= ped and false == incar(ped)
  -- then  printmessage("find ped", 1500,1)
 -- mar = create_marker_actor(ped) -- создать маркер педа.
-  -- end 
+  -- end
   -- end
   -- if Keypress(VK_K)
  -- then Kill_ped_on_foot(man, ped)-- пед хочет убить другого педа.
   -- printmessage("kill ped", 1500,1)
- -- end 
+ -- end
 
  -- if Keypress(VK_Y) or 0 == gethealth(man)
  -- then printmessage("remove ped", 1500,1)
   -- remove_ped(ped)
  -- end
- 
+
  -- if 0 == gethealth(ped)
  -- then  removemarker(mar)-- удалить маркер над педом.
  -- end
@@ -1482,7 +1482,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- if Keypress(VK_H)
  -- then  x,y,z =getcoordinates_on_y(player,6)
  -- ped_sprint_to_point(man, x,y,z)
- -- end 
+ -- end
 -- end
 
 
@@ -1490,11 +1490,11 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 
 --  Giveweaponped(man,300,ruger,uzi)-- дать педу оружие.
 -- printmessage("sphere", 1500,1)
--- sp = create_sphere(x,y,z, 1.5)-- создать сферу, последний параметр радиус. 
+-- sp = create_sphere(x,y,z, 1.5)-- создать сферу, последний параметр радиус.
 -- end
 -- if Keypress(VK_J)
   -- -- if Ped_in_point_in_radius(player, 241.6, -1283.0, 10.9, 2.0,2.0,2.0)
- -- then 
+ -- then
 -- -- printmessage("on place", 1500,1)
   -- remove_sphere(sp) -- удалить сферу.
 --  setcoordesped(player, 241.6, -1283.0, 10.9)
@@ -1522,7 +1522,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- removemarker(mar)-- удалить маркер над педом.
 
 -- if Keypress(VK_H)
--- then   
+-- then
 -- sethealth(player, 200) -- 150 хп.
 -- setarmour(player, 250) -- уст броню
 -- givemoney(1000)-- дать денег.
@@ -1531,7 +1531,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- man = Createped("WMYPI",x,y,z)
 -- end
 -- if Keypress(VK_M)
--- then   
+-- then
 -- remove_ped(man)
 -- kill_ped(man)
 -- printmessage("remove ped", 2500, 3)
@@ -1558,8 +1558,8 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- then Kill_ped_on_foot(man, woman)-- пед хочет убить другого педа.
 -- removemarker(mar)-- удалить маркер над педом.
 -- remove_sphere(sp) -- удалить сферу.
- -- end 
--- while not in_point_actor_in_radius(man, x, y, z, 2.0,2.0,2.0) do 
+ -- end
+-- while not in_point_actor_in_radius(man, x, y, z, 2.0,2.0,2.0) do
 -- ped_sprint_to_point(man, x,y,z) wait(10) end
 --end
  -- man = Createped("HFOST",x,y,z)
@@ -1576,7 +1576,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
  -- h1=tostring(m)
  --Giveweaponped(ped2,m4,100)
 -- x,y = getworldcoordped(player,1.0,7)
---mycar = Createcar(MODEL_ENFORCER,x,y,z) -- создать авто на 5 впереди.  
+--mycar = Createcar(MODEL_ENFORCER,x,y,z) -- создать авто на 5 впереди.
  -- ped = Createped("HFOST",x,y,z)
  -- Giveweaponped(ped,tec9,100)
 -- tw = Get_type_weapon_ped(ped)
@@ -1587,7 +1587,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- h2=tostring(tw)
  -- h3 = "type weapon "..h2
  -- printmessage(h3, 3000)
- -- x,y = getworldcoordped(player,2.0,8)  
+ -- x,y = getworldcoordped(player,2.0,8)
  -- ped2 = Createped("HFYBU",x,y,z)
 --is_current_weapon_ped(ped,22)-- проверить пед держит в руках это оружие?
  -- if keypress(VK_H)-- клавиша h.
@@ -1598,9 +1598,9 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- Giveweaponped(player,tec9,100)
 -- while keypress(VK_H) do wait(1) end
   -- x,y,z =getcoordes(player)
- -- x,y = getworldcoordped(player,1.0,6)  
+ -- x,y = getworldcoordped(player,1.0,6)
  -- ped = Createped("HFOST",x,y,z)
--- end 
+-- end
 -- Giveweaponped(ped,buddyshot,100)
 -- Giveweaponped(ped,tec9,100)
 
@@ -1609,18 +1609,18 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 --   h2=tostring(t)
 -- loadmodel(model)
 -- ped = Createped("HFOST",x,y,z)
- --while keypress(VK_H) do wait(1) 
+ --while keypress(VK_H) do wait(1)
 --releasemodel(model)
 --while not availablemodel(model) do  wait(1) end
 -- x,y,z =getcoordes(player)
--- x,y = getworldcoordped(player,1.0,13)  
+-- x,y = getworldcoordped(player,1.0,13)
 -- h1=tostring(x)
   -- h2=tostring(y)
  -- h3 = h1.." "..h2
  -- printmessage(h3, 3000)
  -- car = createcar(model, x,y,z)
 -- angle = getangleped(player)
---x,y= 
+--x,y=
   -- h1=tostring(x)
  -- printmessage(h1, 3000)
 
@@ -1630,31 +1630,31 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 
 -- car = createcar(model, x,y,z)
  --if keypress(key("M"))-- клавиша m.
---  then 
+--  then
  -- res, car = randomfindcar(player, 30.0)-- найти авто
- -- if res == true 
+ -- if res == true
  -- then drivecar(car, -766.3, -1119.3, 11.0)
- 
-  --res1 =in_point_car_in_radius(car,  -766.3, -1119.3, 11.0, 4, 3,2) 
 
--- if res1 == true 
+  --res1 =in_point_car_in_radius(car,  -766.3, -1119.3, 11.0, 4, 3,2)
+
+-- if res1 == true
  -- then
 -- end
 --end
 --end
- --res, car = incar(player)--в авто?   
- -- if res == true 
+ --res, car = incar(player)--в авто?
+ -- if res == true
   -- then
  -- -- if res1 == true
  -- -- then
  -- res, car = randomfindcar(player, 30.0)-- найти авто
- -- if res == true 
+ -- if res == true
  -- then drivecar(car, -787.8, -1143.1, 11.05)
  -- end
 -- end
- -- while true do 
- -- res1 =in_point_car_in_radius(car, -787.8, -1143.1, 11.05,  2,2,2) 
- -- if res1 == true 
+ -- while true do
+ -- res1 =in_point_car_in_radius(car, -787.8, -1143.1, 11.05,  2,2,2)
+ -- if res1 == true
  -- then
  -- break
  -- end
@@ -1693,19 +1693,19 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- res,p = randomfindped(player, 10.0)-- найти педа
  -- if res == true
  -- then
- 
+
  --else printmessage("not in car", 1000)
 -- givemoney(1)-- дать денег.
  -- sethealth(p, 0) -- 150 хп.
  -- end
 --sethealth(p, 0) -- 150 хп.
-----.x,y,z=getcoordes(player)--.pri()b= 
+----.x,y,z=getcoordes(player)--.pri()b=
 --sethealth(p, 0) -- 150 хп.
 --end
  -- if keypress(key("M"))-- клавиша T.
- -- then 	
+ -- then
 
---.x,y,z=getcoordes(player)--.pri()b= 
+--.x,y,z=getcoordes(player)--.pri()b=
 --p = randomfindped(player, 20)--// название функции в lua и c
 --printmessage("yes", 1000)
 
@@ -1716,7 +1716,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменитс
 -- setarmour(player, 250) -- уст броню
 -- givemoney(1000)-- дать денег.
 -- printmessage(a1, 1000)
--- end 
+-- end
 
 -- end
 --

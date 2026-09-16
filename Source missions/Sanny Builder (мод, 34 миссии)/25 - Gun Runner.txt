@@ -1,0 +1,13 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 25: Gun Runner
+// Строки 50425-50433 исходного файла data/main.txt
+// Кол-во строк: 9
+//-------------Mission 25---------------
+// Originally: Gun Runner
+
+:LOOP4
+thread 'LOOP4' 
+
+:LOOP4_10
+jump @LOOP4_10 
+

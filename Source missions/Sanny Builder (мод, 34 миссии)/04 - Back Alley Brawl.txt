@@ -1,0 +1,383 @@
+// GTA Vice City — main.scm (декомпилировано Sanny Builder)
+// Миссия 4: Back Alley Brawl
+// Строки 32281-32659 исходного файла data/main.txt
+// Кол-во строк: 379
+//-------------Mission 4---------------
+// Originally: Back Alley Brawl
+
+:JEFF2
+gosub @JEFF2_36 
+if 
+wasted_or_busted 
+else_jump @JEFF2_27 
+gosub @JEFF2_2294 
+
+:JEFF2_27
+gosub @JEFF2_2311 
+end_thread 
+
+:JEFF2_36
+increment_mission_attempts 
+thread 'JEFF2' 
+$ONMISSION = 1 // integer values 
+054C: use_GXT_table 'BANKJ4' 
+Model.Load(#MULE)
+Model.Load(#MANANA)
+023C: load_special_actor 4 'IGBUDDY' 
+Model.Load(#WMYBE)
+Model.Load(#WMYCR)
+038B: load_requested_models 
+
+:JEFF2_97
+wait 0 
+if or
+   not Model.Available(#WMYCR)
+   not Model.Available(#WMYBE)
+823D:   not special_actor 4 loaded 
+   not Model.Available(#MANANA)
+   not Model.Available(#MULE)
+else_jump @JEFF2_141 
+jump @JEFF2_97 
+
+:JEFF2_141
+wait 0 
+fade 1 1500 
+03AD: set_rubbish 0 
+03AF: set_streaming 1 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 1 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 1 
+02A3: enable_widescreen 1 
+Camera.SetPosition(182.481, -1006.663, 12.295, 0.0, 0.0, 0.0)
+Camera.PointAt(184.58, -1009.949, 11.295, 2)
+Player.CanMove($PLAYER_CHAR) = False
+0055: put_player $PLAYER_CHAR at 184.58 -1009.949 10.495 
+0211: actor $PLAYER_ACTOR walk_to 181.6 -1013.07 
+1@ = Actor.Create(CivMale, #SPECIAL04, 181.176, -1015.318, 10.495)
+Actor.Angle(1@) = 0.0
+0350: set_actor 1@ maintain_position_when_attacked 1 
+2@ = Actor.Create(CivMale, #WMYCR, 181.405, -1014.255, 10.495)
+Actor.Angle(2@) = 180.0
+0350: set_actor 2@ maintain_position_when_attacked 1 
+03F9: make_actors 1@ 2@ converse_in 3000 ms 
+wait 0 
+0460: set_camera_pointing_time 0.0 7500 
+Camera.SetPosition(179.757, -1008.755, 12.295, 0.0, 0.0, 0.0)
+Camera.PointAt(181.405, -1014.255, 11.295, 1)
+wait 2000 
+00BC: text_highpriority 'JEFF3_3' 3000 ms 1  // * sniff * ...Cockroaches! won't even know what hit 'em! * sniff *
+16@ = 0 // integer values 
+
+:JEFF2_456
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF2_503 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_456 
+jump @JEFF2_1311 
+
+:JEFF2_503
+16@ = 0 // integer values 
+0372: set_actor 1@ anim 19 wait_state_time 3000 ms 
+022C: set_actor 1@ to_look_at_actor $PLAYER_ACTOR 
+0171: set_player $PLAYER_CHAR z_angle_to 180.0 
+020E: actor $PLAYER_ACTOR look_at_actor 1@ 
+0211: actor 2@ walk_to 184.58 -1009.949 
+00BC: text_highpriority 'JEFF3_4' 5000 ms 1  // Ah, you're here! * sniff * You're right on time because I could use some more help.
+
+:JEFF2_576
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF2_623 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_576 
+jump @JEFF2_1311 
+
+:JEFF2_623
+16@ = 0 // integer values 
+0211: actor $PLAYER_ACTOR walk_to 181.405 -1014.255 
+00BC: text_highpriority 'JEFF3_5' 3000 ms 1  // ~x~Right. What's the problem now?
+
+:JEFF2_660
+wait 0 
+if 
+   not 16@ > 3000 // integer values 
+else_jump @JEFF2_707 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_660 
+jump @JEFF2_1311 
+
+:JEFF2_707
+16@ = 0 // integer values 
+0372: set_actor 1@ anim 19 wait_state_time 3000 ms 
+Camera.SetPosition(180.593, -1011.667, 11.695, 0.0, 0.0, 0.0)
+Camera.PointAt(181.405, -1014.255, 11.695, 2)
+00BC: text_highpriority 'JEFF3_6' 5000 ms 1  // It's that other restaurant, man... * sniff * They've got this new delivery truck.
+
+:JEFF2_790
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF2_837 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_790 
+jump @JEFF2_1311 
+
+:JEFF2_837
+16@ = 0 // integer values 
+0372: set_actor 1@ anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'JEFF3_7' 4000 ms 1  // The owner's rubbing it in my face... I'm gonna make him regret it.
+
+:JEFF2_869
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF2_916 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_869 
+jump @JEFF2_1311 
+
+:JEFF2_916
+16@ = 0 // integer values 
+0372: set_actor 1@ anim 19 wait_state_time 3000 ms 
+00BC: text_highpriority 'JEFF3_8' 5000 ms 1  // Flint. That truck - how about you blow it up? I'll pay!
+
+:JEFF2_948
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF2_995 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_948 
+jump @JEFF2_1311 
+
+:JEFF2_995
+16@ = 0 // integer values 
+0372: set_actor $PLAYER_ACTOR anim 19 wait_state_time 3000 ms 
+00BC: text_highpriority 'JEFF3_9' 4000 ms 1  // ~x~Sure, but what happened to no cops? No dead bodies?
+
+:JEFF2_1027
+wait 0 
+if 
+   not 16@ > 4000 // integer values 
+else_jump @JEFF2_1074 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_1027 
+jump @JEFF2_1311 
+
+:JEFF2_1074
+16@ = 0 // integer values 
+0372: set_actor 1@ anim 19 wait_state_time 2000 ms 
+00BC: text_highpriority 'JEFF4_0' 5000 ms 1  // He's been messing with me for too long! It's time to hit him hard.
+
+:JEFF2_1106
+wait 0 
+if 
+   not 16@ > 5000 // integer values 
+else_jump @JEFF2_1153 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_1106 
+jump @JEFF2_1311 
+
+:JEFF2_1153
+16@ = 0 // integer values 
+0372: set_actor 1@ anim 19 wait_state_time 4000 ms 
+00BC: text_highpriority 'JEFF4_1' 7000 ms 1  // I left a car for you, it's rigged with explosives. Make sure it only makes contact with the truck. 
+
+:JEFF2_1185
+wait 0 
+if 
+   not 16@ > 7000 // integer values 
+else_jump @JEFF2_1232 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_1185 
+jump @JEFF2_1311 
+
+:JEFF2_1232
+16@ = 0 // integer values 
+0372: set_actor 1@ anim 19 wait_state_time 3000 ms 
+00BC: text_highpriority 'JEFF4_2' 7000 ms 1  // If you bail from the car on time, it'll look like an accident. No one will suspect we had anything to do with it.
+
+:JEFF2_1264
+wait 0 
+if 
+   not 16@ > 7000 // integer values 
+else_jump @JEFF2_1311 
+if 
+00E1:   player 0 pressed_button 15 
+else_jump @JEFF2_1264 
+jump @JEFF2_1311 
+
+:JEFF2_1311
+16@ = 0 // integer values 
+00BE: text_clear_all 
+0211: actor $PLAYER_ACTOR walk_to 184.58 -1009.949 
+fade 0 1000 
+wait 2000 
+011C: actor $PLAYER_ACTOR clear_objective 
+fade 1 1500 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0 
+01F7: set_player $PLAYER_CHAR ignored_by_cops_state_to 0 
+03AD: set_rubbish 1 
+Actor.DestroyInstantly(1@)
+Actor.DestroyInstantly(2@)
+02A3: enable_widescreen 0 
+Player.CanMove($PLAYER_CHAR) = True
+Camera.Restore_WithJumpCut
+0055: put_player $PLAYER_CHAR at 200.013 -1011.782 9.451 
+0171: set_player $PLAYER_CHAR z_angle_to 270.0 
+Camera.SetBehindPlayer
+0296: unload_special_actor 4 
+3@ = Car.Create(#MANANA, 104.815, -365.436, 7.383)
+4@ = Marker.CreateAboveCar(3@)
+Car.Angle(3@) = 270.0
+Model.Destroy(#MANANA)
+00BC: text_highpriority 'TXT2_1' 5000 ms 1  // ~r~Pick up the rigged vehicle from the underground parking garage.
+
+:JEFF2_1497
+wait 0 
+if 
+   not Car.Wrecked(3@)
+else_jump @JEFF2_2262 
+if 
+00DC:   player $PLAYER_CHAR driving 3@ 
+else_jump @JEFF2_1497 
+Marker.Disable(4@)
+018A: 9@ = create_checkpoint_at -22.681 -449.264 17.804 
+00BC: text_highpriority 'TXT2_2' 5000 ms 1  // ~r~Get into position! Drive carefully - the vehicle is explosive.
+
+:JEFF2_1576
+wait 0 
+if and
+   Actor.InCar($PLAYER_ACTOR, 3@)
+0185:   car 3@ health >= 990 
+else_jump @JEFF2_2014 
+if 
+00F8:   player $PLAYER_CHAR stopped 1 -22.681 -449.264 17.804 radius 4.0 4.0 1.5 
+else_jump @JEFF2_1576 
+Player.CanMove($PLAYER_CHAR) = False
+Marker.Disable(9@)
+fade 0 1000 
+wait 1000 
+02A3: enable_widescreen 1 
+01E8: create_forbidden_for_cars_cube 0.0 -200.0 0.0 200.0 -500.0 30.0 
+0395: clear_area 1 at -22.681 -449.264 range 50.0 50.0 
+10@ = Car.Create(#MULE, 178.716, -555.897, 10.428)
+0560: create_random_actor_in_vehicle 10@ in_driverseat_handle_as 11@ 
+02C2: car 10@ drive_to_point 195.191 -393.575 9.575 
+00AE: set_vehicle 10@ traffic_behavior_to 2 
+Car.SetMaxSpeed(10@, 11.5)
+Car.SetImmunities(10@, 1, 0, 0, 0, 0)
+020A: set_car 10@ door_status_to 2 
+fade 1 1000 
+Camera.SetPosition(190.466, -514.374, 11.499, 0.0, 0.0, 0.0)
+Camera.OnVehicle(10@, 15, 2)
+Car.Angle(3@) = 260.0
+00BC: text_highpriority 'TXT2_3' 5000 ms 1  // Here they come... Let's launch this car into the truck!
+wait 5000 
+02A3: enable_widescreen 0 
+11@ = Marker.CreateAboveCar(10@)
+Camera.Restore_WithJumpCut
+Camera.SetBehindPlayer
+Player.CanMove($PLAYER_CHAR) = True
+
+:JEFF2_1930
+wait 0 
+if or
+02E0:   actor $PLAYER_ACTOR firing_weapon 
+01AD:   car 10@ sphere 0 near_point 195.191 -393.57 radius 2.0 2.0 
+else_jump @JEFF2_1984 
+jump @JEFF2_2294 
+
+:JEFF2_1984
+wait 0 
+if 
+0185:   car 3@ health >= 990 
+else_jump @JEFF2_2137 
+jump @JEFF2_1930 
+
+:JEFF2_2014
+wait 0 
+if 
+   Actor.InCar($PLAYER_ACTOR, 3@)
+else_jump @JEFF2_2049 
+020B: explode_car 3@ 
+jump @JEFF2_2294 
+
+:JEFF2_2049
+00BC: text_highpriority 'DST_2' 4000 ms 1  // ~r~SELF-DESTRUCTION SYSTEM INITIATED!
+16@ = 0 // integer values 
+
+:JEFF2_2071
+wait 0 
+if 
+   not 16@ >= 4000 // integer values 
+else_jump @JEFF2_2125 
+018C: play_sound 16 at 0.0 0.0 0.0 
+wait 1000 
+jump @JEFF2_2071 
+
+:JEFF2_2125
+020B: explode_car 3@ 
+jump @JEFF2_2294 
+
+:JEFF2_2137
+wait 0 
+020B: explode_car 3@ 
+wait 2000 
+if 
+0185:   car 10@ health >= 400 
+else_jump @JEFF2_2177 
+jump @JEFF2_2294 
+
+:JEFF2_2177
+wait 1000 
+01E3: text_1number_styled 'M_PASS' number 200 time 5000 style 1  // MISSION PASSED! $~1~
+Player.ClearWantedLevel($PLAYER_CHAR)
+Player.Money($PLAYER_CHAR) += 200
+$PASSED_LAW3_JURY_FURY = 1 // integer values 
+$368 = 1 // integer values 
+$360 = 1 // integer values 
+create_thread @NONAME_10 
+030C: progress_made += 1 
+0318: set_latest_mission_passed 'LAW_3'  // Rough Competition
+0394: play_music 1 
+return 
+
+:JEFF2_2262
+Marker.Disable(4@)
+00BC: text_highpriority 'DST_1' 5000 ms 1  // ~r~You've destroyed the vehicle before completing the task!
+wait 5000 
+jump @JEFF2_2294 
+
+:JEFF2_2294
+00BA: text_styled 'M_FAIL' 5000 ms 1  // MISSION FAILED!
+return 
+
+:JEFF2_2311
+Model.Destroy(#MULE)
+Model.Destroy(#MANANA)
+0296: unload_special_actor 4 
+Actor.RemoveReferences(7@)
+Actor.RemoveReferences(1@)
+Actor.RemoveReferences(8@)
+Marker.Disable(4@)
+Marker.Disable(9@)
+Marker.Disable(11@)
+01E7: remove_forbidden_for_cars_cube 0.0 -200.0 0.0 200.0 -500.0 30.0 
+Car.RemoveReferences(3@)
+Car.RemoveReferences(10@)
+$ONMISSION = 0 // integer values 
+mission_cleanup 
+return 
+
