@@ -17,7 +17,6 @@
 #include <queue>
 #include <map>
 #include <mutex>
-#include <atomic> // std::atomic — сторож миссии
 
 #include <algorithm>
 #include<lua.hpp>
@@ -3331,83 +3330,6 @@ int setflagmission(lua_State* L) {// уcтановить флага миссии
 		else { throw "bad argument in function setflagmission"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
-
-// ==== Сторож миссии (C++ API с большой буквы) ====
-// Getflagmission/Setflagmission поднимают ОДИН независимый поток, который
-// следит, жив ли игрок / не арестован ли он. Смерть/арест -> надпись
-// «Миссия провалена», флаг в false, выход из цикла, очистка всего созданного.
-// Если флаг сменился сам -> просто выход. Новый запуск уничтожает старый поток.
-static std::atomic<bool> mission_watch_stop(false);
-static std::atomic<bool> mission_watch_running(false);
-static std::thread mission_watch_thread;
-static lua_State* mission_watch_L = nullptr;
-
-static bool mission_flag_get() {
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
-	return (bool)CTheScripts::ScriptSpace[OnAMissionFlag];
-};
-
-static void mission_flag_set(bool v) {
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
-	CTheScripts::ScriptSpace[OnAMissionFlag] = v;
-};
-
-void mission_watch_proc() {// тело независимого потока.
-	cpp_trace("mission_watch: СТАРТ");
-	while (!mission_watch_stop.load()) {
-		this_thread::sleep_for(chrono::milliseconds(100));
-		CPed* pl = FindPlayerPed();// игрок.
-		bool dead = (pl == NULL) || (pl->m_fHealth <= 1.0f);
-		bool arest = (CWorld::Players[CWorld::PlayerInFocus].m_nPlayerState == PLAYERSTATE_HASBEENARRESTED);
-		if (dead || arest) {// погиб или арестован.
-			cpp_trace("mission_watch: игрок погиб/арестован -> Миссия провалена");
-			wchar_t* str = getwchat("Миссия провалена");
-			CMessages::AddBigMessage(str, 5000, 0);// надпись.
-			mission_flag_set(false);// сменить флаг.
-			break;// выйти из цикла.
-		}
-		if (!mission_flag_get()) break;// флаг сменился сам -> выйти.
-	}
-	if (mission_watch_L != nullptr) {// очистка всего, что создано.
-		cpp_trace("mission_watch: очистка (destroy)");
-		destroy(mission_watch_L);
-	}
-	mission_watch_running.store(false);
-	cpp_trace("mission_watch: КОНЕЦ");
-};
-
-static void mission_watch_start(lua_State* L) {// запустить РОВНО ОДИН поток.
-	mission_watch_L = L;
-	if (mission_watch_thread.joinable()) {// старый сторож ещё жив?
-		mission_watch_stop.store(true);// приказать выйти...
-		mission_watch_thread.join();// ...и уничтожить поток.
-	}
-	mission_watch_stop.store(false);
-	mission_watch_running.store(true);
-	mission_watch_thread = std::thread(mission_watch_proc);
-};
-
-int Getflagmission(lua_State* L) {// большая: поднять сторож + вернуть флаг.
-	if (!mission_watch_running.load()) mission_watch_start(L);
-	mission_watch_L = L;
-	lua_pushboolean(L, mission_flag_get());// значение флага.
-	return 1;
-};
-
-int Setflagmission(lua_State* L) {// большая: поставить флаг + поднять сторож.
-	if (LUA_TBOOLEAN == lua_type(L, 1)) {
-		bool flag = lua_toboolean(L, 1);
-		mission_flag_set(flag);
-		if (flag) mission_watch_start(L);
-		else {
-			mission_watch_stop.store(true);
-			if (mission_watch_thread.joinable()) mission_watch_thread.join();
-		}
-		return 0;
-	}
-	writelog("bad argument in function Setflagmission");
 	return 0;
 };
 

@@ -14,7 +14,7 @@ while true do wait() player = findplayer()-- получить игрока
  sp = create_sphere(95.4, -1136.2, 10.5,3.0)-- создать сферу.
  printmessage("~r~Go get some new threads from Rafael's clothes shop",3000,1)
 
-while true == Getflagmission() do  wait() -- цикл пока статус миссии не изменится.
+while true == getflagmission() do  wait() -- цикл пока статус миссии не изменится.
   if ped_in_point_in_radius(player,95.4, -1136.2, 10.5, 2.0,2.0,2.0) and not is_ped_in_car(player) and step == nil
    then ped_frozen(0) fade(0,1100) --затенение, 600 время.
    remove_blip(blip)  remove_sphere(sp)-- удалить сферу.

@@ -374,8 +374,6 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "kill_ped", kill_ped); // 43 убить педа.
 	lua_register(L, "getflagmission", getflagmission); // 44 проверка флага миссии.
 	lua_register(L, "setflagmission", setflagmission); // 45 уcтановить флага миссии.
-	lua_register(L, "Getflagmission", Getflagmission); // 44-б большая: C++ + сторож миссии.
-	lua_register(L, "Setflagmission", Setflagmission); // 45-б большая: C++ + сторож миссии.
 	lua_register(L, "showtext", showtext); // 46 Вывод особого текста на экран.
 	lua_register(L, "remove_blip", remove_blip); // 47 удалить метку с карты.
 	lua_register(L, "createblip", createblip); // 48 создать метку карте.
