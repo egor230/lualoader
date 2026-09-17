@@ -100,6 +100,7 @@ static map<int, lua_State*>markeron;// map для маркеров.
 static map<int, lua_State*>spheres;// map для маркеров кругов.
 static map<int, lua_State*>pickupsids;// map для пикапов.
 static map<int, lua_State*>firesids;// map для огня.
+static map<int, lua_State*>soundsids;// map для непрерывных звуков.
 
 static map<CPed*, lua_State*>mappeds;// map для педов.
 static map<CVehicle*, lua_State*>mapcars;// map для авто.
@@ -235,12 +236,17 @@ int& var_$3402 = *(int*)0x8247A8; // глобальнная переменная
 CPed* findpedinpool(const void* p); // найти педа в пуле.
 CVehicle* findcarinpool(const void* p); // найти авто в пуле.
 CObject* findobjinpool(const void* p);// найти объект в пуле.
+void warp_out_car_occupants(CVehicle* car);// выкинуть всех сидящих в авто.
+void safe_remove_car(CVehicle* car);// безопасно удалить авто.
+void warp_ped_out_of_car(CPed* ped);// выкинуть педа из авто, если сидит.
 
 void getkeyenvent(); // считывания символов клавиатуры.
 wchar_t* getwchat(const char* c); // перевод в строку.
 
 int funs(lua_State* L);// список функций.
 void writelog(const char x[]);// запись ошибок в файл.
+void cpp_trace(const char x[]);// запись трейса C++ (в тот же trace.txt).
+void cpp_tracef(const char* fmt, ...);// форматированная запись трейса C++.
 void dellod(); // удалить лог ошибок.
 int cleanstl();// очистка stl.
 
@@ -2071,16 +2077,17 @@ int lockstatus(lua_State* L) {// статус двери авто.
 };
 
 int givemoney(lua_State* L) {// дать денег игроку.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {//кол-во денег.
-			int money = lua_tointeger(L, 1);
-			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += money;// дать денег
-		}
-		else { throw "bad argument in function givemoney"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
+ 	try {
+ 		if (LUA_TNUMBER == lua_type(L, 1)) {//кол-во денег.
+ 			int money = lua_tointeger(L, 1);
+ 			cpp_tracef("givemoney +%d", money);
+ 			CWorld::Players[CWorld::PlayerInFocus].m_nMoney += money;// дать денег
+ 		}
+ 		else { throw "bad argument in function givemoney"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ 	return 0;
+ };
 
 int getpedcoordes(lua_State* L) {// получить координаты педа.
 	try {
@@ -2278,19 +2285,22 @@ int incar(lua_State* L) {// пед в авто?
 };
 
 int exitcar(lua_State* L) {// пед выходит из машины.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) { writelog("exitcar: ped is NULL"); return 0; }
-			if (!ped->m_bInVehicle || ped->m_pVehicle == NULL) { return 0; }
-			ped->SetObjective(OBJECTIVE_LEAVE_CAR);
-			return 0;
-		} // выйти из авто.
-		else { throw "bad argument in function exitcar"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-};
+ 	cpp_trace("exitcar: ВХОД");
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);// получить указатель на педа.
+ 			if (ped == NULL) { cpp_trace("exitcar: пед НЕ найден в пуле, ВЫХОД"); return 0; }
+ 			cpp_tracef("exitcar: пед=%p m_bInVehicle=%d m_pVehicle=%p", ped, (int)ped->m_bInVehicle, (void*)ped->m_pVehicle);
+ 			if (!ped->m_bInVehicle || ped->m_pVehicle == NULL) { cpp_trace("exitcar: пед не в авто, ВЫХОД"); return 0; }
+ 			ped->SetObjective(OBJECTIVE_LEAVE_CAR);
+ 			cpp_trace("exitcar: SetObjective LEAVE_CAR OK");
+ 			return 0;
+ 		} // выйти из авто.
+ 		else { throw "bad argument in function exitcar"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ };
 
 int loadmodel(lua_State* L) {//Загрузка моделей.
 	try {
@@ -2447,40 +2457,51 @@ int ped_sprint_to_point(lua_State* L) {// пед делает спринт к т
 };
 
 int ped_walk_to_point(lua_State* L) {// пед идет пешком.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
-			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {// указатель на педа.
+ 	cpp_trace("ped_walk_to_point: ВХОД");
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+ 			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) return 0;
-			float x = lua_tonumber(L, 2);	float y = lua_tonumber(L, 3);
-			float z = lua_tonumber(L, 4);
-			CVector pos = { x, y, z };
-			ped->SetObjective(OBJECTIVE_GOTO_AREA_ON_FOOT, pos);// пед идет пешком.
-		}
-		else { throw "bad argument in function ped_walk_to_point"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-};
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);// получить указатель на педа.
+ 			if (ped == NULL) { cpp_trace("ped_walk_to_point: пед НЕ найден в пуле, ВЫХОД"); return 0; }
+ 			float x = lua_tonumber(L, 2);	float y = lua_tonumber(L, 3);
+ 			float z = lua_tonumber(L, 4);
+			cpp_tracef("ped_walk_to_point: пед=%p в пуле, m_bInVehicle=%d, m_pVehicle=%p, точка (%.2f, %.2f, %.2f)",
+				ped, (int)ped->m_bInVehicle, (void*)ped->m_pVehicle, x, y, z);
+ 			warp_ped_out_of_car(ped);// пед ещё в авто (не успел выйти)? высадить принудительно, иначе SetObjective роняет игру.
+			cpp_tracef("ped_walk_to_point: после warp_ped_out_of_car m_bInVehicle=%d setobjective", (int)ped->m_bInVehicle);
+ 			CVector pos = { x, y, z };
+ 			ped->SetObjective(OBJECTIVE_GOTO_AREA_ON_FOOT, pos);// пед идет пешком.
+ 			cpp_trace("ped_walk_to_point: SetObjective OK");
+ 		}
+ 		else { throw "bad argument in function ped_walk_to_point"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ };
 
 int ped_run_to_point(lua_State* L) {// пед бежит к точке пешком.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
-			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {// указатель на педа.
+ 	cpp_trace("ped_run_to_point: ВХОД");
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+ 			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) return 0;
-			float x = lua_tonumber(L, 2);	float y = lua_tonumber(L, 3);
-			float z = lua_tonumber(L, 4);
-			CVector pos = { x, y, z };
-			ped->SetObjective(OBJECTIVE_RUN_TO_AREA, pos);// пед бежит к точке пешком.
-		}
-		else { throw "bad argument in function ped_run_to_point"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-};
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);// получить указатель на педа.
+ 			if (ped == NULL) { cpp_trace("ped_run_to_point: пед НЕ найден в пуле, ВЫХОД"); return 0; }
+ 			float x = lua_tonumber(L, 2);	float y = lua_tonumber(L, 3);
+ 			float z = lua_tonumber(L, 4);
+			cpp_tracef("ped_run_to_point: пед=%p m_bInVehicle=%d m_pVehicle=%p точка (%.2f, %.2f, %.2f)",
+				ped, (int)ped->m_bInVehicle, (void*)ped->m_pVehicle, x, y, z);
+ 			warp_ped_out_of_car(ped);// пед ещё в авто (не успел выйти)? высадить принудительно, иначе SetObjective роняет игру.
+ 			CVector pos = { x, y, z };
+ 			ped->SetObjective(OBJECTIVE_RUN_TO_AREA, pos);// пед бежит к точке пешком.
+ 			cpp_trace("ped_run_to_point: SetObjective OK");
+ 		}
+ 		else { throw "bad argument in function ped_run_to_point"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ };
 
 int getobjangle(lua_State* L) {// получить угол объекта.
 	try {
@@ -2547,23 +2568,25 @@ int getpedcoordinates_on_x(lua_State* L) {// Получить мировую к�
 };
 
 int getpedcoordinates_on_y(lua_State* L) {// // Получить мировую координату по y для педа.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) return 0;
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);// получить указатель на педа.
+ 			if (ped == NULL) { cpp_trace("getpedcoordinates_on_y: пед НЕ найден в пуле, ВЫХОД"); return 0; }
 
-			float y = lua_tonumber(L, 2);
-			CVector pos = ped->pos;
-			pos += ped->up * y;   lua_pushnumber(L, pos.x);
-			lua_pushnumber(L, pos.y);   lua_pushnumber(L, pos.z);
-			return 3;
-		}
-		else { throw "bad argument in function getpedcoordinates_on_y"; }
-	}
-	catch (const char* x) {	writelog(x);}
-};
+ 			float y = lua_tonumber(L, 2);
+ 			CVector pos = ped->pos;
+ 			pos += ped->up * y;   lua_pushnumber(L, pos.x);
+ 			lua_pushnumber(L, pos.y);   lua_pushnumber(L, pos.z);
+			cpp_tracef("getpedcoordinates_on_y: пед=%p pos=(%.2f, %.2f, %.2f) сдвиг по up * %0.1f -> (%.2f, %.2f, %.2f)",
+				ped, ped->pos.x, ped->pos.y, ped->pos.z, y, pos.x, pos.y, pos.z);
+ 			return 3;
+ 		}
+ 		else { throw "bad argument in function getpedcoordinates_on_y"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ };
 
 int getcarcoordinates_on_x(lua_State* L) {// Получить мировую координату по x для авто.
 	try {
@@ -2871,6 +2894,7 @@ int remove_car(lua_State* L) {// удалить авто.
 			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 			if (car == NULL) { writelog("remove_car: car is NULL"); return 0; }
 
+			warp_out_car_occupants(car);// выкинуть из авто всех сидящих (включая игрока).
 			Command<COMMAND_MARK_CAR_AS_NO_LONGER_NEEDED>(CPools::GetVehicleRef(car));// удалить авто.
 			auto it = mapcars.find(car);
 			if (it != mapcars.end() && L == it->second) {
@@ -2996,20 +3020,24 @@ int clear_wanted(lua_State* L) {// убрать уровень розыска.
 };
 
 int remove_ped(lua_State* L) {// удалить педа.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+ 	cpp_trace("remove_ped: ВХОД");
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) return 0;
-			ped->ClearInvestigateEvent();// пед уходит, опустить педа.
-			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
-			auto it = mappeds.find(ped);
-			if (it != mappeds.end() && L == it->second) {
-				mappeds.erase(it);
-			}
-			return 0;
-		}
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);// получить указатель на педа.
+ 			if (ped == NULL) { cpp_trace("remove_ped: пед НЕ найден в пуле, ВЫХОД"); return 0; }
+ 			cpp_tracef("remove_ped: пед=%p m_bInVehicle=%d m_pVehicle=%p health=%.1f", ped, (int)ped->m_bInVehicle, (void*)ped->m_pVehicle, ped->m_fHealth);
+ 			warp_ped_out_of_car(ped);// пед сидит в авто? высадить перед удалением.
+ 			ped->ClearInvestigateEvent();// пед уходит, опустить педа.
+ 			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
+ 			cpp_trace("remove_ped: MARK_CHAR_AS_NO_LONGER_NEEDED OK");
+ 			auto it = mappeds.find(ped);
+ 			if (it != mappeds.end() && L == it->second) {
+ 				mappeds.erase(it);
+ 			}
+ 			return 0;
+ 		}
 		else { throw "bad argument in function remove_ped"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
@@ -3283,17 +3311,19 @@ int cleanstl() {//удаления объектов из всех stl.
 };
 
 int getflagmission(lua_State* L) {// проверка флага миссии.
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
-	bool getflagmission = (CTheScripts::ScriptSpace[OnAMissionFlag]);
-	lua_pushboolean(L, getflagmission);// получить флаг миссии.
-	return 1;
-};
+ 	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
+ 	bool getflagmission = (CTheScripts::ScriptSpace[OnAMissionFlag]);
+ 	lua_pushboolean(L, getflagmission);// получить флаг миссии.
+ 	cpp_tracef("getflagmission = %s", getflagmission ? "true" : "false");
+ 	return 1;
+ };
 
 int setflagmission(lua_State* L) {// уcтановить флага миссии.
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
-	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {// значение число.
-			bool flag = lua_toboolean(L, 1);
+ 	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
+ 	try {
+ 		if (LUA_TBOOLEAN == lua_type(L, 1)) {// значение число.
+ 			bool flag = lua_toboolean(L, 1);
+ 			cpp_tracef("setflagmission = %s", flag ? "true" : "false");
 			CTheScripts::ScriptSpace[OnAMissionFlag] = flag;
 			return 0;
 		}
@@ -3309,11 +3339,12 @@ int showtext(lua_State* L) {// Вывод особого текста на эк�
 			const char* c = lua_tostring(L, 1);
 			int time = lua_tointeger(L, 2);// время вывода текста.
 			int style = lua_tointeger(L, 3);// стиль текста.
-			wchar_t* str = getwchat(c);
-			CMessages::AddBigMessage(str, time, style);/*0 большими, розовые как миссии пройдена,
-			1 надпись как названия миссии, 2 зеленым большими*/
-			return 0;
-		}
+wchar_t* str = getwchat(c);
+ 			CMessages::AddBigMessage(str, time, style);/*0 большими, розовые как миссии пройдена,
+ 			1 надпись как названия миссии, 2 зеленым большими*/
+ 			cpp_tracef("showtext: %s (time=%d style=%d)", c, time, style);
+ 			return 0;
+ 		}
 		else { throw "bad argument in function showtext"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
@@ -3381,17 +3412,18 @@ int createmarker(lua_State* L) {// создать маркер на карте.
 };
 
 int play_sound(lua_State* L) {// проиграть мелодию.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
-			int music = lua_tointeger(L, 1);// получить id мелодии.
-			Command<COMMAND_PLAY_MISSION_PASSED_TUNE>(music);
-			return 0;
-		}
-		else { throw "bad argument in function play_sound"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
+ 	try {
+ 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
+ 			int music = lua_tointeger(L, 1);// получить id мелодии.
+ 			cpp_tracef("play_sound %d", music);
+ 			Command<COMMAND_PLAY_MISSION_PASSED_TUNE>(music);
+ 			return 0;
+ 		}
+ 		else { throw "bad argument in function play_sound"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ 	return 0;
+ };
 
 int create_marker_pickup(lua_State* L) {// создать маркер над пикапом.
 	try {
@@ -3454,13 +3486,17 @@ int createped(lua_State* L) {// создать педа.
 };
 
 void load_model_before_avalible(int model) {
+	cpp_tracef("load_model_before_avalible: ЗАПРОС модели id=%d", model);
 	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
 	Command<COMMAND_REQUEST_MODEL>(model);
 	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+	int guard = 0;
 	while (!Command<COMMAND_HAS_MODEL_LOADED>(model)) {
 		this_thread::sleep_for(chrono::milliseconds(1));// задержка
 		Command<COMMAND_REQUEST_MODEL>(model);
+		if (++guard % 3000 == 0) cpp_tracef("load_model_before_avalible: ЖДЁМ модель id=%d (~%d мс)", model, guard);
 	}
+	cpp_tracef("load_model_before_avalible: модель id=%d загружена", model);
 };
 
 int create_spec_ped(lua_State* L) {// создать спец педа.
@@ -3682,6 +3718,8 @@ int setcardrive(lua_State* L) {// установить водителя для �
 			int type = lua_tointeger(L, 3);// тип педа.
 			CPed* ped = nullptr;
 			Command<COMMAND_CREATE_CHAR_INSIDE_CAR>(CPools::GetVehicleRef(car), type, model, &ped);
+			if (ped != NULL) { mappeds.emplace(ped, L);// добавить в map педов (для destroy).
+			}
 			car->m_autoPilot.m_nCarMission = MISSION_NONE;
 			lua_pushlightuserdata(L, ped);// отправить в стек и получить из стека можно.
 			return 1;
@@ -3705,6 +3743,8 @@ int setcarpassenger(lua_State* L) {// установить пассажира д
 			int place = lua_tointeger(L, 4);//место пассажира.
 			CPed* ped = nullptr;
 			Command<COMMAND_CREATE_CHAR_AS_PASSENGER>(CPools::GetVehicleRef(car), type, model, place, &ped);
+			if (ped != NULL) { mappeds.emplace(ped, L);// добавить в map педов (для destroy).
+			}
 			lua_pushlightuserdata(L, ped);
 			return 1;
 		}
@@ -3749,17 +3789,18 @@ int setcarseconscolor(lua_State* L) {// установить второй цве
 };
 
 int set_traffic(lua_State* L) {// установить плотноcть трафика транспорта.
-	try {//01EB
-		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
-			float trafic = lua_tonumber(L, 1);
-			Command<COMMAND_SET_CAR_DENSITY_MULTIPLIER>(trafic);
-			return 0;
-		}
-		else { throw "bad argument in function set_traffic"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
+ 	try {//01EB
+ 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
+ 			float trafic = lua_tonumber(L, 1);
+ 			cpp_tracef("set_traffic %0.2f", trafic);
+ 			Command<COMMAND_SET_CAR_DENSITY_MULTIPLIER>(trafic);
+ 			return 0;
+ 		}
+ 		else { throw "bad argument in function set_traffic"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ 	return 0;
+ };
 
 int car_explode(lua_State* L) {// взрывать авто.
 	try {
@@ -3886,33 +3927,38 @@ int player_defined(lua_State* L) {// пед существует.
 };
 
 int follow_the_leader(lua_State* L) {// //01DE / 01DF следовать за лидером
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {// указатель на педа.
+ 	cpp_trace("follow_the_leader: ВХОД");
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);//  получить указатель на авто.
-			p = lua_topointer(L, 2);
-			CPed* ped2 = findpedinpool(p);//  получить указатель на авто.
-			if (ped == NULL || ped2 == NULL) return 0;
-			ped->SetObjective(OBJECTIVE_SET_LEADER, ped2);
-			return 0;
-		}
-		else { throw "bad argument in function follow_the_leader"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);//  получить указатель на авто.
+ 			p = lua_topointer(L, 2);
+ 			CPed* ped2 = findpedinpool(p);//  получить указатель на авто.
+ 			if (ped == NULL || ped2 == NULL) { cpp_trace("follow_the_leader: пед/лидер НЕ в пуле"); return 0; }
+ 			cpp_tracef("follow_the_leader: пед=%p лидер=%p", ped, ped2);
+ 			ped->SetObjective(OBJECTIVE_SET_LEADER, ped2);
+ 			cpp_trace("follow_the_leader: SetObjective SET_LEADER OK");
+ 			return 0;
+ 		}
+ 		else { throw "bad argument in function follow_the_leader"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ 	return 0;
+ };
 
 int arrested(lua_State* L) { // пед арестован?
-	if (CWorld::Players[CWorld::PlayerInFocus].m_nPlayerState == PLAYERSTATE_HASBEENARRESTED) {
-		lua_pushboolean(L, true);
-		return 1;
-	}
-	else {
-		lua_pushboolean(L, false);
-		return 1;
-	}
-};
+ 	bool ar = (CWorld::Players[CWorld::PlayerInFocus].m_nPlayerState == PLAYERSTATE_HASBEENARRESTED);
+ 	if (ar) {
+ 		cpp_trace("arrested = true");
+ 		lua_pushboolean(L, true);
+ 		return 1;
+ 	}
+ 	else {
+ 		lua_pushboolean(L, false);
+ 		return 1;
+ 	}
+ };
 
 int setcarcoordes(lua_State* L) {// установить координаты авто.
 	try {
@@ -4929,10 +4975,33 @@ int Createped(lua_State* L) {// макрос создать педа.
 
 			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3); float z = lua_tonumber(L, 4);
 			CVector pos = { x, y, z };
-			CPed* ped = NULL; load_model_before_avalible(model);
-			//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += type;// дать денег
-			Command<COMMAND_CREATE_CHAR>(type, model, pos.x, pos.y, pos.z, &ped);
-			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			CPed* ped = NULL;
+
+			if (model != 0) {// обычный пед из списка name_peds_list.
+				load_model_before_avalible(model);
+				//CWorld::Players[CWorld::PlayerInFocus].m_nMoney += type;// дать денег
+				Command<COMMAND_CREATE_CHAR>(type, model, pos.x, pos.y, pos.z, &ped);
+				Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			}
+			else {// имени нет в обычных списках → это спец-актор (IGMERC, IGPHIL ...).
+				int spectype = find_in_map(type_specpeds_list, name_ped);// пол спец-актора: 4 мужской, 5 женский.
+				if (spectype != 0) {// создать мужского или женского педа и дать ему скин спец-актора.
+					const char* base_ped = (spectype == PED_TYPE_CIVFEMALE) ? "WFYST" : "HMYBE";// базовая модель по полу.
+					int base_model = find_in_map(name_peds_list, base_ped);// модель базового педа.
+					int base_type = find_in_map(type_peds_list, base_ped);// тип базового педа.
+					load_model_before_avalible(base_model);
+					Command<COMMAND_CREATE_CHAR>(base_type, base_model, pos.x, pos.y, pos.z, &ped);
+					Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(base_model);
+					if (ped != NULL) {// надеть скин спец-актора на созданного педа.
+						CPed* p = findpedinpool(ped);// получить указатель на педа.
+						Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+						Command<COMMAND_UNDRESS_CHAR>(CPools::GetPedRef(p), name_ped);// скин спец-актора.
+						Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+						Command<COMMAND_DRESS_CHAR>(CPools::GetPedRef(p));
+					}
+				}
+			}
+
 			if (ped == NULL) { writelog("Createped: CREATE_CHAR вернул NULL"); lua_pushnil(L); return 1; }
 			mappeds.emplace(ped, L);// добавить map для педов.
 			lua_pushlightuserdata(L, ped);// отправить в стек и получить из стека можно.
@@ -4975,7 +5044,9 @@ int Createcar(lua_State* L) {// макрос создать авто на коо
 				lua_pushnil(L);
 				return 1;
 			}
-			std::thread(expectations, model, car).detach();
+			cpp_tracef("Createcar: создана %s (id=%d) car=%p", name_model, model, (void*)car);
+			Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
+			cpp_tracef("Createcar: MARK no-longer-needed id=%d OK", model);
 
 			car->m_eDoorLock = (eDoorLock)1;
 			mapcars.emplace(car, L);// добавить в map для авто.
@@ -5145,25 +5216,26 @@ int Get_model_and_type_current_weapon_ped(lua_State* L) {// макрос пол�
 };
 
 int is_ped_in_car(lua_State* L) {// игрок в авто?
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) { lua_pushboolean(L, false); return 1; }
-			if (ped->m_bInVehicle && ped->m_pVehicle != NULL) {// в авто пед?
-				lua_pushboolean(L, true);
-				return 1;
-			}
-			else {
-				lua_pushboolean(L, false);
-				return 1;// получить указатель на хенлд авто в котором сидит пед.
-			}
-		}
-		else { throw "bad argument in function is_ped_in_car"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-};
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);// получить указатель на педа.
+ 			if (ped == NULL) { lua_pushboolean(L, false); return 1; }
+ 			if (ped->m_bInVehicle && ped->m_pVehicle != NULL) {// в авто пед?
+ 				cpp_tracef("is_ped_in_car: пед=%p В МАШИНЕ (m_pVehicle=%p)", ped, (void*)ped->m_pVehicle);
+ 				lua_pushboolean(L, true);
+ 				return 1;
+ 			}
+ 			else {
+ 				lua_pushboolean(L, false);
+ 				return 1;// получить указатель на хенлд авто в котором сидит пед.
+ 			}
+ 		}
+ 		else { throw "bad argument in function is_ped_in_car"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ };
 
 int ped_car(lua_State* L) {// авто педа.
 	try {
@@ -6733,22 +6805,23 @@ int create_shots_on_car(lua_State* L) {// создать выстрелы.
 };
 
 int ped_save_pos_attack(lua_State* L) {// пед сохраняет ли свою позицию при атаке.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
+ 	cpp_trace("ped_save_pos_attack: ВХОД");
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) return 0;
-			int status = lua_tointeger(L, 2);// 0 или 1.
-			Command<COMMAND_SET_CHAR_STAY_IN_SAME_PLACE>(CPools::GetPedRef(ped), status);// сохранять свою позицию при атаке.
-			return 0;
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);// получить указатель на педа.
+ 			if (ped == NULL) { cpp_trace("ped_save_pos_attack: пед НЕ найден"); return 0; }
+ 			int status = lua_tointeger(L, 2);// 0 или 1.
+ 			Command<COMMAND_SET_CHAR_STAY_IN_SAME_PLACE>(CPools::GetPedRef(ped), status);// сохранять свою позицию при атаке.
+ 			return 0;
 
-		}
-		else { throw "bad argument in function ped_save_pos_attack"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
+ 		}
+ 		else { throw "bad argument in function ped_save_pos_attack"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ 	return 0;
+ };
 
 int ped_rebuff(lua_State* L) {// пед атакует любого, кто нападает на него.
 	try {
@@ -7035,6 +7108,8 @@ int set_ped_in_car(lua_State* L) {// установить педа в авто �
 			if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TSTRING == lua_type(L, 2)) {// указатель на авто и имя педа.
 				car = func_auxiliary_set_ped_in_car(L, model, type);
 				Command<COMMAND_CREATE_CHAR_INSIDE_CAR>(CPools::GetVehicleRef(car), type, model, &ped);
+				if (ped != NULL) { mappeds.emplace(ped, L);// добавить в map педов (для destroy).
+				}
 				car->m_autoPilot.m_nCarMission = MISSION_NONE;
 				lua_pushlightuserdata(L, ped);
 				Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
@@ -7052,6 +7127,8 @@ int set_ped_in_car(lua_State* L) {// установить педа в авто �
 				car = func_auxiliary_set_ped_in_car(L, model, type);
 
 				Command<COMMAND_CREATE_CHAR_AS_PASSENGER>(CPools::GetVehicleRef(car), type, model, place, &ped);
+				if (ped != NULL) { mappeds.emplace(ped, L);// добавить в map педов (для destroy).
+				}
 				lua_pushlightuserdata(L, ped);
 				Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
 				return 1;
@@ -7064,17 +7141,18 @@ int set_ped_in_car(lua_State* L) {// установить педа в авто �
 };
 
 int set_ped_traffic(lua_State* L) {// установить плотноcть трафика педов.
-	try {//03DE
-		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
-			float trafic = lua_tonumber(L, 1);
-			Command<COMMAND_SET_PED_DENSITY_MULTIPLIER>(trafic);
-			return 0;
-		}
-		else { throw "bad argument in function set_ped_traffic"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
+try {//03DE
+ 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
+ 			float trafic = lua_tonumber(L, 1);
+ 			cpp_tracef("set_ped_traffic %0.2f", trafic);
+ 			Command<COMMAND_SET_PED_DENSITY_MULTIPLIER>(trafic);
+ 			return 0;
+ 		}
+ 		else { throw "bad argument in function set_ped_traffic"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ 	return 0;
+ };
 
 int heli_to_fly(lua_State* L) {// вертолет летит на координаты.
 	try {// 04A2 heli $1379 fly_to - 1721.964 - 275.942 40.959 speed 40
@@ -7451,20 +7529,22 @@ int delete_entity(lua_State* L) {// удалить сущность сразу.
 };
 
 int clean_leader(lua_State* L) {// перестать следовать за лидером.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+ 	cpp_trace("clean_leader: ВХОД");
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);//  получить указатель на авто.
-			if (ped == NULL) return 0;
-			Command<COMMAND_LEAVE_GROUP>(CPools::GetPedRef(ped));
-			return 0;
-		}
-		else { throw "bad argument in function clean_leader"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);//  получить указатель на авто.
+ 			if (ped == NULL) { cpp_trace("clean_leader: пед НЕ найден в пуле, ВЫХОД"); return 0; }
+ 			Command<COMMAND_LEAVE_GROUP>(CPools::GetPedRef(ped));
+ 			cpp_trace("clean_leader: LEAVE_GROUP OK");
+ 			return 0;
+ 		}
+ 		else { throw "bad argument in function clean_leader"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ 	return 0;
+ };
 
 int show_save_menu(lua_State* L) {// показать меню сохранения.
 
@@ -12983,6 +13063,8 @@ int play_continuous_sound(lua_State* L) {// play_continuous_sound(x, y, z, sound
 			int sound = lua_tointeger(L, 4);// номер звука.
 			int id = 0;// id звука.
 			Command<COMMAND_ADD_CONTINUOUS_SOUND>(x, y, z, sound, &id);// непрерывный звук.
+			if (id != 0) { soundsids.emplace(id, L);// добавить в map звуков (для destroy).
+			}
 			lua_pushinteger(L, id);// отправить id в стек.
 			return 1;
 		}
@@ -12997,6 +13079,10 @@ int remove_sound_by_id(lua_State* L) {// remove_sound_by_id(id) - удалить
 		if (LUA_TNUMBER == lua_type(L, 1)) {// число.
 			int id = lua_tointeger(L, 1);// id звука.
 			Command<COMMAND_REMOVE_SOUND>(id);// удалить звук.
+			auto it = soundsids.find(id);// убрать из списка звуков.
+			if (it != soundsids.end() && L == it->second) {
+				soundsids.erase(it);
+			}
 			return 0;
 		}
 		else { throw "bad argument in function remove_sound_by_id"; }
@@ -24239,6 +24325,127 @@ int turncar_with_delay(CVehicle* car, float angle, int time, int switc) {
 	return 0;
 };
 
+struct corona {// структура для короны.
+	static bool switc;
+	static float abc_x; static float ord_y; static float pos_z; static float radius;
+	static int type; static int glow_flare; static int red; static int blue;
+	static int green;
+
+	static void set(bool switc1, float abc_x1, float ord_y1, float pos_z1, float radius1,
+		int type1, int glow_flare1, int red1, int blue1, int green1) { // установить цвет короны.
+		switc = switc1;
+		abc_x = abc_x1; ord_y = ord_y1;	pos_z = pos_z1; type = type1; radius = radius1; glow_flare = glow_flare1;
+		red = red1; blue = blue1; green = green1;
+	}
+	static void draw() {// вывод короны.
+		float x = abc_x;	float y = ord_y;	float z = pos_z;
+		float radius1 = radius; int type1 = type;	int glow_flare1 = glow_flare;
+		int red1 = red;  int blue1 = blue; int green1 = green;
+		if (switc == true) {
+			Command<COMMAND_DRAW_CORONA>(x, y, z, radius1, type1, glow_flare1, red1, green1, blue1);
+		}
+	}//;
+};
+
+int destroy(lua_State* L) {// удаления объектов из памяти при перезагрузки скрипта.
+ 	cpp_trace("destroy: ВХОД");
+ 	int i;
+ 	map<int, lua_State*>::iterator it;
+
+ 	for (auto it = markeron.begin(); it != markeron.end();) {
+ 		if (L == it->second) {
+ 			i = it->first;
+ 			Command<COMMAND_REMOVE_BLIP>(i);//удалить маркер.
+ 			it = markeron.erase(it);
+ 		}
+ 		else { ++it; }
+ 	}
+
+ 	for (auto it = spheres.begin(); it != spheres.end();) {
+ 		if (L == it->second) {
+ 			i = it->first;
+ 			Command<COMMAND_REMOVE_SPHERE>(i);// удалить сферу.
+ 			it = spheres.erase(it);
+ 		}
+ 		else { ++it; }
+ 	}
+
+ 	//map<int, lua_State*>::iterator pick;
+
+ 	for (auto pick = pickupsids.begin(); pick != pickupsids.end();) {
+ 		if (L == pick->second) {
+ 			i = pick->first;
+ 			Command<COMMAND_REMOVE_PICKUP>(i);// удалить пикап.
+ 			pick = pickupsids.erase(pick);
+ 		}
+ 		else { ++pick; }
+ 	}
+ 	for (auto it = firesids.begin(); it != firesids.end();) {
+ 		if (L == it->second) {
+ 			i = it->first;
+ 			Command<COMMAND_REMOVE_SCRIPT_FIRE>(i);// удалить огонь.
+ 			it = firesids.erase(it);
+ 		}
+ 		else { ++it; }
+ 	}
+ 	for (auto it = soundsids.begin(); it != soundsids.end();) {
+ 		if (L == it->second) {
+ 			i = it->first;
+ 			Command<COMMAND_REMOVE_SOUND>(i);// удалить непрерывный звук.
+ 			it = soundsids.erase(it);
+ 		}
+ 		else { ++it; }
+ 	}
+
+ 	// сначала авто (выкидывая из них сидящих), потом педов — иначе удаление
+ 	// авто с сидящим внутри игроком/педом роняет игру.
+ 	for (auto cars = mapcars.begin(); cars != mapcars.end();) {
+ 		if (L == cars->second) {
+ 			cpp_tracef("destroy: удаляю авто %p", (void*)cars->first);
+ 			safe_remove_car(cars->first);// безопасно удалить авто (с проверкой указателя).
+ 			cars = mapcars.erase(cars);
+ 		}
+ 		else { ++cars; }
+ 	}
+
+ 	for (auto pick = mappeds.begin(); pick != mappeds.end();) {
+ 		if (L == pick->second) {
+ 			CPed* ped = pick->first;
+ 			cpp_tracef("destroy: удаляю педа %p", (void*)ped);
+ 			if (findpedinpool(ped) == NULL) { cpp_trace("destroy: пед висячий, просто стираю запись"); pick = mappeds.erase(pick); continue; }// висячий — стереть запись.
+ 			warp_ped_out_of_car(ped);// пед сидит в авто? высадить перед удалением.
+ 			ped->ClearInvestigateEvent();// пед уходит, опустить педа.
+
+ 			ped->ClearObjective(); // снять задачи с педа.
+ 			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
+ 			CEntity* p1 = (CEntity*)ped;
+ 			if (p1 != NULL) {//obj->Remove();
+ 				CWorld::Remove(p1);
+ 			}
+ 			pick = mappeds.erase(pick);
+ 		}
+ 		else { ++pick; }
+ 	}
+
+ 	for (auto objs = mapobjs.begin(); objs != mapobjs.end();) {
+ 		if (L == objs->second) {
+ 			CObject* obj = objs->first;
+ 			if (findobjinpool(obj) == NULL) { objs = mapobjs.erase(objs); continue; }// висячий — стереть запись.
+ 			Command<COMMAND_DELETE_OBJECT>(CPools::GetObjectRef(obj));// удалить объект.
+ 			CEntity* p1 = (CEntity*)obj;
+ 			if (p1 != NULL) {//obj->Remove();
+ 				CWorld::Remove(p1);
+ 			}
+ 			objs = mapobjs.erase(objs);
+ 		}
+ 		else { ++objs; }
+ 	}
+ 	bool s = false;
+ 	corona::set(s, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+ 	cpp_trace("destroy: ВЫХОД");
+ 	return 0;
+ };
+
 CPed* findpedinpool(const void* p) {// найти педа в пуле.
 	for (auto ped : CPools::ms_pPedPool) {
 		if (ped == p) {
@@ -24304,6 +24511,46 @@ CObject* findobjinpool(const void* p) {// найти объект в пуле.
 	};
 	CObject* obj2 = NULL;
 	return obj2;
+};
+
+// выкинуть всех сидящих в авто (игрок, водитель, пассажиры) — перед удалением авто.
+void warp_out_car_occupants(CVehicle* car) {
+	if (car == NULL) return;
+	CVector p = car->pos;// координаты авто — куда сажать выходящих.
+	CPed* player = FindPlayerPed();// томми может сидеть в этом авто.
+	if (player != NULL && player->m_pVehicle == car && player->m_fHealth > 0.0f) {
+		Command<COMMAND_WARP_CHAR_FROM_CAR_TO_COORD>(CPools::GetPedRef(player), p.x + 1.0f, p.y, p.z);
+	}
+	if (car->m_pDriver != NULL && car->m_pDriver->m_fHealth > 0.0f) {
+		Command<COMMAND_WARP_CHAR_FROM_CAR_TO_COORD>(CPools::GetPedRef(car->m_pDriver), p.x + 1.0f, p.y, p.z);
+	}
+	for (int i = 0; i < 8; i++) {// пассажиры (8 мест).
+		CPed* pass = car->m_passengers[i];
+		if (pass != NULL && pass->m_fHealth > 0.0f) {
+			Command<COMMAND_WARP_CHAR_FROM_CAR_TO_COORD>(CPools::GetPedRef(pass), p.x + 1.0f, p.y, p.z);
+		}
+	}
+};
+
+// выкинуть одного педа из авто, если он там сидит — перед удалением педа.
+void warp_ped_out_of_car(CPed* ped) {
+	if (ped == NULL) return;
+	if (!ped->m_bInVehicle || ped->m_pVehicle == NULL) return;// пед не в авто.
+	CVehicle* car = ped->m_pVehicle;
+	if (findcarinpool(car) == NULL) return;// авто уже удалено движком.
+	CVector p = car->pos;// координаты авто — куда сажать выходящего.
+	if (ped->m_fHealth > 0.0f) {
+		Command<COMMAND_WARP_CHAR_FROM_CAR_TO_COORD>(CPools::GetPedRef(ped), p.x + 1.0f, p.y, p.z);
+	}
+};
+
+// безопасно удалить авто: выкинуть сидящих, пометить ненужным, убрать из мира.
+void safe_remove_car(CVehicle* car) {
+	if (car == NULL) return;
+	if (findcarinpool(car) == NULL) return;// авто уже удалено движком (висячий указатель).
+	warp_out_car_occupants(car);// выкинуть из авто всех сидящих (включая игрока).
+	Command<COMMAND_MARK_CAR_AS_NO_LONGER_NEEDED>(CPools::GetVehicleRef(car));
+	CWorld::Remove((CEntity*)car);
 };
 int find_in_map(std::map<string, int>& carlist, const char* search) {
 
@@ -24591,4 +24838,25 @@ void writelog(const char x[]) {// запись ошибок в файл.
 	string er2(buffer); f1 << er2 << "\n"; }
 	mtx.unlock();
 	f1.close();
+};
+ 
+void cpp_trace(const char x[]) {// запись трейса C++ в тот же trace.txt, что и ma_trace из lua.
+
+	mtx.lock();
+	string path = "lualoader\\trace.txt";// куда пишем трейс.
+	fstream f1; {f1.open(path, fstream::in | fstream::out | fstream::app);
+	f1 << "C++| " << x << "\n";
+	f1.flush(); }
+	mtx.unlock();
+	f1.close();
+};
+
+void cpp_tracef(const char* fmt, ...) {// форматированная запись трейса C++.
+
+	va_list args; char buf[2048];
+	va_start(args, fmt);
+	vsnprintf(buf, sizeof(buf), fmt, args);
+	va_end(args);
+	buf[sizeof(buf) - 1] = '\0';
+	cpp_trace(buf);
 };

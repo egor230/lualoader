@@ -1,4 +1,4 @@
-#!/bin/bash
+﻿#!/bin/bash
 # Сборка плагина lualoader (Lua-моддинг GTA Vice City) против НОВОГО plugin-sdk.
 # Готовый lualoader.asi кладётся НА УРОВЕНЬ ВЫШЕ этой папки (в корень игры).
 #

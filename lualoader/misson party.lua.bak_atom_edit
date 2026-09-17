@@ -45,9 +45,9 @@ while true == Getflagmission() do  wait() -- цикл пока статус ми
    fade(0,1100) -- тьма, 600 время.
    wait(2000) setcord(player, -241.7, -1362.3, 8.1 )
 	setangle(player, 269.0 ) -- установить угол для педа.
-	ped1 = Createped("IGMERC", -241.7, -1360.3, 8.1 )-- создать педа на координатах.
-	wait(3000) fade(1,1100) --просветления, 600 время.
-	printmessage("~r~Take the Colonel's daughter to the Pole Position club", 6000,1)
+	ped1 = create_spec_ped("IGMERC", -241.7, -1360.3, 8.1 )-- создать педа на координатах.
+	wait(2000) fade(1,1100) --просветления, 600 время.
+	printmessage("~r~Take the Colonel's daughter to the Pole Position club", 4000,1)
 	blip2 = createmarker(1,2,  100.7, -1477.6, 10.1  ) -- создать маркер на карте. Принимает тип, размер, координаты, id маркера.
 	setsizemarker(blip2,3)--уст размер маркера. Принимает маркер, значение его размера
 	sp2 = create_sphere( 100.7, -1477.6, 10.1, 3.0,3.0,2.0)-- создать сферу.
@@ -67,17 +67,14 @@ while true == Getflagmission() do  wait() -- цикл пока статус ми
         then remove_blip(blip2) -- удалить метку.
             remove_sphere(sp2)-- удалить сферу.
 			clean_leader(ped1)-- перестать следовать за лидером.
-            if is_ped_in_car(ped1)-- проверка пед в авто?
-            then exitcar(ped1)-- пед выходит из авто.
-            end
-            -- ждём ПОЛНОГО выхода педа из авто (анимация ~2 сек, wait(900) мало и роняло игру).
-            local n = 0
-            while is_ped_in_car(ped1) and n < 200 do wait(100) n = n + 1 end
-            x,y,z = getcoordinates_on_y(ped1, 10)
-			ped_walk_to_point(ped1,x,y,z) wait(4000)
-            remove_ped(ped1) miss(1000)-- миссия выполнена сколько денег получено за выполнение.
+           if is_ped_in_car(ped1)-- проверка пед в авто?
+           then  exitcar(ped1)-- пед выходит из авто.
+	     wait(900) x,y,z = getcoordinates_on_y(ped1, 10)
+		 ped_walk_to_point(ped1,x,y,z) wait(6000)
+         remove_ped(ped1) miss(1000)-- миссия выполнена сколько денег получено за выполнение.
     step = nil
      break
+   end
    end
    if getpedhealth(ped1) == 0 -- если мердес мертва, миссия провалена.
     then printmessage("mesgess dead", 3000,1) end_mission("mission failed!")
@@ -1134,7 +1131,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус ми
 -- printmessage("remove ped", 2500, 3)
  -- for i=1, 100 do
  -- h2=tostring(i)
- -- h3 = "ped № "..h2
+ -- h3 = "ped в„– "..h2
 -- printmessage(h3, 1500, 3)
 -- wait(2000)
  -- end
@@ -1540,7 +1537,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус ми
 -- printmessage("remove ped", 2500, 3)
  -- for i=1, 100 do
  -- h2=tostring(i)
- -- h3 = "ped № "..h2
+ -- h3 = "ped в„– "..h2
 -- printmessage(h3, 1500, 3)
 -- wait(2000)
  -- end
@@ -1725,7 +1722,7 @@ while true == Getflagmission() do  wait() -- цикл пока статус ми
 --
 --function main()
  -- health = gethealth(player)-- получить здоровье игрока.
--- if health<70 then
+а ты можешь написать по напиток, который получает из буфера? -- if health<70 then
  -- setarmour(player, 0) -- уст броню
 -- sethealth(player, 171) -- 150 хп.
 -- end
