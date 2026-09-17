@@ -288,8 +288,6 @@ int giveweaponped(lua_State* L);// дать педу оружие.
 
 int ped_aim_at_ped(lua_State* L);// пед целиться в педе.
 int is_current_weapon_ped(lua_State* L);// проверить текущее оружие.
-int set_current_weapon_ped(lua_State* L);// установить текущее оружие педа (01B9).
-int set_ped_stay_when_attacked(lua_State* L);// пед держит позицию при атаке (0350).
 int worldcoord(lua_State* L); // Перевод в мировые координаты.
 int getpedcoordinates_on_x(lua_State* L); // Получить мировую координату по x для педа.
 
@@ -2756,46 +2754,6 @@ int is_current_weapon_ped(lua_State* L) {
 	return 0;
 };
 
-int set_current_weapon_ped(lua_State* L) {// установить текущее оружие педа (01B9 set_char_armed_weapon).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
-
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) return 0;
-			int weapon_type = lua_tointeger(L, 2);// тип оружие (как в types_weapon_list).
-
-			CPed* player = FindPlayerPed();// найти игрока.
-			if (ped == player) { Command<COMMAND_SET_CURRENT_PLAYER_WEAPON>(CWorld::PlayerInFocus, weapon_type); }
-			else { Command<COMMAND_SET_CURRENT_CHAR_WEAPON>(CPools::GetPedRef(ped), weapon_type); }
-			cpp_tracef("set_current_weapon_ped: пед=%p оружие=%d", ped, weapon_type);
-			return 0;
-		}
-		else { throw "bad argument in function set_current_weapon_ped"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
-
-int set_ped_stay_when_attacked(lua_State* L) {// пед держит позицию при атаке (0350).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на педа.
-
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) return 0;
-			bool stay = lua_toboolean(L, 2);// держать позицию.
-
-			Command<COMMAND_SET_CHAR_STAY_IN_SAME_PLACE>(CPools::GetPedRef(ped), stay);
-			cpp_tracef("set_ped_stay_when_attacked: пед=%p stay=%d", ped, (int)stay);
-			return 0;
-		}
-		else { throw "bad argument in function set_ped_stay_when_attacked"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
-
 int create_sphere(lua_State* L) {//создать сферу.
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
@@ -4954,23 +4912,18 @@ int createfireoncords(lua_State* L) {// создать огонь на коор�
 	return 0;
 };
 
- int remove_fire(lua_State* L) {// удалить огонь.
- 	try {
- 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение id огня.
- 			int fire = lua_tointeger(L, 1);
- 			Command<COMMAND_REMOVE_SCRIPT_FIRE>(fire);// удалить огонь.
- 			// стереть запись из map, иначе destroy() удалит огонь повторно (раздел 5.9).
- 			auto it = firesids.find(fire);
- 			if (it != firesids.end() && L == it->second) {
- 				firesids.erase(it);
- 			}
- 			return 0;
- 		}
- 		else { throw "bad argument in function remove_fire"; }
- 	}
- 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
- 	return 0;
- };
+int remove_fire(lua_State* L) {// удалить огонь.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// значение id огня.
+			int fire = lua_tointeger(L, 1);
+			Command<COMMAND_REMOVE_SCRIPT_FIRE>(fire);// удалить огонь.
+			return 0;
+		}
+		else { throw "bad argument in function remove_fire"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
 
 int ped_shutdown(lua_State* L) {// отключение текущего оружие педа.
 	try {

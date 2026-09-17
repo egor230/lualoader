@@ -13,10 +13,10 @@ while true do wait()-- задержка.
 	if Keypress("VK_J") -- если клавиша H.
      then Giveweaponped(player,600,"M40")-- дать педу оружие.
        x,y,z=getpedcoordinates_on_y(player, 10)
-
-     	ped1 = Createped("IGMERC", x,y,z)-- создать педа на координатах.
-        x,y,z=getpedcoordinates_on_y(player, 20)
-        ped_walk_to_point(ped1,x,y,z) wait(4000)
+       setpedcoordes(player,  -349.0, -427.0, 10.9)
+     	-- ped1 = Createped("IGMERC", x,y,z)-- создать педа на координатах.
+      --   x,y,z=getpedcoordinates_on_y(player, 20)
+      --   ped_walk_to_point(ped1,x,y,z) wait(4000)
     end
   end
 

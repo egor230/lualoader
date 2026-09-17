@@ -357,9 +357,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "kill_ped_on_foot", kill_ped_on_foot); // 26 убить педа пешком.
 	lua_register(L, "kill_char_any_means", kill_char_any_means); // 27 убить педа любыми средствами.
 	lua_register(L, "ped_aim_at_ped", ped_aim_at_ped); // 28 пед целиться в педе.
- 	lua_register(L, "is_current_weapon_ped", is_current_weapon_ped); // 29 проверить текущее оружие.
- 	lua_register(L, "set_current_weapon_ped", set_current_weapon_ped); // 29-б установить текущее оружие педа (01B9).
- 	lua_register(L, "set_ped_stay_when_attacked", set_ped_stay_when_attacked); // 29-в пед держит позицию при атаке (0350).
+	lua_register(L, "is_current_weapon_ped", is_current_weapon_ped); // 29 проверить текущее оружие.
 	lua_register(L, "create_marker_actor", create_marker_actor); // 30 создать маркер над педом.
 	lua_register(L, "removemarker", removemarker); // 31 удалить маркер.
 	lua_register(L, "setpedcoordes", setpedcoordes); // 32 установить координаты для педа.
