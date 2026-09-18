@@ -4,6 +4,23 @@
 короткое объяснение и пример вызова. Указатели на пед/авто/объект/игрока получаются
 функциями поиска: `findplayer()`, `findped...`, `findcar...`, `createped`, `createcar` и т.п.
 
+> ⚠ **Устарел на 13 функций (18.09.2026):** в plugin.cpp уже **1519** уникальных
+> регистраций. Не описаны:
+> `Getflagmission` (флаг миссии + подъём C++-сторожа),
+> `Setflagmission` (установка флага + сторож),
+> `set_current_weapon_ped(ped, тип)` (01B9 — положить оружие в руки),
+> `set_ped_stay_when_attacked(ped, flag)` (0350 — пед держит позицию при атаке),
+> `set_ped_wait_state(ped, state, timer)` (0372 — «ожидание», напр. 29, 99999999),
+> `set_ped_personality(ped, personality)` (0243 — личность: 16 горожанин, 30 агрессор),
+> `set_ped_only_damaged_by_player(ped, flag)` (02A9 — ранить может только игрок),
+> `is_ped_health_greater(ped, threshold)` → `bool` (0184 — здоровье строго больше),
+> `make_obj_targettable(obj, flag)` (035D — в объект можно целиться/бросать),
+> `get_dead_char_pickup_coords(ped)` → `x, y, z` (04A5 — пикап из трупа),
+> `set_ped_mood(mood, timer)` (04E3 — настроение ИГРОКА),
+> `request_animation(name)` (04ED — загрузить анимацию),
+> `remove_animation(name)` (04EF — выгрузить анимацию).
+> Подробности — `ОПИСАНИЕ_проекта_для_ИИ.md` разделы 4.4 и 9.2.
+
 
 ## Конвенции
 
@@ -1771,3 +1788,9 @@ local ok, v   = incar(ped)             -- возврат: флаг + авто
 - **Розыск (старые)** — 2
 
 Всего: **1506** функций.
+(+ `Getflagmission`, `Setflagmission`, `set_current_weapon_ped`,
+`set_ped_stay_when_attacked`, `set_ped_wait_state`, `set_ped_personality`,
+`set_ped_only_damaged_by_player`, `is_ped_health_greater`,
+`make_obj_targettable`, `get_dead_char_pickup_coords`, `set_ped_mood`,
+`request_animation`, `remove_animation` — добавлены позже, см.
+предупреждение вверху.)
