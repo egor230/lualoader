@@ -4,7 +4,7 @@
 #
 # Запуск:            ./build.sh
 #                    ./build.sh clean
-# Lua 5.3.5 встраивается статически (исходники в ./lua), внешняя lua53.dll не нужна.
+# Lua 5.4.9 встраивается статически (исходники в ./lua), внешняя DLL не нужна.
 
 set -e
 cd "$(dirname "$0")"
@@ -40,11 +40,18 @@ for c in lua/*.c; do
     OBJS+=("$o")
 done
 
-# 2. Плагин
-o="$BUILD/plugin.o"
-echo "CXX plugin.cpp"
-$CXX "${COMMON[@]}" -std=c++23 -w "${INCLUDES[@]}" -c plugin.cpp -o "$o"
-OBJS+=("$o")
+# 2. Плагин (3 единицы трансляции; funcs.h — общий заголовок для всех трёх)
+#    funcs.cpp    — реализации всех Lua-функций и общие глобалы
+#    register.cpp — таблица регистрации lua_register (funs)
+#    plugin.cpp   — точка входа ASI, загрузка/остановка скриптов, потоки
+for c in funcs.cpp register.cpp plugin.cpp; do
+    o="$BUILD/${c%.cpp}.o"
+    if [ "$c" -nt "$o" ] || [ "funcs.h" -nt "$o" ]; then
+        echo "CXX  $c"
+        $CXX "${COMMON[@]}" -std=c++23 -w "${INCLUDES[@]}" -c "$c" -o "$o"
+    fi
+    OBJS+=("$o")
+done
 
 # 3. Линковка
 echo "LINK ${NAME}.asi"

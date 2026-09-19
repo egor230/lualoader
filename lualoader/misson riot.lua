@@ -5,9 +5,9 @@
 --
 -- ПОТОК ОРИГИНАЛА:
 -- 1. Миссия начинается у ОФИСА КЕНА (118.0, -825.9, 10.5). Значок ставит
---    штатная обёртка Star_mission_marker (C++ short-range блайп, пересоздаётся
---    для повтора автоматически). Поверх него из Lua ставится дальнобойный
---    спрайт-блайп 9 (Lawyer), чтобы старт было видно на радаре издалека.
+--    штатная обёртка Star_mission_marker (C++ блайп, пересоздаётся
+--    для повтора автоматически): с 19.09.2026 метка дальнобойная
+--    (ADD_SPRITE_BLIP_FOR_CONTACT_POINT 0x2A7) — видна на карте издалека.
 -- 2. SET_PLAYER_MOOD 1 60000, REQUEST_ANIMATION 'RIOT'. Два блайпа:
 --    магазин Рафаэля — СПРАЙТ-БЛАЙП (radar_set_coord_blip + radar_set_blip_sprite
 --    28, значок одежды; оригинал ADD_SPRITE_BLIP_FOR_COORD ... 28 $59);
@@ -29,22 +29,11 @@
 --    SET_OBJECT_COORDINATES обратно 298,-313.6,11 = закрыть ворота).
 -- ============================================================================
 
-function main()нет
-local riot_start_blip = nil -- дальнобойная метка старта (спрайт 9), пока миссия не началась
-
+function main()
 while true do wait() local player = findplayer()
-
- -- C++ Star_mission_marker ставит короткобойную метку (видна только вблизи).
- -- Добавляем дальнобойный спрайт-блайп на те же координаты — логику старта
- -- (заморозку/фейд/проверку у маркера) не трогаем, только индикация на радаре.
- if riot_start_blip == nil then
-  riot_start_blip = radar_set_coord_blip(0, 118.0, -825.9, 10.5, 2, 2)
-  if riot_start_blip ~= nil then radar_set_blip_sprite(riot_start_blip, 9) end
- end
 
  if Star_mission_marker(9, 118.0, -825.9, 10.5)
  then
-  if riot_start_blip ~= nil then remove_blip(riot_start_blip) riot_start_blip = nil end
   -- Обёртка (mod.lua:1410) гасит экран и размораживает игрока.
   -- ped_frozen(0)=ЗАМОРОЗИТЬ, ped_frozen(1)=РАЗМОРОЗИТЬ (races() мод.lua:401/414).
   ped_frozen(1)
@@ -327,7 +316,6 @@ while true do wait() local player = findplayer()
   if dress_blip ~= nil then remove_blip(dress_blip) dress_blip = nil end
   if dress_sphere ~= nil then remove_sphere(dress_sphere) dress_sphere = nil end
   if site_blip ~= nil then remove_blip(site_blip) site_blip = nil end
-  if riot_start_blip ~= nil then remove_blip(riot_start_blip) riot_start_blip = nil end
   if step == 3 then set_riot_intensity(0) end
   -- M_FAIL (оригинал @L485a1): если ворота успели открыться — закрыть обратно
   -- (SLIDE_OBJECT назад в 298,-313.6,11). set-координат в API нет, используем
