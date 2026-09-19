@@ -1,4 +1,3 @@
-
 #include<fstream>
 #include <windows.h>
 #include <winuser.h>
@@ -23861,6 +23860,27 @@ int shutdown_trains(lua_State* L) { // завершить поезда
 	CTrain::Shutdown();
 	return 0;};
 
+int setobjоcoordes(lua_State* L) {// установить координаты для объект.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 1)) {//указатель на объект и координаты.
+
+			const void* p = lua_topointer(L, 1);
+			CObject* obj = findobjinpool(p);// получить указатель на объект.
+
+			float x = lua_tonumber(L, 2);
+			float y = lua_tonumber(L, 3);
+			float z = lua_tonumber(L, 4);
+			Command<COMMAND_SET_OBJECT_COORDINATES>(CPools::GetObjectRef(obj), x, y, z);
+			return 0;
+		}
+		else { throw "bad argument in function setobjоcoordes"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+
 int create_rope2(lua_State* L) { // создать веревку на координатах.
 	//try {
 /*
@@ -25110,7 +25130,7 @@ void writelog(const char x[]) {// запись ошибок в файл.
 	mtx.unlock();
 	f1.close();
 };
- 
+
 void cpp_trace(const char x[]) {// запись трейса C++ в тот же trace.txt, что и ma_trace из lua.
 
 	mtx.lock();

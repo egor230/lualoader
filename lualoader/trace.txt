@@ -83763,3 +83763,11 @@ pipir: userdata: 053b8568 (299.0,-314.6) = false
 pipir: userdata: 053b8568 (299.0,-314.6) = false
 pipir: userdata: 053b8568 (299.0,-314.6) = true
 printmessage
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
