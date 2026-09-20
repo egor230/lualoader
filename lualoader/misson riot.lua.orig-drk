@@ -53,7 +53,6 @@ while true do wait()  local player = findplayer()  -- указатель игр�
    local escalated = 0     -- толпа взбешена ($2205)
    local riot_intensity = 127  -- уровень беспорядков (0552), убывает по убийствам пикетчиков
    local gates_open = 0    -- ворота стройки открыты ($2206)
-   local gate_frames = 0   -- осталось кадров движения ворот (6ед / 0.1ед-в-кадр = 60 кадров ≈ 2 с; как оригинал L47f4e)
    local law4_13_shown = 0  -- LAW4_13 печатается один раз при подъезде близко
    local agit1_drop = 0    -- колт уже выпал из трупа агитатора 1
    local agit2_drop = 0    -- колт уже выпал из трупа агитатора 2
@@ -192,14 +191,17 @@ while true do wait()  local player = findplayer()  -- указатель игр�
     printmessage("~r~Destroy the trucks! Now!", 8000, 1)
    end
 
-if step == 3 then  -- (оригинал @L4725d: главный цикл боя — любой урон пикетчику от игрока ЛЮБЫМ оружием → вся толпа сразу дерётся; 5-я ревизия: HP-детектор по кадрам, 6-я: явные цели kill_char_on_foot)
+   if step == 3 then  -- (оригинал @L4725d: главный цикл боя — пикетчик жив, здоровье ≤99 и толпа не взбешена → в бой, 053D+01CA)
     for i, r in ipairs(rioters) do
-     if isped(r) then
+if isped(r) then
       if not ispeddead(r) then
        local h = getpedhealthf(r)  -- float-HP текущего кадра (оригинал 8184 NOT IS_CHAR_HEALTH_GREATER $2177 99 заменить надёжным детектором)
-       if bite_flag[i] == 0 and escalated == 0 and h < hp_prev[i] then  -- ЛЮБОЙ урон (даже минимальный, ЛЮБЫМ оружием): HP упало относительно прошлого кадра
+       if bite_flag[i] == 0 and escalated == 0
+        and h < hp_prev[i] then  -- ЛЮБОЙ урон (даже минимальный): HP упало относительно прошлого кадра, а не порог >99
         bite_flag[i] = 1
         bitten = bitten + 1
+        clean_ped_wait(r)
+        if dressed == 0 then set_char_obj_kill_player_on_foot(r, player) end  -- (в одежде рабочие игрока не трогают — правится толпой)
        end
        hp_prev[i] = h  -- запомнить HP кадра для сравнения на следующем
       else
@@ -214,11 +216,11 @@ if step == 3 then  -- (оригинал @L4725d: главный цикл боя 
      end
     end
 
-    if escalated == 0 and (bitten > 0 or killed > 0) then  -- (оригинал L47c68 → GOSUB L48970: любой урон/убийство рабочего → ВСЯ толпа вступает; порог >3/>2 заменён на «сразу»)
+    if escalated == 0 and (bitten > 0 or killed > 0) then  -- (оригинал L47c68 → GOSUB L48970: любой урон рабочему от игрока → вся толпа вступает; порог >3/>2 заменён на «сразу»; killed>0 — если с одного удара/выстрела убили, bite не выставится, а убийство тоже провоцирует толпу)
      if dressed == 0 then  -- (БЕЗ одежды: рабочие поняли, что игрок — чужак → вся толпа валит НА ИГРОКА)
       for _, r in ipairs(rioters) do
        if isped(r) then
-        clean_ped_wait(r)                     -- 053D (исправлено: раньше функция всегда кидала bad argument — wait-state 29 не снимался, драки не было)
+        clean_ped_wait(r)                     -- 053D
         set_ped_personality(r, 30)            -- 0243
         ped_search_threat(r, 16)              -- 011A (прохожие)
         ped_search_threat(r, 1)               -- 011A (игрок — главная цель)
@@ -226,18 +228,13 @@ if step == 3 then  -- (оригинал @L4725d: главный цикл боя 
        end
       end
       printmessage("~r~They've seen you! Get out!", 4000, 1)
-     else  -- (В одежде рабочего: дерутся ДРУГ С ДРУГОМ; только когда рука/машина задела — даём цель-«соседа»)
-      local n = #rioters
-      for i, r in ipairs(rioters) do
+     else  -- (В одежде рабочего: дерутся друг с другом, игрока не трогают)
+      for _, r in ipairs(rioters) do
        if isped(r) then
-        clean_ped_wait(r)                     -- 053D ((исправлено: раньше wait-state 29 не снимался — рабочие стояли и не дрались)
-        set_ped_only_damaged_by_player(r, false)  -- (оригинал L486b3 02A9: снять «только игрок может ранить» — иначе урон между рабочими не проходит)
+        clean_ped_wait(r)                     -- 053D
+        set_ped_only_damaged_by_player(r, false)  -- (оригинал L486b3 02A9: только игрок мог ранить (создание), для драки друг с другом флаг СНИМАЕМ — иначе урон между рабочими не проходит)
         set_ped_personality(r, 30)            -- 0243
         ped_search_threat(r, 16)              -- 011A (прохожие — бьют друг друга)
-        local t = rioters[(i % n) + 1]        -- цель-«сосед»: каждый рабочий СРАЗУ целится в соседа →
-        if t ~= nil and isped(t) and t ~= r then
-         set_char_obj_kill_char_on_foot(r, t) -- (0216 SET_CHAR_OBJ_KILL_CHAR_ON_FOOT — гарантирует, что рабочий реально нападает на другого рабочего)
-        end
        end
       end
       printmessage("~r~The workers have turned on each other! Get the trucks!", 4000, 1)
@@ -246,11 +243,11 @@ if step == 3 then  -- (оригинал @L4725d: главный цикл боя 
      ma_trace("riot: вся толпа взбешена ($2205=1), dressed=" .. tostring(dressed))
     end
 
-    if escalated == 1 and dressed == 1 and gates_open == 0 then  -- (оригинал L47dfc: в одежде толпа воет → открыть ворота SLIDE_OBJECT $1778 → 304 -313.6 11, GDA-боссы 0243/011A, LAW4_14; без одежды игрока бьют — ворота не открываются)
+    if escalated == 1 and dressed == 1 and gates_open == 0 then  -- (оригинал L47dfc-L47f89: в одежде толпа воет → ОТКРЫТЬ ВОРОТА SLIDE_OBJECT $1778 → 304 -313.6 11, GDA-боссы 0243/011A, LAW4_14; без одежды игрока бьют — ворота не открываются)
      gates_open = 1
-     gate_frames = 60  -- SLIDE_OBJECT по 0.1/кадр: 298→304 = 6 ед = 60 кадров (оригинал L47f4e)
      if gate ~= nil then
-      ma_trace("riot: ворота открываются (SLIDE_OBJECT 298 → 304 -313.6 11)")  -- движение ниже, каждый кадр (как L47f4e: SLIDE_OBJECT двигает на 0.1 за кадр, пока не доедет)
+      move_obj(gate, 304.0, -313.6, 11.0, 0.1, 0.1, 0.0, 0)  -- ворота: 298,-313.6,11 → 304,-313.6,11 со скоростью 0.1, коллизия выкл
+      ma_trace("riot: ворота открываются (SLIDE_OBJECT 304 -313.6 11)")
      end
      if agit1 ~= nil and isped(agit1) then
       set_ped_personality(agit1, 30)
@@ -267,11 +264,6 @@ if step == 3 then  -- (оригинал @L4725d: главный цикл боя 
       set_ped_accuracy(leader, 10)
      end
      printmessage("~r~Lawyers and cops are on their way! Get the trucks!", 8000, 1)
-    end
-
-    if gates_open == 1 and gate ~= nil and gate_frames > 0 then  -- (оригинал @L47f4e: движение ворот БЕЗ кадрового getobjcoordes, каждый кадр SLIDE_OBJECT — ровно 60 кадров, потом стоп; getobjcoordes каждый кадр навсегда = findobjinpool sleep_for(1ms)+скан пула → зависание кадра)
-     move_obj(gate, 304.0, -313.6, 11.0, 0.1, 0.1, 0.0, 0)
-     gate_frames = gate_frames - 1
     end
 
     if killed > 14 then  -- убито >14 → SET_RIOT_INTENSITY 0 (оригинал L47cac)

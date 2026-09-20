@@ -476,6 +476,22 @@ int getpedhealth(lua_State* L) { // получить кол-во здоровь�
 	return 0;
 };
 
+int getpedhealthf(lua_State* L) { // получить кол-во здоровья педа (float, для ловли ЛЮБОГО урона).
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			if (ped == NULL) { lua_pushnumber(L, 0.0); return 1; }
+			lua_pushnumber(L, (double)ped->m_fHealth);// float-здоровье в стек.
+			return 1;
+		}
+		else { throw "bad argument in function getpedhealthf"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
 int getcarhealth(lua_State* L) { // получить кол-во здоровья авто.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
@@ -6743,7 +6759,7 @@ int set_ped_reaction_threat(lua_State* L) {// уст реакцию педа н�
 
 int obj_target(lua_State* L) {// в объект можно целиться.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == (L, 2)) {// значение объект.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// значение объект.
 			const void* p = lua_topointer(L, 1);
 			CObject* obj = findobjinpool(p);// получить указатель на объект.
 			bool sw = lua_toboolean(L, 2);
@@ -6759,7 +6775,7 @@ int obj_target(lua_State* L) {// в объект можно целиться.
 
 int clean_ped_wait(lua_State* L) {// пед больше не ждет.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == (L, 2)) {// указатель на педа.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
 
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
@@ -12027,6 +12043,41 @@ int radar_set_blip_sprite(lua_State* L) {// radar_set_blip_sprite(id, icon) - у
 		else { throw "bad argument in function radar_set_blip_sprite"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int radar_add_sprite_blip_for_coord(lua_State* L) {// 02A8 ADD_SPRITE_BLIP_FOR_COORD (x,y,z,sprite,&id) - спрайт-блайп на карте как в оригинале (рабочий!).
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {// четыре числа: x,y,z,sprite (id — выходной, пишется в &point).
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2); float z = lua_tonumber(L, 3);
+			int sprite = lua_tointeger(L, 4);
+			int point;
+			Command<COMMAND_ADD_SPRITE_BLIP_FOR_COORD>(x, y, z, sprite, &point);// оригинальный opcode 02A8.
+			markeron.emplace(point, L);// добавить в map для маркеров — destroy() снимет.
+			cpp_tracef("radar_add_sprite_blip_for_coord: sprite=%d id=%d", sprite, point);
+			lua_pushinteger(L, point);
+			return 1;
+		}
+		else { throw "bad argument in function radar_add_sprite_blip_for_coord"; }
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int radar_add_blip_for_coord(lua_State* L) {// 018A ADD_BLIP_FOR_COORD (x,y,z,&id) - обычный координатный блайп как в оригинале (рабочий!).
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {// три числа.
+			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2); float z = lua_tonumber(L, 3);
+			int point;
+			Command<COMMAND_ADD_BLIP_FOR_COORD>(x, y, z, &point);// оригинальный opcode 018A (внутри colour=5, display=BOTH, scale=3).
+			markeron.emplace(point, L);
+			cpp_tracef("radar_add_blip_for_coord: id=%d", point);
+			lua_pushinteger(L, point);
+			return 1;
+		}
+		else { throw "bad argument in function radar_add_blip_for_coord"; }
+	}
+	catch (const char* x) { writelog(x); }
 	return 0;
 };
 

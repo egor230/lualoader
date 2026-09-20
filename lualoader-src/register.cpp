@@ -8,6 +8,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "setarmour", setarmour); // 3 установить броню педу.
 	lua_register(L, "wait", wait); // 4 задержка.
 	lua_register(L, "getpedhealth", getpedhealth); // 5 получить здоровье педа.
+	lua_register(L, "getpedhealthf", getpedhealthf); // получить здоровье педа (float).
 	lua_register(L, "getpedangle", getpedangle); // 6 получить угол педа.
 	lua_register(L, "worldcoord", worldcoord); // 7 Перевод в мировые координаты.
 	lua_register(L, "getpedcoordinates_on_x", getpedcoordinates_on_x); // 8 Получить мировую координату по x для педа.
@@ -466,6 +467,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "radar_change_blip_scale", radar_change_blip_scale); // 460 размер метки.
 	lua_register(L, "radar_change_blip_display", radar_change_blip_display); // 461 показ метки.
 	lua_register(L, "radar_set_blip_sprite", radar_set_blip_sprite); // 462 иконка метки.
+	lua_register(L, "radar_add_sprite_blip_for_coord", radar_add_sprite_blip_for_coord); // 462а спрайт-блайп на карте (02A8).
+	lua_register(L, "radar_add_blip_for_coord", radar_add_blip_for_coord); // 462б координатный блайп на карте (018A).
 	lua_register(L, "radar_show_marker", radar_show_marker); // 463 показать маркер в мире.
 	lua_register(L, "radar_set_marker_state", radar_set_marker_state); // 464 состояние маркера миссии.
 	lua_register(L, "radar_draw_radar_sprite", radar_draw_radar_sprite); // 465 отрисовать спрайт радара.

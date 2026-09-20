@@ -238,6 +238,7 @@ int cleanstl();// очистка stl.
 int wait(lua_State* L);// задержка
 int findplayer(lua_State* L);// найти педа.
 int getpedhealth(lua_State* L);// получить здоровье педа.
+int getpedhealthf(lua_State* L);// получить здоровье педа (float).
 int setpedhealth(lua_State* L);// установить здоровье педа.
 
 int getpedarmour(lua_State* L); // получить броню педа.
@@ -1805,6 +1806,8 @@ int radar_clear_blip_for_entity(lua_State* L);
 int radar_draw_radar_sprite(lua_State* L);
 int radar_get_radar_range(lua_State* L);
 int radar_set_blip_sprite(lua_State* L);
+int radar_add_sprite_blip_for_coord(lua_State* L);// 02A8 ADD_SPRITE_BLIP_FOR_COORD (x,y,z,sprite) -> id: спрайт-блайп на карте (рабочий, как в оригинале).
+int radar_add_blip_for_coord(lua_State* L);// 018A ADD_BLIP_FOR_COORD (x,y,z) -> id: обычный координатный блайп на карте (рабочий, как в оригинале).
 int radar_set_coord_blip(lua_State* L);
 int radar_set_entity_blip(lua_State* L);
 int radar_set_marker_state(lua_State* L);

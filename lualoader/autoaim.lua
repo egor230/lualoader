@@ -4,24 +4,27 @@ while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
  if Keypress("VK_G") -- если клавиша H.
   then mod_autoaim("M40", "on")  printmessage("~r~on autoaim", 3400,1 )
+  setpedcoordes(player, 86.0, -1125.1, 10.3)
  end
 
  if Keypress("VK_H") -- если клавиша H.
   then  mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
+  setpedcoordes(player, 299.0, -314.6, 11.4)
+  Giveweaponped(player,600,"m4")-- дать педу оружие. 
  end
 
-	if Keypress("VK_J") -- если клавиша H.
-     then Giveweaponped(player,600,"M40")-- дать педу оружие.
-       x,y,z=getpedcoordinates_on_y(player, 10)
-       setpedcoordes(player,  -349.0, -427.0, 10.9)
-     	-- ped1 = Createped("IGMERC", x,y,z)-- создать педа на координатах.
-      --   x,y,z=getpedcoordinates_on_y(player, 20)
-      --   ped_walk_to_point(ped1,x,y,z) wait(4000)
-    end
   end
 
 end
 
+	-- if Keypress("VK_J") -- если клавиша H.
+  --    then Giveweaponped(player,600,"M40")-- дать педу оружие.
+  --      x,y,z=getpedcoordinates_on_y(player, 10)
+  --      setpedcoordes(player,  -349.0, -427.0, 10.9)
+  --   end
+-- ped1 = Createped("IGMERC", x,y,z)-- создать педа на координатах.
+--   x,y,z=getpedcoordinates_on_y(player, 20)
+--   ped_walk_to_point(ped1,x,y,z) wait(4000)
   --Giveweaponped(player,600,"sniper")-- дать педу оружие.
    -- wait(1000)
 
