@@ -12,32 +12,6 @@ mutex mtx;
 list<char*>listfile;//Список Lua файлов.
 list<lua_State*>luastate;// list для lua состояний.
 string cheatstr;// символы введенные с клавиатуры.
-// Эпоха перезагрузки (async-teardown): publish() штампует состояние текущей эпохой,
-// teardown инкрементирует эпоху — все старые состояния мгновенно становятся устаревшими,
-// их wait() отдаёт ход владельцу, и тот сам закрывает СВОЁ состояние. Teardown никого не ждёт.
-std::atomic<unsigned int> g_lua_epoch(0);
-static std::unordered_map<lua_State*, unsigned int> g_state_epoch;// эпоха, в которой опубликовано состояние.
-static std::mutex g_epoch_mx;
-void lua_state_stamp(lua_State* L) {// публикация: зафиксировать эпоху состояния.
-	if (!L) return;
-	std::lock_guard<std::mutex> lk(g_epoch_mx);
-	g_state_epoch[L] = g_lua_epoch.load();
-};
-void lua_state_unstamp(lua_State* L) {// владелец закрыл состояние.
-	if (!L) return;
-	std::lock_guard<std::mutex> lk(g_epoch_mx);
-	g_state_epoch.erase(L);
-};
-bool lua_state_obsolete(lua_State* L) {// состояние из старого поколения?
-	// ВАЖНО: не найденное в карте состояние = НЕ устаревшее (false). Иначе второй поток L1
-	// (lua_newthread(L)), который отдельно не штампуется, на каждом wait() давал бы yield —
-	// машина второго потока ломается (вылет). Устаревают только ЯВНО проштампованные старые L.
-	if (!L) return false;
-	std::lock_guard<std::mutex> lk(g_epoch_mx);
-	auto it = g_state_epoch.find(L);
-	return it != g_state_epoch.end() && it->second < g_lua_epoch.load();
-};
-static std::mutex g_destroy_mutex;// сериализация destroy(): при teardown-по-владельцу destroy могут звать сразу несколько потоков.
 string g_last_player_skin_name = "DEFAULT";// последний скин игрока (set_skin) для get_current_skin_name.
 static map<int, lua_State*>markeron;// map для маркеров.
 static map<int, lua_State*>spheres;// map для маркеров кругов.
@@ -407,17 +381,7 @@ int wait(lua_State* L) {
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
 			int time = lua_tointeger(L, 1); // время задержки.
-			// ПАУЗА (yield): при остановке/перезагрузке скрипт сам, из СВОЕГО wait(), отдаёт
-			// ход владельцу — lua_yield из собственного кадра всегда разрешён (в отличие от hook-йield,
-			// который внутри C-вызова рвёт корутину с ошибкой). Ничего не закрываем.
-			if (scripts_paused.load() || lua_state_obsolete(L)) { return lua_yield(L, 0); }
-			// дробим ожидание порциями, чтобы reload разбудил скрипт максимум за ~10мс.
-			while (time > 0 && !scripts_paused.load() && !lua_state_obsolete(L)) {
-				int step = time > 10 ? 10 : time;
-				this_thread::sleep_for(chrono::milliseconds(step));
-				time -= step;
-			}
-			if (scripts_paused.load() || lua_state_obsolete(L)) { return lua_yield(L, 0); }
+			this_thread::sleep_for(chrono::milliseconds(time));
 			return 0;
 		}// int
 		if (LUA_TSTRING == lua_type(L, 1) || LUA_TBOOLEAN == lua_type(L, 1)) {
@@ -427,7 +391,6 @@ int wait(lua_State* L) {
 			throw "bad argument in function wait";
 		}
 		else {
-			if (scripts_paused.load() || lua_state_obsolete(L)) { return lua_yield(L, 0); }
 			this_thread::sleep_for(chrono::milliseconds(1)); return 0;
 			/*	delay = iters;
 				while (true)
@@ -1281,7 +1244,6 @@ int create_marker_car(lua_State* L) {//создать маркер над авт
 
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);//  получить указатель на авто.
-			if (car == NULL) return 0;// авто нет в пуле — маркер не вешать (GetVehicleRef(NULL) небезопасен — см. iscardead)
 			Command<COMMAND_ADD_BLIP_FOR_CAR>(CPools::GetVehicleRef(car), &marker);
 
 			markeron.emplace(marker, L);// добавить в map для маркеров.
@@ -2153,8 +2115,8 @@ int create_marker_obj(lua_State* L) {//создать маркер над объ
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на объект.
 			const void* p = lua_topointer(L, 1);
-			CObject* obj = findobjinpool(p);// получить указатель на объекта.
-			if (obj == NULL) return 0;// объекта нет в пуле — маркер не вешать (GetObjectRef(NULL) небезопасен — см. iscardead)
+			CObject* obj = findobjinpool(p);// получить указатель на педа.
+
 			Command<COMMAND_ADD_BLIP_FOR_OBJECT>(CPools::GetObjectRef(obj), &marker);//создать маркер над объектом.
 			markeron.emplace(marker, L);// добавить в map для маркеров.
 			lua_pushinteger(L, marker);// отправить в стек.
@@ -2581,7 +2543,6 @@ int play_voice(lua_State* L) {// проиграть реплику педа.
 			const char* voice = lua_tostring(L, 1);
 			Command<COMMAND_LOAD_MISSION_AUDIO>(1, voice);// загрузить реплику.
 			while (true) {
-				if (teardown_active.load()) break;// пауза: reload выключает скрипты — аудио не ждём.
 				this_thread::sleep_for(chrono::milliseconds(1));
 				if (Command<COMMAND_HAS_MISSION_AUDIO_LOADED>(1)) {
 					Command<COMMAND_PLAY_MISSION_AUDIO>(1);
@@ -2627,7 +2588,6 @@ void load_model_before_avalible(int model) {
 	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
 	int guard = 0;
 	while (!Command<COMMAND_HAS_MODEL_LOADED>(model)) {
-		if (teardown_active.load()) break;// пауза: reload выключает скрипты — модель не ждём.
 		this_thread::sleep_for(chrono::milliseconds(1));// задержка
 		Command<COMMAND_REQUEST_MODEL>(model);
 		if (++guard % 3000 == 0) cpp_tracef("load_model_before_avalible: ЖДЁМ модель id=%d (~%d мс)", model, guard);
@@ -3568,7 +3528,6 @@ int set_camera_and_point(lua_State* L) {// установить и переме�
 static int getcord(queue<float>q, const void* p) {
 	CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 	while (!q.empty()) {
-		if (teardown_active.load()) return 0;// пауза: reload выключает скрипты — не едем на координаты.
 		this_thread::sleep_for(chrono::milliseconds(1));
 		float x = q.front(); q.pop();
 		float y = q.front(); q.pop();
@@ -3576,7 +3535,6 @@ static int getcord(queue<float>q, const void* p) {
 
 		Command<COMMAND_CAR_GOTO_COORDINATES>(car, x, y, z);// авто едет на координаты.
 		while (!car->IsSphereTouchingVehicle(x, y, z, 3.0)) {
-			if (teardown_active.load()) return 0;// пауза: reload выключает скрипты — прекращаем вести авто.
 			this_thread::sleep_for(chrono::milliseconds(1));
 			//if (car->m_fHealth < 100){
 			//	break;
@@ -3815,23 +3773,6 @@ int get_ped_model_index(lua_State* L) {// получить ID базовой м�
 int get_current_skin_name(lua_State* L) {// получить имя последнего установленного скина игрока (set_skin).
 	try {
 		lua_pushstring(L, g_last_player_skin_name.c_str());// имя скина в стек.
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
-
-int get_player_skin(lua_State* L) {// получить НАСТОЯЩЕЕ имя текущей модели игрока (CModelInfo, а не кэш set_skin): "player" — обычный Томми, "player3" — в одежде рабочего и т.д.; переживёт любую смену скина и перезагрузку скрипта.
-	try {
-		CPed* ped = FindPlayerPed();
-		if (ped == NULL) { cpp_trace("get_player_skin: FindPlayerPed NULL"); lua_pushstring(L, ""); return 1; }
-		int mi_id = ped->m_nModelIndex;
-		CBaseModelInfo* mi = NULL;
-		if (mi_id >= 0 && mi_id < CModelInfo::ms_modelInfoCount) mi = CModelInfo::ms_modelInfoPtrs[mi_id];// CModelInfo::GetModelInfo(int) НЕ проверяет ОТРИЦАТЕЛЬНЫЙ индекс: modelId < ms_modelInfoCount пропускает минус → ms_modelInfoPtrs[-1] = OOB-чтение → краш. Проверяем обе границы сами
-		else cpp_tracef("get_player_skin: modelInfo id=%d ВНЕ ДИАПАЗОНА (count=%d)", mi_id, (int)CModelInfo::ms_modelInfoCount);
-		if (mi == NULL) { cpp_tracef("get_player_skin: modelInfo id=%d NULL", mi_id); lua_pushstring(L, ""); return 1; }
-		cpp_tracef("get_player_skin: id=%d name=%s", mi_id, mi->m_szName);
-		lua_pushstring(L, mi->m_szName);
 		return 1;
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
@@ -4201,7 +4142,6 @@ int Createped(lua_State* L) {// макрос создать педа.
 int expectations(int model, CVehicle* car) {
 	if (car == NULL) { writelog("Createcar: EXPECTATIONS: car is NULL"); return 1; }
 	while (true) {
-		if (teardown_active.load()) return 0;// пауза: reload выключает скрипты — видимость авто не ждём.
 		this_thread::sleep_for(chrono::milliseconds(10));// задержка
 		if (car->IsVisible()) {
 
@@ -7195,7 +7135,6 @@ int ispeddead(lua_State* L) {// пед мертв.
 
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) { lua_pushboolean(L, true); return 1; }// педа НЕТ в пуле (труп вывезен/удалён игрой) = мёртв; БЕЗ этой проверки GetPedRef(NULL) → GetJustIndex(NULL) читает память ЗА пределами пула → спорадический segfault
 			bool sw = Command<COMMAND_IS_CHAR_DEAD>(CPools::GetPedRef(ped));
 			lua_pushboolean(L, sw);
 			return 1;
@@ -7213,7 +7152,6 @@ int iscardead(lua_State* L) {// авто уничтожено.
 
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
-			if (car == NULL) { lua_pushboolean(L, true); return 1; }// авто НЕТ в пуле (обломок вывезен/удалён игрой) = уничтожено; БЕЗ этой проверки GetVehicleRef(NULL) → GetJustIndex(NULL) читает память ЗА пределами пула → спорадический segfault (краш Riot при добивании грузовиков)
 			bool sw = Command<COMMAND_IS_CAR_DEAD>(CPools::GetVehicleRef(car));
 			lua_pushboolean(L, sw);
 			return 1;
@@ -7689,12 +7627,10 @@ int set_ped_can_shot_in_car(lua_State* L) {// водитель авто може
 
 int iscarfire(lua_State* L) {// авто горит?
 	try {// 0495: vehicle $6313 burning
-		cpp_trace("iscarfire: вход");// диагностический трейс: вызывается 3×/кадр в маркерном блоке Riot — если краш здесь, trace.txt оборвётся на этой строке
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
 
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
-			if (car == NULL) { lua_pushboolean(L, false); return 1; }// авто НЕТ в пуле = не горит (и GetVehicleRef(NULL) небезопасен — см. iscardead)
 			bool sw = Command<COMMAND_IS_CAR_ON_FIRE>(CPools::GetVehicleRef(car));
 			lua_pushboolean(L, sw);
 			return 1;
@@ -23553,7 +23489,6 @@ int turncar_with_delay(CVehicle* car, float angle, int time, int switc) {
 
 int destroy(lua_State* L) {// удаления объектов из памяти при перезагрузки скрипта.
  	cpp_trace("destroy: ВХОД");
- 	std::lock_guard<std::mutex> gk(g_destroy_mutex);// только один destroy одновременно (несколько pump-потоков + миссия).
  	int i;
  	map<int, lua_State*>::iterator it;
 
@@ -24013,606 +23948,6 @@ int newthread(lua_State* L) {// новый поток.
 	return 0;
 };
 
-// =====================================================================
-// НОВЫЕ ФУНКЦИИ (добавлены 2026-09-21 из gta vc база / reVC / IDA-отчёта):
-// поведение педов (взгляд/следование/прикрепление), ИИ авто, преступность,
-// огонь, HUD, свет, частицы. Адреса в комментариях — Steam (gta_vc Steam 1.1).
-// =====================================================================
-
-CEntity* findluaentity(const void* p) {// найти сущность (пед/авто/объект) по указателю из Lua.
-	CEntity* e = (CEntity*)findpedinpool(p);
-	if (!e) { e = (CEntity*)findcarinpool(p); }
-	if (!e) { e = (CEntity*)findobjinpool(p); }
-	return e;
-};
-
-int ped_set_look(lua_State* L) {// заставить педа смотреть на сущность (CPed::SetLook 0x4FC9D0).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (!ped) { lua_pushboolean(L, false); return 1; }
-			CEntity* ent = findluaentity(lua_topointer(L, 2));
-			if (!ent) { lua_pushboolean(L, false); return 1; }
-			ped->SetLook(ent);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function ped_set_look"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
-
-int ped_set_look_flag(lua_State* L) {// задать флаг взгляда педа (CPed::SetLookFlag 0x50BA30).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (!ped) { lua_pushboolean(L, false); return 1; }
-			CEntity* ent = findluaentity(lua_topointer(L, 2));
-			if (!ent) { lua_pushboolean(L, false); return 1; }
-			bool keep = (LUA_TBOOLEAN == lua_type(L, 3)) ? lua_toboolean(L, 3) : true;// не бросать взгляд при новом.
-			bool cancel = (LUA_TBOOLEAN == lua_type(L, 4)) ? lua_toboolean(L, 4) : false;// отменить предыдущий взгляд.
-			ped->SetLookFlag(ent, keep, cancel);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function ped_set_look_flag"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int ped_can_see_entity(lua_State* L) {// может ли пед видеть сущность (CPed::CanSeeEntity 0x51C760). угол FOV в градусах.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (!ped) { lua_pushboolean(L, false); return 1; }
-			CEntity* ent = findluaentity(lua_topointer(L, 2));
-			if (!ent) { lua_pushboolean(L, false); return 1; }
-			float fov = 0.82f;// CAN_SEE_ENTITY_ANGLE_THRESHOLD (в радианах).
-			if (LUA_TNUMBER == lua_type(L, 3)) { fov = (float)lua_tonumber(L, 3) * 0.017453292f; }// градусы -> радианы.
-			lua_pushboolean(L, ped->CanSeeEntity(ent, fov));
-			return 1;
-		}
-		else { throw "bad argument in function ped_can_see_entity"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int ped_set_move_state(lua_State* L) {// задать скорость передвижения педа (CPed::SetMoveState 0x50CFD0). 0 нет/1 стоять/2 идти/4 бежать/5 спринт.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (!ped) { lua_pushboolean(L, false); return 1; }
-			int state = lua_tointeger(L, 2);
-			if (state < 0) { state = 0; }
-			if (state > 5) { state = 5; }
-			ped->SetMoveState((eMoveState)state);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function ped_set_move_state"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int ped_set_wander_path(lua_State* L) {// вкл/выкл блуждание педа по пути (CPed::SetWanderPath 0x4FAB80).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (!ped) { lua_pushboolean(L, false); return 1; }
-			bool on = lua_toboolean(L, 2);
-			ped->SetWanderPath(on ? 1 : 0);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function ped_set_wander_path"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int ped_set_follow_path(lua_State* L) {// пед следует по пути к точке (CPed::SetFollowPath 0x4F9E20).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (!ped) { lua_pushboolean(L, false); return 1; }
-			float x = (float)lua_tonumber(L, 2); float y = (float)lua_tonumber(L, 3); float z = (float)lua_tonumber(L, 4);
-			CVector dest = { x, y, z };
-			float radius = (LUA_TNUMBER == lua_type(L, 5)) ? (float)lua_tonumber(L, 5) : 0.0f;
-			int move = (LUA_TNUMBER == lua_type(L, 6)) ? lua_tointeger(L, 6) : 2;// 2 = идти.
-			int time = (move == PEDMOVE_WALK) ? 2000 : 250;
-			ped->SetFollowPath(dest, radius, (eMoveState)move, NULL, NULL, time);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function ped_set_follow_path"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int ped_attach_to_entity(lua_State* L) {// прикрепить педа к сущности (CPed::AttachPedToEntity 0x4EF350).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (!ped) { lua_pushboolean(L, false); return 1; }
-			CEntity* ent = findluaentity(lua_topointer(L, 2));
-			if (!ent) { lua_pushboolean(L, false); return 1; }
-			float x = (float)lua_tonumber(L, 3); float y = (float)lua_tonumber(L, 4); float z = (float)lua_tonumber(L, 5);
-			float angle = (LUA_TNUMBER == lua_type(L, 6)) ? ((float)lua_tonumber(L, 6) * 0.017453292f) : 0.0f;// угол в градусах.
-			int position = (LUA_TNUMBER == lua_type(L, 7)) ? lua_tointeger(L, 7) : 0;// 0 своё направление, 1-3 поворот относительно авто.
-			int weapon = (LUA_TNUMBER == lua_type(L, 8)) ? lua_tointeger(L, 8) : 0;// оружие педа.
-			ped->AttachPedToEntity(ent, x, y, z, (unsigned short)position, angle, (eWeaponType)weapon);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function ped_attach_to_entity"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int ped_point_gun_at(lua_State* L) {// пед целится оружием в сущность (CPed::SetPointGunAt 0x52DCE0).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (!ped) { lua_pushboolean(L, false); return 1; }
-			CEntity* ent = findluaentity(lua_topointer(L, 2));
-			if (!ent) { lua_pushboolean(L, false); return 1; }
-			ped->SetPointGunAt(ent);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function ped_point_gun_at"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int car_join_road_system(lua_State* L) {// встроить авто в систему дорог (CCarCtrl::JoinCarWithRoadSystem 0x41CFD0).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
-			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);
-			if (!car) { lua_pushboolean(L, false); return 1; }
-			CCarCtrl::JoinCarWithRoadSystem(car);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function car_join_road_system"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int car_join_road_goto(lua_State* L) {// встроить авто в дороги с целью ехать к точке (CCarCtrl::JoinCarWithRoadSystemGotoCoors 0x41CE80).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);
-			if (!car) { lua_pushboolean(L, false); return 1; }
-			float x = (float)lua_tonumber(L, 2); float y = (float)lua_tonumber(L, 3); float z = (float)lua_tonumber(L, 4);
-			bool any = (LUA_TBOOLEAN == lua_type(L, 5)) ? lua_toboolean(L, 5) : true;// ехать по любой дороге.
-			lua_pushboolean(L, CCarCtrl::JoinCarWithRoadSystemGotoCoors(car, CVector{ x, y, z }, any));
-			return 1;
-		}
-		else { throw "bad argument in function car_join_road_goto"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int car_switch_real_physics(lua_State* L) {// вернуть авто настоящую физику (CCarCtrl::SwitchVehicleToRealPhysics 0x41D2A0).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
-			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);
-			if (!car) { lua_pushboolean(L, false); return 1; }
-			CCarCtrl::SwitchVehicleToRealPhysics(car);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function car_switch_real_physics"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int car_update_on_rails(lua_State* L) {// обновить движение авто по рельсам (CCarCtrl::UpdateCarOnRails).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
-			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);
-			if (!car) { lua_pushboolean(L, false); return 1; }
-			CCarCtrl::UpdateCarOnRails(car);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function car_update_on_rails"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int car_set_component_rotation(lua_State* L) {// повернуть компонент авто (CVehicle::SetComponentRotation 0x5A6740). углы в градусах.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5)) {
-			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);
-			if (!car) { lua_pushboolean(L, false); return 1; }
-			int comp = lua_tointeger(L, 2);
-			float x = (float)lua_tonumber(L, 3); float y = (float)lua_tonumber(L, 4); float z = (float)lua_tonumber(L, 5);
-			car->SetComponentRotation(comp, CVector{ x, y, z });
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function car_set_component_rotation"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int car_open_door(lua_State* L) {// открыть/закрыть дверь авто (CVehicle::OpenDoor 0x5A6750). 0 капот/1 багажник/2-5 двери, 1.0 открыта/0.0 закрыта.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {
-			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);
-			if (!car) { lua_pushboolean(L, false); return 1; }
-			int door = lua_tointeger(L, 2);
-			if (door < 0) { door = 0; }
-			if (door > 5) { door = 5; }
-			float ratio = (LUA_TNUMBER == lua_type(L, 3)) ? (float)lua_tonumber(L, 3) : 1.0f;
-			car->OpenDoor(door + 5, (eDoors)door, ratio);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function car_open_door"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int car_goto_coors(lua_State* L) {// поручить авто ИИ ехать к точке (CCarAI::GetCarToGoToCoors 0x419D20). возврат: расстояние до цели.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);
-			if (!car) { lua_pushnumber(L, 0.0); return 1; }
-			CVector dest = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
-			lua_pushnumber(L, CCarAI::GetCarToGoToCoors(car, &dest));
-			return 1;
-		}
-		else { throw "bad argument in function car_goto_coors"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int car_park_at_coors(lua_State* L) {// поручить авто ИИ припарковаться у точки (CCarAI::GetCarToParkAtCoors 0x419CC0). возврат: расстояние до цели.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);
-			if (!car) { lua_pushnumber(L, 0.0); return 1; }
-			CVector dest = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
-			lua_pushnumber(L, CCarAI::GetCarToParkAtCoors(car, &dest));
-			return 1;
-		}
-		else { throw "bad argument in function car_park_at_coors"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int player_nearby_peds_interact(lua_State* L) {// педы рядом взаимодействуют с игроком (CPlayerPed::SetNearbyPedsToInteractWithPlayer 0x530EA0).
-	try {
-		CPlayerPed& player1 = *FindPlayerPed();
-		player1.SetNearbyPedsToInteractWithPlayer();
-		lua_pushboolean(L, true);
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int clear_adrenaline(lua_State* L) {// снять адреналин игрока (CPlayerPed::ClearAdrenaline 0x531BB0).
-	try {
-		CPlayerPed& player1 = *FindPlayerPed();
-		player1.ClearAdrenaline();
-		lua_pushboolean(L, true);
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int annoy_player_ped(lua_State* L) {// разозлить педа на игрока (CPlayerPed::AnnoyPlayerPed).
-	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {
-			bool flag = lua_toboolean(L, 1);
-			CPlayerPed& player1 = *FindPlayerPed();
-			player1.AnnoyPlayerPed(flag);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function annoy_player_ped"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int set_max_wanted_level(lua_State* L) {// задать максимум уровня розыска (CWanted::SetMaximumWantedLevel 0x4D1D50).
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int level = lua_tointeger(L, 1);
-			CWanted::SetMaximumWantedLevel(level);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function set_max_wanted_level"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int register_crime(lua_State* L) {// зарегистрировать преступление игрока (CWanted::RegisterCrime 0x4D1FB0). тип по eCrimeType.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			int type = lua_tointeger(L, 1);
-			CVector pos = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
-			bool dontcare = (LUA_TBOOLEAN == lua_type(L, 5)) ? lua_toboolean(L, 5) : false;// полиции всё равно.
-			CPlayerPed& player1 = *FindPlayerPed();
-			if (!player1.m_pWanted) { lua_pushboolean(L, false); return 1; }
-			player1.m_pWanted->RegisterCrime((eCrimeType)type, pos, 0, dontcare);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function register_crime"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int register_crime_immediately(lua_State* L) {// мгновенно (без очереди) зарегистрировать преступление (CWanted::RegisterCrime_Immediately).
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			int type = lua_tointeger(L, 1);
-			CVector pos = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
-			bool dontcare = (LUA_TBOOLEAN == lua_type(L, 5)) ? lua_toboolean(L, 5) : false;
-			CPlayerPed& player1 = *FindPlayerPed();
-			if (!player1.m_pWanted) { lua_pushboolean(L, false); return 1; }
-			player1.m_pWanted->RegisterCrime_Immediately((eCrimeType)type, pos, 0, dontcare);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function register_crime_immediately"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int pad_shake(lua_State* L) {// трясти геймпад игрока (CPad::StartShake 0x4AD1B0). длительность в мс, частота.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int dur = lua_tointeger(L, 1);
-			int freq = (LUA_TNUMBER == lua_type(L, 2)) ? lua_tointeger(L, 2) : 64;
-			CPad* pad = CPad::GetPad(0);
-			pad->StartShake((short)dur, (unsigned char)freq);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function pad_shake"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int stop_pad_shaking(lua_State* L) {// прекратить тряску геймпадов (CPad::StopPadsShaking 0x4AAF40).
-	try {
-		CPad::StopPadsShaking();
-		lua_pushboolean(L, true);
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int extinguish_point(lua_State* L) {// потушить огонь в точке (CFireManager::ExtinguishPoint 0x48E410).
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			CVector p = { (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3) };
-			float range = (float)lua_tonumber(L, 4);
-			gFireManager.ExtinguishPoint(p, range);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function extinguish_point"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int extinguish_point_with_water(lua_State* L) {// потушить огонь в точке водой (CFireManager::ExtinguishPointWithWater 0x48E240).
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			CVector p = { (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3) };
-			float range = (float)lua_tonumber(L, 4);
-			lua_pushboolean(L, gFireManager.ExtinguishPointWithWater(p, range));
-			return 1;
-		}
-		else { throw "bad argument in function extinguish_point_with_water"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int is_script_fire_extinguished(lua_State* L) {// потушен ли скриптовый огонь (CFireManager::IsScriptFireExtinguished 0x48E080).
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int idx = lua_tointeger(L, 1);
-			lua_pushboolean(L, gFireManager.IsScriptFireExtinguished((short)idx));
-			return 1;
-		}
-		else { throw "bad argument in function is_script_fire_extinguished"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int remove_script_fire(lua_State* L) {// удалить скриптовый огонь по индексу (CFireManager::RemoveScriptFire).
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int idx = lua_tointeger(L, 1);
-			gFireManager.RemoveScriptFire((short)idx);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function remove_script_fire"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int remove_all_script_fires(lua_State* L) {// удалить все скриптовые огни (CFireManager::RemoveAllScriptFires).
-	try {
-		gFireManager.RemoveAllScriptFires();
-		lua_pushboolean(L, true);
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int start_script_fire(lua_State* L) {// запустить скриптовый огонь в точке (CFireManager::StartScriptFire). возврат: индекс огня.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {
-			CVector p = { (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3) };
-			CEntity* target = (LUA_TLIGHTUSERDATA == lua_type(L, 4)) ? findluaentity(lua_topointer(L, 4)) : NULL;// поджечь сущность.
-			lua_pushnumber(L, gFireManager.StartScriptFire(p, target));
-			return 1;
-		}
-		else { throw "bad argument in function start_script_fire"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int set_help_message(lua_State* L) {// показать сообщение помощи (CHud::SetHelpMessage 0x55BEB0).
-	try {
-		if (LUA_TSTRING == lua_type(L, 1)) {
-			const char* msg = lua_tostring(L, 1);
-			bool quick = (LUA_TBOOLEAN == lua_type(L, 2)) ? lua_toboolean(L, 2) : false;
-			bool permanent = (LUA_TBOOLEAN == lua_type(L, 3)) ? lua_toboolean(L, 3) : false;
-			CHud::SetHelpMessage(msg, quick, permanent);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function set_help_message"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int get_percentage_progress(lua_State* L) {// процент прохождения игры (CStats::GetPercentageProgress 0x4CD7C7).
-	try {
-		lua_pushnumber(L, CStats::GetPercentageProgress());
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int get_criminal_rating(lua_State* L) {// уровень преступника (CStats::FindCriminalRatingNumber 0x4CD83B).
-	try {
-		lua_pushnumber(L, CStats::FindCriminalRatingNumber());
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int point_light_add(lua_State* L) {// добавить точечный источник света (CPointLights::AddLight 0x5675F0). тип: 0 свет-точка/1 направленный/2 тоннель/3 низкое затухание.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6) && LUA_TNUMBER == lua_type(L, 7) && LUA_TNUMBER == lua_type(L, 8) && LUA_TNUMBER == lua_type(L, 9) && LUA_TNUMBER == lua_type(L, 10) && LUA_TNUMBER == lua_type(L, 11)) {
-			unsigned char type = (unsigned char)lua_tointeger(L, 1);
-			CVector point = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
-			CVector dir = { (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7) };
-			float range = (float)lua_tonumber(L, 8);
-			float r = (float)lua_tonumber(L, 9); float g = (float)lua_tonumber(L, 10); float b = (float)lua_tonumber(L, 11);
-			unsigned char fog = (LUA_TNUMBER == lua_type(L, 12)) ? (unsigned char)lua_tointeger(L, 12) : 4;
-			bool extra = (LUA_TBOOLEAN == lua_type(L, 13)) ? lua_toboolean(L, 13) : false;// доп. тени.
-			CPointLights::AddLight(type, point, dir, range, r, g, b, fog, extra);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function point_light_add"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int shot_add_tracer(lua_State* L) {// добавить трассер пули (CShotInfo::AddShot 0x5C7F40). возврат: успех.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6) && LUA_TNUMBER == lua_type(L, 7) && LUA_TNUMBER == lua_type(L, 8)) {
-			CEntity* creator = findluaentity(lua_topointer(L, 1));
-			if (!creator) { lua_pushboolean(L, false); return 1; }
-			int weapon = lua_tointeger(L, 2);
-			CVector origin = { (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5) };
-			CVector target = { (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (float)lua_tonumber(L, 8) };
-			lua_pushboolean(L, CShotInfo::AddShot(creator, (eWeaponType)weapon, origin, target));
-			return 1;
-		}
-		else { throw "bad argument in function shot_add_tracer"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int add_jet_explosion(lua_State* L) {// добавить взрыв-струю (CParticle::AddJetExplosion 0x5603E0).
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5)) {
-			CVector p = { (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3) };
-			float power = (float)lua_tonumber(L, 4);
-			float size = (float)lua_tonumber(L, 5);
-			CParticle::AddJetExplosion(p, power, size);
-			lua_pushboolean(L, true);
-			return 1;
-		}
-		else { throw "bad argument in function add_jet_explosion"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int add_particle(lua_State* L) {// добавить частицу (CParticle::AddParticle 0x563BB0). возврат: указатель на частицу.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6) && LUA_TNUMBER == lua_type(L, 7)) {
-			int type = lua_tointeger(L, 1);
-			CVector pos = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
-			CVector dir = { (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7) };
-			CEntity* ent = (LUA_TLIGHTUSERDATA == lua_type(L, 8)) ? findluaentity(lua_topointer(L, 8)) : NULL;
-			float size = (LUA_TNUMBER == lua_type(L, 9)) ? (float)lua_tonumber(L, 9) : 1.0f;
-			CParticle* p = CParticle::AddParticle((tParticleType)type, pos, dir, ent, size, 0, 0, 0, 0);
-			lua_pushlightuserdata(L, p);
-			return 1;
-		}
-		else { throw "bad argument in function add_particle"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
 wchar_t* getwchat(const char* c) {// перевод в строку.
 	const size_t cSize = strlen(c) + 1;
 	wchar_t* wc = new wchar_t[cSize]; mbstowcs(wc, c, cSize);
@@ -24666,303 +24001,3 @@ void cpp_tracef(const char* fmt, ...) {// форматированная зап�
 	cpp_trace(buf);
 };
 
-
-// ============================================================================
-// МИССИЯ "TREACHEROUS SWINE" (07, GENERL1) — недостающие опкоды оригинала.
-// Все обёртки follow тому же стилю: try/catch + writelog, проверка типов lua_type.
-// ============================================================================
-
-int set_free_resprays(lua_State* L) {// 0335: SET_FREE_RESPRAYS — вкл/выкл бесплатные респреи.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int flag = lua_toboolean(L, 1);
-			Command<COMMAND_SET_FREE_RESPRAYS>(flag);
-			return 0;
-		}
-		else { throw "bad argument in function set_free_resprays"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int has_respray_happened(lua_State* L) {// 0329: HAS_RESPRAY_HAPPENED — был ли респрай в гараже (вариант: 0 = любой).
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int garage = lua_tointeger(L, 1);
-			bool result = Command<COMMAND_HAS_RESPRAY_HAPPENED>(garage);
-			lua_pushboolean(L, result);
-			return 1;
-		}
-		else { throw "bad argument in function has_respray_happened"; }
-	}
-	catch (const char* x) { writelog(x); }
-	lua_pushboolean(L, false);
-	return 1;
-};
-
-int set_camera_behind_player(lua_State* L) {// 0373: SET_CAMERA_BEHIND_PLAYER.
-	try {
-		Command<COMMAND_SET_CAMERA_BEHIND_PLAYER>();
-		return 0;
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int get_fading_status(lua_State* L) {// 016B: GET_FADING_STATUS — идёт ли затемнение/проявление.
-	try {
-		bool result = Command<COMMAND_GET_FADING_STATUS>();
-		lua_pushboolean(L, result);
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }
-	lua_pushboolean(L, false);
-	return 1;
-};
-
-int get_game_timer(lua_State* L) {// 01BD: GET_GAME_TIMER — игровое время в миллисекундах.
-	try {
-		lua_pushinteger(L, CTimer::m_snTimeInMilliseconds);
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }
-	lua_pushinteger(L, 0);
-	return 1;
-};
-
-int set_chars_chatting(lua_State* L) {// 03F9: SET_CHARS_CHATTING — два педа болтают timer мс.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)
-			&& LUA_TNUMBER == lua_type(L, 3)) {
-			const void* p1 = lua_topointer(L, 1);
-			const void* p2 = lua_topointer(L, 2);
-			int timer = lua_tointeger(L, 3);
-			CPed* ped1 = findpedinpool(p1);
-			CPed* ped2 = findpedinpool(p2);
-			if (ped1 == NULL || ped2 == NULL) { throw "entity not found in function set_chars_chatting"; }
-			Command<COMMAND_SET_CHARS_CHATTING>(CPools::GetPedRef(ped1), CPools::GetPedRef(ped2), timer);
-			return 0;
-		}
-		else { throw "bad argument in function set_chars_chatting"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int create_random_char(lua_State* L) {// 0376: CREATE_RANDOM_CHAR — случайный пед в точке.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
-			&& LUA_TNUMBER == lua_type(L, 3)) {
-			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2); float z = lua_tonumber(L, 3);
-			CVector pos = { x, y, z };
-			CPed* ped = NULL;
-			Command<COMMAND_CREATE_RANDOM_CHAR>(pos.x, pos.y, pos.z, &ped);
-			if (ped == NULL) { writelog("create_random_char: CREATE_RANDOM_CHAR вернул NULL"); lua_pushnil(L); return 1; }
-			CPed* p = findpedinpool(ped);
-			mappeds.emplace(ped, L);
-			lua_pushlightuserdata(L, ped);
-			return 1;
-		}
-		else { throw "bad argument in function create_random_char"; }
-	}
-	catch (const char* x) { writelog(x); }
-	lua_pushnil(L);
-	return 1;
-};
-
-int dont_remove_object(lua_State* L) {// 01C7: DONT_REMOVE_OBJECT — движок не удалит объект.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
-			const void* p = lua_topointer(L, 1);
-			CObject* obj = findobjinpool(p);
-			if (obj == NULL) { throw "entity not found in function dont_remove_object"; }
-			Command<COMMAND_DONT_REMOVE_OBJECT>(CPools::GetObjectRef(obj));
-			return 0;
-		}
-		else { throw "bad argument in function dont_remove_object"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int char_follow_path(lua_State* L) {// 009E: CHAR_FOLLOW_PATH — пед идёт по пути к точке.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
-			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
-			&& LUA_TNUMBER == lua_type(L, 5)) {
-			const void* p = lua_topointer(L, 1);
-			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3); float z = lua_tonumber(L, 4);
-			int flag = lua_tointeger(L, 5);
-			CPed* ped = findpedinpool(p);
-			if (ped == NULL) { throw "entity not found in function char_follow_path"; }
-			Command<COMMAND_CHAR_FOLLOW_PATH>(CPools::GetPedRef(ped), x, y, z, flag);
-			return 0;
-		}
-		else { throw "bad argument in function char_follow_path"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int is_char_wander_path_clear(lua_State* L) {// 0510: IS_CHAR_WANDER_PATH_CLEAR — свободен ли путь.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
-			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
-			&& LUA_TNUMBER == lua_type(L, 5)) {
-			const void* p = lua_topointer(L, 1);
-			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3); float z = lua_tonumber(L, 4);
-			int flag = lua_tointeger(L, 5);
-			CPed* ped = findpedinpool(p);
-			if (ped == NULL) { throw "entity not found in function is_char_wander_path_clear"; }
-			bool result = Command<COMMAND_IS_CHAR_WANDER_PATH_CLEAR>(CPools::GetPedRef(ped), x, y, z, flag);
-			lua_pushboolean(L, result);
-			return 1;
-		}
-		else { throw "bad argument in function is_char_wander_path_clear"; }
-	}
-	catch (const char* x) { writelog(x); }
-	lua_pushboolean(L, false);
-	return 1;
-};
-
-int turn_player_to_face_char(lua_State* L) {// 0210: TURN_PLAYER_TO_FACE_CHAR.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (ped == NULL) { throw "entity not found in function turn_player_to_face_char"; }
-			Command<COMMAND_TURN_PLAYER_TO_FACE_CHAR>(CWorld::PlayerInFocus, CPools::GetPedRef(ped));
-			return 0;
-		}
-		else { throw "bad argument in function turn_player_to_face_char"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int turn_char_to_face_player(lua_State* L) {// 020F: TURN_CHAR_TO_FACE_PLAYER.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (ped == NULL) { throw "entity not found in function turn_char_to_face_player"; }
-			Command<COMMAND_TURN_CHAR_TO_FACE_PLAYER>(CPools::GetPedRef(ped), CWorld::PlayerInFocus);
-			return 0;
-		}
-		else { throw "bad argument in function turn_char_to_face_player"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int turn_char_to_face_coord(lua_State* L) {// 01BE: TURN_CHAR_TO_FACE_COORD.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
-			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			const void* p = lua_topointer(L, 1);
-			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3); float z = lua_tonumber(L, 4);
-			CPed* ped = findpedinpool(p);
-			if (ped == NULL) { throw "entity not found in function turn_char_to_face_coord"; }
-			Command<COMMAND_TURN_CHAR_TO_FACE_COORD>(CPools::GetPedRef(ped), x, y, z);
-			return 0;
-		}
-		else { throw "bad argument in function turn_char_to_face_coord"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int set_car_density_multiplier(lua_State* L) {// 01EB: SET_CAR_DENSITY_MULTIPLIER.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {
-			float mult = lua_tonumber(L, 1);
-			Command<COMMAND_SET_CAR_DENSITY_MULTIPLIER>(mult);
-			return 0;
-		}
-		else { throw "bad argument in function set_car_density_multiplier"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int request_collision(lua_State* L) {// 04E4: REQUEST_COLLISION — загрузить коллизию в точке.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {
-			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2);
-			Command<COMMAND_REQUEST_COLLISION>(x, y);
-			return 0;
-		}
-		else { throw "bad argument in function request_collision"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int switch_rubbish(lua_State* L) {// 03AD: SWITCH_RUBBISH.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int flag = lua_toboolean(L, 1);
-			Command<COMMAND_SWITCH_RUBBISH>(flag);
-			return 0;
-		}
-		else { throw "bad argument in function switch_rubbish"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int switch_streaming(lua_State* L) {// 03AF: SWITCH_STREAMING.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int flag = lua_toboolean(L, 1);
-			Command<COMMAND_SWITCH_STREAMING>(flag);
-			return 0;
-		}
-		else { throw "bad argument in function switch_streaming"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int mark_char_as_no_longer_needed(lua_State* L) {// 01C2: MARK_CHAR_AS_NO_LONGER_NEEDED.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);
-			if (ped == NULL) { throw "entity not found in function mark_char_as_no_longer_needed"; }
-			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));
-			return 0;
-		}
-		else { throw "bad argument in function mark_char_as_no_longer_needed"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int set_visibility_of_closest_object_of_type(lua_State* L) {// 0363: SET_VISIBILITY_OF_CLOSEST_OBJECT_OF_TYPE — координаты, радиус, тип модели, флаг видимости.
-	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
-			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6)) {
-			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2); float z = lua_tonumber(L, 3);
-			float radius = lua_tonumber(L, 4);
-			int model = lua_tointeger(L, 5);
-			int visible = lua_toboolean(L, 6);
-			Command<COMMAND_SET_VISIBILITY_OF_CLOSEST_OBJECT_OF_TYPE>(x, y, z, radius, model, visible);
-			return 0;
-		}
-		else { throw "bad argument in function set_visibility_of_closest_object_of_type"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
-};
-
-int get_player_wanted_level(lua_State* L) {// уровень розыска игрока (0..6) — надёжный детектор респрея для Swine.
-	try {
-		CPlayerPed& player = *FindPlayerPed();
-		lua_pushinteger(L, (int)player.GetWanted()->m_nWantedLevel);
-		return 1;
-	}
-	catch (const char* x) { writelog(x); }
-	lua_pushinteger(L, 0);
-	return 1;
-};

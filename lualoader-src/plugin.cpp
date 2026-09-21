@@ -1,7 +1,32 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 #include "funcs.h"
+#include <map>
+#include <mutex>
+#include <set>
+#include <vector>
+#include <thread>
+#include <atomic>
 using namespace plugin;
 using namespace std;
+
+static map<lua_State*, bool> scriptRunning;// флаг «поток скрипта ещё жив» (по lua_State).
+static mutex scriptMutex;
+static void script_started(lua_State* L) { lock_guard<mutex> lk(scriptMutex); scriptRunning[L] = true; }
+static void script_stopped(lua_State* L) { lock_guard<mutex> lk(scriptMutex); scriptRunning[L] = false; }
+static bool script_is_running(lua_State* L) { lock_guard<mutex> lk(scriptMutex); auto it = scriptRunning.find(L); return it != scriptRunning.end() && it->second; }
+static std::atomic<bool> reload_busy(false);// защита от одновременных перезагрузок.
+static std::atomic<bool> scripts_disabled(false);// Ctrl = ВЫКЛ: скрипты выгружены и сами больше не запускаются.
+std::atomic<bool> scripts_paused(false);// ПАУЗА по yield (extern в funcs.h): wait() делает lua_yield, pump-потоки паркуются.
+std::atomic<bool> teardown_active(false);// ПАУЗА на время разборки (extern в funcs.h): блокирующие API рвут свои циклы.
+// --- Teardown «по владельцу» (async): каждый pump-поток закрывает СВОЁ lua_State. ---
+// Поколения состояний: эпоха (g_lua_epoch) + stamp-карта (функции в funcs.cpp).
+// teardown инкрементирует эпоху — все существующие состояния становятся устаревшими
+// МГНОВЕННО (без ожидания); их wait() отдаёт ход владельцу на ближайшем ~10мс-границе,
+// владелец сам закрывает своё состояние. Новые скрипты получают новую эпоху и не трогаются.
+static std::atomic<int>  active_pumps(0);       // живые pump-потоки (включая ещё не стартовавшие).
+static std::set<lua_State*> pumpLive;           // состояния, чей владелец-поток жив (опубликованы в luastate).
+static std::mutex pumpLive_mx;
+static std::mutex luastate_mx;                  // доступы к luastate — только под этим мутексом.
 
 struct star_thread {
 	static bool star_second_thread;// запускать второй поток.
@@ -84,9 +109,127 @@ void writelog3(int x) {// запись ошибок в файл.
 	string er2(buffer); f1 << er2 << "\n"; }
 	f1.close();
 };
+// Опубликовать состояние: список + владелец регистрируются ДО того, как состояние станет
+// видно другим потокам/свипу — закрытие чужого состояния исключено по построению.
+static void publish_state(lua_State* L) {
+	std::lock_guard<std::mutex> lk(luastate_mx); luastate.push_back(L);
+	std::lock_guard<std::mutex> pk(pumpLive_mx); pumpLive.insert(L);
+	active_pumps.fetch_add(1);
+	lua_state_stamp(L);// состояние относится к ТЕКУЩЕМУ поколению — reload его не тронет.
+}
+// Владелец закончил НОРМАЛЬНО (не reload): состояние остаётся в luastate (его подберёт след. reload-свип).
+static void drop_owner(lua_State* L) {
+	std::lock_guard<std::mutex> pk(pumpLive_mx); pumpLive.erase(L);
+	active_pumps.fetch_sub(1);
+	lua_state_unstamp(L);
+}
+// reload: владелец полностью разбирает СВОЁ состояние (отослать terminate, destroy, убрать из списков).
+// lua_close НЕ зовём (закрытие живого состояния роняло игру) — состояние остаётся, но никому не мешает.
+static void owner_selfclose(lua_State* L) {
+	cpp_tracef("owner_selfclose: состояние %p разбирает его владелец", (void*)L);
+	lua_getglobal(L, "onScriptTerminate");
+	if (lua_type(L, -1) == LUA_TFUNCTION) {
+		if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+			const char* err = lua_tostring(L, -1);
+			if (err) writelog(err);
+			lua_pop(L, 1);
+		}
+	}
+	else { lua_pop(L, 1); }
+	destroy(L);
+	std::lock_guard<std::mutex> lk(luastate_mx); luastate.remove(L);
+	std::lock_guard<std::mutex> pk(pumpLive_mx); pumpLive.erase(L);
+	active_pumps.fetch_sub(1);
+	lua_state_unstamp(L);
+	cpp_trace("owner_selfclose: состояние закрыто владельцем");
+}
+// Единый хостинг pump-потока. Состояние ДОЛЖНО быть уже опубликовано publish_state().
+// L1 — «второй поток» (lua_newthread внутри L); для create_newthread приходим как
+// pump_owner(L1, nullptr, args, true) — свой поток уже сам первый resume делает сам.
+static void pump_owner(lua_State* L, lua_State* L1, int args, bool first_resume) {
+	script_started(L);
+	if (first_resume) lua_resume(L, NULL, args, NULL);
+	while (LUA_OK != lua_status(L) && !lua_state_obsolete(L)) {
+		this_thread::sleep_for(chrono::milliseconds(1)); // задержка.
+		if (scripts_paused.load()) continue;// ПАУЗА по yield: скрипт сам замер (wait() -> lua_yield),
+		                                     // ничего не закрываем и не ресумеим — просто паркуемся (обратимо).
+		if (L1 != NULL && LUA_TFUNCTION == lua_type(L1, -1) && LUA_YIELD == lua_status(L) && star_coroutine::get()) {
+			for (int i = 1; i <= args; i++) { lua_pushvalue(L1, i); }// расстановка аргументов для вызова функции.
+			lua_resume(L1, L, args, NULL);
+		}
+		if (L1 != NULL && LUA_YIELD == lua_status(L1)) {// если второй на паузе.
+			lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 800); //вызов функции с заданной паузой.
+			lua_resume(L, L1, 0, NULL);// возобновить основной поток.
+		}
+		if (L1 != NULL && LUA_OK == lua_status(L1)) {// если второй поток завершен.
+			lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
+			lua_resume(L, NULL, 0, NULL);
+		}
+		if (LUA_YIELD == lua_status(L) || (L1 != NULL && LUA_YIELD == lua_status(L1) && !star_coroutine::get())) {
+			break;
+		}
+	}
+	script_stopped(L);
+	if (lua_state_obsolete(L)) { owner_selfclose(L); }
+	else { drop_owner(L); }
+}
+// Единая разборка — АСИНХРОННАЯ: сначала ПАУЗА ВСЕХ СКРИПТОВ, потом закрытие по владельцам.
+// ПАУЗА (шаги 1-2): глобальный флаг teardown_active рвёт блокирующие API
+// (play_voice/load_model/getcord/expectations), флаг миссии+star_coroutine выгоняют из главных
+// циклов, эпоха+1 заставляет wait() отдать ход. БЕЗ форс-hook: hook-йield внутри C-вызова
+// рвёт корутину с ошибкой (вылет) — скрипты останавливаются только yield из СВОЕГО wait().
+// Теardown НИКОГО не ждёт (никакого зависания), сирот (поток уже мёртв) закрываем сейчас.
+static void teardown_all(bool restart) {
+	if (reload_busy.exchange(true)) { cpp_trace("teardown: другая разборка уже идёт — пропуск"); return; }
+	cpp_tracef("teardown: вход (restart=%d), pump-потоков: %d, состояний: %u", (int)restart, active_pumps.load(), (unsigned)luastate.size());
+	// ---- 1. ПАУЗА ВСЕХ СКРИПТОВ (до любой разборки) ----
+	teardown_active.store(true);// блокирующие API рвут свои длинные циклы (тела скриптов успокаиваются).
+	bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
+	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
+	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии (скрипты выходят из своих циклов).
+	stop_mission_watch();// сторож миссии не должен трогать закрываемые состояния.
+	// 2. РАЗБОРКА: переводим все существующие состояния в «устаревшее» поколение (эпоха+1).
+	g_lua_epoch.fetch_add(1);// ВСЕ существующие состояния устарели — мгновенно, без ожидания.
+	// 3. Свип сирот (ждут только состояния без живого владельца). Живых владельцев НЕ трогаем.
+	std::vector<lua_State*> snapshot;
+	{
+		std::lock_guard<std::mutex> lk(luastate_mx);
+		for (auto L : luastate) snapshot.push_back(L);
+	}
+	for (auto L : snapshot) {
+		bool owned = false;
+		{ std::lock_guard<std::mutex> pk(pumpLive_mx); owned = pumpLive.count(L) != 0; }
+		// Живым владельцам break не ставим (форс-hook-йield внутри C-вызова рвёт корутину с ошибкой) —
+		// они сами сворачиваются: wait() даёт yield по устаревшей эпохе, блокирующие API рвутся по
+		// teardown_active. Сирот (поток уже мёртв) закрываем сейчас.
+		if (owned) { continue; }
+		// Сирота: владелец-поток уже завершился — состояние осиротело. Закрываем сейчас (своего потока нет — безопасно).
+		cpp_tracef("teardown: сирота %p — закрываю", (void*)L);
+		lua_getglobal(L, "onScriptTerminate");
+		if (lua_type(L, -1) == LUA_TFUNCTION) {
+			if (lua_pcall(L, 0, 0, 0) != LUA_OK) { const char* err = lua_tostring(L, -1); if (err) writelog(err); lua_pop(L, 1); }
+		} else { lua_pop(L, 1); }
+		destroy(L);
+		std::lock_guard<std::mutex> lk(luastate_mx); luastate.remove(L);
+		lua_state_unstamp(L);
+	}
+	// Старые владельцы ещё живы и закроют свои состояния САМИ (асинхронно, через owner_selfclose) —
+	// cleanstl() НЕ зовём: их destroy() создаёт СВОИ объекты, а освобождённые STL-хранилища будут
+	// им только мешать. scriptRunning/pumpLive не чистим — сведения о живых владельцах ещё актуальны.
+	reload_busy.store(false);// разблокируем для возможного нового reload (старые владельцы докончат сами).
+	if (restart) {
+		this_thread::sleep_for(chrono::milliseconds(100));// дать старым владельцам начать сворачиваться.
+		std::thread(start_lualoder).detach();
+	}
+	// 4. ПАУЗА снята: новые скрипты (если есть) больше не видят флаг. Старые владельцы всё равно
+	// остаются устаревшими по эпохе — они доводят закрытие своих состояний, когда доберутся до wait.
+	teardown_active.store(false);
+	cpp_trace("teardown: разборка запущена (владельцы закрывают свои состояния сами после yield)");
+}
 int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// запуска скрипта.
 
 	state Lua; lua_State* L = Lua.get(); lua_gc(L, LUA_GCSTOP, 1);// отключить сборщик мусора.
+	script_started(L);// пометить состояние: поток скрипта жив.
 	char str123[255]; auto j = std::filesystem::current_path();
 	string c1 = j.string();	c1 = c1 + "\\?.lua"; strcpy(str123, c1.c_str());
 	lua_pushstring(L, str123);	lua_setglobal(L, "fullpath");	luaL_dostring(L, "package.path = fullpath");
@@ -109,41 +252,31 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 			lua_pcall(L, 0, 0, 0);// запуск файла.
 			lua_getglobal(L, "main");	//writelog3("star scpipt");
 			if (LUA_TFUNCTION == lua_type(L, -1)) {
-				luastate.push_back(L);// добавить указатель на lua состояния в list.
+				publish_state(L);// владелец+список регистрируются ДО видимости состояния (teardown-по-владельцу).
 
 			    lua_resume(L, NULL, 0, NULL);	// запуск файла.
 				lua_State* L1 = lua_newthread(L);// создать новый поток.
+				lua_state_stamp(L1);// второй поток тоже привязан к поколению (не считается «устаревшим»).
 
 				if (!star_coroutine::get()){// если нельзя запустить второой поток в скрипте.
 
 					//writelog3("exit");
+					script_stopped(L);// поток скрипта завершается.
+					drop_owner(L);// состояние остаётся в luastate — подберёт следующий reload.
 					return 0;
 				}
 				else {
 					int args = lua_gettop(L);// получить аргументы для второго потока.
 					lua_xmove(L, L1, args);	args--;	reversestack(L1); //инвертировать содержимое стека.
-					while (LUA_OK != lua_status(L)) {// Пока основной поток не закончен.
-						this_thread::sleep_for(chrono::milliseconds(1)); // задержка.
-						if (LUA_TFUNCTION == lua_type(L1, -1) && LUA_YIELD == lua_status(L) && star_coroutine::get()) {
-
-							for (int i = 1; i <= args; i++) { lua_pushvalue(L1, i); }// расстановка аргументов для вызова функции.
-							lua_resume(L1, L, args, NULL);
-						}
-						if (LUA_YIELD == lua_status(L1)) {// если второй на паузе.
-							lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 800); //вызов функции с заданной паузой.
-							lua_resume(L, L1, 0, NULL);// возобновить основной поток.
-						}
-						if (LUA_OK == lua_status(L1)) {// если второй поток завершен.
-							lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
-							lua_resume(L, NULL, 0, NULL);
-						}
-						if (LUA_YIELD == lua_status(L) || LUA_YIELD == lua_status(L1) && (!star_coroutine::get())) {
-							break;
-		}   }	}	}	else { /*lua_close(L);*/ }
+					pump_owner(L, L1, args, false);// помп на СВОЁМ потоке: при reload владелец сам разберёт СВОЁ состояние.
+				}
+			}
+			else { /*lua_close(L);*/ }
 
 		}
 		else {	string er1 = lua_tostring(L, -1); string er0 = "could not load " + er1;
 			char* x = strdup(er1.c_str());		writelog(x);}// записать ошибку в файл.
+		script_stopped(L);// поток скрипта завершается.
 		return 0;
 };
 
@@ -161,13 +294,17 @@ void search_scripts() {// поиск всех lua файлов для запус
 
 		}
 	};
-	std::thread(reload).detach(); // перегрузка скрипта по нажатию клавиши.
-
-	std::thread(getkeyenvent).detach();// считывания символов клавиатуры.
+	static bool background_started = false;// reload/getkeyenvent спавним ОДИН раз на сессию:
+	if (!background_started) {              // иначе на каждый старт скриптов плодятся новые потоки
+		background_started = true;          // и при Ctrl-перезагрузке срабатывают сразу несколько reload.
+		std::thread(reload).detach();       // одновременная чистка luastate несколькими reload = краш.
+		std::thread(getkeyenvent).detach();// считывания символов клавиатуры.
+	}
 };
 
 bool s = true;
 int start_lualoder() { // найти все lua файлы. меню 12,	старт новой игры 1.
+	if (scripts_disabled.load()) { star_thread::set(false); return 0; }// Ctrl выключил скрипты: сами не запускаемся.
 	star_thread::set(s);// Новая игра 7	 загрузка 8 точно загрузка 10 в игре 32. 8, 1, 10 загрузка.  1, 7 новая игра. 32 в игр
 	CMenuManager& MenuManager = FrontEndMenuManager;// менеджер меню из SDK (раньше хардкод 0x869630).
 	int step = 0;
@@ -223,39 +360,18 @@ public: Message() {
 
 
 int final_scripts() {
-	bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
-	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии.
-	stop_mission_watch();// сторож миссии не должен трогать закрываемые состояния.
-	for (auto L : luastate) {
-		lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 100);// прервать выполнение.
-		while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }// дождаться завершения.
-		// graceful shutdown: если скрипт объявил onScriptTerminate() — дать снять свои хуки/ресурсы.
-		lua_getglobal(L, "onScriptTerminate");
-		if (lua_type(L, -1) == LUA_TFUNCTION) {
-			if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
-				const char* err = lua_tostring(L, -1);
-				if (err) writelog(err);
-				lua_pop(L, 1);
-			}
-		}
-		else { lua_pop(L, 1); }
-		destroy(L);// удалить все объекты (существующая функция очистки).
-		lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
-		cpp_trace("final_scripts: lua_close состояния");
-		lua_close(L);// полное уничтожение контекста (раньше отсутствовало — утечка).
-	};
-	luastate.clear();// было UB: pop_front() в range-for по list.
-	cleanstl();	//
+	teardown_all(false);// единая разборка по владельцам (без рестарта: загрузка сейва / выход в меню).
 	return 0;
 };
 int pause_scripts() {
+	// ПАУЗА всех скриптов через НАТИВНЫЙ yield: скрипты сами делают return lua_yield(L,0) в СВОЁМ wait().
+	// Никакой форс-hook: hook-йield внутри не-yieldable C-вызова рвёт корутину с ошибкой (вылет).
+	// Ничего не закрываем, не разрушаем — просто замораживаем (обратимо).
 	bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
 	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
-	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии.
-	for (auto L : luastate) {
-		lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 100);// отключить хук.
-	}
+	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии (скрипты выходят из своих циклов).
+	scripts_paused.store(true);// wait() внутри скриптов теперь делает lua_yield на ближайшем вызове.
+	cpp_trace("ПАУЗА: вход, скрипты замораживаются (yield-пауза без teardown)\n");// маркер для диагностики.
 	return 0;
 };
 
@@ -266,39 +382,14 @@ int reload() {// перегрузка по нажатию клавиши.
 			break;
 		}
 	};
+	if (scripts_disabled.load()) { return 0; }// скрипты уже остановлены — повторно не трогаем.
 	while (true) {
 		this_thread::sleep_for(chrono::milliseconds(1)); //|| m == 7 || m == 10
-		if (!KeyPressed(VK_CONTROL) ) {// перезагрузка скрипта.
-			CMessages::AddMessageJumpQ(L"Script reloaded", 2000, 1);
-
-			bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
-			unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
-			CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии.
-			stop_mission_watch();// сторож миссии не должен трогать закрываемые состояния.
-			for (auto L : luastate) {
-				lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 100);// прервать выполнение.
-				while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }// дождаться завершения.
-				// graceful shutdown: если скрипт объявил onScriptTerminate() — дать снять свои хуки/ресурсы.
-				lua_getglobal(L, "onScriptTerminate");
-				if (lua_type(L, -1) == LUA_TFUNCTION) {
-					if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
-						const char* err = lua_tostring(L, -1);
-						if (err) writelog(err);
-						lua_pop(L, 1);
-					}
-				}
-				else { lua_pop(L, 1); }
-				destroy(L);// удалить все объекты (существующая функция очистки).
-				lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
-				cpp_trace("reload: lua_close состояния");
-				lua_close(L);// полное уничтожение контекста (раньше отсутствовало — утечка).
-			};
-			luastate.clear();// было UB: pop_front() в range-for по list.
-			cleanstl();	//
-
-			this_thread::sleep_for(chrono::milliseconds(100));
-			//writelog3("reload");
-			std::thread(start_lualoder).detach();
+		if (!KeyPressed(VK_CONTROL) ) {// отпускание Ctrl: ПРОСТО ОСТАНОВИТЬ ВСЕ СКРИПТЫ.
+			scripts_disabled.store(true);// теперь они не запустятся сами (start_lualoder это проверяет).
+			star_thread::set(false);
+			CMessages::AddMessageJumpQ(L"Scripts disabled", 2000, 1);
+			pause_scripts();// ПАУЗА по yield: скрипты сами делают lua_yield в СВОЁМ wait(). Ничего не закрываем.
 			break;
 			}
 		if (!star_thread::get()) {
@@ -314,6 +405,7 @@ char q;
 static string faststr = "";
 void getkeyenvent() {// считывания символов клавиатуры.
 
+	while (true) { // живёт весь сеанс: теперь поток один и не должен умирать при флипах star_thread.
 	while (star_thread::get()) {
 		this_thread::sleep_for(chrono::milliseconds(1));
 		for (q = 8; q <= 190; q++) {
@@ -329,6 +421,8 @@ void getkeyenvent() {// считывания символов клавиатур
 			int size = cheatstr.size();// Если длина строки больше 10 символов, удаляем строку.
 			if (size > 19) { cheatstr.clear(); }
 		}
+	}
+	this_thread::sleep_for(chrono::milliseconds(100));
 	}
 };
 
@@ -368,12 +462,16 @@ int create_newthread(lua_State* L) {// создания нового поток�
 				lua_xmove(L, L1, 1);// Снимает с L1 элементов передает L.
 			};
 
-			luastate.push_back(L1);// добавить новое состояние в list
 			int args = lua_gettop(L1);
 			if (0 == luaL_loadfile(L1, luaname)) {// Текущий lua файл.
 				lua_pcall(L1, 0, 0, 0);// запуск файла.
 				lua_pushvalue(L1, 1);//скопировать имена функции, отправить на вершину стека.
-				std::thread([=]() {lua_resume(L1, NULL, args, NULL); }).detach();
+				// публикация ИНСАЙД потока: состояние не видно свипу, пока не зарегистрирован владелец-поток
+				// (иначе teardown-свип закрыл бы чужое состояние). Владелец сам разберёт СВОЁ при reload.
+				std::thread([=]() {
+					publish_state(L1);
+					pump_owner(L1, nullptr, args, true);
+				}).detach();
 				this_thread::sleep_for(chrono::milliseconds(301));// задержка
 				lua_settop(L, 0);
 				return 0;

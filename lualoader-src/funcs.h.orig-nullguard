@@ -16,7 +16,6 @@
 #include <list>
 #include <queue>
 #include <map>
-#include <unordered_map>
 #include <mutex>
 #include <atomic> // std::atomic — сторож миссии
 
@@ -69,10 +68,6 @@
 #include "CTrain.h"
 #include "CGangs.h"
 #include "CMotionBlurStreaks.h"
-#include "CCarAI.h"// статик ИИ авто (въезд/парковка) для новых функций 2026-09-21.
-#include "CPad.h"// тряска геймпада для новых функций 2026-09-21.
-#include "CParticle.h"// частицы для новых функций 2026-09-21.
-#include "CPointLights.h"// точечный свет для новых функций 2026-09-21.
 #include "CCoronas.h"
 #include "CDraw.h"
 #include "CWanted.h"
@@ -100,23 +95,6 @@ extern unsigned int iters;
 extern list<char*>listfile;
 extern list<lua_State*>luastate;
 extern string cheatstr;
-// Эпоха перезагрузки: поколение состояний. publish() штампует состояние текущей эпохой,
-// teardown инкрементирует эпоху — все старые состояния мгновенно становятся «устаревшими»,
-// и их wait() отдаёт ход владельцу, который сам закрывает СВОЁ состояние (асинхронно).
-extern std::atomic<unsigned int> g_lua_epoch;
-void lua_state_stamp(lua_State* L);        // публикация: привязать состояние к текущей эпохе (funcs.cpp).
-void lua_state_unstamp(lua_State* L);      // закрытие владельцем: снять привязку.
-bool lua_state_obsolete(lua_State* L);     // состояние из старого поколения? (функция — в funcs.cpp, читает epoch-карту).
-// ПАУЗА: флаг «идёт разборка» (определение — в plugin.cpp). Его проверяют БЛОКИРУЮЩИЕ API
-// (play_voice, load_model_before_avalible, getcord, expectations) — у них нет доступа к эпохе
-// состояния (getcord живёт вообще на своём detached-потоке), поэтому требуется глобальный
-// сигнал «всем срочно выйти из длинных циклов». Ставится ПЕРВЫМ шагом teardown (пауза всех
-// скриптов ДО разборки), снимается когда разборка запущена.
-extern std::atomic<bool> teardown_active;
-// ПАУЗА по yield: поставлена pause_scripts() (определение — в plugin.cpp). wait() внутри
-// скриптов при этом делает return lua_yield(L,0) — скрипт БЕЗОПАСНО замирает со своего же
-// кадра (yield из СВОЕГО wait), pump-поток паркуется и ничего не закрывает. Обратимо.
-extern std::atomic<bool> scripts_paused;
 string getkey(int key);
 int setobjоcoordes(lua_State* L); // установить координаты для объект. (определение в plugin.cpp)
 int create_newthread(lua_State* L); // создания нового потока. (определение в plugin.cpp)
@@ -1921,65 +1899,4 @@ int world_get_is_line_of_sight_clear(lua_State* L);
 int get_ped_model_index(lua_State* L); // получить ID базовой модели педа (одежда рабочего = PLAYER3 и др.).
 int get_current_skin_name(lua_State* L); // получить имя последнего установленного скина игрока (set_skin).
 int get_player_skin(lua_State* L); // получить НАСТОЯЩЕЕ имя текущей модели игрока (CModelInfo).
-
-// ---- НОВЫЕ ФУНКЦИИ (добавлены 2026-09-21 из gta vc база / reVC / IDA-отчёта) ----
-int ped_set_look(lua_State* L); // заставить педа смотреть на сущность (CPed::SetLook).
-int ped_set_look_flag(lua_State* L); // задать флаг взгляда педа (CPed::SetLookFlag).
-int ped_can_see_entity(lua_State* L); // может ли пед видеть сущность (CPed::CanSeeEntity).
-int ped_set_move_state(lua_State* L); // задать скорость передвижения педа (CPed::SetMoveState).
-int ped_set_wander_path(lua_State* L); // вкл/выкл блуждание педа по пути (CPed::SetWanderPath).
-int ped_set_follow_path(lua_State* L); // пед следует по пути к точке (CPed::SetFollowPath).
-int ped_attach_to_entity(lua_State* L); // прикрепить педа к сущности (CPed::AttachPedToEntity).
-int ped_point_gun_at(lua_State* L); // пед целится оружием в сущность (CPed::SetPointGunAt).
-int car_join_road_system(lua_State* L); // встроить авто в систему дорог (CCarCtrl::JoinCarWithRoadSystem).
-int car_join_road_goto(lua_State* L); // встроить авто в дороги с целью ехать к точке (CCarCtrl::JoinCarWithRoadSystemGotoCoors).
-int car_switch_real_physics(lua_State* L); // вернуть авто настоящую физику (CCarCtrl::SwitchVehicleToRealPhysics).
-int car_update_on_rails(lua_State* L); // обновить движение авто по рельсам (CCarCtrl::UpdateCarOnRails).
-int car_set_component_rotation(lua_State* L); // повернуть компонент авто (CVehicle::SetComponentRotation).
-int car_open_door(lua_State* L); // открыть/закрыть дверь авто (CVehicle::OpenDoor).
-int car_goto_coors(lua_State* L); // поручить авто ИИ ехать к точке (CCarAI::GetCarToGoToCoors).
-int car_park_at_coors(lua_State* L); // поручить авто ИИ припарковаться у точки (CCarAI::GetCarToParkAtCoors).
-int player_nearby_peds_interact(lua_State* L); // педы рядом взаимодействуют с игроком (CPlayerPed::SetNearbyPedsToInteractWithPlayer).
-int clear_adrenaline(lua_State* L); // снять адреналин игрока (CPlayerPed::ClearAdrenaline).
-int annoy_player_ped(lua_State* L); // разозлить педа на игрока (CPlayerPed::AnnoyPlayerPed).
-int set_max_wanted_level(lua_State* L); // задать максимум уровня розыска (CWanted::SetMaximumWantedLevel).
-int register_crime(lua_State* L); // зарегистрировать преступление игрока (CWanted::RegisterCrime).
-int register_crime_immediately(lua_State* L); // мгновенно зарегистрировать преступление (CWanted::RegisterCrime_Immediately).
-int pad_shake(lua_State* L); // трясти геймпад игрока (CPad::StartShake).
-int stop_pad_shaking(lua_State* L); // прекратить тряску геймпадов (CPad::StopPadsShaking).
-int extinguish_point(lua_State* L); // потушить огонь в точке (CFireManager::ExtinguishPoint).
-int extinguish_point_with_water(lua_State* L); // потушить огонь в точке водой (CFireManager::ExtinguishPointWithWater).
-int is_script_fire_extinguished(lua_State* L); // потушен ли скриптовый огонь (CFireManager::IsScriptFireExtinguished).
-int remove_script_fire(lua_State* L); // удалить скриптовый огонь (CFireManager::RemoveScriptFire).
-int remove_all_script_fires(lua_State* L); // удалить все скриптовые огни (CFireManager::RemoveAllScriptFires).
-int start_script_fire(lua_State* L); // запустить скриптовый огонь в точке (CFireManager::StartScriptFire).
-int set_help_message(lua_State* L); // показать сообщение помощи (CHud::SetHelpMessage).
-int get_percentage_progress(lua_State* L); // процент прохождения игры (CStats::GetPercentageProgress).
-int get_criminal_rating(lua_State* L); // уровень преступника (CStats::FindCriminalRatingNumber).
-int point_light_add(lua_State* L); // добавить точечный источник света (CPointLights::AddLight).
-int shot_add_tracer(lua_State* L); // добавить трассер пули (CShotInfo::AddShot).
-int add_jet_explosion(lua_State* L); // добавить взрыв-струю (CParticle::AddJetExplosion).
-int add_particle(lua_State* L); // добавить частицу (CParticle::AddParticle).
-
-// ---- МИССИЯ "TREACHEROUS SWINE" (07, GENERL1): недостающие опкоды оригинала ----
-int set_free_resprays(lua_State* L); // 0335: вкл/выкл бесплатные респреи (провал → респрай → PASS).
-int has_respray_happened(lua_State* L); // 0329: был ли респрей в указанном гараже.
-int set_camera_behind_player(lua_State* L); // 0373: камера за игроком.
-int get_fading_status(lua_State* L); // 016B: идёт ли затемнение/проявление.
-int get_game_timer(lua_State* L); // 01BD: игровое время (мс).
-int set_chars_chatting(lua_State* L); // 03F9: два педа болтают.
-int create_random_char(lua_State* L); // 0376: создать случайного педа.
-int dont_remove_object(lua_State* L); // 01C7: не удалять объект движком.
-int char_follow_path(lua_State* L); // 009E: пед идёт по пути к точке.
-int is_char_wander_path_clear(lua_State* L); // 0510: свободен ли путь педа.
-int turn_player_to_face_char(lua_State* L); // 0210: игрок лицом к педу.
-int turn_char_to_face_player(lua_State* L); // 020F: пед лицом к игроку.
-int turn_char_to_face_coord(lua_State* L); // 01BE: пед лицом к координате.
-int set_car_density_multiplier(lua_State* L); // 01EB: плотность трафика.
-int request_collision(lua_State* L); // 04E4: загрузить коллизию в точке.
-int switch_rubbish(lua_State* L); // 03AD: вкл/выкл мусор.
-int switch_streaming(lua_State* L); // 03AF: вкл/выкл стриминг.
-int mark_char_as_no_longer_needed(lua_State* L); // 01C2: пометить педа как ненужного.
-int set_visibility_of_closest_object_of_type(lua_State* L); // 0363: видимость ближайшего объекта типа.
-int get_player_wanted_level(lua_State* L); // уровень розыска игрока (детектор респрея Swine). // 0363: видимость ближайшего объекта типа.
 

@@ -4,15 +4,18 @@ while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
  if Keypress("VK_G") -- если клавиша H.
   then mod_autoaim("M40", "on")  printmessage("~r~on autoaim", 3400,1 )
-  setpedcoordes(player, 86.0, -1125.1, 10.3)
+  setpedcoordes(player, 488.5, 31.1, 10.9)
  end
 
  if Keypress("VK_H") -- если клавиша H.
-  then  mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
+  then  --mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
   setpedcoordes(player, 299.0, -314.6, 11.4)
-  Giveweaponped(player,600,"m4")-- дать педу оружие. 
+  Giveweaponped(player,600,"m4")-- дать педу оружие.
  end
+ if Keypress("VK_S") -- если клавиша H.
+then  show_save_menu()
 
+  end
   end
 
 end

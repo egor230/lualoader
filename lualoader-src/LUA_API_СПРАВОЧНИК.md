@@ -20,7 +20,9 @@
 > `request_animation(name)` (04ED — загрузить анимацию),
 > `remove_animation(name)` (04EF — выгрузить анимацию).
 > Подробности — `ОПИСАНИЕ_проекта_для_ИИ.md` разделы 4.4 и 9.2.
-
+>
+> **21.09.2026:** зарегистрировано **1560** функций. 37 новых описаны
+> в разделе «Новые функции (добавлены 21.09.2026)» в конце файла.
 
 ## Конвенции
 
@@ -1738,6 +1740,71 @@ local ok, v   = incar(ped)             -- возврат: флаг + авто
 
 ---
 
+## Новые функции (добавлены 21.09.2026) (37)
+
+Поведение педов (взгляд, следование, прикрепление):
+
+- **1524.** `ped_set_look(ped, entity)` → bool — заставить педа смотреть на сущность (головой, поворачиваясь).  *Пример: `ped_set_look(ped, car)`*
+- **1525.** `ped_set_look_flag(ped, entity, [keepTrying], [cancelPrev])` → bool — задать флаг взгляда педа; keepTrying= не бросать взгляд, cancelPrev= отменить предыдущий.  *Пример: `ped_set_look_flag(ped, car, true, false)`*
+- **1526.** `ped_can_see_entity(ped, entity, [fovDeg])` → bool — видит ли пед сущность; fov в градусах (по умолчанию ~47°).  *Пример: `if ped_can_see_entity(ped, player) then ...`*
+- **1527.** `ped_set_move_state(ped, state)` → bool — скорость передвижения педа: 0 нет, 1 стоять, 2 идти, 4 бежать, 5 спринт.  *Пример: `ped_set_move_state(ped, 4)`*
+- **1528.** `ped_set_wander_path(ped, on)` → bool — вкл/выкл блуждание педа по пешеходным путям.  *Пример: `ped_set_wander_path(ped, true)`*
+- **1529.** `ped_set_follow_path(ped, x, y, z, [radius], [move])` → bool — пед идёт по пути к точке; move как в ped_set_move_state.  *Пример: `ped_set_follow_path(ped, 100, 200, 30, 0, 2)`*
+- **1530.** `ped_attach_to_entity(ped, entity, x, y, z, [angle], [position], [weapon])` → bool — прикрепить педа к сущности с отступом; position: 0 своё направление, 1-3 поворот относительно авто.  *Пример: `ped_attach_to_entity(ped, car, 0, 0, -1, 0, 0, 0)`*
+- **1531.** `ped_point_gun_at(ped, entity)` → bool — пед целится оружием в сущность.  *Пример: `ped_point_gun_at(ped, player)`*
+
+ИИ авто:
+
+- **1532.** `car_join_road_system(car)` → bool — встроить авто в систему дорог (поедет по правилам трафика).  *Пример: `car_join_road_system(car)`*
+- **1533.** `car_join_road_goto(car, x, y, z, [anyRoad])` → bool — встроить в дороги и ехать к точке.  *Пример: `car_join_road_goto(car, 100, 200, 30)`*
+- **1534.** `car_switch_real_physics(car)` → bool — вернуть авто настоящую физику.  *Пример: `car_switch_real_physics(car)`*
+- **1535.** `car_update_on_rails(car)` → bool — обновить движение авто по «рельсам» (рельсовый/скриптовый режим).  *Пример: `car_update_on_rails(car)`*
+- **1536.** `car_set_component_rotation(car, component, x, y, z)` → bool — повернуть компонент авто (5 капот, 6 багажник, 7-10 двери и т.д.); углы в градусах.  *Пример: `car_set_component_rotation(car, 5, 90, 0, 0)`*
+- **1537.** `car_open_door(car, door, [ratio])` → bool — открыть/закрыть дверь: 0 капот, 1 багажник, 2-5 двери; 1.0 открыта / 0.0 закрыта.  *Пример: `car_open_door(car, 2)`*
+- **1538.** `car_goto_coors(car, x, y, z)` → число — поручить авто (ИИ) ехать к точке, вернёт расстояние до цели.  *Пример: `car_goto_coors(car, 100, 200, 30)`*
+- **1539.** `car_park_at_coors(car, x, y, z)` → число — авто паркуется у точки, вернёт расстояние.  *Пример: `car_park_at_coors(car, 10, 20, 0)`*
+
+Игрок:
+
+- **1540.** `player_nearby_peds_interact()` → bool — педы рядом взаимодействуют с игроком.  *Пример: `player_nearby_peds_interact()`*
+- **1541.** `clear_adrenaline()` → bool — снять адреналин у игрока.  *Пример: `clear_adrenaline()`*
+- **1542.** `annoy_player_ped(flag)` → bool — разозлить педа на игрока.  *Пример: `annoy_player_ped(true)`*
+
+Розыск:
+
+- **1543.** `set_max_wanted_level(n)` → bool — задать максимум уровня розыска (потолок звёзд).  *Пример: `set_max_wanted_level(4)`*
+- **1544.** `register_crime(type, x, y, z, [policeDontCare])` → bool — зарегистрировать преступление игрока; type по eCrimeType: 1 оружие, 2 удар педа, 3 удар копа, 4 стрельба в педа, 5 стрельба в копа, 6 угон авто, 10 сбил педа, 11 сбил копа, 17 взрыв.  *Пример: `register_crime(6, x, y, z)`*
+- **1545.** `register_crime_immediately(type, x, y, z, [policeDontCare])` → bool — то же, но без очереди (мгновенно).  *Пример: `register_crime_immediately(3, x, y, z)`*
+
+Геймпад:
+
+- **1546.** `pad_shake(duration, [frequency])` → bool — тряска геймпада игрока; duration в миллисекундах.  *Пример: `pad_shake(2000, 64)`*
+- **1547.** `stop_pad_shaking()` → bool — прекратить тряску геймпадов.  *Пример: `stop_pad_shaking()`*
+
+Огонь:
+
+- **1548.** `extinguish_point(x, y, z, range)` → bool — потушить огонь в точке.  *Пример: `extinguish_point(x, y, z, 5)`*
+- **1549.** `extinguish_point_with_water(x, y, z, range)` → bool — потушить пожар водой.  *Пример: `extinguish_point_with_water(x, y, z, 3)`*
+- **1550.** `is_script_fire_extinguished(index)` → bool — потушен ли скриптовый огонь с данным индексом.  *Пример: `is_script_fire_extinguished(f)`*
+- **1551.** `remove_script_fire(index)` → bool — удалить скриптовый огонь по индексу.  *Пример: `remove_script_fire(f)`*
+- **1552.** `remove_all_script_fires()` → bool — удалить все скриптовые огни.  *Пример: `remove_all_script_fires()`*
+- **1553.** `start_script_fire(x, y, z, [entity])` → целое — запустить скриптовый огонь, вернёт его индекс; entity — поджечь педа/авто.  *Пример: `f = start_script_fire(x, y, z)`*
+
+HUD и статистика:
+
+- **1554.** `set_help_message(text, [quick], [permanent])` → bool — показать сообщение помощи (внизу экрана).  *Пример: `set_help_message("Нажми G")`*
+- **1555.** `get_percentage_progress()` → число — процент прохождения игры.  *Пример: `get_percentage_progress()`*
+- **1556.** `get_criminal_rating()` → целое — уровень преступника.  *Пример: `get_criminal_rating()`*
+
+Свет и частицы:
+
+- **1557.** `point_light_add(type, x, y, z, dx, dy, dz, range, r, g, b, [fog], [extraShadow])` → bool — точечный источник света; type: 0 свет-точка, 1 направленный, 2 тоннель, 3 низкое затухание; r,g,b 0-255.  *Пример: `point_light_add(0, x, y, z, 0, 0, 0, 10, 255, 0, 0)`*
+- **1558.** `shot_add_tracer(creator, weapon, x1, y1, z1, x2, y2, z2)` → bool — пулевой трассер.  *Пример: `shot_add_tracer(ped, 22, x, y, z, x2, y2, z2)`*
+- **1559.** `add_jet_explosion(x, y, z, power, size)` → bool — взрыв-струя (реактивные самолёты).  *Пример: `add_jet_explosion(x, y, z, 4, 3)`*
+- **1560.** `add_particle(type, x, y, z, dx, dy, dz, [entity], [size])` → указ. — создать частицу, вернёт указатель; типы PARTICLE_*: 0 искра, 13 пламя, 17 дым от выстрела, 27 огонь авто и т.д.  *Пример: `add_particle(17, x, y, z, 0, 0, 1)`*
+
+---
+
 ## Итого по категориям
 
 - **Транспорт: авто** — 334
@@ -1786,11 +1853,50 @@ local ok, v   = incar(ped)             -- возврат: флаг + авто
 - **Память и низкий уровень** — 3
 - **Сообщения (старые)** — 2
 - **Розыск (старые)** — 2
+- **Новые функции (21.09.2026)** — 37
 
-Всего: **1506** функций.
+Всего: **1560** функций.
 (+ `Getflagmission`, `Setflagmission`, `set_current_weapon_ped`,
 `set_ped_stay_when_attacked`, `set_ped_wait_state`, `set_ped_personality`,
 `set_ped_only_damaged_by_player`, `is_ped_health_greater`,
 `make_obj_targettable`, `get_dead_char_pickup_coords`, `set_ped_mood`,
 `request_animation`, `remove_animation` — добавлены позже, см.
-предупреждение вверху.)
+предупреждение вверху. **21.09.2026:** добавлена ещё
+`get_player_skin() → строка` — НАСТОЯЩЕЕ имя текущей модели игрока из
+`CModelInfo::GetModelInfo` (`"player"` — обычный Томми, `"player3"` — в
+одежде рабочего), в отличие от `get_current_skin_name()` — того кэширует
+только последний `set_skin`. Сравнивать в нижнем регистре:
+`string.lower(get_player_skin()) == "player3"`.
+**21.09.2026:** добавлены и описаны ещё **37 новых функций** — раздел
+«Новые функции (добавлены 21.09.2026)» выше: взгляд/следование/
+прикрепление педов, ИИ авто, розыск, геймпад, огонь, HUD, свет и частицы.)
+
+---
+
+## Новые функции (добавлены 22.09.2026, для миссии "Treacherous Swine")
+
+- **1561.** `set_free_resprays(флаг)` → действие — 0335 SET_FREE_RESPRAYS:
+  вкл/выкл бесплатные респреи (провал Swine → игрок красится бесплатно → PASS).
+- **1562.** `has_respray_happened(гараж)` → флаг — 0329 HAS_RESPRAY_HAPPENED:
+  был ли респрай в указанном гараже. *Внимание:* индексы $684/$685 оригинала
+  неизвестны — для детектора используйте `get_player_wanted_level()` (2→0).*
+- **1563.** `set_camera_behind_player()` → действие — 0373 SET_CAMERA_BEHIND_PLAYER.
+- **1564.** `get_fading_status()` → флаг — 016B GET_FADING_STATUS (идёт ли fade).
+- **1565.** `get_game_timer()` → целое — 01BD GET_GAME_TIMER (мс).
+- **1566.** `set_chars_chatting(пед1, пед2, мс)` → действие — 03F9 SET_CHARS_CHATTING.
+- **1567.** `create_random_char(x, y, z)` → указ. — 0376 CREATE_RANDOM_CHAR.
+- **1568.** `dont_remove_object(объект)` → действие — 01C7 DONT_REMOVE_OBJECT.
+- **1569.** `char_follow_path(пед, x, y, z, флаг)` → действие — 009E CHAR_FOLLOW_PATH.
+- **1570.** `is_char_wander_path_clear(пед, x, y, z, флаг)` → флаг — 0510.
+- **1571.** `turn_player_to_face_char(пед)` → действие — 0210 TURN_PLAYER_TO_FACE_CHAR.
+- **1572.** `turn_char_to_face_player(пед)` → действие — 020F TURN_CHAR_TO_FACE_PLAYER.
+- **1573.** `turn_char_to_face_coord(пед, x, y, z)` → действие — 01BE.
+- **1574.** `set_car_density_multiplier(число)` → действие — 01EB.
+- **1575.** `request_collision(x, y)` → действие — 04E4 REQUEST_COLLISION.
+- **1576.** `switch_rubbish(флаг)` → действие — 03AD SWITCH_RUBBISH.
+- **1577.** `switch_streaming(флаг)` → действие — 03AF SWITCH_STREAMING.
+- **1578.** `mark_char_as_no_longer_needed(пед)` → действие — 01C2.
+- **1579.** `set_visibility_of_closest_object_of_type(x, y, z, радиус, модель, видимость)` → действие — 0363.
+- **1580.** `get_player_wanted_level()` → целое — текущий уровень розыска игрока
+  (0..6). Надёжный детектор респрея: после `wanted_set_no_drop(2)` въезд в мойку
+  обнуляет розыск → 2→0 = респрай сработал.
