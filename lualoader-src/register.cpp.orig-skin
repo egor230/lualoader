@@ -1541,8 +1541,5 @@ int funs(lua_State* L) {// список функций.
 
 	lua_register(L, "exitcar", exitcar); // 1520 выйти из авто.
 
-	lua_register(L, "get_ped_model_index", get_ped_model_index); // 1521 получить ID базовой модели педа.
-	lua_register(L, "get_current_skin_name", get_current_skin_name); // 1522 получить имя последнего скина игрока.
-
 	return 0;
 };

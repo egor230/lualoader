@@ -1896,6 +1896,4 @@ int world_find_ground_z_for_3d_coord(lua_State* L);
 int world_find_ground_z_for_coord(lua_State* L);
 int world_find_roof_z_for_3d_coord(lua_State* L);
 int world_get_is_line_of_sight_clear(lua_State* L);
-int get_ped_model_index(lua_State* L); // получить ID базовой модели педа (одежда рабочего = PLAYER3 и др.).
-int get_current_skin_name(lua_State* L); // получить имя последнего установленного скина игрока (set_skin).
 

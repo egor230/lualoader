@@ -12,7 +12,6 @@ mutex mtx;
 list<char*>listfile;//Список Lua файлов.
 list<lua_State*>luastate;// list для lua состояний.
 string cheatstr;// символы введенные с клавиатуры.
-string g_last_player_skin_name = "DEFAULT";// последний скин игрока (set_skin) для get_current_skin_name.
 static map<int, lua_State*>markeron;// map для маркеров.
 static map<int, lua_State*>spheres;// map для маркеров кругов.
 static map<int, lua_State*>pickupsids;// map для пикапов.
@@ -2372,7 +2371,7 @@ void mission_watch_proc() {// тело независимого потока.
 		bool arest = (CWorld::Players[CWorld::PlayerInFocus].m_nPlayerState == PLAYERSTATE_HASBEENARRESTED);
 		if (dead || arest) {// погиб или арестован.
 			cpp_trace("mission_watch: игрок погиб/арестован -> Миссия провалена");
-			wchar_t* str = getwchat("Mission failed!"); // кириллица шрифтом VC не отображается — транслит.
+			wchar_t* str = getwchat("Миссия провалена");
 			CMessages::AddBigMessage(str, 5000, 0);// надпись.
 			mission_flag_set(false);// сменить флаг.
 			break;// выйти из цикла.
@@ -3745,35 +3744,10 @@ int set_skin(lua_State* L) {// установить скин педа.
 			Command<COMMAND_UNDRESS_CHAR>(CPools::GetPedRef(ped), model);
 			Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
 			Command<COMMAND_DRESS_CHAR>(CPools::GetPedRef(ped));
-			if (ped == FindPlayerPed()) { g_last_player_skin_name = model; }// запомнить скин игрока для get_current_skin_name.
 			this_thread::sleep_for(chrono::milliseconds(1));
 			return 0;
 		}
 		else { throw "bad argument in function ped_atack"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
-
-int get_ped_model_index(lua_State* L) {// получить ID базовой модели педа (0 = Томми, 91 = GDA и т.д.).
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);// получить указатель на педа.
-			if (ped == NULL) { lua_pushinteger(L, -1); return 1; }
-			lua_pushinteger(L, ped->m_nModelIndex);// ID модели педа в стек.
-			return 1;
-		}
-		else { throw "bad argument in function get_ped_model_index"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
-
-int get_current_skin_name(lua_State* L) {// получить имя последнего установленного скина игрока (set_skin).
-	try {
-		lua_pushstring(L, g_last_player_skin_name.c_str());// имя скина в стек.
-		return 1;
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;

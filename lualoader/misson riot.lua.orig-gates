@@ -246,49 +246,28 @@ if step == 3 then  -- (оригинал @L4725d: главный цикл боя 
      ma_trace("riot: вся толпа взбешена ($2205=1), dressed=" .. tostring(dressed))
     end
 
-     if escalated == 1 and gates_open == 0 then  -- (оригинал L47dfc: ворота открываются ВСЕГДА после эскалации — SLIDE_OBJECT $1778 → 304 -313.6 11, GDA-боссы 0243/011A, LAW4_14; одежда определяет КОГО бьют охранники: без одежды — игрока, в одежде — мятежников)
-      gates_open = 1
-      gate_frames = 60  -- SLIDE_OBJECT по 0.1/кадр: 298→304 = 6 ед = 60 кадров (оригинал L47f4e)
-      if gate ~= nil then
-       ma_trace("riot: ворота открываются (SLIDE_OBJECT 298 → 304 -313.6 11)")  -- движение ниже, каждый кадр (как L47f4e: SLIDE_OBJECT двигает на 0.1 за кадр, пока не доедет)
-      end
-      if dressed == 0 then  -- (оригинал: БЕЗ одежды охранники открывают огонь ПО ИГРОКУ — threat 1 + 01CA, мятежников не трогают)
-       if agit1 ~= nil and isped(agit1) then
-        set_ped_personality(agit1, 30)
-        ped_search_threat(agit1, 1)
-        set_char_obj_kill_player_on_foot(agit1, player)  -- 01CA: ЯВНАЯ цель — игрок (без цели ped_search_threat не атакует, как в 6-й ревизии с рабочими)
-       end
-       if agit2 ~= nil and isped(agit2) then
-        set_ped_personality(agit2, 30)
-        ped_search_threat(agit2, 1)
-        set_char_obj_kill_player_on_foot(agit2, player)  -- 01CA: ЯВНАЯ цель — игрок
-       end
-       if leader ~= nil and isped(leader) then
-        ped_search_threat(leader, 1)
-        set_ped_accuracy(leader, 10)
-        set_char_obj_kill_player_on_foot(leader, player)  -- 01CA: ЯВНАЯ цель — игрок
-       end
-      else  -- (оригинал: В одежде рабочего охранники начинают УБИВАТЬ МЯТЕЖНИКОВ — threat 16 + 0216, игрока не трогают)
-       local gt = nil  -- первый живой мятежник — цель для охранников
-       for _, r in ipairs(rioters) do if isped(r) and not ispeddead(r) then gt = r break end end
-       if agit1 ~= nil and isped(agit1) then
-        set_ped_personality(agit1, 30)
-        ped_search_threat(agit1, 16)
-        if gt ~= nil then set_char_obj_kill_char_on_foot(agit1, gt) end  -- 0216: ЯВНАЯ цель — мятежник
-       end
-       if agit2 ~= nil and isped(agit2) then
-        set_ped_personality(agit2, 30)
-        ped_search_threat(agit2, 16)
-        if gt ~= nil then set_char_obj_kill_char_on_foot(agit2, gt) end  -- 0216: ЯВНАЯ цель — мятежник
-       end
-       if leader ~= nil and isped(leader) then
-        ped_search_threat(leader, 16)
-        set_ped_accuracy(leader, 10)
-        if gt ~= nil then set_char_obj_kill_char_on_foot(leader, gt) end  -- 0216: ЯВНАЯ цель — мятежник
-       end
-      end
-      printmessage("~r~Lawyers and cops are on their way! Get the trucks!", 8000, 1)
+    if escalated == 1 and dressed == 1 and gates_open == 0 then  -- (оригинал L47dfc: в одежде толпа воет → открыть ворота SLIDE_OBJECT $1778 → 304 -313.6 11, GDA-боссы 0243/011A, LAW4_14; без одежды игрока бьют — ворота не открываются)
+     gates_open = 1
+     gate_frames = 60  -- SLIDE_OBJECT по 0.1/кадр: 298→304 = 6 ед = 60 кадров (оригинал L47f4e)
+     if gate ~= nil then
+      ma_trace("riot: ворота открываются (SLIDE_OBJECT 298 → 304 -313.6 11)")  -- движение ниже, каждый кадр (как L47f4e: SLIDE_OBJECT двигает на 0.1 за кадр, пока не доедет)
      end
+     if agit1 ~= nil and isped(agit1) then
+      set_ped_personality(agit1, 30)
+      ped_search_threat(agit1, 16)
+      ped_search_threat(agit1, 1)
+     end
+     if agit2 ~= nil and isped(agit2) then
+      set_ped_personality(agit2, 30)
+      ped_search_threat(agit2, 16)
+      ped_search_threat(agit2, 1)
+     end
+     if leader ~= nil and isped(leader) then
+      ped_search_threat(leader, 1)
+      set_ped_accuracy(leader, 10)
+     end
+     printmessage("~r~Lawyers and cops are on their way! Get the trucks!", 8000, 1)
+    end
 
     if gates_open == 1 and gate ~= nil and gate_frames > 0 then  -- (оригинал @L47f4e: движение ворот БЕЗ кадрового getobjcoordes, каждый кадр SLIDE_OBJECT — ровно 60 кадров, потом стоп; getobjcoordes каждый кадр навсегда = findobjinpool sleep_for(1ms)+скан пула → зависание кадра)
      move_obj(gate, 304.0, -313.6, 11.0, 0.1, 0.1, 0.0, 0)

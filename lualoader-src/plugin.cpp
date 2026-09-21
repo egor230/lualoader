@@ -226,15 +226,27 @@ int final_scripts() {
 	bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
 	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
 	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии.
+	stop_mission_watch();// сторож миссии не должен трогать закрываемые состояния.
 	for (auto L : luastate) {
-		lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 100);// отключить хук.
-		while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }
-		destroy(L);// удалить все объекты.
+		lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 100);// прервать выполнение.
+		while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }// дождаться завершения.
+		// graceful shutdown: если скрипт объявил onScriptTerminate() — дать снять свои хуки/ресурсы.
+		lua_getglobal(L, "onScriptTerminate");
+		if (lua_type(L, -1) == LUA_TFUNCTION) {
+			if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+				const char* err = lua_tostring(L, -1);
+				if (err) writelog(err);
+				lua_pop(L, 1);
+			}
+		}
+		else { lua_pop(L, 1); }
+		destroy(L);// удалить все объекты (существующая функция очистки).
 		lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
-		cleanstl();	//
+		cpp_trace("final_scripts: lua_close состояния");
+		lua_close(L);// полное уничтожение контекста (раньше отсутствовало — утечка).
 	};
-	for (auto L : luastate) { luastate.pop_front(); };
-
+	luastate.clear();// было UB: pop_front() в range-for по list.
+	cleanstl();	//
 	return 0;
 };
 int pause_scripts() {
@@ -262,14 +274,27 @@ int reload() {// перегрузка по нажатию клавиши.
 			bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
 			unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
 			CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии.
+			stop_mission_watch();// сторож миссии не должен трогать закрываемые состояния.
 			for (auto L : luastate) {
-				lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 100);// отключить хук.
-				while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }
-				destroy(L);// удалить все объекты.
+				lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 100);// прервать выполнение.
+				while ((LUA_YIELD == lua_status(L)) || (LUA_OK != lua_status(L))) { this_thread::sleep_for(chrono::milliseconds(1)); }// дождаться завершения.
+				// graceful shutdown: если скрипт объявил onScriptTerminate() — дать снять свои хуки/ресурсы.
+				lua_getglobal(L, "onScriptTerminate");
+				if (lua_type(L, -1) == LUA_TFUNCTION) {
+					if (lua_pcall(L, 0, 0, 0) != LUA_OK) {
+						const char* err = lua_tostring(L, -1);
+						if (err) writelog(err);
+						lua_pop(L, 1);
+					}
+				}
+				else { lua_pop(L, 1); }
+				destroy(L);// удалить все объекты (существующая функция очистки).
 				lua_gc(L, LUA_GCCOLLECT, 100); // включить сборку мусора.
-				cleanstl();	//
+				cpp_trace("reload: lua_close состояния");
+				lua_close(L);// полное уничтожение контекста (раньше отсутствовало — утечка).
 			};
-			for (auto L : luastate) { luastate.pop_front(); };
+			luastate.clear();// было UB: pop_front() в range-for по list.
+			cleanstl();	//
 
 			this_thread::sleep_for(chrono::milliseconds(100));
 			//writelog3("reload");
