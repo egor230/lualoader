@@ -16,6 +16,10 @@ while true do wait()-- задержка.
 then  show_save_menu()
 
   end
+  if Keypress("VK_N") -- если клавиша H.
+    then    x,y,z = getcoordinates_on_y(player, 5)
+    car = Createcar("MODEL_SECURICA",x,y,z)
+    end
   end
 
 end

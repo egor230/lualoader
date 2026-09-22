@@ -120,6 +120,12 @@ extern std::atomic<bool> teardown_active;
 // блокирующие циклы БЕЗ L (load_model_before_avalible, getcord) при паузе просто ждут
 // (не позиционируют авто / не ждут тейрдаун), а при teardown выходят на барьер.
 extern std::atomic<bool> scripts_paused;
+// clrfl: глобальный флаг остановки всех скриптов + мьютекс для безопасного взаимодействия C++/Lua
+// (определения — в plugin.cpp). Хук StopHook проверяет флаг в безопасной точке (lua_isyieldable)
+// и МГНОВЕННО останавливает busy-циклы (while true do). HandleClearFlush берёт мьютекс и
+// через teardown_all(false) разбирает ВСЕ состояния.
+extern std::atomic<bool> g_shouldStopAllScripts;
+extern std::mutex g_luaMutex;
 string getkey(int key);
 int setobjоcoordes(lua_State* L); // установить координаты для объект. (определение в plugin.cpp)
 int create_newthread(lua_State* L); // создания нового потока. (определение в plugin.cpp)

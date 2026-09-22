@@ -407,16 +407,19 @@ int wait(lua_State* L) {
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
 			int time = lua_tointeger(L, 1); // время задержки.
-			// ПАУЗА (yield): при остановке/перезагрузке скрипт сам, из СВОЕГО wait(), отдаёт
-			// ход владельцу — lua_yield из собственного кадра всегда разрешён (в отличие от hook-йield,
-			// который внутри C-вызова рвёт корутину с ошибкой). Ничего не закрываем.
+			// clrfl: флаг поднят -> резюмем выше (script continues), хук бросит luaL_error. Но и
+			// прямое luaL_error тут безопасно: wait() вызывается из скрипта под защищённым lua_resume.
+			if (g_shouldStopAllScripts.load()) { return luaL_error(L, "SCRIPT_STOPPED_BY_CPP"); }// clrfl: скрипт останавливается ОШИБКОЙ (не yield) — владелец завершит поток по статусу.
+			// ПАУЗА (yield): при паузе/перезагрузке скрипт сам, из СВОЕГО wait(), отдаёт ход
+			// владельцу — lua_yield из собственного кадра всегда разрешён. Ничего не закрываем.
 			if (scripts_paused.load() || lua_state_obsolete(L)) { return lua_yield(L, 0); }
 			// дробим ожидание порциями, чтобы reload разбудил скрипт максимум за ~10мс.
-			while (time > 0 && !scripts_paused.load() && !lua_state_obsolete(L)) {
+			while (time > 0 && !scripts_paused.load() && !g_shouldStopAllScripts.load() && !lua_state_obsolete(L)) {
 				int step = time > 10 ? 10 : time;
 				this_thread::sleep_for(chrono::milliseconds(step));
 				time -= step;
 			}
+			if (g_shouldStopAllScripts.load()) { return luaL_error(L, "SCRIPT_STOPPED_BY_CPP"); }// clrfl: остановка ОШИБКОЙ.
 			if (scripts_paused.load() || lua_state_obsolete(L)) { return lua_yield(L, 0); }
 			return 0;
 		}// int
@@ -450,6 +453,7 @@ int setpedhealth(lua_State* L) {// установить здоровье пед�
 				const void* p = lua_topointer(L, 1);
 
 				CPed* ped = findpedinpool(p);// получить указатель на педа.
+				if (ped == NULL) { throw "entity not found in function setpedhealth"; }// NULL-защита (ревизия 22.09: вылет при невалидном педе)
 
 				float health = lua_tonumber(L, 2);// если число.
 
@@ -654,6 +658,7 @@ int setdrivingstyle(lua_State* L) {// установить стиль езды �
 
 				const void* p = lua_topointer(L, 1);
 				CVehicle* car = findcarinpool(p);//  получить указатель на авто.
+				if (car == NULL) { throw "entity not found in function setdrivingstyle"; }// NULL-защита (ревизия 22.09)
 
 				int style = lua_tointeger(L, 2);// если число.
 				switch (style) {
@@ -966,6 +971,7 @@ int getpedcoordes(lua_State* L) {// получить координаты пед
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			if (ped == NULL) { throw "entity not found in function getpedcoordes"; }// NULL-защита (ревизия 22.09: вылет при невалидном педе)
 
 			lua_pushnumber(L, ped->GetPosition().x);// отправить в стек.
 			lua_pushnumber(L, ped->GetPosition().y);// отправить в стек.
@@ -2279,7 +2285,8 @@ int ped_in_point_in_radius(lua_State* L) {// проверить находитс
 			float x1 = lua_tonumber(L, 2);	float y1 = lua_tonumber(L, 3);	float z1 = lua_tonumber(L, 4);
 			float rx = lua_tonumber(L, 5);	float ry = lua_tonumber(L, 6);	float rz = lua_tonumber(L, 7);
 
-			this_thread::sleep_for(chrono::milliseconds(10));
+			// sleep_for(10) УДАЛЕН (ревизия 22.09): тормозил кадр в step-циклах
+			// миссий; findpedinpool уже даёт 1 мс задержку — достаточно.
 			float x = ped->GetPosition().x;
 			float y = ped->GetPosition().y;
 			float z = ped->GetPosition().z;
@@ -2590,6 +2597,7 @@ int play_voice(lua_State* L) {// проиграть реплику педа.
 			const char* voice = lua_tostring(L, 1);
 			Command<COMMAND_LOAD_MISSION_AUDIO>(1, voice);// загрузить реплику.
 			while (true) {
+				if (g_shouldStopAllScripts.load()) return luaL_error(L, "SCRIPT_STOPPED_BY_CPP");// clrfl: остановка ОШИБКОЙ — владелец завершит поток по статусу.
 				if (scripts_paused.load()) return lua_yield(L, 0);// ПАУЗА: скрипт сам замер (yield из собственного кадра), ничего не закрываем.
 				if (teardown_active.load()) break;// тейрдаун: reload выключает скрипты — аудио не ждём.
 				this_thread::sleep_for(chrono::milliseconds(1));
@@ -2631,19 +2639,19 @@ int createped(lua_State* L) {// создать педа.
 };
 
 void load_model_before_avalible(int model) {
-	cpp_tracef("load_model_before_avalible: ЗАПРОС модели id=%d", model);
+	cpp_tracef("load_model_before_avalible: ЗАПРОС модели id=%d (thread=%lu)", model, (unsigned long)GetCurrentThreadId());
 	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
 	Command<COMMAND_REQUEST_MODEL>(model);
 	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
 	int guard = 0;
 	while (!Command<COMMAND_HAS_MODEL_LOADED>(model)) {
-		if (teardown_active.load()) break;// пауза: reload выключает скрипты — модель не ждём.
+		if (teardown_active.load() || g_shouldStopAllScripts.load()) break;// пауза: reload/clrfl выключает скрипты — модель не ждём.
 		if (scripts_paused.load()) { this_thread::sleep_for(chrono::milliseconds(10)); continue; }// ПАУЗА: кооперативно ждём (обратимо), модель не дёргаем.
 		this_thread::sleep_for(chrono::milliseconds(1));// задержка
 		Command<COMMAND_REQUEST_MODEL>(model);
-		if (++guard % 3000 == 0) cpp_tracef("load_model_before_avalible: ЖДЁМ модель id=%d (~%d мс)", model, guard);
+		if (++guard % 3000 == 0) cpp_tracef("load_model_before_avalible: ЖДЁМ модель id=%d (~%d мс, thread=%lu)", model, guard, (unsigned long)GetCurrentThreadId());
 	}
-	cpp_tracef("load_model_before_avalible: модель id=%d загружена", model);
+	cpp_tracef("load_model_before_avalible: модель id=%d загружена (thread=%lu)", model, (unsigned long)GetCurrentThreadId());
 };
 
 int create_spec_ped(lua_State* L) {// создать спец педа.
@@ -3050,28 +3058,29 @@ int set_status_engine(lua_State* L) {// установить состояние 
 	return 0;
 };
 
-int player_defined(lua_State* L) {// пед существует.
-	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+ int player_defined(lua_State* L) {// пед существует.
+ 	try {
+ 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
 
-			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+ 			const void* p = lua_topointer(L, 1);
+ 			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+ 			if (ped == NULL) { lua_pushboolean(L, false); return 1; }// NULL-защита (ревизия 22.09: был вылет)
 
-			float health = ped->m_fHealth;
-			if (health > 1.0f) {
-				lua_pushboolean(L, true);
-				return 1;
-			}
-			else {
-				lua_pushboolean(L, false);
-				return 1;
-			}
-		}
-		else { throw "bad argument in function player_defined"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
+ 			float health = ped->m_fHealth;
+ 			if (health > 1.0f) {
+ 				lua_pushboolean(L, true);
+ 				return 1;
+ 			}
+ 			else {
+ 				lua_pushboolean(L, false);
+ 				return 1;
+ 			}
+ 		}
+ 		else { throw "bad argument in function player_defined"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ 	return 0;
+ };
 
 int follow_the_leader(lua_State* L) {// //01DE / 01DF следовать за лидером
  	cpp_trace("follow_the_leader: ВХОД");
@@ -3248,6 +3257,7 @@ int putincar(lua_State* L) {// переместить педа в авто.
 
 			const void* p1 = lua_topointer(L, 2);
 			CVehicle* car = findcarinpool(p1);//  получить указатель на авто.
+			if (ped == NULL || car == NULL) { throw "entity not found in function putincar"; }// NULL-защита (ревизия 22.09: вылет при невалидных педе/авто)
 
 			float x = car->GetPosition().x; // отправить в стек.
 			float y = car->GetPosition().y; // отправить в стек.
@@ -3579,7 +3589,7 @@ int set_camera_and_point(lua_State* L) {// установить и переме�
 static int getcord(queue<float>q, const void* p) {
 	CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 	while (!q.empty()) {
-		if (teardown_active.load()) return 0;// тейрдаун: reload выключает скрипты — не едем на координаты.
+		if (teardown_active.load() || g_shouldStopAllScripts.load()) return 0;// тейрдаун: reload/clrfl выключает скрипты — не едем на координаты.
 		if (scripts_paused.load()) { this_thread::sleep_for(chrono::milliseconds(10)); continue; }// ПАУЗА: не ведём авто, просто ждём (кооперативно, обратимо).
 		this_thread::sleep_for(chrono::milliseconds(1));
 		float x = q.front(); q.pop();
@@ -3588,7 +3598,7 @@ static int getcord(queue<float>q, const void* p) {
 
 		Command<COMMAND_CAR_GOTO_COORDINATES>(car, x, y, z);// авто едет на координаты.
 		while (!car->IsSphereTouchingVehicle(x, y, z, 3.0)) {
-			if (teardown_active.load()) return 0;// тейрдаун: reload выключает скрипты — прекращаем вести авто.
+			if (teardown_active.load() || g_shouldStopAllScripts.load()) return 0;// тейрдаун: reload/clrfl выключает скрипты — прекращаем вести авто.
 			if (scripts_paused.load()) { this_thread::sleep_for(chrono::milliseconds(10)); continue; }// ПАУЗА: авто стоит, ждём.
 			this_thread::sleep_for(chrono::milliseconds(1));
 			//if (car->m_fHealth < 100){
@@ -4214,7 +4224,7 @@ int Createped(lua_State* L) {// макрос создать педа.
 int expectations(int model, CVehicle* car) {
 	if (car == NULL) { writelog("Createcar: EXPECTATIONS: car is NULL"); return 1; }
 	while (true) {
-		if (teardown_active.load()) return 0;// пауза: reload выключает скрипты — видимость авто не ждём.
+		if (teardown_active.load() || g_shouldStopAllScripts.load()) return 0;// пауза: reload/clrfl выключает скрипты — видимость авто не ждём.
 		if (scripts_paused.load()) { this_thread::sleep_for(chrono::milliseconds(10)); continue; }// ПАУЗА: кооперативно ждём (обратимо).
 		this_thread::sleep_for(chrono::milliseconds(10));// задержка
 		if (car->IsVisible()) {
@@ -5411,7 +5421,8 @@ int ped_clear_objective(lua_State* L) {// снять задачи с педа.
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
 
 			const void* p = lua_topointer(L, 1);
-			CPed* ped = findpedinpool(p);//  получить указатель на педа.
+			CPed* ped = findpedinpool(p);//  получить указателя на педа.
+			if (ped == NULL) { throw "entity not found in function ped_clear_objective"; }// NULL-защита (ревизия 22.09)
 			ped->ClearObjective(); // снять задачи с педа.
 			return 0;
 		}

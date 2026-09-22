@@ -8238,3 +8238,1653 @@ C++| ПАУЗА: запрос (thread=468), скрипты заморажива�
 C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=460
 C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=448
 ECTORED: code=0xC0000005 addr=0x7725EFDD thread=452
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057b8870 m_bInVehicle=1 m_pVehicle=057f6fcc
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+SMM done
+C++| showtext: Open microphone. (time=500 style=1)
+C++| set_traffic 0.00
+C++| set_ped_traffic 0.00
+Createcar: MODEL_HUNTER
+C++| load_model_before_avalible: ЗАПРОС модели id=155
+C++| load_model_before_avalible: модель id=155 загружена
+C++| Createcar: создана MODEL_HUNTER (id=155) car=057fb040
+C++| Createcar: MARK no-longer-needed id=155 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=4
+C++| load_model_before_avalible: модель id=4 загружена
+Createcar: MODEL_RHINO
+C++| load_model_before_avalible: ЗАПРОС модели id=162
+C++| load_model_before_avalible: модель id=162 загружена
+C++| Createcar: создана MODEL_RHINO (id=162) car=057fb61c
+C++| Createcar: MARK no-longer-needed id=162 OK
+Createcar: ok
+C++| load_model_before_avalible: ЗАПРОС модели id=282
+C++| load_model_before_avalible: модель id=282 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=4
+C++| load_model_before_avalible: модель id=4 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+fade 1 5500
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+createmarker
+createmarker ok 196619
+setsizemarker
+create_sphere
+create_sphere ok
+printmessage
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+printmessage
+C++| mission_watch: СТАРТ
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057fb61c)
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057b8870 m_bInVehicle=1 m_pVehicle=057f6fcc
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+SMM done
+C++| showtext: Open microphone. (time=500 style=1)
+C++| set_traffic 0.00
+C++| set_ped_traffic 0.00
+Createcar: MODEL_HUNTER
+C++| load_model_before_avalible: ЗАПРОС модели id=155
+C++| load_model_before_avalible: модель id=155 загружена
+C++| Createcar: создана MODEL_HUNTER (id=155) car=057f9eac
+C++| Createcar: MARK no-longer-needed id=155 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=4
+C++| load_model_before_avalible: модель id=4 загружена
+Createcar: MODEL_RHINO
+C++| load_model_before_avalible: ЗАПРОС модели id=162
+C++| load_model_before_avalible: модель id=162 загружена
+C++| Createcar: создана MODEL_RHINO (id=162) car=057fa488
+C++| Createcar: MARK no-longer-needed id=162 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=282
+C++| load_model_before_avalible: модель id=282 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=4
+C++| load_model_before_avalible: модель id=4 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+fade 1 5500
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=284
+createmarker
+createmarker ok 196619
+setsizemarker
+create_sphere
+create_sphere ok
+printmessage
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=284
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057b8870 m_bInVehicle=1 m_pVehicle=057f6fcc
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+C++| is_ped_in_car: пед=057b8870 В МАШИНЕ (m_pVehicle=057f6fcc)
+SMM done
+C++| showtext: Open microphone. (time=500 style=1)
+C++| set_traffic 0.00
+C++| set_ped_traffic 0.00
+Createcar: MODEL_HUNTER
+C++| load_model_before_avalible: ЗАПРОС модели id=155
+C++| load_model_before_avalible: модель id=155 загружена
+C++| Createcar: создана MODEL_HUNTER (id=155) car=057f98d0
+C++| Createcar: MARK no-longer-needed id=155 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=4
+C++| load_model_before_avalible: модель id=4 загружена
+Createcar: MODEL_RHINO
+C++| load_model_before_avalible: ЗАПРОС модели id=162
+C++| load_model_before_avalible: модель id=162 загружена
+C++| Createcar: создана MODEL_RHINO (id=162) car=057f9eac
+C++| Createcar: MARK no-longer-needed id=162 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=282
+C++| load_model_before_avalible: модель id=282 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=4
+C++| load_model_before_avalible: модель id=4 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+fade 1 5500
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+createmarker
+createmarker ok 196619
+setsizemarker
+create_sphere
+create_sphere ok
+printmessage
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057ade40 В МАШИНЕ (m_pVehicle=057ebfc0)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057ade40 m_bInVehicle=1 m_pVehicle=057ebfc0
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057ade40 В МАШИНЕ (m_pVehicle=057ebfc0)
+C++| is_ped_in_car: пед=057ade40 В МАШИНЕ (m_pVehicle=057ebfc0)
+C++| is_ped_in_car: пед=057ade40 В МАШИНЕ (m_pVehicle=057ebfc0)
+SMM done
+C++| showtext: Open microphone. (time=500 style=1)
+C++| VECTORED: code=0xC0000005 addr=0x0040C314 thread=452
+C++| VECTORED: code=0xC0000005 addr=0x0040C314 thread=452
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=448
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=464
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=460
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=452
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=280)
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=448
+C++| C++| VECTORED: code=0xC0000005 addr=0x7725EFDD threaVECTO
+ED: code=0xC0000005 addr=0x7725EFDD thread=460
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=057fdf40)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057bfdc0 m_bInVehicle=1 m_pVehicle=057fdf40
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=057fdf40)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=057fdf40)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=057fdf40)
+SMM done
+C++| showtext: Open microphone. (time=500 style=1)
+C++| set_traffic 0.00
+C++| set_ped_traffic 0.00
+Createcar: MODEL_HUNTER
+C++| load_model_before_avalible: ЗАПРОС модели id=155
+C++| load_model_before_avalible: модель id=155 загружена
+C++| Createcar: создана MODEL_HUNTER (id=155) car=05802b6c
+C++| Createcar: MARK no-longer-needed id=155 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=4
+C++| load_model_before_avalible: модель id=4 загружена
+Createcar: MODEL_RHINO
+C++| load_model_before_avalible: ЗАПРОС модели id=162
+C++| load_model_before_avalible: модель id=162 загружена
+C++| Createcar: создана MODEL_RHINO (id=162) car=05803148
+C++| Createcar: MARK no-longer-needed id=162 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: модель id=282 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=4
+C++| load_model_before_avalible: модель id=4 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+fade 1 5500
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+createmarker
+createmarker ok 196619
+setsizemarker
+create_sphere
+create_sphere ok
+printmessage
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+printmessage
+C++| mission_watch: СТАРТ
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| is_ped_in_car: пед=057bfdc0 В МАШИНЕ (m_pVehicle=05803148)
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=448
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=460
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=452
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=280)
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=452
+C++| C++| RED: code=0xC0000005 addr=0x7725EFDD thread=460VECTOVECTORED: code=0xC0000005 addr=0x7725EFDD threa
+=464
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=516
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=516
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=516
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=516
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=516
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=516
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=516
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=516
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=516
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=516
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057bb7c8 В МАШИНЕ (m_pVehicle=057f9f24)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057bb7c8 m_bInVehicle=1 m_pVehicle=057f9f24
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057bb7c8 В МАШИНЕ (m_pVehicle=057f9f24)
+C++| is_ped_in_car: пед=057bb7c8 В МАШИНЕ (m_pVehicle=057f9f24)
+C++| is_ped_in_car: пед=057bb7c8 В МАШИНЕ (m_pVehicle=057f9f24)
+SMM done
+C++| showtext: Open microphone. (time=500 style=1)
+C++| set_traffic 0.00
+C++| set_ped_traffic 0.00
+Createcar: MODEL_HUNTER
+C++| load_model_before_avalible: ЗАПРОС модели id=155 (thread=712)
+C++| load_model_before_avalible: модель id=155 загружена (thread=712)
+C++| Createcar: создана MODEL_HUNTER (id=155) car=057fc24c
+C++| Createcar: MARK no-longer-needed id=155 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=4 (thread=712)
+C++| load_model_before_avalible: модель id=4 загружена (thread=712)
+Createcar: MODEL_RHINO
+C++| load_model_before_avalible: ЗАПРОС модели id=162 (thread=712)
+C++| load_model_before_avalible: модель id=162 загружена (thread=712)
+C++| Createcar: создана MODEL_RHINO (id=162) car=057fc828
+C++| Createcar: MARK no-longer-needed id=162 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=282 (thread=712)
+C++| load_model_before_avalible: модель id=282 загружена (thread=712)
+C++| load_model_before_avalible: ЗАПРОС модели id=280 (thread=712)
+C++| load_model_before_avalible: модель id=280 загружена (thread=712)
+C++| load_model_before_avalible: ЗАПРОС модели id=4 (thread=712)
+C++| load_model_before_avalible: модель id=4 загружена (thread=712)
+C++| load_model_before_avalible: ЗАПРОС модели id=280 (thread=712)
+C++| load_model_before_avalible: модель id=280 загружена (thread=712)
+fade 1 5500
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=516
+createmarker
+createmarker ok 196619
+setsizemarker
+create_sphere
+create_sphere ok
+printmessage
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=516
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=05369240 В МАШИНЕ (m_pVehicle=053a73c0)
+C++| exitcar: ВХОД
+C++| exitcar: пед=05369240 m_bInVehicle=1 m_pVehicle=053a73c0
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=05369240 В МАШИНЕ (m_pVehicle=053a73c0)
+C++| is_ped_in_car: пед=05369240 В МАШИНЕ (m_pVehicle=053a73c0)
+C++| is_ped_in_car: пед=05369240 В МАШИНЕ (m_pVehicle=053a73c0)
+SMM done
+C++| showtext: Open microphone. (time=500 style=1)
+C++| set_traffic 0.00
+C++| set_ped_traffic 0.00
+Createcar: MODEL_HUNTER
+C++| load_model_before_avalible: ЗАПРОС модели id=155 (thread=452)
+C++| load_model_before_avalible: модель id=155 загружена (thread=452)
+C++| Createcar: создана MODEL_HUNTER (id=155) car=053a96e8
+C++| Createcar: MARK no-longer-needed id=155 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=4 (thread=452)
+C++| load_model_before_avalible: модель id=4 загружена (thread=452)
+Createcar: MODEL_RHINO
+C++| load_model_before_avalible: ЗАПРОС модели id=162 (thread=452)
+C++| load_model_before_avalible: модель id=162 загружена (thread=452)
+C++| Createcar: создана MODEL_RHINO (id=162) car=053a9cc4
+C++| Createcar: MARK no-longer-needed id=162 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=282 (thread=452)
+C++| load_model_before_avalible: модель id=282 загружена (thread=452)
+C++| load_model_before_avalible: ЗАПРОС модели id=280 (thread=452)
+C++| load_model_before_avalible: модель id=280 загружена (thread=452)
+C++| load_model_before_avalible: ЗАПРОС модели id=4 (thread=452)
+C++| load_model_before_avalible: модель id=4 загружена (thread=452)
+C++| load_model_before_avalible: ЗАПРОС модели id=280 (thread=452)
+C++| load_model_before_avalible: модель id=280 загружена (thread=452)
+fade 1 5500
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+createmarker
+createmarker ok 196619
+setsizemarker
+create_sphere
+create_sphere ok
+printmessage
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=0537bf88 В МАШИНЕ (m_pVehicle=053ba6e4)
+C++| exitcar: ВХОД
+C++| exitcar: пед=0537bf88 m_bInVehicle=1 m_pVehicle=053ba6e4
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=0537bf88 В МАШИНЕ (m_pVehicle=053ba6e4)
+C++| is_ped_in_car: пед=0537bf88 В МАШИНЕ (m_pVehicle=053ba6e4)
+C++| is_ped_in_car: пед=0537bf88 В МАШИНЕ (m_pVehicle=053ba6e4)
+SMM done
+C++| showtext: Open microphone. (time=500 style=1)
+C++| set_traffic 0.00
+C++| set_ped_traffic 0.00
+Createcar: MODEL_HUNTER
+C++| load_model_before_avalible: ЗАПРОС модели id=155 (thread=452)
+C++| load_model_before_avalible: модель id=155 загружена (thread=452)
+C++| Createcar: создана MODEL_HUNTER (id=155) car=053bd5c4
+C++| Createcar: MARK no-longer-needed id=155 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=4 (thread=452)
+C++| load_model_before_avalible: модель id=4 загружена (thread=452)
+Createcar: MODEL_RHINO
+C++| load_model_before_avalible: ЗАПРОС модели id=162 (thread=452)
+C++| load_model_before_avalible: модель id=162 загружена (thread=452)
+C++| Createcar: создана MODEL_RHINO (id=162) car=053bdba0
+C++| Createcar: MARK no-longer-needed id=162 OK
+Createcar: ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=282 (thread=452)
+C++| load_model_before_avalible: модель id=282 загружена (thread=452)
+C++| load_model_before_avalible: ЗАПРОС модели id=280 (thread=452)
+C++| load_model_before_avalible: модель id=280 загружена (thread=452)
+C++| load_model_before_avalible: ЗАПРОС модели id=4 (thread=452)
+C++| load_model_before_avalible: модель id=4 загружена (thread=452)
+C++| load_model_before_avalible: ЗАПРОС модели id=280 (thread=452)
+C++| load_model_before_avalible: модель id=280 загружена (thread=452)
+fade 1 5500
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+C++| VECTORED: code=0xC0000005 addr=0x0064E154 thread=280
+createmarker
+createmarker ok 196619
+setsizemarker
+create_sphere
+create_sphere ok
+printmessage
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=452
+C++| VECTOVECTOVECTORED: code=0xC0000005 addr=0x7725EFDD 
+hrea
+=448
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=280)
+C++| C++| VECTORED: code=0xC0000005 addr=0x7725EFDD threaVECTO
+ED: code=0xC0000005 addr=0x7725EFDD thread=464
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=448
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| getpedcoordinates_on_y: пед=057bde80 pos=(-234.83, -1363.77, 8.11) сдвиг по up * 5.0 -> (-231.73, -1367.69, 8.11)
+Createcar: MODEL_SECURICA
+C++| load_model_before_avalible: ЗАПРОС модели id=158 (thread=452)
+C++| load_model_before_avalible: модель id=158 загружена (thread=452)
+C++| Createcar: создана MODEL_SECURICA (id=158) car=057fe904
+C++| Createcar: MARK no-longer-needed id=158 OK
+Createcar: ok
+C++| getpedcoordinates_on_y: пед=057bde80 pos=(-234.83, -1363.77, 8.11) сдвиг по up * 5.0 -> (-231.73, -1367.69, 8.11)
+Createcar: MODEL_SECURICA
+C++| load_model_before_avalible: ЗАПРОС модели id=158 (thread=452)
+C++| load_model_before_avalible: модель id=158 загружена (thread=452)
+C++| Createcar: создана MODEL_SECURICA (id=158) car=057feee0
+C++| Createcar: MARK no-longer-needed id=158 OK
+Createcar: ok
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=284)
+C++| teardown: сирота 0788e2dc — закрываю
+C++| destroy: ВХОД
+C++| destroy: удаляю авто 057fe904
+C++| destroy: удаляю авто 057feee0
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07a88d44 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07b59f44 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07b12504 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: все pump-потоки завершились (waited=0ms)
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=284)
+C++| teardown: сирота 09bc1594 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 09b9d01c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 09fd093c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0a097ff4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=284)
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 0a13bc14 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0a121ce4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0a0690fc — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0a28b47c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| VECTORED: code=0xC0000005 addr=0x004BC2A3 thread=284
+C++| VECTORED: code=0xC0000005 addr=0x004BC2A3 thread=284
