@@ -203,7 +203,7 @@ int star_mission_marker(lua_State* L) {// создать маркер для м�
 			//this_thread::sleep_for(chrono::milliseconds(10));
 			CPed* player = FindPlayerPed();
 			unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
-			bool getflagmission = (CTheScripts::ScriptSpace[OnAMissionFlag]);
+			bool getflagmission = (OnAMissionFlag < 260512) && (CTheScripts::ScriptSpace[OnAMissionFlag]); // анти-AV по индексу.
 			bool arest = CWorld::Players[CWorld::PlayerInFocus].m_nPlayerState == PLAYERSTATE_HASBEENARRESTED;
 			if ((!player->m_bInVehicle) || getflagmission || (!player->m_fHealth > 0.10f) || (arest) && (create == 1)) {// в авто пед?
 
@@ -2360,26 +2360,28 @@ int cleanstl() {//удаления объектов из всех stl.
 
 int getflagmission(lua_State* L) {// проверка флага миссии.
  	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
- 	bool getflagmission = (CTheScripts::ScriptSpace[OnAMissionFlag]);
+ 	bool getflagmission = (OnAMissionFlag < 260512) && (CTheScripts::ScriptSpace[OnAMissionFlag]);// анти-AV по индексу.
  	lua_pushboolean(L, getflagmission);// получить флаг миссии.
  	cpp_tracef("getflagmission = %s", getflagmission ? "true" : "false");
  	return 1;
  };
 
+static bool mission_flag_get();// прототип (определение ниже — сторож миссии).
+static bool mission_flag_set_safe(bool v);// защищённая запись флага миссии (анти-AV).
+
 int setflagmission(lua_State* L) {// уcтановить флага миссии.
- 	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
  	try {
  		if (LUA_TBOOLEAN == lua_type(L, 1)) {// значение число.
  			bool flag = lua_toboolean(L, 1);
  			cpp_tracef("setflagmission = %s", flag ? "true" : "false");
-			CTheScripts::ScriptSpace[OnAMissionFlag] = flag;
-			return 0;
-		}
-		else { throw "bad argument in function setflagmission"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
-};
+			mission_flag_set_safe(flag);// защищённая запись (анти-AV по индексу ScriptSpace).
+ 			return 0;
+ 		}
+ 		else { throw "bad argument in function setflagmission"; }
+ 	}
+ 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+ 	return 0;
+ };
 
 // ==== Сторож миссии (C++ API с большой буквы) ====
 // Getflagmission/Setflagmission поднимают ОДИН независимый поток, который
@@ -2393,13 +2395,20 @@ static lua_State* mission_watch_L = nullptr;
 
 static bool mission_flag_get() {
 	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
+	if (OnAMissionFlag >= 260512) { cpp_tracef("mission_flag_get: индекс %u вне ScriptSpace", OnAMissionFlag); return false; }
 	return (bool)CTheScripts::ScriptSpace[OnAMissionFlag];
 };
 
-static void mission_flag_set(bool v) {
+// Защищённая запись флага миссии: пишем ТОЛЬКО если индекс корректен (< размера ScriptSpace 260512).
+// Защита от вылета при порче 0x978748 (чтение мусорного индекса = запись мимо массива = AV).
+static bool mission_flag_set_safe(bool v) {
 	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
+	if (OnAMissionFlag >= 260512) { cpp_tracef("mission_flag_set_safe: индекс %u вне ScriptSpace — запись пропущена", OnAMissionFlag); return false; }
 	CTheScripts::ScriptSpace[OnAMissionFlag] = v;
+	return true;
 };
+
+static void mission_flag_set(bool v) { mission_flag_set_safe(v); };
 
 void mission_watch_proc() {// тело независимого потока.
 	cpp_trace("mission_watch: СТАРТ");
@@ -2581,7 +2590,8 @@ int play_voice(lua_State* L) {// проиграть реплику педа.
 			const char* voice = lua_tostring(L, 1);
 			Command<COMMAND_LOAD_MISSION_AUDIO>(1, voice);// загрузить реплику.
 			while (true) {
-				if (teardown_active.load()) break;// пауза: reload выключает скрипты — аудио не ждём.
+				if (scripts_paused.load()) return lua_yield(L, 0);// ПАУЗА: скрипт сам замер (yield из собственного кадра), ничего не закрываем.
+				if (teardown_active.load()) break;// тейрдаун: reload выключает скрипты — аудио не ждём.
 				this_thread::sleep_for(chrono::milliseconds(1));
 				if (Command<COMMAND_HAS_MISSION_AUDIO_LOADED>(1)) {
 					Command<COMMAND_PLAY_MISSION_AUDIO>(1);
@@ -2628,6 +2638,7 @@ void load_model_before_avalible(int model) {
 	int guard = 0;
 	while (!Command<COMMAND_HAS_MODEL_LOADED>(model)) {
 		if (teardown_active.load()) break;// пауза: reload выключает скрипты — модель не ждём.
+		if (scripts_paused.load()) { this_thread::sleep_for(chrono::milliseconds(10)); continue; }// ПАУЗА: кооперативно ждём (обратимо), модель не дёргаем.
 		this_thread::sleep_for(chrono::milliseconds(1));// задержка
 		Command<COMMAND_REQUEST_MODEL>(model);
 		if (++guard % 3000 == 0) cpp_tracef("load_model_before_avalible: ЖДЁМ модель id=%d (~%d мс)", model, guard);
@@ -3568,7 +3579,8 @@ int set_camera_and_point(lua_State* L) {// установить и переме�
 static int getcord(queue<float>q, const void* p) {
 	CVehicle* car = findcarinpool(p);//  получить указатель на авто.
 	while (!q.empty()) {
-		if (teardown_active.load()) return 0;// пауза: reload выключает скрипты — не едем на координаты.
+		if (teardown_active.load()) return 0;// тейрдаун: reload выключает скрипты — не едем на координаты.
+		if (scripts_paused.load()) { this_thread::sleep_for(chrono::milliseconds(10)); continue; }// ПАУЗА: не ведём авто, просто ждём (кооперативно, обратимо).
 		this_thread::sleep_for(chrono::milliseconds(1));
 		float x = q.front(); q.pop();
 		float y = q.front(); q.pop();
@@ -3576,7 +3588,8 @@ static int getcord(queue<float>q, const void* p) {
 
 		Command<COMMAND_CAR_GOTO_COORDINATES>(car, x, y, z);// авто едет на координаты.
 		while (!car->IsSphereTouchingVehicle(x, y, z, 3.0)) {
-			if (teardown_active.load()) return 0;// пауза: reload выключает скрипты — прекращаем вести авто.
+			if (teardown_active.load()) return 0;// тейрдаун: reload выключает скрипты — прекращаем вести авто.
+			if (scripts_paused.load()) { this_thread::sleep_for(chrono::milliseconds(10)); continue; }// ПАУЗА: авто стоит, ждём.
 			this_thread::sleep_for(chrono::milliseconds(1));
 			//if (car->m_fHealth < 100){
 			//	break;
@@ -4202,6 +4215,7 @@ int expectations(int model, CVehicle* car) {
 	if (car == NULL) { writelog("Createcar: EXPECTATIONS: car is NULL"); return 1; }
 	while (true) {
 		if (teardown_active.load()) return 0;// пауза: reload выключает скрипты — видимость авто не ждём.
+		if (scripts_paused.load()) { this_thread::sleep_for(chrono::milliseconds(10)); continue; }// ПАУЗА: кооперативно ждём (обратимо).
 		this_thread::sleep_for(chrono::milliseconds(10));// задержка
 		if (car->IsVisible()) {
 
@@ -24621,14 +24635,11 @@ wchar_t* getwchat(const char* c) {// перевод в строку.
 
 
 bool getstatusmission() {// проверка флага миссии.
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
-	bool getflagmission = (CTheScripts::ScriptSpace[OnAMissionFlag]);// получить флаг миссии.
-	return getflagmission;
+	return mission_flag_get();
 };
 
 int setstatusmission(bool flag) { // уcтановить флага миссии.
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
-	CTheScripts::ScriptSpace[OnAMissionFlag] = flag;
+	mission_flag_set_safe(flag);// защищённая запись (анти-AV по индексу ScriptSpace).
 	return 0;
 };
 

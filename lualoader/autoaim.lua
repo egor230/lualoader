@@ -3,7 +3,7 @@ function main()
 while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
  if Keypress("VK_G") -- если клавиша H.
-  then mod_autoaim("M40", "on")  printmessage("~r~on autoaim", 3400,1 )
+  then mod_autoaim("m4", "on")  printmessage("~r~on autoaim", 3400,1 )
   setpedcoordes(player, 488.5, 31.1, 10.9)
  end
 

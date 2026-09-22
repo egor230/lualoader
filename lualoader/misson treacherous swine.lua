@@ -21,13 +21,30 @@
 -- - Катсцена COL_1 (~42 сек, 12 субтитров GEN1_A..J, модели CSPLAY/CSCOLO/
 --   CGONA/CSERVRB + LOBTRAY/LOBSTER/COKNIFE/COLTRAY) → fade + текстовые
 --   реплики (как в Riot).
--- - Аудиодиалоги COL1_1..8 (LOAD_MISSION_AUDIO/PLAY_MISSION_AUDIO) → пропущены
---   (короткие текстовые реплики вместо них).
+-- - Аудиодиалоги COL1_1..8 — play_voice() ЕСТЬ в API (LOAD_MISSION_AUDIO +
+--   PLAY + ожидание HAS_MISSION_AUDIO_FINISHED внутри C++): используются
+--   COL1_5 (GEN1_10), COL1_1 (GEN1_06), COL1_3 (GEN1_08), COL1_7 (GEN1_12).
 -- - HAS_RESPRAY_HAPPENED ($684/$685 — неизвестные индексы гаражей) →
 --   детектор через get_player_wanted_level(): после установки no-drop 2
---   игрок въезжает в мойку → движок обнуляет розыск → 2→0 = респрей.
+--   игрок въезжает в мойку → движок обнуляет розыск → 2→0 = респрай.
 -- - SET_VISIBILITY_OF_CLOSEST_OBJECT_OF_TYPE (18 объектов -95..-112 вокруг
 --   особняка, прячутся на время катсцены) → пропущено (катсцены нет).
+--
+-- ВАЖНЫЕ ОТЛИЧИЯ от первого черновика (баги 2026-09-22):
+-- - Бензопила выдаётся СРАЗУ при старте (loadmodel 269 + Giveweaponped +
+--   set_current_weapon_ped 11) — оригинал @L499fd даёт её на пляже ДО
+--   конфронтации, а не в момент катсцены.
+-- - Дверь пентхауса ОТКРЫВАЕТСЯ: оригинал @L4a1d2 удаляет -118 (закрытая)
+--   и ставит -76 (открытая) при переходе к крыше — иначе игрок не может
+--   зайти в пентхаус. Аналогично @L4a8bc меняет -116 → -78 (лестница).
+-- - set_chars_chatting(pig, guard1, 9999999) = БЕСКОНЕЧНЫЙ чат → блокирует
+--   ИИ охраны и вешает кадр. Таймер конечный (8000), к концу диалогов
+--   охрана уже атакует.
+-- - Циклы while get_fading_status() do wait() end — БЕСКОНЕЧНЫЕ, если fade
+--   не стартует (например, при reload). Заменены на fade_and_wait() с
+--   конечным ожиданием (dur + 2с страховка).
+-- - Сфера места встречи: create_sphere(475.5, 30.3, 11.0, 3.0) — оригинал
+--   рисует DRAW_SPHERE каждый кадр; без сферы непонятно, куда идти.
 --
 -- Ловушки:
 -- - ped_in_point_in_radius = findpedinpool (1 мс) + sleep(10 мс) — В ЦИКЛЕ
@@ -51,10 +68,29 @@ end
 -- ped_dist2d_sq: квадрат 2D-дистанции между педом и точкой (или nil, если пед
 -- невалиден). Один вызов getpedcoordes = один findpedinpool (1 мс).
 local function ped_dist2d_sq(ped, x, y)
- if not isped(ped) then return nil end
- local px, py = getpedcoordes(ped)
- if px == nil then return nil end
- return distance2d_sq(px, py, x, y)
+	if not isped(ped) then return nil end
+	local px, py = getpedcoordes(ped)
+	if px == nil then return nil end
+	return distance2d_sq(px, py, x, y)
+end
+
+-- fade_and_wait: затемнение/проявление с КОНЕЧНЫМ ожиданием (не бесконечным).
+-- fade_dir: 0 = затемнение, 1 = проявление; dur — длительность в мс.
+local function fade_and_wait(fade_dir, dur)
+	fade(fade_dir, dur)
+	local t = get_game_timer()
+	while true do
+		wait()
+		if not get_fading_status() then break end          -- fade завершился
+		if get_game_timer() - t > dur + 2000 then break end -- страховка +2с
+	end
+end
+
+-- play_voice_line: аудиофраза + субтитр, как в оригинале (LOAD+PLAY+FINISHED).
+-- Оригинал ждёт HAS_MISSION_AUDIO_FINISHED — play_voice делает это внутри.
+local function play_voice_line(name, text, text_ms)
+	printmessage(text, text_ms, 1)
+	play_voice(name)
 end
 
 function main()
@@ -62,9 +98,8 @@ while true do wait()  local player = findplayer()
 
  if Star_mission_marker(9, -250.5, -1361.1, 8.1)
  then
-  ped_frozen(1)  -- разморозить: обёртка SMM погасила экран
-  fade(1, 1200)  -- проявление после Star_mission_marker
-  wait(1200)
+   fade(1, 1200)  -- проявление после Star_mission_marker
+   wait(1200)
 
   local step = 1               -- 1 = катсцена→пляж, 2 = ждать подхода, 3 = конфронтация (одноразовый блок),
                                -- 4 = преследование, 5 = респрай, 6 = успех, 7 = провал-побег, nil = конец
@@ -72,8 +107,9 @@ while true do wait()  local player = findplayer()
   local guard1, guard2         -- 2 охранника (CLA / 89)
   local beach1, beach2, beach3 -- 3 случайных педа на пляжу (декор)
   local roof1, roof2, roof3, roof4  -- 4 объекта крыши (-116..-119)
-  local blip_site              -- блайп места встречи (018A)
-  local blip_pig               -- блайп на Свинью (0187 → create_marker_actor)
+   local blip_site              -- блайп места встречи (018A)
+   local sphere_site            -- сфера места встречи (03A1 DRAW_SPHERE)
+   local blip_pig               -- блайп на Свинью (0187 → create_marker_actor)
   local blip_respray           -- блайп мойки (при провале-убийстве)
   local pig_phase = 0          -- фаза маршрута Свиньи ($2264: 0..4 = точки крыши, 5..8 = диалоги)
   local pig_escaped = 0        -- 1 = Свинья спрыгнула с крыши и бежит к точке побега
@@ -81,9 +117,16 @@ while true do wait()  local player = findplayer()
   local timer_u = 0            -- то же для второй охраны
   local beach_removed = 0      -- 1 = пляжные педы уже сняты
   local respray_msg = 0        -- 1 = GEN1_20 ("нужно авто") уже показано
-  set_wanted(0)
-  showtext(" Treacherous Swine", 500, 1)
-  ma_trace("swine: СТАРТ у особняка Кортеса (-250.5, -1361.1, 8.1)")
+   set_wanted(0)
+   -- БЕНЗОПИЛА СРАЗУ — оригинал @L499fd (GIVE_WEAPON_TO_PLAYER 11 1) даёт её
+   -- на пляже ДО катсцены конфронтации, чтобы игрок мог сразу резать.
+   loadmodel(269)  -- 0247 REQUEST_MODEL 269 (chnsaw)
+   loadmodel(89)   -- 0247 REQUEST_MODEL 89 (CLA — охрана, для шага 3)
+   load_requested_models()  -- 038B LOAD_ALL_MODELS_NOW
+   Giveweaponped(player, 1, "chnsaw")  -- 01B1 GIVE_WEAPON_TO_PLAYER 11 1
+   set_current_weapon_ped(player, 11)  -- 01B8 SET_CURRENT_PLAYER_WEAPON 11 — в руки
+   showtext(" Treacherous Swine", 500, 1)
+   ma_trace("swine: СТАРТ у особняка Кортеса (-250.5, -1361.1, 8.1), бензопила выдана")
 
   -- === шаг 1: катсцена → текст + fade + телепорт на пляж (LOAD_CUTSCENE в API нет) ===
   printmessage("~w~Colonel Cortez: One of my people has been talking to the cops.", 6000, 1)  -- GEN1_A
@@ -110,16 +153,15 @@ while true do wait()  local player = findplayer()
   set_fade_color(0, 0, 0)  -- 0169 SET_FADING_COLOUR 0 0 0
   wait(500)
   set_camera_behind_player()  -- 0373 (оригинал ставит дважды)
-  set_ped_mood(1, 60000)  -- 04E3 SET_PLAYER_MOOD 1 60000
-  force_weather_now(4)  -- 01B6 FORCE_WEATHER_NOW 4
-  loadmodel(269)  -- 0247 REQUEST_MODEL 269 (chnsaw — бензопила)
-  loadmodel(89)  -- 0247 REQUEST_MODEL 89 (CLA — охрана)
-  load_requested_models()  -- 038B LOAD_ALL_MODELS_NOW
+   set_ped_mood(1, 60000)  -- 04E3 SET_PLAYER_MOOD 1 60000
+   force_weather_now(4)  -- 01B6 FORCE_WEATHER_NOW 4
+   -- (модели 269/89 загружены в самом старте — бензопила выдана сразу)
 
   -- сцена пляжа (@L499fd): дороги, оружие, блайп, педы, объекты крыши
-  ped_road_off()  -- 022B SWITCH_PED_ROADS_OFF
-  Giveweaponped(player, 1, "chnsaw")  -- 01B1 GIVE_WEAPON_TO_PLAYER 11 1 — БЕНЗОПИЛА
-  blip_site = radar_add_blip_for_coord(476.8, 30.4, 11.0)  -- 018A ADD_BLIP_FOR_COORD
+   ped_road_off()  -- 022B SWITCH_PED_ROADS_OFF
+   blip_site = radar_add_blip_for_coord(476.8, 30.4, 11.0)  -- 018A ADD_BLIP_FOR_COORD
+   -- сфера на месте встречи (оригинал @L49c2b: DRAW_SPHERE 475.5 30.3 11 3)
+   sphere_site = create_sphere(475.5, 30.3, 11.0, 3.0)
   beach1 = create_random_char(-242.8, -1342.5, 7.1)  -- 0376 CREATE_RANDOM_CHAR
   if beach1 ~= nil then setangle(beach1, 204.5) end  -- 0173 SET_CHAR_HEADING
   beach2 = create_random_char(-240.8, -1344.1, 7.1)
@@ -154,8 +196,8 @@ while true do wait()  local player = findplayer()
      mark_char_as_no_longer_needed(beach3)
      beach_removed = 1
     end
-    if beach_removed == 0 and is_ped_shooting(pp) then  -- 02DF IS_PLAYER_SHOOTING → снять педов
-     mark_char_as_no_longer_needed(beach1)
+     if beach_removed == 0 and isped(pp) and is_ped_shooting(pp) then  -- 02DF IS_PLAYER_SHOOTING → снять педов
+      mark_char_as_no_longer_needed(beach1)
      mark_char_as_no_longer_needed(beach2)
      mark_char_as_no_longer_needed(beach3)
      beach_removed = 1
@@ -168,98 +210,113 @@ while true do wait()  local player = findplayer()
     end
    end
 
-   -- === шаг 3: конфронтация (@L49c48) — одноразовый блок ===
-   if step == 3 then
-    step = 31  -- маркер одноразового выполнения (31 = конфронтация идёт)
-    message_clear_all()  -- 00BE CLEAR_PRINTS
-    if blip_site ~= nil then remove_blip(blip_site) blip_site = nil end  -- 0164 REMOVE_BLIP
-    ped_frozen(0)  -- 01B4 SET_PLAYER_CONTROL 0 — заморозить
-    set_widescreen(true)  -- 02A3 SWITCH_WIDESCREEN 1
-    Giveweaponped(player, 1, "chnsaw")  -- 01B1 (повтор, как в оригинале @L49c48)
-    set_current_weapon_ped(player, 11)  -- 01B8 SET_CURRENT_PLAYER_WEAPON 11 — бензопила в руки
-    pig = create_spec_ped("IGGONZ", 466.0, 38.2, 32.0)  -- 009A CREATE_CHAR 4 109 — Свинья
-    if pig ~= nil then
-     ped_clean_threat(pig)  -- 01ED CLEAR_CHAR_THREAT_SEARCH
-     setpedhealth(pig, 150)  -- 0223 SET_CHAR_HEALTH 150
-     set_ped_only_damaged_by_player(pig, true)  -- 02A9 SET_CHAR_ONLY_DAMAGED_BY_PLAYER 1
-     set_ped_m_nAnimGroupId(pig, 50)  -- 0245 SET_ANIM_GROUP_FOR_CHAR 50
-    end
-    guard1 = create_spec_ped("CLA", 466.1, 40.1, 32.0)  -- 009A CREATE_CHAR 4 89 — охрана 1
-    if guard1 ~= nil then
-     ped_clean_threat(guard1)  -- 01ED
-     setangle(guard1, 180)  -- 0173 SET_CHAR_HEADING
-    end
-    guard2 = create_spec_ped("CLA", 464.3, 43.7, 32.0)  -- 009A CREATE_CHAR 4 89 — охрана 2
-    if guard2 ~= nil then
-     ped_clean_threat(guard2)  -- 01ED
-    end
-    if pig ~= nil and guard1 ~= nil then set_chars_chatting(pig, guard1, 9999999) end  -- 03F9
-    set_char_obj_run_to_coord(pp, 475.7, 30.3, 11.0)  -- 0239 — игрок бежит к месту
-    -- ждать 5000 мс или прохождения цели (оригинал @L49d04)
-    local t0 = get_game_timer()  -- 01BD GET_GAME_TIMER
-    while step == 31 do
-     wait()
-     local p2 = findplayer()
-     if p2 ~= nil and is_ped_objective(p2) then step = 32 end  -- 0126 IS_CHAR_OBJECTIVE_PASSED
-     if pig ~= nil and ispeddead(pig) then step = 32 end
-     if get_game_timer() - t0 > 5000 then step = 32 end  -- таймаут
-    end
-    set_char_obj_no_obj(pp)  -- 011C SET_CHAR_OBJ_NO_OBJ
-    set_fade_color(0, 0, 1)  -- 0169 SET_FADING_COLOUR 0 0 1
-    fade(0, 500)  -- 016A DO_FADE 500 0 — затемнение
-    while get_fading_status() do wait() end  -- 016B GET_FADING_STATUS
-    setcord(pp, 454.4, 31.3, 33.86)  -- 0055 — телепорт на крышу
-    setangle(pp, 270)  -- 0171 SET_PLAYER_HEADING
-    set_camera_position(468.1, 41.0, 33.5, 0.0, 0.0, 0.0)  -- 015F SET_FIXED_CAMERA_POSITION
-    camera_at_point(461.0, 32.8, 33.0, 2)  -- 0160 POINT_CAMERA_AT_POINT
-    fade(1, 500)  -- 016A DO_FADE 500 1 — проявление
-    if pig ~= nil and not ispeddead(pig) then
-     set_char_obj_goto_coord_on_foot(pig, 460.7, 27.5, 33.0)  -- 0211 — Свинья идёт к углу
-    end
-    -- ждать подхода игрока к 460.7 27.5 (радиус 0.5) или 5000 мс (оригинал @L49dff)
-    local t1 = get_game_timer()
-    while step == 32 do
-     wait()
-     local p3 = findplayer()
-     if p3 ~= nil then
-      local d2 = ped_dist2d_sq(p3, 460.7, 27.5)
-      if d2 ~= nil and d2 < 0.25 then step = 33 end  -- 0.5² = 0.25
+    -- === шаг 3: конфронтация (@L49c48) — одноразовый блок ===
+    if step == 3 then
+     step = 31  -- маркер одноразового выполнения (31 = конфронтация идёт)
+     message_clear_all()  -- 00BE CLEAR_PRINTS
+     if blip_site ~= nil then remove_blip(blip_site) blip_site = nil end  -- 0164 REMOVE_BLIP
+     if sphere_site ~= nil then remove_sphere(sphere_site) sphere_site = nil end  -- 03BD
+     ped_frozen(0)  -- 01B4 SET_PLAYER_CONTROL 0 — заморозить
+     set_widescreen(true)  -- 02A3 SWITCH_WIDESCREEN 1
+     pig = create_spec_ped("IGGONZ", 466.0, 38.2, 32.0)  -- 009A CREATE_CHAR 4 109 — Свинья
+     if pig ~= nil then
+      ped_clean_threat(pig)  -- 01ED CLEAR_CHAR_THREAT_SEARCH
+      setpedhealth(pig, 150)  -- 0223 SET_CHAR_HEALTH 150
+      set_ped_only_damaged_by_player(pig, true)  -- 02A9 SET_CHAR_ONLY_DAMAGED_BY_PLAYER 1
+      set_ped_m_nAnimGroupId(pig, 50)  -- 0245 SET_ANIM_GROUP_FOR_CHAR 50
      end
-     if pig ~= nil and ispeddead(pig) then step = 33 end
-     if get_game_timer() - t1 > 5000 then step = 33 end  -- таймаут
+     guard1 = create_spec_ped("CLA", 466.1, 40.1, 32.0)  -- 009A CREATE_CHAR 4 89 — охрана 1
+     if guard1 ~= nil then
+      ped_clean_threat(guard1)  -- 01ED
+      setangle(guard1, 180)  -- 0173 SET_CHAR_HEADING
+     end
+     guard2 = create_spec_ped("CLA", 464.3, 43.7, 32.0)  -- 009A CREATE_CHAR 4 89 — охрана 2
+     if guard2 ~= nil then
+      ped_clean_threat(guard2)  -- 01ED
+     end
+     -- 03F9 SET_CHARS_CHATTING: КОНЕЧНЫЙ таймер (оригинал 9999999 = бесконечно,
+     -- но это блокирует ИИ охраны → вылет; ставим 8000, к концу диалогов снимется)
+     if pig ~= nil and guard1 ~= nil then set_chars_chatting(pig, guard1, 8000) end
+     set_char_obj_run_to_coord(pp, 475.7, 30.3, 11.0)  -- 0239 — игрок бежит к месту
+     -- ждать 5000 мс или прохождения цели (оригинал @L49d04)
+     local t0 = get_game_timer()  -- 01BD GET_GAME_TIMER
+     while step == 31 do
+      wait()
+      local p2 = findplayer()
+      if p2 ~= nil and is_ped_objective(p2) then step = 32 end  -- 0126 IS_CHAR_OBJECTIVE_PASSED
+      if pig ~= nil and ispeddead(pig) then step = 32 end
+      if get_game_timer() - t0 > 5000 then step = 32 end  -- таймаут
+     end
+     set_char_obj_no_obj(pp)  -- 011C SET_CHAR_OBJ_NO_OBJ
+     set_fade_color(0, 0, 1)  -- 0169 SET_FADING_COLOUR 0 0 1
+     fade_and_wait(0, 500)  -- 016A DO_FADE 500 0 — затемнение (КОНЕЧНОЕ ожидание)
+     -- ОТКРЫТЬ ДВЕРЬ ПЕНТХАУСА (оригинал @L4a1d2): удалить -118 (закрытая дверь),
+     -- поставить -76 (открытая). Иначе игрок не сможет зайти в пентхаус.
+     if roof3 ~= nil then remove_obj(roof3) roof3 = nil end  -- 0108 DELETE_OBJECT $2256
+     local door_open = Createobj(-76, 465.375, 30.336, 33.181)  -- 029B CREATE_OBJECT_NO_OFFSET
+     if door_open ~= nil then dont_remove_object(door_open) end  -- 01C7
+     setcord(pp, 454.4, 31.3, 33.86)  -- 0055 — телепорт на крышу
+     setangle(pp, 270)  -- 0171 SET_PLAYER_HEADING
+     set_camera_position(468.1, 41.0, 33.5, 0.0, 0.0, 0.0)  -- 015F SET_FIXED_CAMERA_POSITION
+     camera_at_point(461.0, 32.8, 33.0, 2)  -- 0160 POINT_CAMERA_AT_POINT
+     fade_and_wait(1, 500)  -- 016A DO_FADE 500 1 — проявление (КОНЕЧНОЕ ожидание)
+     if pig ~= nil and not ispeddead(pig) then
+      set_char_obj_goto_coord_on_foot(pig, 460.7, 27.5, 33.0)  -- 0211 — Свинья идёт к углу
+     end
+     -- ждать подхода игрока к 460.7 27.5 (радиус 0.5) или 5000 мс (оригинал @L49dff)
+     local t1 = get_game_timer()
+     while step == 32 do
+      wait()
+      local p3 = findplayer()
+      if p3 ~= nil then
+       local d2 = ped_dist2d_sq(p3, 460.7, 27.5)
+       if d2 ~= nil and d2 < 0.25 then step = 33 end  -- 0.5² = 0.25
+      end
+      if pig ~= nil and ispeddead(pig) then step = 33 end
+      if get_game_timer() - t1 > 5000 then step = 33 end  -- таймаут
+     end
+     if pig ~= nil and not ispeddead(pig) then
+      set_char_obj_no_obj(pig)  -- 011C
+      turn_player_to_face_char(pig)  -- 0210 TURN_PLAYER_TO_FACE_CHAR
+     end
+     set_ped_wait_state(pp, 19, 10000)  -- 0372 SET_CHAR_WAIT_STATE 19 10000
+     -- === АУДИОДИАЛОГИ (оригинал @L49ecc/@L49fd0/@L4a0dd) ===
+     -- play_voice: LOAD_MISSION_AUDIO + PLAY + ожидание FINISHED (реализован в C++).
+     -- Субтитры — как в оригинале (GEN1_10 → GEN1_06 → GEN1_11).
+     if pig ~= nil and not ispeddead(pig) then
+      play_voice_line("COL1_5", "~w~Pig: So, Cortez sent you. I'm not afraid of a chainsaw.", 4000)  -- GEN1_10
+     else
+      printmessage("~w~Pig: So, Cortez sent you. I'm not afraid of a chainsaw.", 4000, 1)
+      wait(4000)
+     end
+     if pig ~= nil and not ispeddead(pig) then
+      play_voice_line("COL1_1", "~w~Pig: You're making a big mistake, my friend.", 4000)  -- GEN1_06
+     else
+      printmessage("~w~Pig: You're making a big mistake, my friend.", 4000, 1)
+      wait(4000)
+     end
+     printmessage("~r~Pig: Boys, kill him!", 3000, 1)  -- GEN1_11
+     wait(3000)
+     set_ped_wait_state(pp, 0, 100)  -- 0372 — снять wait
+     if pig ~= nil and not ispeddead(pig) then
+      set_ped_wait_state(pig, 0, 100)
+      turn_char_to_face_player(pig)  -- 020F TURN_CHAR_TO_FACE_PLAYER
+      set_ped_wait_state(pig, 0, 100)
+     end
+     if guard1 ~= nil and not ispeddead(guard1) then set_char_obj_no_obj(guard1) end  -- 011C
+     -- охрана атакует игрока (01CA SET_CHAR_OBJ_KILL_PLAYER_ON_FOOT)
+     if guard1 ~= nil and not ispeddead(guard1) then set_char_obj_kill_player_on_foot(guard1, player) end
+     if guard2 ~= nil and not ispeddead(guard2) then set_char_obj_kill_player_on_foot(guard2, player) end
+     -- разблокировка игрока
+     restore_camera()  -- 02EB RESTORE_CAMERA_JUMPCUT
+     ped_frozen(1)  -- 01B4 SET_PLAYER_CONTROL 1 — разморозить
+     set_widescreen(false)  -- 02A3 SWITCH_WIDESCREEN 0
+     timer_t = get_game_timer()  -- 01BD
+     timer_u = get_game_timer()
+     pig_phase = 0
+     step = 4
+     ma_trace("swine: конфронтация — охрана атакует, Свинья бежит по крыше")
     end
-    if pig ~= nil and not ispeddead(pig) then
-     set_char_obj_no_obj(pig)  -- 011C
-     turn_player_to_face_char(pig)  -- 0210 TURN_PLAYER_TO_FACE_CHAR
-    end
-    set_ped_wait_state(pp, 19, 10000)  -- 0372 SET_CHAR_WAIT_STATE 19 10000
-    -- аудиодиалоги COL1_5/COL1_1/COL1_6 — в API нет → текст
-    printmessage("~w~Pig: So, Cortez sent you. I'm not afraid of a chainsaw.", 4000, 1)  -- GEN1_10
-    wait(4000)
-    printmessage("~w~Pig: You're making a big mistake, my friend.", 4000, 1)  -- GEN1_06
-    wait(4000)
-    printmessage("~r~Pig: Boys, kill him!", 3000, 1)  -- GEN1_11
-    wait(3000)
-    set_ped_wait_state(pp, 0, 100)  -- 0372 — снять wait
-    if pig ~= nil and not ispeddead(pig) then
-     set_ped_wait_state(pig, 0, 100)
-     turn_char_to_face_player(pig)  -- 020F TURN_CHAR_TO_FACE_PLAYER
-     set_ped_wait_state(pig, 0, 100)
-    end
-    if guard1 ~= nil and not ispeddead(guard1) then set_char_obj_no_obj(guard1) end  -- 011C
-    -- охрана атакует игрока (01CA SET_CHAR_OBJ_KILL_PLAYER_ON_FOOT)
-    if guard1 ~= nil and not ispeddead(guard1) then set_char_obj_kill_player_on_foot(guard1, player) end
-    if guard2 ~= nil and not ispeddead(guard2) then set_char_obj_kill_player_on_foot(guard2, player) end
-    -- разблокировка игрока
-    restore_camera()  -- 02EB RESTORE_CAMERA_JUMPCUT
-    ped_frozen(1)  -- 01B4 SET_PLAYER_CONTROL 1 — разморозить
-    set_widescreen(false)  -- 02A3 SWITCH_WIDESCREEN 0
-    timer_t = get_game_timer()  -- 01BD
-    timer_u = get_game_timer()
-    pig_phase = 0
-    step = 4
-    ma_trace("swine: конфронтация — охрана атакует, Свинья бежит по крыше")
-   end
 
    -- === шаг 4: преследование (@L4a290 + @L4a92b) ===
    if step == 4 then
@@ -279,28 +336,28 @@ while true do wait()  local player = findplayer()
      if blip_pig == nil and isped(pig) then
       blip_pig = create_marker_actor(pig)  -- 0187 ADD_BLIP_FOR_CHAR
      end
-     -- ИИ охраны 1: каждые 500 мс — бежать к игроку / атаковать (оригинал @L4a9a7)
-     if get_game_timer() - timer_t > 500 then
-      timer_t = get_game_timer()  -- 01BD
-      if isped(guard1) and not ispeddead(guard1) then
-       local gx, gy = getpedcoordes(pp)  -- 0054 GET_PLAYER_COORDINATES
-       if gx ~= nil then
-        set_char_obj_run_to_coord(guard1, gx, gy, 11.0)  -- 0239 — бежать к игроку
-        set_char_obj_kill_player_on_foot(guard1, player)  -- 01CA — атаковать
+      -- ИИ охраны 1: каждые 500 мс — бежать к игроку / атаковать (оригинал @L4a9a7)
+      if get_game_timer() - timer_t > 500 then
+       timer_t = get_game_timer()  -- 01BD
+       if isped(guard1) and not ispeddead(guard1) and isped(pp) then
+        local gx, gy = getpedcoordes(pp)  -- 0054 GET_PLAYER_COORDINATES
+        if gx ~= nil then
+         set_char_obj_run_to_coord(guard1, gx, gy, 11.0)  -- 0239 — бежать к игроку
+         set_char_obj_kill_player_on_foot(guard1, player)  -- 01CA — атаковать
+        end
        end
       end
-     end
-     -- ИИ охраны 2 (оригинал @L4aa44)
-     if get_game_timer() - timer_u > 500 then
-      timer_u = get_game_timer()
-      if isped(guard2) and not ispeddead(guard2) then
-       local gx2, gy2 = getpedcoordes(pp)
-       if gx2 ~= nil then
-        set_char_obj_run_to_coord(guard2, gx2, gy2, 11.0)
-        set_char_obj_kill_player_on_foot(guard2, player)
+      -- ИИ охраны 2 (оригинал @L4aa44)
+      if get_game_timer() - timer_u > 500 then
+       timer_u = get_game_timer()
+       if isped(guard2) and not ispeddead(guard2) and isped(pp) then
+        local gx2, gy2 = getpedcoordes(pp)
+        if gx2 ~= nil then
+         set_char_obj_run_to_coord(guard2, gx2, gy2, 11.0)
+         set_char_obj_kill_player_on_foot(guard2, player)
+        end
        end
       end
-     end
      -- state-машина маршрута Свиньи по крыше ($2264: 0→1→2→3→4)
      if isped(pig) and not ispeddead(pig) then
       if pig_phase == 0 then
@@ -345,22 +402,26 @@ while true do wait()  local player = findplayer()
         if d2 ~= nil and d2 < 1.0 then break end
         if get_game_timer() - t2 > 3000 then break end  -- таймаут
        end
-       if isped(pig) and not ispeddead(pig) then
-        set_fade_color(0, 0, 1)  -- 0169
-        fade(0, 500)  -- 016A DO_FADE 500 0
-        while get_fading_status() do wait() end  -- 016B
-        setpedcoordes(pig, 474.7, 29.9, 11.07)  -- 00A1 SET_CHAR_COORDINATES — спрыгнул
-        setangle(pig, 92.5)  -- 0173 SET_CHAR_HEADING
-        fade(1, 500)  -- 016A DO_FADE 500 1
-       end
+        if isped(pig) and not ispeddead(pig) then
+         set_fade_color(0, 0, 1)  -- 0169
+         fade_and_wait(0, 500)  -- 016A DO_FADE 500 0 — затемнение (КОНЕЧНОЕ)
+         setpedcoordes(pig, 474.7, 29.9, 11.07)  -- 00A1 SET_CHAR_COORDINATES — спрыгнул
+         setangle(pig, 92.5)  -- 0173 SET_CHAR_HEADING
+         fade_and_wait(1, 500)  -- 016A DO_FADE 500 1 — проявление (КОНЕЧНОЕ)
+        end
        set_camera_position(484.2, 37.0, 12.8, 0.0, 0.0, 0.0)  -- 015F
        camera_at_point(479.7, 27.5, 11.5, 2)  -- 0160
        if isped(pig) and not ispeddead(pig) then
         set_ped_stay_when_attacked(pig, false)  -- 0350 SET_CHAR_STAY_IN_SAME_PLACE 0
         set_char_obj_run_to_coord(pig, 482.8, 30.9, 11.0)  -- 0239 — бежит по пляжу
        end
-       printmessage("~w~Pig: I'm getting out of here! You'll never take me alive!", 4000, 1)  -- GEN1_08 (вместо COL1_3)
-       wait(4000)
+        -- аудиофраза побега (оригинал @L4a74d: COL1_3 + GEN1_08)
+        if isped(pig) and not ispeddead(pig) then
+         play_voice_line("COL1_3", "~w~Pig: I'm getting out of here! You'll never take me alive!", 4000)
+        else
+         printmessage("~w~Pig: I'm getting out of here! You'll never take me alive!", 4000, 1)
+         wait(4000)
+        end
        if isped(pig) and not ispeddead(pig) then
         set_char_obj_run_to_coord(pig, 402.1, -462.2, 10.1)  -- 0239 — побег на другой конец пляжа
        end
@@ -372,8 +433,13 @@ while true do wait()  local player = findplayer()
         setangle(pp, 92.5)  -- 0173
        end
        set_ped_stay_when_attacked(pp, false)  -- 0350
-       printmessage("~g~Chase the swine! Don't let him get away!", 4000, 1)  -- GEN1_12 (вместо COL1_7)
-       wait(2000)
+        -- аудиофраза погони (оригинал @L4a849: COL1_7 + GEN1_12)
+        if isped(pig) and not ispeddead(pig) then
+         play_voice_line("COL1_7", "~g~Chase the swine! Don't let him get away!", 4000)
+        else
+         printmessage("~g~Chase the swine! Don't let him get away!", 4000, 1)
+        end
+        wait(2000)
        restore_camera()  -- 02EB RESTORE_CAMERA_JUMPCUT
        ped_frozen(1)  -- 01B4 SET_PLAYER_CONTROL 1
        set_widescreen(false)  -- 02A3
@@ -389,17 +455,17 @@ while true do wait()  local player = findplayer()
          set_char_obj_run_to_coord(pig, 402.1, -462.2, 10.1)  -- 0239 — бежит к точке побега
         end
        end
-       if get_game_timer() - timer_u > 500 then  -- рефреш ИИ охраны
-        timer_u = get_game_timer()
-        if isped(guard1) and not ispeddead(guard1) then
-         local gx, gy = getpedcoordes(pp)
-         if gx ~= nil then set_char_obj_run_to_coord(guard1, gx, gy, 11.0) set_char_obj_kill_player_on_foot(guard1, player) end
+        if get_game_timer() - timer_u > 500 then  -- рефреш ИИ охраны
+         timer_u = get_game_timer()
+         if isped(guard1) and not ispeddead(guard1) and isped(pp) then
+          local gx, gy = getpedcoordes(pp)
+          if gx ~= nil then set_char_obj_run_to_coord(guard1, gx, gy, 11.0) set_char_obj_kill_player_on_foot(guard1, player) end
+         end
+         if isped(guard2) and not ispeddead(guard2) and isped(pp) then
+          local gx2, gy2 = getpedcoordes(pp)
+          if gx2 ~= nil then set_char_obj_run_to_coord(guard2, gx2, gy2, 11.0) set_char_obj_kill_player_on_foot(guard2, player) end
+         end
         end
-        if isped(guard2) and not ispeddead(guard2) then
-         local gx2, gy2 = getpedcoordes(pp)
-         if gx2 ~= nil then set_char_obj_run_to_coord(guard2, gx2, gy2, 11.0) set_char_obj_kill_player_on_foot(guard2, player) end
-        end
-       end
        -- проверка побега: LOCATE_CHAR_ANY_MEANS_3D 398.3 -469.8 11.9 15 15 15
        if isped(pig) and not ispeddead(pig) then
         local d = ped_dist2d_sq(pig, 398.3, -469.8)
@@ -436,11 +502,12 @@ while true do wait()  local player = findplayer()
    if step == 6 then
     if blip_pig ~= nil then remove_blip(blip_pig) blip_pig = nil end
     if blip_respray ~= nil then remove_blip(blip_respray) blip_respray = nil end
-    if blip_site ~= nil then remove_blip(blip_site) blip_site = nil end
-    if isped(pig) then remove_ped(pig) pig = nil end  -- 009B DELETE_CHAR
-    if isped(guard1) then remove_ped(guard1) guard1 = nil end
-    if isped(guard2) then remove_ped(guard2) guard2 = nil end
-    ped_road_on(479.9, -1.4, 11.0, 450.3, 59.5, 40.0)  -- 022A SWITCH_PED_ROADS_ON
+     if blip_site ~= nil then remove_blip(blip_site) blip_site = nil end
+     if sphere_site ~= nil then remove_sphere(sphere_site) sphere_site = nil end
+     if isped(pig) then remove_ped(pig) pig = nil end  -- 009B DELETE_CHAR
+     if isped(guard1) then remove_ped(guard1) guard1 = nil end
+     if isped(guard2) then remove_ped(guard2) guard2 = nil end
+     ped_road_on(479.9, -1.4, 11.0, 450.3, 59.5, 40.0)  -- 022A SWITCH_PED_ROADS_ON
     set_free_resprays(0)  -- 0335 (снять)
     release_weather()  -- 01B7 RELEASE_WEATHER
     ma_trace("swine: МИССИЯ ВЫПОЛНЕНА (Свинья убита + респрей)")
@@ -456,11 +523,12 @@ while true do wait()  local player = findplayer()
    if step == 7 then
     if blip_pig ~= nil then remove_blip(blip_pig) blip_pig = nil end
     if blip_respray ~= nil then remove_blip(blip_respray) blip_respray = nil end
-    if blip_site ~= nil then remove_blip(blip_site) blip_site = nil end
-    if isped(pig) then remove_ped(pig) pig = nil end
-    if isped(guard1) then remove_ped(guard1) guard1 = nil end
-    if isped(guard2) then remove_ped(guard2) guard2 = nil end
-    ped_road_on(479.9, -1.4, 11.0, 450.3, 59.5, 40.0)  -- 022A
+     if blip_site ~= nil then remove_blip(blip_site) blip_site = nil end
+     if sphere_site ~= nil then remove_sphere(sphere_site) sphere_site = nil end
+     if isped(pig) then remove_ped(pig) pig = nil end
+     if isped(guard1) then remove_ped(guard1) guard1 = nil end
+     if isped(guard2) then remove_ped(guard2) guard2 = nil end
+     ped_road_on(479.9, -1.4, 11.0, 450.3, 59.5, 40.0)  -- 022A
     set_free_resprays(0)  -- 0335
     release_weather()  -- 01B7
     ma_trace("swine: МИССИЯ ПРОВАЛЕНА — Свинья сбежала (M_FAIL)")
@@ -471,11 +539,12 @@ while true do wait()  local player = findplayer()
 
   end
 
-  -- пост-цикловая очистка (смерть/арест)
-  if blip_site ~= nil then remove_blip(blip_site) blip_site = nil end
-  if blip_pig ~= nil then remove_blip(blip_pig) blip_pig = nil end
-  if blip_respray ~= nil then remove_blip(blip_respray) blip_respray = nil end
-  if isped(pig) then remove_ped(pig) pig = nil end
+   -- пост-цикловая очистка (смерть/арест)
+   if blip_site ~= nil then remove_blip(blip_site) blip_site = nil end
+   if blip_pig ~= nil then remove_blip(blip_pig) blip_pig = nil end
+   if blip_respray ~= nil then remove_blip(blip_respray) blip_respray = nil end
+   if sphere_site ~= nil then remove_sphere(sphere_site) sphere_site = nil end
+   if isped(pig) then remove_ped(pig) pig = nil end
   if isped(guard1) then remove_ped(guard1) guard1 = nil end
   if isped(guard2) then remove_ped(guard2) guard2 = nil end
   if roof1 ~= nil then remove_obj(roof1) roof1 = nil end

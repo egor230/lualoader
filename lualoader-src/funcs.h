@@ -108,14 +108,17 @@ void lua_state_stamp(lua_State* L);        // публикация: привяз
 void lua_state_unstamp(lua_State* L);      // закрытие владельцем: снять привязку.
 bool lua_state_obsolete(lua_State* L);     // состояние из старого поколения? (функция — в funcs.cpp, читает epoch-карту).
 // ПАУЗА: флаг «идёт разборка» (определение — в plugin.cpp). Его проверяют БЛОКИРУЮЩИЕ API
-// (play_voice, load_model_before_avalible, getcord, expectations) — у них нет доступа к эпохе
-// состояния (getcord живёт вообще на своём detached-потоке), поэтому требуется глобальный
-// сигнал «всем срочно выйти из длинных циклов». Ставится ПЕРВЫМ шагом teardown (пауза всех
+// (play_voice, load_model_before_avalible, getcord) — у них нет доступа к эпохе
+// состояния (getcord живёт вообще на своём detached-потоке, поэтому требуется глобальный
+// сигнал «всем срочно выйти из длинных циклов»). Ставится ПЕРВЫМ шагом teardown (пауза всех
 // скриптов ДО разборки), снимается когда разборка запущена.
 extern std::atomic<bool> teardown_active;
 // ПАУЗА по yield: поставлена pause_scripts() (определение — в plugin.cpp). wait() внутри
 // скриптов при этом делает return lua_yield(L,0) — скрипт БЕЗОПАСНО замирает со своего же
 // кадра (yield из СВОЕГО wait), pump-поток паркуется и ничего не закрывает. Обратимо.
+// play_voice при паузе тоже делает lua_yield (yield из собственного кадра всегда разрешён),
+// блокирующие циклы БЕЗ L (load_model_before_avalible, getcord) при паузе просто ждут
+// (не позиционируют авто / не ждут тейрдаун), а при teardown выходят на барьер.
 extern std::atomic<bool> scripts_paused;
 string getkey(int key);
 int setobjоcoordes(lua_State* L); // установить координаты для объект. (определение в plugin.cpp)

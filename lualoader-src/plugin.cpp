@@ -6,6 +6,7 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+#include <condition_variable>
 using namespace plugin;
 using namespace std;
 
@@ -18,12 +19,24 @@ static std::atomic<bool> reload_busy(false);// защита от одновре�
 static std::atomic<bool> scripts_disabled(false);// Ctrl = ВЫКЛ: скрипты выгружены и сами больше не запускаются.
 std::atomic<bool> scripts_paused(false);// ПАУЗА по yield (extern в funcs.h): wait() делает lua_yield, pump-потоки паркуются.
 std::atomic<bool> teardown_active(false);// ПАУЗА на время разборки (extern в funcs.h): блокирующие API рвут свои циклы.
+// Запросы на игровые операции, ВЫПОЛНЯЕМЫЕ ТОЛЬКО ИЗ ИГРОВОГО ПОТОКА (gameProcessEvent).
+// reload/teardown/final-потоки НЕ имеют права писать игровую память (ScriptSpace/AddMessageJumpQ) —
+// это data race с игровым потоком (краш «мгновенный выход после ПАУЗА»). Они ставят только флаг,
+// а реальную запись делает gameProcessEvent на игровом потоке в начале следующего кадра.
+static std::atomic<bool> pause_requested(false);         // Ctrl отпущен: поставить ПАУЗУ по yield.
+static std::atomic<bool> resume_requested(false);        // флаг-запросы: снять ПАУЗУ (симметрично, для будущего resume).
+static std::atomic<bool> teardown_mission_flag_pending(false);// teardown: обнулить флаг миссии в игровой памяти.
 // --- Teardown «по владельцу» (async): каждый pump-поток закрывает СВОЁ lua_State. ---
 // Поколения состояний: эпоха (g_lua_epoch) + stamp-карта (функции в funcs.cpp).
 // teardown инкрементирует эпоху — все существующие состояния становятся устаревшими
 // МГНОВЕННО (без ожидания); их wait() отдаёт ход владельцу на ближайшем ~10мс-границе,
 // владелец сам закрывает своё состояние. Новые скрипты получают новую эпоху и не трогаются.
 static std::atomic<int>  active_pumps(0);       // живые pump-потоки (включая ещё не стартовавшие).
+static std::atomic<int>  active_pump_threads(0);// pump-потоки ПОКА ВНУТРИ lua_resume/Command<> (активная зона).
+                                                // Барьер паузы: reload ждёт active_pump_threads==0 (все доехали до парковки),
+                                                // прежде чем менять игровые данные — иначе data race с Command<>.
+static std::mutex pause_mx;                     // для cv-барьера паузы.
+static std::condition_variable pause_cv;
 static std::set<lua_State*> pumpLive;           // состояния, чей владелец-поток жив (опубликованы в luastate).
 static std::mutex pumpLive_mx;
 static std::mutex luastate_mx;                  // доступы к luastate — только под этим мутексом.
@@ -73,7 +86,15 @@ int my_yield_with_res(lua_State* L, int res) {
 	приостановленной C функции(смотрите §4.7). */
 };
 
-int hookFunc(lua_State* L, lua_Debug* ar) { return my_yield_with_res(L, 0); }; // хук.
+int hookFunc(lua_State* L, lua_Debug* ar) {
+	// БЕЗОПАСНЫЙ hook-yield: yield ТОЛЬКО если корутина yieldable прямо сейчас.
+	// Если хук сработал в НЕ-yieldable контексте (внутри C-call / блокирующего C-вызова),
+	// lua_isyieldable() вернёт false — НЕ yield-им, иначе 'attempt to yield across a C-call
+	// boundary' РВЁТ корутину -> краш/зависание. Просто продолжаем: скрипт доедет до своего
+	// wait() и там сам сделает lua_yield из собственного кадра.
+	if (lua_isyieldable(L)) { return my_yield_with_res(L, 0); }
+	return 0;
+}; // хук: паркует busy-Lua петли с проверкой безопасной точки yield.
 
 lua_KFunction cont(lua_State* L) {// функция продолжения.
 	lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
@@ -109,6 +130,85 @@ void writelog3(int x) {// запись ошибок в файл.
 	string er2(buffer); f1 << er2 << "\n"; }
 	f1.close();
 };
+static void lua_crash_write(const char* tag, const char* line);
+// ==== Crash handler (SetUnhandledExceptionFilter) ====
+// Пишем диагностику вылета ПРЯМЫМ WinAPI (CreateFileA/WriteFile, без CRT-буферов): на момент
+// аварии fstream-буфер может быть не сброшен, а CRT-функции — не поддерживать потокобезопасность.
+// Возвращаем EXCEPTION_CONTINUE_SEARCH — игра сама решает (диалог/завершение), НО мы успели
+// оставить след в trace.txt. Асинхронно-безопасно: никаких аллокаций/heap-обходов.
+static void lua_crash_write(const char* tag, const char* line) {
+	HANDLE h = CreateFileA("lualoader\\trace.txt", FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (h != INVALID_HANDLE_VALUE) {
+		DWORD w = 0;
+		if (tag) { WriteFile(h, tag, (DWORD)strlen(tag), &w, NULL); }
+		WriteFile(h, line, (DWORD)strlen(line), &w, NULL);
+		WriteFile(h, "\n", 1, &w, NULL);
+		CloseHandle(h);
+	}
+}
+static LONG WINAPI lua_crash_filter(EXCEPTION_POINTERS* ep) {
+	EXCEPTION_RECORD* rec = ep ? ep->ExceptionRecord : NULL;
+	unsigned long tid = GetCurrentThreadId();
+	char buf[512];
+	int n = 0;
+	n += _snprintf(buf + n, sizeof(buf) - (size_t)n,
+		"C++| CRASH: code=0x%08X addr=0x%p thread=%lu EXCEPTION.",
+		rec ? (unsigned)rec->ExceptionCode : 0u,
+		rec ? rec->ExceptionAddress : (void*)0,
+		tid);
+	if (rec) {
+		switch ((unsigned)rec->ExceptionCode) {
+			case EXCEPTION_ACCESS_VIOLATION: n += _snprintf(buf + n, sizeof(buf) - (size_t)n, " ACCESS_VIOLATION (0xC0000005)"); break;
+			case EXCEPTION_ILLEGAL_INSTRUCTION: n += _snprintf(buf + n, sizeof(buf) - (size_t)n, " ILLEGAL_INSTRUCTION"); break;
+			case EXCEPTION_STACK_OVERFLOW: n += _snprintf(buf + n, sizeof(buf) - (size_t)n, " STACK_OVERFLOW"); break;
+			case EXCEPTION_INT_DIVIDE_BY_ZERO: n += _snprintf(buf + n, sizeof(buf) - (size_t)n, " INT_DIVIDE_BY_ZERO"); break;
+			case EXCEPTION_ARRAY_BOUNDS_EXCEEDED: n += _snprintf(buf + n, sizeof(buf) - (size_t)n, " ARRAY_BOUNDS_EXCEEDED"); break;
+			default: break;
+		}
+		// 0xC0000005: первый параметр — код нарушения (0=read,1=write,8=exec), второй — адрес.
+		if ((unsigned)rec->ExceptionCode == EXCEPTION_ACCESS_VIOLATION && rec->NumberParameters >= 2) {
+			n += _snprintf(buf + n, sizeof(buf) - (size_t)n, " %s @0x%p",
+				rec->ExceptionInformation[0] == 1 ? "WRITE" :
+				rec->ExceptionInformation[0] == 0 ? "READ" : "EXEC",
+				(void*)rec->ExceptionInformation[1]);
+		}
+	}
+	if (n < 0) n = 0; if (n > (int)sizeof(buf) - 2) n = (int)sizeof(buf) - 2;
+	buf[n] = '\n'; buf[n + 1] = '\0'; n++;
+	lua_crash_write(NULL, buf);
+	return EXCEPTION_CONTINUE_SEARCH;
+};
+// Vectored-обработчик регистрируется с FIRST=1: вызывается ДО любых SEH по всей цепочке,
+// включая собственный __try/__except reVC и его SetUnhandledExceptionFilter, перезаписанный
+// после нашего (критично: в свежем трейсе пауза применилась, а наш фильтр НЕ отписал CRASH —
+// значит вылет прервало что-то ВЫШЕ нас; vectored FIRST увидит его первым).
+static LONG WINAPI lua_vectored_filter(EXCEPTION_POINTERS* ep) {
+	EXCEPTION_RECORD* rec = ep ? ep->ExceptionRecord : NULL;
+	char buf[256];
+	int n = _snprintf(buf, sizeof(buf), "VECTORED: code=0x%08X addr=0x%p thread=%lu",
+		rec ? (unsigned)rec->ExceptionCode : 0u,
+		rec ? rec->ExceptionAddress : (void*)0,
+		(unsigned long)GetCurrentThreadId());
+	if (n < 0) n = 0; if (n > (int)sizeof(buf) - 2) n = (int)sizeof(buf) - 2;
+	buf[n] = '\0';
+	lua_crash_write("C++| ", buf);
+	return EXCEPTION_CONTINUE_SEARCH;// не мешаем игре обработать (только диагностика).
+}
+// std::terminate — вызов abort/необработанное исключение C++ ПРОХОДИТ мимо SEH-фильтров.
+static void lua_terminate_handler() {
+	lua_crash_write("C++| ", "STD::TERMINATE вызван (abort/необработанное C++ исключение).");
+	abort();
+}
+// atexit — нормальный выход exit(): позволяет отличить «чистый выход» от краша.
+static void lua_atexit_handler() {
+	lua_crash_write("C++| ", "ATEXIT: нормальный выход процесса.");
+}
+static void install_crash_filter() {
+	AddVectoredExceptionHandler(1, lua_vectored_filter);// FIRST=1: видим любой вылет раньше reVC.
+	SetUnhandledExceptionFilter(lua_crash_filter);// последняя инстанция фильтра (если reVC не перезаписал).
+	std::set_terminate(lua_terminate_handler);
+	atexit(lua_atexit_handler);
+};// ставим ОДИН раз при инициализации.
 // Опубликовать состояние: список + владелец регистрируются ДО того, как состояние станет
 // видно другим потокам/свипу — закрытие чужого состояния исключено по построению.
 static void publish_state(lua_State* L) {
@@ -148,28 +248,40 @@ static void owner_selfclose(lua_State* L) {
 // pump_owner(L1, nullptr, args, true) — свой поток уже сам первый resume делает сам.
 static void pump_owner(lua_State* L, lua_State* L1, int args, bool first_resume) {
 	script_started(L);
+	cpp_tracef("pump_owner START L=%p (thread=%lu)", (void*)L, (unsigned long)GetCurrentThreadId());
 	if (first_resume) lua_resume(L, NULL, args, NULL);
 	while (LUA_OK != lua_status(L) && !lua_state_obsolete(L)) {
 		this_thread::sleep_for(chrono::milliseconds(1)); // задержка.
-		if (scripts_paused.load()) continue;// ПАУЗА по yield: скрипт сам замер (wait() -> lua_yield),
-		                                     // ничего не закрываем и не ресумеим — просто паркуемся (обратимо).
+		if (scripts_paused.load()) { pause_cv.notify_all(); continue; }// ПАУЗА по yield: скрипт сам замер
+		                                     // (wait() -> lua_yield), закрываем ничего не ресумеим — паркуемся,
+		                                     // счётчик активных остаётся 0 (в Command<> не сидим) — барьер паузы считает этот поток «припаркованным».
+		// ---- АКТИВНАЯ ЗОНА: здесь скрипт выполняется и может вызывать Command<>/игровые API ----
+		// Инкремент ДО resume: барьер паузы ждёт, пока все активные доедут до своего wait() (счётчик==0).
+		active_pump_threads.fetch_add(1);
 		if (L1 != NULL && LUA_TFUNCTION == lua_type(L1, -1) && LUA_YIELD == lua_status(L) && star_coroutine::get()) {
 			for (int i = 1; i <= args; i++) { lua_pushvalue(L1, i); }// расстановка аргументов для вызова функции.
 			lua_resume(L1, L, args, NULL);
 		}
 		if (L1 != NULL && LUA_YIELD == lua_status(L1)) {// если второй на паузе.
-			lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 800); //вызов функции с заданной паузой.
+			// БЕЗ hook-yield (Вариант A из анализа сервиса): hook с MASKCOUNT+my_yield_with_res
+			// в Lua 5.4 даёт UB (двойной lua_yield в lua_yieldk, несовместимая сигнатура cont) и
+			// «attempt to yield across a C-call boundary» рвёт корутину. Скрипты и так паркуются
+			// через СВОЙ wait() (требование к скриптам: в busy-петле ОБЯЗАТЕЛЬНО wait(0)).
 			lua_resume(L, L1, 0, NULL);// возобновить основной поток.
 		}
 		if (L1 != NULL && LUA_OK == lua_status(L1)) {// если второй поток завершен.
-			lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
-			lua_resume(L, NULL, 0, NULL);
+			lua_resume(L, NULL, 0, NULL);// основной поток продолжает без второй корутины.
 		}
+		// ---- КОНЕЦ АКТИВНОЙ ЗОНЫ ----
 		if (LUA_YIELD == lua_status(L) || (L1 != NULL && LUA_YIELD == lua_status(L1) && !star_coroutine::get())) {
-			break;
+			active_pump_threads.fetch_sub(1); pause_cv.notify_all();// скрипт на паузе/завершился: вышли из активной зоны.
+			goto pump_end;
 		}
+		active_pump_threads.fetch_sub(1); pause_cv.notify_all();// скрипт отдал ход wait() — вышли из активной зоны, барьер может продолжить.
 	}
+pump_end:
 	script_stopped(L);
+	cpp_tracef("pump_owner END L=%p (thread=%lu)", (void*)L, (unsigned long)GetCurrentThreadId());
 	if (lua_state_obsolete(L)) { owner_selfclose(L); }
 	else { drop_owner(L); }
 }
@@ -185,8 +297,9 @@ static void teardown_all(bool restart) {
 	// ---- 1. ПАУЗА ВСЕХ СКРИПТОВ (до любой разборки) ----
 	teardown_active.store(true);// блокирующие API рвут свои длинные циклы (тела скриптов успокаиваются).
 	bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
-	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии (скрипты выходят из своих циклов).
+	// Флаг миссии в игровой памяти с этого потока НЕ пишем (data race с игровым потоком) —
+	// ставим флаг-запрос; обнулит gameProcessEvent на игровом потоке в начале следующего кадра.
+	teardown_mission_flag_pending.store(true);
 	stop_mission_watch();// сторож миссии не должен трогать закрываемые состояния.
 	// 2. РАЗБОРКА: переводим все существующие состояния в «устаревшее» поколение (эпоха+1).
 	g_lua_epoch.fetch_add(1);// ВСЕ существующие состояния устарели — мгновенно, без ожидания.
@@ -246,7 +359,7 @@ int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// зап
 			lua_pushstring(L, luafile); // отправить имя текущего lua файла в реестр.
 			lua_settable(L, LUA_REGISTRYINDEX); // установить ключа и значение таблице реестре.
 
-			lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук.
+lua_sethook(L, (lua_Hook)hookFunc, LUA_MASKCOUNT, 0);// отключить хук (активен только проверочный hookFunc; hook-yield убран — Вариант A).
 			//Command<COMMAND_SCRIPT_NAME>(x);
 				//Command<COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME>(luafile);
 			lua_pcall(L, 0, 0, 0);// запуск файла.
@@ -330,11 +443,39 @@ int start_lualoder() { // найти все lua файлы. меню 12,	ста�
 class Message {//имя класса.
 public: Message() {
 
+	install_crash_filter();// SetUnhandledExceptionFilter: при вылете пишем код/адрес/тип в trace.txt напрямую.
+
 	Events::gameProcessEvent += [] {//обработчик событий игры.
+		// ---- ИГРОВЫЕ ОПЕРАЦИИ ПО ЗАПРОСУ ЧУЖИХ ПОТОКОВ ----
+		// ЕДИНСТВЕННОЕ место, где плагин пишет ИГРОВУЮ память (ScriptSpace/AddMessageJumpQ) —
+		// игровой поток. reload/teardown/final-потоки ставят только флаги-запросы выше;
+		// иначе data race с игровым потоком = мгновенный вылет (наблюдался после «ПАУЗА: вход»).
+		// Валидация: пишем только если индекс флага корректен (< размера ScriptSpace, массив 260512 байт).
+		// ВАЖНО: этот блок выполняется ДО проверки scripts_disabled (иначе паузу не успеем применить).
+		if (pause_requested.exchange(false)) {// Ctrl отпущен: применить ПАУЗУ на игровом потоке.
+			// НЕ трогаем ScriptSpace[OnAMissionFlag] при паузе (заключение сервиса Q3/Q7):
+			//  1) гонка с Command<> активной зоны = мгновенный краш (обрыв после «применена»);
+			//  2) скрипты паркуются через scripts_paused, флаг миссии им не нужен для остановки;
+			//  3) запись «миссия=false» ломает логику ИГРЫ (игра видит срыва миссии при паузе скриптов).
+			scripts_paused.store(true);// wait() внутри скриптов делает lua_yield (заморозка по yield).
+			CMessages::AddMessageJumpQ(L"Scripts disabled", 2000, 1);// сообщение — только из игрового потока.
+			cpp_tracef("ПАУЗА: применена в игровом потоке (thread=%lu), скрипты заморожены", (unsigned long)GetCurrentThreadId());
+		}
+		if (teardown_mission_flag_pending.exchange(false)) {// teardown просил обнулить флаг миссии.
+			unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
+			if (OnAMissionFlag < 260512) { CTheScripts::ScriptSpace[OnAMissionFlag] = false; }
+			cpp_tracef("teardown: флаг миссии обнулён в игровом потоке (thread=%lu)", (unsigned long)GetCurrentThreadId());
+		}
+		if (resume_requested.exchange(false)) {// симметричное снятие паузы (зарезервировано: resume пока не вызывается).
+			scripts_paused.store(false);
+			CMessages::AddMessageJumpQ(L"Scripts enabled", 2000, 1);
+			cpp_tracef("ПАУЗА: снята в игровом потоке (thread=%lu)", (unsigned long)GetCurrentThreadId());
+		}
 		CPed* player = FindPlayerPed();// найти игрока.
 		Events::gameProcessEvent += spite::draw; Events::gameProcessEvent += corona::draw; Events::vehicleRenderEvent += DoorsExample::ProcessDoors; // Тут обрабатываем события, а также выключаем их
 		int number_save_slot = gGameState;// состояние игры из SDK (раньше хардкод 0x9B5F08). 9 = в игре.
 		int gtg = CTimer::m_snTimeInMilliseconds;// игровой таймер из SDK (раньше хардкод 0x974B2C).
+		if (scripts_disabled.load()) { iters++; return; }// Ctrl остановил скрипты: НЕ спавнить start_lualoder каждый кадр («шторм потоков»).
 		if (number_save_slot == 9 && !star_thread::get()) {// скрипты запрещены и второй поток запущен.
 
 			if ((Command<COMMAND_CAN_PLAYER_START_MISSION>(CWorld::PlayerInFocus)) && gtg < 1000) { // новая игра
@@ -367,11 +508,29 @@ int pause_scripts() {
 	// ПАУЗА всех скриптов через НАТИВНЫЙ yield: скрипты сами делают return lua_yield(L,0) в СВОЁМ wait().
 	// Никакой форс-hook: hook-йield внутри не-yieldable C-вызова рвёт корутину с ошибкой (вылет).
 	// Ничего не закрываем, не разрушаем — просто замораживаем (обратимо).
+	//
+	// СВОИ флаги (scripts_paused/star_coroutine/pause_requested) можно трогать из любого потока —
+	// это атомики/собственные глобалы плагина. ИГРОВУЮ память (ScriptSpace/AddMessageJumpQ) НЕ трогаем:
+	// доступ к ней имеет только игровой поток (gameProcessEvent применяет запрос здесь же, см. Message).
+	pause_requested.store(true);// игровой поток применит: AddMessageJumpQ (ScriptSpace НЕ трогаем — см. Message).
 	bool k = false;	star_coroutine::set(k);// запретить вторые потоки в lua скриптах.
-	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;// получить флаг миссии.
-	CTheScripts::ScriptSpace[OnAMissionFlag] = k;// выключить флаг миссии (скрипты выходят из своих циклов).
 	scripts_paused.store(true);// wait() внутри скриптов теперь делает lua_yield на ближайшем вызове.
-	cpp_trace("ПАУЗА: вход, скрипты замораживаются (yield-пауза без teardown)\n");// маркер для диагностики.
+	// ---- БАРЬЕР: ждём, пока все pump-потоки выйдут из активной зоны (Command<>/игровые API) ----
+	// Data race на игровых данных при паузе = мгновенный краш (наблюдался «ПАУЗА: применена» → обрыв).
+	// ждём active_pump_threads==0 с таймаутом (поток может застрять в блокирующем C-API, тогда принудительно).
+	cpp_tracef("ПАУЗА: барьер — жду выход из активной зоны (активных=%d)", (int)active_pump_threads.load());
+	{
+		std::unique_lock<std::mutex> lk(pause_mx);
+		if (active_pump_threads.load() > 0) {
+			pause_cv.wait_for(lk, std::chrono::milliseconds(1000), []{ return active_pump_threads.load() == 0; });
+		}
+		if (active_pump_threads.load() > 0) {
+			cpp_tracef("ПАУЗА: барьер TIMEOUT (активных=%d) — принудительно (блокирующий C-API)", (int)active_pump_threads.load());
+		} else {
+			cpp_tracef("ПАУЗА: барьер — все pump-потоки припаркованы (активных=0)");
+		}
+	}
+	cpp_tracef("ПАУЗА: запрос (thread=%lu), скрипты замораживаются (yield-пауза без teardown)", (unsigned long)GetCurrentThreadId());// маркер для диагностики.
 	return 0;
 };
 
@@ -388,8 +547,11 @@ int reload() {// перегрузка по нажатию клавиши.
 		if (!KeyPressed(VK_CONTROL) ) {// отпускание Ctrl: ПРОСТО ОСТАНОВИТЬ ВСЕ СКРИПТЫ.
 			scripts_disabled.store(true);// теперь они не запустятся сами (start_lualoder это проверяет).
 			star_thread::set(false);
-			CMessages::AddMessageJumpQ(L"Scripts disabled", 2000, 1);
-			pause_scripts();// ПАУЗА по yield: скрипты сами делают lua_yield в СВОЁМ wait(). Ничего не закрываем.
+			// ПАУЗА по yield: скрипты сами делают lua_yield в СВОЁМ wait(). Ничего не закрываем.
+			// Игровую память (ScriptSpace/AddMessageJumpQ) НЕ трогаем с этого потока — ставим только
+			// флаг-запрос; реальную запись сделает gameProcessEvent на игровом потоке (иначе data race
+			// с игровым потоком → мгновенный вылет сразу после входа в паузу).
+			pause_scripts();
 			break;
 			}
 		if (!star_thread::get()) {

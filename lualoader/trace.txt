@@ -7777,3 +7777,464 @@ setangle
 C++| set_ped_stay_when_attacked: пед=05386e40 stay=0
 printmessage
 swine: Свинья спрыгнула и бежит к точке побега (402.1, -462.2)
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=05386e40 В МАШИНЕ (m_pVehicle=053c559c)
+C++| exitcar: ВХОД
+C++| exitcar: пед=05386e40 m_bInVehicle=1 m_pVehicle=053c559c
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=05386e40 В МАШИНЕ (m_pVehicle=053c559c)
+C++| is_ped_in_car: пед=05386e40 В МАШИНЕ (m_pVehicle=053c559c)
+C++| is_ped_in_car: пед=05386e40 В МАШИНЕ (m_pVehicle=053c559c)
+SMM done
+fade 1 1200
+C++| showtext:  Treacherous Swine (time=500 style=1)
+swine: СТАРТ у особняка Кортеса (-250.5, -1361.1, 8.1)
+printmessage
+printmessage
+printmessage
+printmessage
+printmessage
+printmessage
+swine: катсцена COL_1 заменена на текст (опкодов LOAD_CUTSCENE нет)
+fade 0 1500
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=269
+C++| load_model_before_avalible: модель id=269 загружена
+C++| radar_add_blip_for_coord: id=196619
+setangle
+setangle
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=-116
+C++| load_model_before_avalible: модель id=-116 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-117
+C++| load_model_before_avalible: модель id=-117 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-118
+C++| load_model_before_avalible: модель id=-118 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-119
+C++| load_model_before_avalible: модель id=-119 загружена
+fade 1 1500
+printmessage
+swine: сцена пляжа готова (3 рандом-педа, 4 объекта крыши, блайп)
+C++| mission_watch: СТАРТ
+printmessage
+swine: игрок пришёл на место встречи — конфронтация
+C++| load_model_before_avalible: ЗАПРОС модели id=269
+C++| load_model_before_avalible: модель id=269 загружена
+C++| set_current_weapon_ped: пед=05386e40 оружие=11
+C++| load_model_before_avalible: ЗАПРОС модели id=19
+C++| load_model_before_avalible: модель id=19 загружена
+create_spec_ped: IGGONZ (обычная модель) ok
+C++| load_model_before_avalible: ЗАПРОС модели id=89
+C++| load_model_before_avalible: модель id=89 загружена
+create_spec_ped: CLA (обычная модель) ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=89
+C++| load_model_before_avalible: модель id=89 загружена
+create_spec_ped: CLA (обычная модель) ok
+fade 0 500
+setangle
+fade 1 500
+printmessage
+printmessage
+printmessage
+swine: конфронтация — охрана атакует, Свинья бежит по крыше
+C++| set_ped_stay_when_attacked: пед=0538f720 stay=1
+swine: Свинья на углу крыши (463, 31.6) — спрыгнет
+fade 0 500
+setangle
+fade 1 500
+C++| set_ped_stay_when_attacked: пед=0538f720 stay=0
+printmessage
+setangle
+C++| set_ped_stay_when_attacked: пед=05386e40 stay=0
+printmessage
+swine: Свинья спрыгнула и бежит к точке побега (402.1, -462.2)
+printmessage
+C++| radar_add_blip_for_coord: id=131084
+printmessage
+swine: Свинья убита — респрай (wanted no-drop 2, блайп мойки)
+C++| is_ped_in_car: пед=05386e40 В МАШИНЕ (m_pVehicle=053d0b40)
+swine: респрай сработал (wanted 2→0) — M_PASS
+remove_ped: userdata: 0538f720
+C++| remove_ped: ВХОД
+C++| remove_ped: пед=0538f720 m_bInVehicle=0 m_pVehicle=00000000 health=0.0
+C++| remove_ped: MARK_CHAR_AS_NO_LONGER_NEEDED OK
+remove_ped: userdata: 05391280
+C++| remove_ped: ВХОД
+C++| remove_ped: пед=05391280 m_bInVehicle=0 m_pVehicle=053d0b40 health=100.0
+C++| remove_ped: MARK_CHAR_AS_NO_LONGER_NEEDED OK
+remove_ped: userdata: 05391958
+C++| remove_ped: ВХОД
+C++| remove_ped: пед=05391958 m_bInVehicle=0 m_pVehicle=053d0b40 health=100.0
+C++| remove_ped: MARK_CHAR_AS_NO_LONGER_NEEDED OK
+swine: МИССИЯ ВЫПОЛНЕНА (Свинья убита + респрей)
+C++| play_sound 1
+C++| set_traffic 1.00
+C++| set_ped_traffic 1.00
+C++| draw_corona(null, r=4.5 t=6 gl=0) вкл=0
+C++| setflagmission = false
+C++| mission_watch: очистка (destroy)
+C++| destroy: ВХОД
+C++| destroy: удаляю педа 0538a500
+C++| destroy: пед висячий, просто стираю запись
+C++| destroy: удаляю педа 0538abd8
+C++| destroy: удаляю педа 0538b2b0
+C++| destroy: пед висячий, просто стираю запись
+C++| destroy: ВЫХОД
+C++| mission_watch: КОНЕЦ
+C++| showtext: mission passed $250 (time=2500 style=0)
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| givemoney +250
+C++| ПАУЗА: вход, скрипты замораживаются (yield-пауза без teardown)
+
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=05791880 В МАШИНЕ (m_pVehicle=057cfa00)
+C++| exitcar: ВХОД
+C++| exitcar: пед=05791880 m_bInVehicle=1 m_pVehicle=057cfa00
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=05791880 В МАШИНЕ (m_pVehicle=057cfa00)
+C++| is_ped_in_car: пед=05791880 В МАШИНЕ (m_pVehicle=057cfa00)
+C++| is_ped_in_car: пед=05791880 В МАШИНЕ (m_pVehicle=057cfa00)
+SMM done
+fade 1 1200
+C++| load_model_before_avalible: ЗАПРОС модели id=269
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~3000 мс)
+printmessage
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~6000 мс)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~9000 мс)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~12000 мс)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~15000 мс)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~18000 мс)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~21000 мс)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~24000 мс)
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057c88b0 В МАШИНЕ (m_pVehicle=05806a30)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057c88b0 m_bInVehicle=1 m_pVehicle=05806a30
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057c88b0 В МАШИНЕ (m_pVehicle=05806a30)
+C++| is_ped_in_car: пед=057c88b0 В МАШИНЕ (m_pVehicle=05806a30)
+C++| is_ped_in_car: пед=057c88b0 В МАШИНЕ (m_pVehicle=05806a30)
+SMM done
+fade 1 1200
+C++| load_model_before_avalible: ЗАПРОС модели id=269
+C++| load_model_before_avalible: модель id=269 загружена
+C++| set_current_weapon_ped: пед=057c88b0 оружие=11
+C++| showtext:  Treacherous Swine (time=500 style=1)
+swine: СТАРТ у особняка Кортеса (-250.5, -1361.1, 8.1), бензопила выдана
+printmessage
+printmessage
+printmessage
+printmessage
+printmessage
+swine: катсцена COL_1 заменена на текст (опкодов LOAD_CUTSCENE нет)
+fade 0 1500
+printmessage
+setangle
+C++| radar_add_blip_for_coord: id=196619
+create_sphere
+create_sphere ok
+setangle
+setangle
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=-116
+C++| load_model_before_avalible: модель id=-116 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-117
+C++| load_model_before_avalible: модель id=-117 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-118
+C++| load_model_before_avalible: модель id=-118 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-119
+C++| load_model_before_avalible: модель id=-119 загружена
+fade 1 1500
+printmessage
+swine: сцена пляжа готова (3 рандом-педа, 4 объекта крыши, блайп)
+C++| mission_watch: СТАРТ
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+printmessage
+swine: игрок пришёл на место встречи — конфронтация
+C++| load_model_before_avalible: ЗАПРОС модели id=19
+C++| load_model_before_avalible: модель id=19 загружена
+create_spec_ped: IGGONZ (обычная модель) ok
+C++| load_model_before_avalible: ЗАПРОС модели id=89
+C++| load_model_before_avalible: модель id=89 загружена
+create_spec_ped: CLA (обычная модель) ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=89
+C++| load_model_before_avalible: модель id=89 загружена
+create_spec_ped: CLA (обычная модель) ok
+fade 0 500
+C++| load_model_before_avalible: ЗАПРОС модели id=-76
+C++| load_model_before_avalible: модель id=-76 загружена
+setangle
+fade 1 500
+printmessage
+printmessage
+printmessage
+swine: конфронтация — охрана атакует, Свинья бежит по крыше
+C++| set_ped_stay_when_attacked: пед=057d2cf0 stay=1
+swine: Свинья на углу крыши (463, 31.6) — спрыгнет
+fade 0 500
+setangle
+fade 1 500
+C++| set_ped_stay_when_attacked: пед=057d2cf0 stay=0
+printmessage
+setangle
+C++| set_ped_stay_when_attacked: пед=057c88b0 stay=0
+printmessage
+swine: Свинья спрыгнула и бежит к точке побега (402.1, -462.2)
+printmessage
+C++| radar_add_blip_for_coord: id=131084
+printmessage
+swine: Свинья убита — респрай (wanted no-drop 2, блайп мойки)
+C++| is_ped_in_car: пед=057c88b0 В МАШИНЕ (m_pVehicle=0582bfd8)
+swine: респрай сработал (wanted 2→0) — M_PASS
+remove_ped: userdata: 057d2cf0
+C++| remove_ped: ВХОД
+C++| remove_ped: пед=057d2cf0 m_bInVehicle=0 m_pVehicle=00000000 health=0.0
+C++| remove_ped: MARK_CHAR_AS_NO_LONGER_NEEDED OK
+remove_ped: userdata: 057cef58
+C++| remove_ped: ВХОД
+C++| remove_ped: пед=057cef58 m_bInVehicle=0 m_pVehicle=0582bfd8 health=100.0
+C++| remove_ped: MARK_CHAR_AS_NO_LONGER_NEEDED OK
+remove_ped: userdata: 057d1190
+C++| remove_ped: ВХОД
+C++| remove_ped: пед=057d1190 m_bInVehicle=0 m_pVehicle=0582bfd8 health=100.0
+C++| remove_ped: MARK_CHAR_AS_NO_LONGER_NEEDED OK
+swine: МИССИЯ ВЫПОЛНЕНА (Свинья убита + респрей)
+C++| play_sound 1
+C++| set_traffic 1.00
+C++| set_ped_traffic 1.00
+C++| draw_corona(null, r=4.5 t=6 gl=0) вкл=0
+C++| setflagmission = false
+C++| mission_watch: очистка (destroy)
+C++| destroy: ВХОД
+C++| destroy: удаляю педа 057caae8
+C++| destroy: пед висячий, просто стираю запись
+C++| destroy: удаляю педа 057cb1c0
+C++| destroy: пед висячий, просто стираю запись
+C++| destroy: удаляю педа 057cb898
+C++| destroy: пед висячий, просто стираю запись
+C++| destroy: ВЫХОД
+C++| mission_watch: КОНЕЦ
+C++| showtext: mission passed $250 (time=2500 style=0)
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| givemoney +250
+C++| ПАУЗА: вход, скрипты замораживаются (yield-пауза без teardown)
+
+printmessage
+printmessage
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+C++| ПАУЗА: вход (thread=472), скрипты замораживаются (yield-пауза без teardown)
+C++| ПАУЗА: вход (thread=468), скрипты замораживаются (yield-пауза без teardown)
+C++| ПАУЗА: запрос (thread=468), скрипты замораживаются (yield-пауза без teardown)
+C++| ПАУЗА: применена в игровом потоке (thread=280), скрипты заморожены
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| ПАУЗА: барьер — жду выход из активной зоны (активных=0)
+C++| C++| ПАУЗА: барьер — все pump-потоки припаркованы (активных=0)
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=448
+C++| ПАУЗА: запрос (thread=468), скрипт�
+ замораживаются (yield-пауза без teardown)
+C++| ПАУЗА: применена в игровом потоке (thread=280), скрипты заморожены
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=460
+C++| C++| RED: code=0xC0000005 addr=0x7725EFDD thread=448VECTOVECTORED: code=0xC0000005 addr=0x7725EFDD threa
+=464
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=284
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057c7b00 В МАШИНЕ (m_pVehicle=05805c80)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057c7b00 m_bInVehicle=1 m_pVehicle=05805c80
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057c7b00 В МАШИНЕ (m_pVehicle=05805c80)
+C++| is_ped_in_car: пед=057c7b00 В МАШИНЕ (m_pVehicle=05805c80)
+C++| is_ped_in_car: пед=057c7b00 В МАШИНЕ (m_pVehicle=05805c80)
+SMM done
+fade 1 1200
+C++| load_model_before_avalible: ЗАПРОС модели id=269
+C++| load_model_before_avalible: модель id=269 загружена
+C++| set_current_weapon_ped: пед=057c7b00 оружие=11
+C++| showtext:  Treacherous Swine (time=500 style=1)
+swine: СТАРТ у особняка Кортеса (-250.5, -1361.1, 8.1), бензопила выдана
+printmessage
+printmessage
+printmessage
+printmessage
+printmessage
+printmessage
+swine: катсцена COL_1 заменена на текст (опкодов LOAD_CUTSCENE нет)
+fade 0 1500
+setangle
+C++| radar_add_blip_for_coord: id=196619
+create_sphere
+create_sphere ok
+setangle
+setangle
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=-116
+C++| load_model_before_avalible: модель id=-116 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-117
+C++| load_model_before_avalible: модель id=-117 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-118
+C++| load_model_before_avalible: модель id=-118 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-119
+C++| load_model_before_avalible: модель id=-119 загружена
+fade 1 1500
+printmessage
+swine: сцена пляжа готова (3 рандом-педа, 4 объекта крыши, блайп)
+C++| mission_watch: СТАРТ
+printmessage
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+printmessage
+printmessage
+swine: игрок пришёл на место встречи — конфронтация
+C++| load_model_before_avalible: ЗАПРОС модели id=19
+C++| load_model_before_avalible: модель id=19 загружена
+create_spec_ped: IGGONZ (обычная модель) ok
+C++| load_model_before_avalible: ЗАПРОС модели id=89
+C++| load_model_before_avalible: модель id=89 загружена
+create_spec_ped: CLA (обычная модель) ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=89
+C++| load_model_before_avalible: модель id=89 загружена
+create_spec_ped: CLA (обычная модель) ok
+fade 0 500
+C++| load_model_before_avalible: ЗАПРОС модели id=-76
+C++| load_model_before_avalible: модель id=-76 загружена
+setangle
+fade 1 500
+printmessage
+printmessage
+printmessage
+swine: конфронтация — охрана атакует, Свинья бежит по крыше
+C++| set_ped_stay_when_attacked: пед=057d2cf0 stay=1
+swine: Свинья на углу крыши (463, 31.6) — спрыгнет
+fade 0 500
+setangle
+fade 1 500
+C++| set_ped_stay_when_attacked: пед=057d2cf0 stay=0
+printmessage
+C++| VECTORED: code=0xC0000005 addr=0x7BCD72F0 thread=284
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057c0890 В МАШИНЕ (m_pVehicle=057fea10)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057c0890 m_bInVehicle=1 m_pVehicle=057fea10
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057c0890 В МАШИНЕ (m_pVehicle=057fea10)
+C++| is_ped_in_car: пед=057c0890 В МАШИНЕ (m_pVehicle=057fea10)
+C++| is_ped_in_car: пед=057c0890 В МАШИНЕ (m_pVehicle=057fea10)
+SMM done
+fade 1 1200
+C++| load_model_before_avalible: ЗАПРОС модели id=269
+C++| load_model_before_avalible: модель id=269 загружена
+C++| set_current_weapon_ped: пед=057c0890 оружие=11
+C++| showtext:  Treacherous Swine (time=500 style=1)
+swine: СТАРТ у особняка Кортеса (-250.5, -1361.1, 8.1), бензопила выдана
+printmessage
+printmessage
+printmessage
+printmessage
+swine: катсцена COL_1 заменена на текст (опкодов LOAD_CUTSCENE нет)
+fade 0 1500
+setangle
+C++| radar_add_blip_for_coord: id=196619
+create_sphere
+create_sphere ok
+setangle
+setangle
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=-116
+C++| load_model_before_avalible: модель id=-116 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-117
+C++| load_model_before_avalible: модель id=-117 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-118
+C++| load_model_before_avalible: модель id=-118 загружена
+C++| load_model_before_avalible: ЗАПРОС модели id=-119
+C++| load_model_before_avalible: модель id=-119 загружена
+fade 1 1500
+printmessage
+swine: сцена пляжа готова (3 рандом-педа, 4 объекта крыши, блайп)
+C++| mission_watch: СТАРТ
+printmessage
+printmessage
+C++| load_model_before_avalible: ЗАПРОС модели id=280
+C++| load_model_before_avalible: модель id=280 загружена
+printmessage
+swine: игрок пришёл на место встречи — конфронтация
+C++| load_model_before_avalible: ЗАПРОС модели id=19
+C++| load_model_before_avalible: модель id=19 загружена
+create_spec_ped: IGGONZ (обычная модель) ok
+C++| load_model_before_avalible: ЗАПРОС модели id=89
+C++| load_model_before_avalible: модель id=89 загружена
+create_spec_ped: CLA (обычная модель) ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=89
+C++| load_model_before_avalible: модель id=89 загружена
+create_spec_ped: CLA (обычная модель) ok
+fade 0 500
+C++| load_model_before_avalible: ЗАПРОС модели id=-76
+C++| load_model_before_avalible: модель id=-76 загружена
+setangle
+fade 1 500
+printmessage
+printmessage
+printmessage
+swine: конфронтация — охрана атакует, Свинья бежит по крыше
+C++| set_ped_stay_when_attacked: пед=057cb3a8 stay=1
+swine: Свинья на углу крыши (463, 31.6) — спрыгнет
+fade 0 500
+setangle
+fade 1 500
+C++| set_ped_stay_when_attacked: пед=057cb3a8 stay=0
+printmessage
+C++| VECTORED: code=0xC0000005 addr=0x004630EE thread=280
+C++| ПАУЗА: барьер — жду выход из 
+�ктивной зоны (активных=0)
+VECTORED: code=0xC0000005 addr=0x7725EFDD thread=452
+C++| VECTOC++| ПАУЗА: барьер — все pump-пот
+�ки припаркованы (активных=0)
+C++| ПАУЗА: запрос (thread=468), скрипты замораживаются (yield-пауза без teardown)
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=460
+C++| VECTORED: code=0xC0000005 addr=0x7725EFDD thread=448
+ECTORED: code=0xC0000005 addr=0x7725EFDD thread=452
