@@ -7,11 +7,11 @@ while true do wait()-- задержка.
   -- setpedcoordes(player, 488.5, 31.1, 10.9)
  end
 
- if Keypress("VK_H") -- если клавиша H.
-  then  --mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
-  setpedcoordes(player,486.1, 30.0, 10.9)
-  Giveweaponped(player,600,"m4")-- дать педу оружие.
- end
+ -- if Keypress("VK_H") -- если клавиша H.
+ --  then  --mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
+ --  setpedcoordes(player,486.1, 30.0, 10.9)
+ --  Giveweaponped(player,600,"m4")-- дать педу оружие.
+ -- end
  if Keypress("VK_S") -- если клавиша H.
 then  show_save_menu()
   end

@@ -21,6 +21,15 @@ std::atomic<bool> teardown_active(false);// разборка (extern в funcs.h)
 // clrfl: ГЛОБАЛЬНЫЙ ФЛАГ ОСТАНОВКИ ВСЕХ СКРИПТОВ + мьютекс для безопасной работы с Lua VM из разных потоков.
 std::atomic<bool> g_shouldStopAllScripts(false);
 std::mutex g_luaMutex;
+// ФЛАГ ПЕРЕЗАПУСКА СКРИПТОВ (вариант «soft restart» поверх существующей структуры):
+// teardown_all(true) (Ctrl) поднимает этот флаг — скриптов больше нет.
+// gameProcessEvent на ИГРОВОМ потоке видит флаг и перезапускает скрипты через search_scripts() —
+// только так безопасно (запуск скриптов не с игрового потока = data race с игровым состоянием = краш).
+// Цикл: «скрипты убились -> флаг поднялся -> игра на следующем кадре запустила их снова».
+// ВАЖНО: флаг НЕ сбрасывает star_thread (и teardown тоже его не гасит) — иначе сработал бы и
+// нижний путь «number_save_slot==9 && !star_thread::get()», и скрипты стартовали бы ДВАЖДЫ.
+// star_thread остаётся true; единственный обработчик рестарта — этот флаг.
+std::atomic<bool> g_scripts_teared_down(false);// выставляет teardown, гасит gameProcessEvent.
 // Запросы на игровые операции, ВЫПОЛНЯЕМЫЕ ТОЛЬКО ИЗ ИГРОВОГО ПОТОКА (gameProcessEvent).
 // reload/teardown/final-потоки НЕ имеют права писать игровую память (ScriptSpace/AddMessageJumpQ) —
 // это data race с игровым потоком (краш «мгновенный выход после ПАУЗА»). Они ставят только флаг,
@@ -277,7 +286,9 @@ pump_end:
 }
 // Единая разборка — Ctrl = ПОЛНЫЙ ПЕРЕЗАПУСК: остановить все Lua-потоки в безопасной точке,
 // дождаться, что НИ ОДНОГО живого pump-потока не осталось (active_pumps==0), уничтожить
-// состояния и заново запустить start_lualoder(). Никаких фикс. задержек как «гарантии» завершения.
+// состояния. Сами скрипты teardown НЕ запускает (restart=true только поднимает флаг
+// g_scripts_teared_down — их перезапустит gameProcessEvent на игровом потоке; см. выше).
+// Никаких фикс. задержек как «гарантии» завершения.
 // Шаги: teardown_active рвёт блокирующие C-API, эпоха+1 заставляет wait() отдать ход,
 // pump-потоки сами закрывают СВОИ состояния (owner_selfclose), затем здесь закрываем сирот.
 static void teardown_all(bool restart) {
@@ -322,11 +333,11 @@ static void teardown_all(bool restart) {
 		lua_state_unstamp(L);
 	}
 	reload_busy.store(false);// разблокируем для новых перезагрузок.
-	if (restart) {
-		cpp_trace("teardown: рестарт — запускаю start_lualoder()");
-		std::thread(start_lualoder).detach();// новый loader на СВОЁМ потоке (мы в reload-потоке).
-	}
 	teardown_active.store(false);
+	if (restart) {// «soft restart»: сама разборка НЕ запускает скрипты (мы в reload-потоке,
+		g_scripts_teared_down.store(true);// старт не с игрового потока = data race). Только выставляем
+		cpp_trace("teardown: рестарт — выставлен флаг, gameProcessEvent запустит search_scripts()");// флаг — его обработает gameProcessEvent на игровом потоке.
+	}
 	cpp_trace("teardown: разборка завершена");
 }
 int startscipt(string res, char* luafile, list<lua_State*>& luastate) {// запуска скрипта.
@@ -445,6 +456,25 @@ public: Message() {
 			if (OnAMissionFlag < 260512) { CTheScripts::ScriptSpace[OnAMissionFlag] = false; }
 			cpp_tracef("teardown: флаг миссии обнулён в игровом потоке (thread=%lu)", (unsigned long)GetCurrentThreadId());
 		}
+		// ---- SOFT RESTART: teardown (Ctrl) выставил флаг, скриптов больше нет ----
+		// Перезапуск делает ТОЛЬКО игровой поток (это единственное место, которому можно
+		// дёргать Command<>/ScriptSpace/поток скриптов): reload-поток не имеет права
+		// трогать игровое состояние. Флаг — это «мягкий» запрос: «скрипты убиты, запусти снова».
+		// ВАЖНО: зовём search_scripts(), а НЕ start_lualoder()! start_lualoder после запуска
+		// скриптов уходит в while(true) ожидания страницы меню 8/10 (загрузка/новая игра) —
+		// в игре страница 32, цикл НИКОГДА не завершается, и каждый Ctrl оставляет ВИСЯЧИЙ
+		// поток. При последующей загрузке сейвы все они разом звали final_scripts() → каскад
+		// teardown'ов → вылет. search_scripts() просто перезапускает скрипты и возвращается.
+		if (g_scripts_teared_down.exchange(false)) {
+			cpp_trace("gameProcessEvent: флаг перезапуска — старт search_scripts() с игрового потока");
+			star_thread::set(s);// скрипты снова разрешены (star_thread был погашен в teardown).
+			// сообщение игроку: скрипты перезагружены (кириллица шрифтом VC не отображается — транслит).
+			// Используем ровно тот же механизм, что и printmessage() в funcs.cpp (AddMessageJumpQ) —
+			// AddBigMessage (центр экрана) не показывал текст; здесь lua_State нет, зовём C-API напрямую.
+			wchar_t* msg = getwchat("Scripts reloaded!");
+			CMessages::AddMessageJumpQ(msg, 3000, 1);// 1 — стиль как в printmessage (проверено в скриптах).
+			std::thread(search_scripts).detach();
+		}
 		CPed* player = FindPlayerPed();// найти игрока.
 		Events::gameProcessEvent += spite::draw; Events::gameProcessEvent += corona::draw; Events::vehicleRenderEvent += DoorsExample::ProcessDoors; // Тут обрабатываем события, а также выключаем их
 		int number_save_slot = gGameState;// состояние игры из SDK (раньше хардкод 0x9B5F08). 9 = в игре.
@@ -501,11 +531,12 @@ static void TriggerClearFlush() {
 	std::thread([]() { HandleClearFlush(); }).detach();
 };
 
-int reload() {// Ctrl: ПОЛНЫЙ ПЕРЕЗАПУСК всех Lua-скриптов (стоп -> дождаться -> уничтожить -> заново).
+int reload() {// Ctrl: ПОЛНЫЙ ПЕРЕЗАПУСК всех Lua-скриптов (стоп -> дождаться -> уничтожить -> флаг).
 	// Клавиша Ctrl = команда «перезапустить скрипты». Она НЕ трогает Lua напрямую: только вызывает
 	// teardown_all(true), которая: 1) останавливает все pump-потоки в безопасной точке (wait()->yield,
 	// по устаревшей эпохе), 2) ЖДЁТ active_pumps==0 — гарантия, что старых Stream-потоков нет,
-	// 3) уничтожает состояния, 4) запускает start_lualoder() заново.
+	// 3) уничтожает состояния, 4) поднимает флаг g_scripts_teared_down — скрипты перезапустит
+	// gameProcessEvent на игровом потоке (не из reload-потока — иначе data race).
 	while (true) {
 		this_thread::sleep_for(chrono::milliseconds(1));
 		bool ctrl = KeyPressed(VK_CONTROL);

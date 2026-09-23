@@ -10063,3 +10063,353 @@ C++| destroy: ВЫХОД
 C++| teardown: рестарт — запускаю start_lualoder()
 C++| teardown: разборка завершена
 C++| VECTORED: code=0xC0000005 addr=0x004BC2A3 thread=280
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=220
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=220
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=220
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=220
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=220
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=220
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=220
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=220
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=220
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=220
+C++| getpedcoordinates_on_y: пед=064c8220 pos=(-233.98, -1371.85, 8.11) сдвиг по up * 5.0 -> (-232.08, -1376.47, 8.11)
+Createcar: MODEL_PCJ600
+C++| load_model_before_avalible: ЗАПРОС модели id=191 (thread=452)
+C++| load_model_before_avalible: модель id=191 загружена (thread=452)
+C++| Createcar: создана MODEL_PCJ600 (id=191) car=065080ec
+C++| Createcar: MARK no-longer-needed id=191 OK
+Createcar: ok
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 0340473c — закрываю
+C++| destroy: ВХОД
+C++| destroy: удаляю авто 065080ec
+C++| destroy: ВЫХОД
+C++| teardown: сирота 08ee653c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 08f99c24 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 08fbbef4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=220)
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=220)
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 0a3296f4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0a5ca654 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0a7d254c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0a7decbc — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=220)
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 0a929dd4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0a8601d4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0a9d9094 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0aa0d32c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 0cc4f94c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cb92064 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cd6a27c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cd12dc4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=220)
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=220)
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 0cd6a5fc — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cd13144 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cf04d04 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cf4f93c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=220)
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 0cd6a97c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cf4fcbc — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cd134c4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0ccb07d4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| VECTORED: code=0xC0000005 addr=0x004BC2A3 thread=220
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 0ccb0b54 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cf5003c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cd6acfc — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0cf05404 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| VECTORED: code=0xC0000005 addr=0x004BC2A3 thread=220
+C++| VECTORED: code=0xE06D7363 addr=0x7B589767 thread=356
+C++| VECTORED: code=0x40010006 addr=0x7B589767 thread=356
+C++| VECTORED: code=0x40010006 addr=0x7B589767 thread=356
+C++| CRASH: code=0xC0000005 addr=0x760E1907 thread=372 EXCEPTION. ACCESS_VIOLATION (0xC0000005) READ @0x00000018
+
+C++| VECTORED: code=0xC0000005 addr=0x760E1907 thread=372
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| ATEXIT: нормальный выход процесса.
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| ATEXIT: нормальный выход процесса.
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=288
+C++| getpedcoordinates_on_y: пед=06a90070 pos=(-232.55, -1367.67, 8.11) сдвиг по up * 5.0 -> (-229.70, -1371.79, 8.11)
+Createcar: MODEL_PCJ600
+C++| load_model_before_avalible: ЗАПРОС модели id=191 (MODEL_PCJ600, thread=452)
+C++| load_model_before_avalible: модель id=191 (MODEL_PCJ600) загружена (thread=452)
+C++| Createcar: создана MODEL_PCJ600 (id=191) car=06ad16ac
+C++| Createcar: MARK no-longer-needed id=191 OK
+Createcar: ok
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 07d10024 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07f0a89c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07f9067c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07ff9a4c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — выставлен флаг, gameProcessEvent запустит search_scripts()
+C++| teardown: разборка завершена
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=280)
+C++| gameProcessEvent: флаг перезапуска — старт search_scripts() с игрового потока
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=280)
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 090b4104 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 09177294 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0936f6e4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 09383f64 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — выставлен флаг, gameProcessEvent запустит search_scripts()
+C++| teardown: разборка завершена
+C++| gameProcessEvent: флаг перезапуска — старт search_scripts() с игрового потока
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 0949e5ac — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 093fe2f4 — закрываю
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=280)
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0955263c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 09512c34 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — выставлен флаг, gameProcessEvent запустит search_scripts()
+C++| teardown: разборка завершена
+C++| gameProcessEvent: флаг перезапуска — старт search_scripts() с игрового потока
+C++| getpedcoordinates_on_y: пед=06a0a020 pos=(-223.10, -1381.70, 8.11) сдвиг по up * 5.0 -> (-220.10, -1385.71, 8.11)
+Createcar: MODEL_SKIMMER
+C++| load_model_before_avalible: ЗАПРОС модели id=190 (MODEL_SKIMMER, thread=536)
+C++| load_model_before_avalible: модель id=190 (MODEL_SKIMMER) загружена (thread=536)
+C++| Createcar: создана MODEL_SKIMMER (id=190) car=06a49eec
+C++| Createcar: MARK no-longer-needed id=190 OK
+Createcar: ok
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=280)
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 09675c94 — закрываю
+C++| destroy: ВХОД
+C++| destroy: удаляю авто 06a49eec
+C++| destroy: ВЫХОД
+C++| teardown: сирота 09650c34 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0973955c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 0978e364 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — выставлен флаг, gameProcessEvent запустит search_scripts()
+C++| teardown: разборка завершена
+C++| gameProcessEvent: флаг перезапуска — старт search_scripts() с игрового потока
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| getpedcoordinates_on_y: пед=06a80058 pos=(-233.09, -1365.97, 8.11) сдвиг по up * 5.0 -> (-229.99, -1369.89, 8.11)
+Createcar: MODEL_SKIMMER
+C++| load_model_before_avalible: ЗАПРОС модели id=190 (MODEL_SKIMMER, thread=444)
+C++| load_model_before_avalible: модель id=190 (MODEL_SKIMMER) загружена (thread=444)
+C++| Createcar: создана MODEL_SKIMMER (id=190) car=06ac10b8
+C++| Createcar: MARK no-longer-needed id=190 OK
+Createcar: ok
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: все pump-потоки завершились (waited=0ms)
+C++| teardown: сирота 07d109f4 — закрываю
+C++| destroy: ВХОД
+C++| teardown: флаг миссии обнулён в игровом потоке (thread=280)
+C++| destroy: удаляю авто 06ac10b8
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07ef142c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07fcbad4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 080388d4 — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — выставлен флаг, gameProcessEvent запустит search_scripts()
+C++| teardown: разборка завершена
+C++| gameProcessEvent: флаг перезапуска — старт search_scripts() с игрового потока
+C++| getpedcoordinates_on_y: пед=06a80058 pos=(-230.85, -1368.80, 8.11) сдвиг по up * 5.0 -> (-227.75, -1372.73, 8.11)
+Createcar: MODEL_PCJ600
+C++| load_model_before_avalible: ЗАПРОС модели id=191 (MODEL_PCJ600, thread=480)
+C++| load_model_before_avalible: модель id=191 (MODEL_PCJ600) загружена (thread=480)
+C++| Createcar: создана MODEL_PCJ600 (id=191) car=06ac1694
+C++| Createcar: MARK no-longer-needed id=191 OK
+Createcar: ok
