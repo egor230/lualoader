@@ -9888,3 +9888,178 @@ C++| teardown: рестарт — запускаю start_lualoder()
 C++| teardown: разборка завершена
 C++| VECTORED: code=0xC0000005 addr=0x004BC2A3 thread=284
 C++| VECTORED: code=0xC0000005 addr=0x004BC2A3 thread=284
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057bde80 В МАШИНЕ (m_pVehicle=057fc000)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057bde80 m_bInVehicle=1 m_pVehicle=057fc000
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057bde80 В МАШИНЕ (m_pVehicle=057fc000)
+C++| is_ped_in_car: пед=057bde80 В МАШИНЕ (m_pVehicle=057fc000)
+C++| is_ped_in_car: пед=057bde80 В МАШИНЕ (m_pVehicle=057fc000)
+SMM done
+fade 1 1200
+C++| load_model_before_avalible: ЗАПРОС модели id=269 (thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~3000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~6000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~9000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~12000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~15000 мс, thread=452)
+C++| getpedcoordinates_on_y: пед=057bde80 pos=(-229.98, -1386.04, 8.11) сдвиг по up * 5.0 -> (-229.35, -1391.00, 8.11)
+Createcar: MODEL_SECURICA
+C++| load_model_before_avalible: ЗАПРОС модели id=158 (thread=448)
+C++| load_model_before_avalible: модель id=158 загружена (thread=448)
+C++| Createcar: создана MODEL_SECURICA (id=158) car=057fe904
+C++| Createcar: MARK no-longer-needed id=158 OK
+Createcar: ok
+C++| getpedcoordinates_on_y: пед=057bde80 pos=(-229.98, -1386.04, 8.11) сдвиг по up * 5.0 -> (-229.35, -1391.00, 8.11)
+Createcar: MODEL_SECURICA
+C++| load_model_before_avalible: ЗАПРОС модели id=158 (thread=448)
+C++| load_model_before_avalible: модель id=158 загружена (thread=448)
+C++| Createcar: создана MODEL_SECURICA (id=158) car=057feee0
+C++| Createcar: MARK no-longer-needed id=158 OK
+Createcar: ok
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~18000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~21000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~24000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~27000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~30000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~33000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~36000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~39000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~42000 мс, thread=452)
+C++| load_model_before_avalible: ЖДЁМ модель id=269 (~45000 мс, thread=452)
+C++| VECTORED: code=0xE06D7363 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+C++| VECTORED: code=0x40010006 addr=0x7B569767 thread=280
+SMM srabotal
+C++| setflagmission = true
+fade 0 1100
+C++| is_ped_in_car: пед=057bde80 В МАШИНЕ (m_pVehicle=057fb448)
+C++| exitcar: ВХОД
+C++| exitcar: пед=057bde80 m_bInVehicle=1 m_pVehicle=057fb448
+C++| exitcar: SetObjective LEAVE_CAR OK
+C++| is_ped_in_car: пед=057bde80 В МАШИНЕ (m_pVehicle=057fb448)
+C++| is_ped_in_car: пед=057bde80 В МАШИНЕ (m_pVehicle=057fb448)
+C++| is_ped_in_car: пед=057bde80 В МАШИНЕ (m_pVehicle=057fb448)
+SMM done
+fade 1 1200
+C++| load_model_before_avalible: ЗАПРОС модели id=269 (thread=452)
+C++| load_model_before_avalible: модель id=269 загружена (thread=452)
+C++| set_current_weapon_ped: пед=057bde80 оружие=11
+C++| showtext:  Treacherous Swine (time=500 style=1)
+swine: СТАРТ у особняка Кортеса (-250.5, -1361.1, 8.1), бензопила выдана
+printmessage
+printmessage
+printmessage
+C++| getpedcoordinates_on_y: пед=057bde80 pos=(-240.62, -1363.20, 8.11) сдвиг по up * 5.0 -> (-235.62, -1363.12, 8.11)
+Createcar: MODEL_PCJ600
+C++| load_model_before_avalible: ЗАПРОС модели id=191 (thread=448)
+C++| load_model_before_avalible: модель id=191 загружена (thread=448)
+C++| Createcar: создана MODEL_PCJ600 (id=191) car=05802978
+C++| Createcar: MARK no-longer-needed id=191 OK
+Createcar: ok
+printmessage
+swine: катсцена COL_1 заменена на текст (опкодов LOAD_CUTSCENE нет)
+fade 0 1500
+setangle
+C++| radar_add_blip_for_coord: id=196619
+create_sphere
+create_sphere ok
+setangle
+setangle
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=-116 (thread=452)
+C++| load_model_before_avalible: модель id=-116 загружена (thread=452)
+C++| load_model_before_avalible: ЗАПРОС модели id=-117 (thread=452)
+C++| load_model_before_avalible: модель id=-117 загружена (thread=452)
+C++| load_model_before_avalible: ЗАПРОС модели id=-118 (thread=452)
+C++| load_model_before_avalible: модель id=-118 загружена (thread=452)
+C++| load_model_before_avalible: ЗАПРОС модели id=-119 (thread=452)
+C++| load_model_before_avalible: модель id=-119 загружена (thread=452)
+fade 1 1500
+printmessage
+swine: сцена пляжа готова (3 рандом-педа, 4 объекта крыши, блайп)
+C++| mission_watch: СТАРТ
+printmessage
+swine: игрок пришёл на место встречи — конфронтация
+C++| load_model_before_avalible: ЗАПРОС модели id=19 (thread=452)
+C++| load_model_before_avalible: модель id=19 загружена (thread=452)
+create_spec_ped: IGGONZ (обычная модель) ok
+C++| load_model_before_avalible: ЗАПРОС модели id=89 (thread=452)
+C++| load_model_before_avalible: модель id=89 загружена (thread=452)
+create_spec_ped: CLA (обычная модель) ok
+setangle
+C++| load_model_before_avalible: ЗАПРОС модели id=89 (thread=452)
+C++| load_model_before_avalible: модель id=89 загружена (thread=452)
+create_spec_ped: CLA (обычная модель) ok
+fade 0 500
+C++| load_model_before_avalible: ЗАПРОС модели id=-76 (thread=452)
+C++| load_model_before_avalible: модель id=-76 загружена (thread=452)
+setangle
+fade 1 500
+printmessage
+printmessage
+printmessage
+swine: конфронтация — охрана атакует, Свинья бежит по крыше
+C++| set_ped_stay_when_attacked: пед=057d2700 stay=1
+swine: Свинья на углу крыши (463, 31.6) — спрыгнет
+fade 0 500
+setangle
+fade 1 500
+C++| set_ped_stay_when_attacked: пед=057d2700 stay=0
+printmessage
+setangle
+C++| set_ped_stay_when_attacked: пед=057bde80 stay=0
+printmessage
+C++| VECTORED: code=0xC0000005 addr=0x004BC2A3 thread=280
+C++| teardown: вход (restart=1), pump-потоков: 4, состояний: 4
+C++| mission_watch: очистка (destroy)
+C++| destroy: ВХОД
+C++| destroy: удаляю педа 057c1c18
+C++| destroy: пед висячий, просто стираю запись
+C++| destroy: удаляю педа 057c22f0
+C++| destroy: пед висячий, просто стираю запись
+C++| destroy: удаляю педа 057c29c8
+C++| destroy: пед висячий, просто стираю запись
+C++| destroy: удаляю педа 057cfdf0
+C++| destroy: удаляю педа 057d0ba0
+C++| destroy: удаляю педа 057d2700
+C++| destroy: ВЫХОД
+C++| mission_watch: КОНЕЦ
+C++| teardown: ожидание завершения всех pump-потоков (pumps=4)...
+C++| teardown: все pump-потоки завершились (waited=10ms)
+C++| teardown: сирота 07a5efcc — закрываю
+C++| destroy: ВХОД
+C++| destroy: удаляю авто 05802978
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07a861ac — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07b0b20c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: сирота 07bc0f6c — закрываю
+C++| destroy: ВХОД
+C++| destroy: ВЫХОД
+C++| teardown: рестарт — запускаю start_lualoder()
+C++| teardown: разборка завершена
+C++| VECTORED: code=0xC0000005 addr=0x004BC2A3 thread=280

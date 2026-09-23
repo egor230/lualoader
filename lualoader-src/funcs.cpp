@@ -2638,8 +2638,22 @@ int createped(lua_State* L) {// создать педа.
 	return 0;
 };
 
+static const char* model_name_str(int model) {// обратный поиск: id модели -> имя (для трейсов). Строим кэш при первом вызове.
+	static map<int, string> rev;
+	static bool built = false;
+	if (!built) {
+		for (auto const& kv : car_model_list) rev[kv.second] = kv.first;
+		for (auto const& kv : name_peds_list) rev[kv.second] = kv.first;
+		for (auto const& kv : name_weapon_list) rev[kv.second] = kv.first;
+		built = true;
+	}
+	auto it = rev.find(model);
+	return it != rev.end() ? it->second.c_str() : "?";
+}
+
 void load_model_before_avalible(int model) {
-	cpp_tracef("load_model_before_avalible: ЗАПРОС модели id=%d (thread=%lu)", model, (unsigned long)GetCurrentThreadId());
+	const char* nm = model_name_str(model);
+	cpp_tracef("load_model_before_avalible: ЗАПРОС модели id=%d (%s, thread=%lu)", model, nm, (unsigned long)GetCurrentThreadId());
 	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
 	Command<COMMAND_REQUEST_MODEL>(model);
 	Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
@@ -2649,9 +2663,12 @@ void load_model_before_avalible(int model) {
 		if (scripts_paused.load()) { this_thread::sleep_for(chrono::milliseconds(10)); continue; }// ПАУЗА: кооперативно ждём (обратимо), модель не дёргаем.
 		this_thread::sleep_for(chrono::milliseconds(1));// задержка
 		Command<COMMAND_REQUEST_MODEL>(model);
-		if (++guard % 3000 == 0) cpp_tracef("load_model_before_avalible: ЖДЁМ модель id=%d (~%d мс, thread=%lu)", model, guard, (unsigned long)GetCurrentThreadId());
+		++guard;
+		// пинок стриминга раз в ~1с: если модель не встала (затор/сбойный стрим) — принудительно добиваем загрузку.
+		if (guard % 1000 == 0) Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+		if (guard % 3000 == 0) cpp_tracef("load_model_before_avalible: ЖДЁМ модель id=%d (%s, ~%d мс, thread=%lu)", model, nm, guard, (unsigned long)GetCurrentThreadId());
 	}
-	cpp_tracef("load_model_before_avalible: модель id=%d загружена (thread=%lu)", model, (unsigned long)GetCurrentThreadId());
+	cpp_tracef("load_model_before_avalible: модель id=%d (%s) загружена (thread=%lu)", model, nm, (unsigned long)GetCurrentThreadId());
 };
 
 int create_spec_ped(lua_State* L) {// создать спец педа.

@@ -4,21 +4,21 @@ while true do wait()-- задержка.
   player = findplayer()-- получить игрока.
  if Keypress("VK_G") -- если клавиша H.
   then mod_autoaim("m4", "on")  printmessage("~r~on autoaim", 3400,1 )
-  setpedcoordes(player, 488.5, 31.1, 10.9)
+  -- setpedcoordes(player, 488.5, 31.1, 10.9)
  end
 
  if Keypress("VK_H") -- если клавиша H.
   then  --mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
-  setpedcoordes(player, 299.0, -314.6, 11.4)
+  setpedcoordes(player,486.1, 30.0, 10.9)
   Giveweaponped(player,600,"m4")-- дать педу оружие.
  end
  if Keypress("VK_S") -- если клавиша H.
 then  show_save_menu()
-
   end
+
   if Keypress("VK_N") -- если клавиша H.
     then    x,y,z = getcoordinates_on_y(player, 5)
-    car = Createcar("MODEL_SECURICA",x,y,z)
+    car = Createcar("MODEL_PCJ600",x,y,z)
     end
   end
 
