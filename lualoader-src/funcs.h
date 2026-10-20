@@ -23,6 +23,21 @@
 #include <algorithm>
 #include<lua.hpp>
 
+// ==== Быстрая загрузка моделей (18.10.2026) ====
+// Менеджер стриминга (compat/ma_streaming.cpp): REQUEST-команды шлёт кадровый
+// обработчик на игровом потоке, worker только ждёт событие — без кругов очереди.
+// Хук регистрирует Message в plugin.cpp (ma_stream_install_hook).
+#include "compat/ma_streaming.h"
+
+// ==== Обёртка регистрации Lua-API (18.10.2026) ====
+// Каждая C-функция получает крошку «файл:строка скрипта -> имя API» для отчёта о
+// вылете (ma_diag::lua_note в compat/diag.cpp). Макрос перекрывает lua_register
+// из lua.h; реально его зовёт только register.cpp (funcs.cpp/plugin.cpp — нет).
+int ma_lua_register(lua_State* L, const char* name, lua_CFunction fn);
+void ma_lua_crumb(lua_State* L, const char* api);
+#undef lua_register
+#define lua_register ma_lua_register
+
 #include "common.h"
 #include "plugin.h"
 #include "CWorld.h"
@@ -108,26 +123,17 @@ void lua_state_stamp(lua_State* L);        // публикация: привяз
 void lua_state_unstamp(lua_State* L);      // закрытие владельцем: снять привязку.
 bool lua_state_obsolete(lua_State* L);     // состояние из старого поколения? (функция — в funcs.cpp, читает epoch-карту).
 // ПАУЗА: флаг «идёт разборка» (определение — в plugin.cpp). Его проверяют БЛОКИРУЮЩИЕ API
-// (play_voice, load_model_before_avalible, getcord) — у них нет доступа к эпохе
-// состояния (getcord живёт вообще на своём detached-потоке, поэтому требуется глобальный
-// сигнал «всем срочно выйти из длинных циклов»). Ставится ПЕРВЫМ шагом teardown (пауза всех
+// (play_voice, load_model_before_avalible, getcord, expectations) — у них нет доступа к эпохе
+// состояния (getcord живёт вообще на своём detached-потоке), поэтому требуется глобальный
+// сигнал «всем срочно выйти из длинных циклов». Ставится ПЕРВЫМ шагом teardown (пауза всех
 // скриптов ДО разборки), снимается когда разборка запущена.
 extern std::atomic<bool> teardown_active;
 // ПАУЗА по yield: поставлена pause_scripts() (определение — в plugin.cpp). wait() внутри
 // скриптов при этом делает return lua_yield(L,0) — скрипт БЕЗОПАСНО замирает со своего же
 // кадра (yield из СВОЕГО wait), pump-поток паркуется и ничего не закрывает. Обратимо.
-// play_voice при паузе тоже делает lua_yield (yield из собственного кадра всегда разрешён),
-// блокирующие циклы БЕЗ L (load_model_before_avalible, getcord) при паузе просто ждут
-// (не позиционируют авто / не ждут тейрдаун), а при teardown выходят на барьер.
 extern std::atomic<bool> scripts_paused;
-// clrfl: глобальный флаг остановки всех скриптов + мьютекс для безопасного взаимодействия C++/Lua
-// (определения — в plugin.cpp). Хук StopHook проверяет флаг в безопасной точке (lua_isyieldable)
-// и МГНОВЕННО останавливает busy-циклы (while true do). HandleClearFlush берёт мьютекс и
-// через teardown_all(false) разбирает ВСЕ состояния.
-extern std::atomic<bool> g_shouldStopAllScripts;
-extern std::mutex g_luaMutex;
 string getkey(int key);
-int setobjоcoordes(lua_State* L); // установить координаты для объект. (определение в plugin.cpp)
+int setobjocoordes(lua_State* L); // установить координаты для объект. (определение в funcs.cpp)
 int create_newthread(lua_State* L); // создания нового потока. (определение в plugin.cpp)
 
 // общие структуры для funcs.cpp/plugin.cpp (определения статических полей — в funcs.cpp).
@@ -1991,4 +1997,3 @@ int switch_streaming(lua_State* L); // 03AF: вкл/выкл стриминг.
 int mark_char_as_no_longer_needed(lua_State* L); // 01C2: пометить педа как ненужного.
 int set_visibility_of_closest_object_of_type(lua_State* L); // 0363: видимость ближайшего объекта типа.
 int get_player_wanted_level(lua_State* L); // уровень розыска игрока (детектор респрея Swine). // 0363: видимость ближайшего объекта типа.
-

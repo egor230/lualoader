@@ -25,7 +25,8 @@ CXX=clang++
 
 COMMON=(--target=i686-w64-mingw32 -m32 -O1 -fpermissive -fcommon -fms-extensions
         -Wno-invalid-offsetof -Wno-microsoft-include -Wno-builtin-macro-redefined
-        -D__cpp_concepts=202202L -DGTAVC -DPLUGIN_SGV_10EN -DRW)
+        -D__cpp_concepts=202202L -DGTAVC -DPLUGIN_SGV_10EN -DRW
+        -DLUALOADER_CMDQ -DLUALOADER_DIAG)
 
 INCLUDES=(-I"$PWD" -I"$PWD/lua"
           -I"$SDK/plugin_vc" -I"$SDK/plugin_vc/game_vc" -I"$SDK/plugin_vc/game_vc/enums"
@@ -53,11 +54,29 @@ for c in funcs.cpp register.cpp plugin.cpp; do
     OBJS+=("$o")
 done
 
+# 2b. compat: диагностика + ОЧЕРЕДЬ КОМАНД (LUALOADER_CMDQ) + МЕНЕДЖЕР СТРИМИНГА.
+#     Command<> из потоков скриптов больше НЕ пишут в игровую память — они
+#     откладываются и исполняются на игровом потоке в Events::gameProcessEvent
+#     (см. compat/diag.cpp, cmdq_hooks.cpp). Загрузка моделей идёт через
+#     compat/ma_streaming.cpp (REQUEST шлёт кадровый обработчик, без кругов очереди).
+#     Глобальных конструкторов в этих TU нет — иначе игра не стартует
+#     (RtlpWaitForCriticalSection "... blocked by 0000"). Регистрация хуков — из
+#     Message в plugin.cpp, ПОСЛЕ инициализации SDK.
+for c in compat/diag.cpp compat/cmdq_hooks.cpp compat/ma_streaming.cpp; do
+    o="$BUILD/$(basename "${c%.cpp}").o"
+    if [ "$c" -nt "$o" ] || [ "compat/diag.h" -nt "$o" ] || [ "compat/ma_streaming.h" -nt "$o" ]; then
+        echo "CXX  $c"
+        $CXX "${COMMON[@]}" -std=c++23 -w "${INCLUDES[@]}" -c "$c" -o "$o"
+    fi
+    OBJS+=("$o")
+done
+
 # 3. Линковка
 echo "LINK ${NAME}.asi"
 $CXX --target=i686-w64-mingw32 -m32 "${OBJS[@]}" -shared \
     -static-libgcc -static-libstdc++ \
     -L"$SDK/output/lib" -lPlugin_VC \
+    -ldbghelp \
     -o "$OUT"
 
 echo ""

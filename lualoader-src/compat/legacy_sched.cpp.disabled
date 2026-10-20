@@ -1,0 +1,34 @@
+// Определения глобалов, которые funcs.h объявляет как "определения — в plugin.cpp",
+// но которых в текущей версии plugin.cpp нет (-plugin.cpp менять нельзя).
+//
+// Зачем: funcs.cpp/funcs.h — от новой версии с планировщиком скриптов на игровом
+// потоке, а plugin.cpp — от старой версии, где каждый скрипт крутится на своём
+// OS-потоке. Из-за этого линкер не находил 4 символа.
+//
+// Значения выбраны так, чтобы поведение совпадало со СТАРЫМ plugin.cpp:
+//  * ma_sched_park() всегда false -> wait() в funcs.cpp сходит на «старый потоковый
+//    путь» (дробимый сон this_thread::sleep_for), а не на lua_yield. Для потоковой
+//    модели plugin.cpp это ровно то, что нужно: скрипт спит на своём потоке.
+//  * три флага живут в false -> пауза/остановка/разборка не активны, блокирующие
+//    циклы (play_voice, load_model_before_avalible, getcord) работают как обычно.
+//
+// Если позже вернётся новая версия plugin.cpp с планировщиком, эти определения
+// нужно будет удалить (или перенести в plugin.cpp), иначе будут дубликаты символов.
+
+#include "funcs.h"
+
+// ПАУЗА: флаг «идёт разборка» (pause_scripts/teardown в funcs.h).
+std::atomic<bool> teardown_active{ false };
+
+// ПАУЗА по yield: ставится pause_scripts() из plugin.cpp.
+std::atomic<bool> scripts_paused{ false };
+
+// clrfl: глобальный флаг остановки всех скриптов.
+std::atomic<bool> g_shouldStopAllScripts{ false };
+
+// Планировщик скриптов. В этой сборке состояния не регистрируются в планировщике:
+// возвращаем false, и wait() в funcs.cpp уходит на блокирующий сон своего потока.
+bool ma_sched_park(lua_State* L, int ms) {
+	(void)L; (void)ms;
+	return false;
+}

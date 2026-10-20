@@ -1,0 +1,22 @@
+// Теневой <functional> — ТОЛЬКО для единицы трансляции plugin.cpp (LUALOADER_TU_PLUGIN).
+//
+// Нужен потому, что <functional> внутри себя вызывает std::search. А мы переименовываем
+// токен `search` на время разбора <algorithm> (см. plugin_tu_compat.h), из-за чего
+// std::search объявляется как std::lualoader_std_search_hidden. Чтобы обращение внутри
+// <functional> резолвилось, оно должно быть переименовано так же — для этого и теневой
+// файл с тем же приёмом. Объявления в std при этом остаются консистентными.
+//
+// Для funcs.cpp/register.cpp файл прозрачен.
+
+#ifndef LUALOADER_PLUGIN_TU_COMPAT_FUNCTIONAL
+#define LUALOADER_PLUGIN_TU_COMPAT_FUNCTIONAL
+
+#ifndef LUALOADER_TU_PLUGIN
+#include_next <functional>
+#else
+#define search lualoader_std_search_hidden
+#include_next <functional>
+#undef search
+#endif
+
+#endif // LUALOADER_PLUGIN_TU_COMPAT_FUNCTIONAL

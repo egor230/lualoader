@@ -111,7 +111,9 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "create_marker_pickup", create_marker_pickup); // 105 создать маркер над пикапом.
 	lua_register(L, "create_obj", createobj); // 106 создать объект.
 	lua_register(L, "remove_obj", remove_obj); // 107 удалить объект.
-	lua_register(L, "setobjоcoordes", setobjоcoordes); // 108 установить координаты для объект.
+	lua_register(L, "setobjоcoordes", setobjocoordes); // 108 установить координаты для объект.
+	lua_register(L, "setobjocoordes", setobjocoordes);
+	lua_register(L, "setobjcoordes", setobjocoordes);
 	lua_register(L, "getobjcoordes", getobjcoordes); // 109 получить координаты объекта.
 	lua_register(L, "create_marker_obj", create_marker_obj); // 110 создать маркер над объектом.
 	lua_register(L, "isobject", isobject); // 111 проверка это объект?.
