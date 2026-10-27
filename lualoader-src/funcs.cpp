@@ -241,13 +241,11 @@ extern map<string, int> car_model_list;// список моделей авто (
 extern map<string, int> name_peds_list;// список моделей педов (определение ниже).
 extern map<string, int> type_peds_list;// список типов педов (определение ниже).
 extern map<string, int> type_specpeds_list;// спец-акторы: ПОЛ (4 — мужчина, 5 — женщина; определение ниже).
-extern map<string, int> special_actor_slots;// фиксированные спец-слоты (SPANDXA=4, SPANDXB=5; определение ниже).
-extern map<int, string> special_slot_busy;// наши брони спец-слотов 1..8 (определение ниже, чистится в cleanstl).
+extern map<string, int> special_actor_slots;// спец-акторы: имя → слот LOAD_SPECIAL_CHARACTER 1..8 → модель 109..116 (определение ниже).
 static void release_model(int model);// аккуратная выгрузка модели (определение ниже).
 static void hold_model(lua_State* L, int model);// модель живёт, пока живёт скрипт/сущность (ниже).
-static void hold_model_special(lua_State* L, int slot, const char* name);// то же для спец-слота 109..116.
+static void hold_model_special(lua_State* L, int slot, const char* name);// то же, для спец-модели 108+slot (ниже).
 static bool ma_model_requestable(int model);// (26.10) границы id + наличие в CD-образе (определение ниже).
-static CPed* create_actor_by_name(lua_State* L, const char* name, CVector pos);// спец-актор по имени (определение ниже).
 int Createped(lua_State* L) {// макрос создать педа.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
@@ -269,62 +267,65 @@ int Createped(lua_State* L) {// макрос создать педа.
 				if (ped != NULL) hold_model(L, model);// (26.10) модель ДЕРЖИТСЯ скриптом, пока жив пед (без MARK).
 			}
 			else {// имени нет в обычных списках → СПЕЦ-АКТОР (IGMERC, IGPHIL, SPANDXA ...).
-				// Директива юзера 25.10, три шага:
-				// ШАГ 1 — определить ПОЛ: мужчина или женщина?
-				int spectype = find_in_map(type_specpeds_list, name_ped);// 4 — мужчина, 5 — женщина.
+				// (27.10, директива юзера) Спец-актор с ИЗВЕСТНОЙ моделью создаётся
+				// ПРЯМО на спец-модели (RequestSpecialChar + CREATE_CHAR), БЕЗ
+				// UNDRESS/DRESS. Актор БЕЗ известной модели фолбэкивается на
+				// обычную модель пола (HMYBE/WFYST).
+				// 1) определить ПОЛ: 4 — мужчина, 5 — женщина (тип для CREATE_CHAR).
+				int spectype = find_in_map(type_specpeds_list, name_ped);
 				if (spectype == 0) { writelog("Createped: имени нет ни в списках педов, ни в спец-акторах"); lua_pushnil(L); return 1; }
-
-				// ШАГ 2 — слот под СКИН спец-актора: фиксированный (SPANDXA=4,
-				// SPANDXB=5) или свободный из наших броней 1..8. Скин грузится в
-				// спец-слот движка (модели 109..116); UNDRESS общих моделей не зовём —
-				// переименование слота удаляет горожан той же модели (reVC).
+				// 2) есть ли у актора ИЗВЕСТНАЯ спец-модель (special_actor_slots)?
 				int slot = find_in_map(special_actor_slots, name_ped);
-				if (slot <= 0) {
-					for (int s = 1; s <= 8; s++) {
-						auto it = special_slot_busy.find(s);
-						if (it == special_slot_busy.end() || it->second == name_ped) { slot = s; break; }
-					}
-				}
-				int skin_model = (slot > 0) ? 108 + slot : 0;// 0 — свободных слотов нет.
-
-				// ШАГ 3 — создать педа СВОЕГО ПОЛА и сразу дать ему СКИН спец-актора:
-				// модель скина — в слот (запрос менеджером стриминга + ожидание до 10 с),
-				// затем CREATE_CHAR(ПОЛ, 108+слот) — пед рождается в скине спец-актора.
-				if (skin_model != 0) {
-					ma_diag::model_event(skin_model, "wait_start", 0);
+				if (slot != 0) {// известная спец-модель: 108+slot (SPANDXA=4→112, SPANDXB=5→113).
+					int smodel = 108 + slot;
+					// 3) загрузить спец-модель (RequestSpecialChar на игровом потоке).
 					ma_stream_want_special(slot, name_ped);
-					bool loaded = ma_stream_wait(skin_model, 10000);
-					ma_diag::model_event(skin_model, loaded ? "wait_done" : "timeout", 0);
-					if (loaded) {
-						// готовность клумпа: битая модель = AV при создании (разбор 18.10).
-						CBaseModelInfo* mi = (skin_model >= 0 && skin_model < CModelInfo::ms_modelInfoCount)
-							? CModelInfo::ms_modelInfoPtrs[skin_model] : NULL;
-						if (mi != NULL && mi->GetRwObject() != NULL) {
-							Command<COMMAND_CREATE_CHAR>(spectype, skin_model, pos.x, pos.y, pos.z, &ped);// тип = ПОЛ актёра.
-							if (ped != NULL) {
-								hold_model_special(L, slot, name_ped);// (26.10) спец-слот держится скриптом до destroy/cleanstl.
-								special_slot_busy[slot] = name_ped;// слот закреплён за этим актёром.
-							}
-						}
+					if (!ma_stream_wait(smodel, 10000)) {// модель не встала за 10 с.
+						ma_stream_release(smodel);// снять want (парная сторона).
+						writelog("Createped: спец-модель не загрузилась (спец-актор)");
+						lua_pushnil(L);
+						return 1;
 					}
-					if (ped == NULL) ma_stream_release(skin_model);// баланс неудачного want.
+					// 4) создать педа ПРЯМО на спец-модели.
+					Command<COMMAND_CREATE_CHAR>(spectype, smodel, pos.x, pos.y, pos.z, &ped);
+					if (ped == NULL) {
+						ma_stream_release(smodel);// модель встала, но пед не создан: снять want.
+						writelog("Createped: CREATE_CHAR вернул NULL (спец-актор)");
+						lua_pushnil(L);
+						return 1;
+					}
+					// 5) ДЕРЖАТЬ спец-модель в памяти, пока жив пед («массив»):
+					//    destroy(L)/cleanstl() → let_go найдут её по владельцу и снимут —
+					//    ровно как у обычных педов (hold_model).
+					hold_model_special(L, slot, name_ped);
 				}
-				if (ped == NULL) {
-					// Запасной путь (слоты кончились / модель не встала): обычный пед
-					// СООТВЕТСТВУЮЩЕГО ПОЛА — мужчина HMYBE / женщина WFYST.
+				else {// известной модели нет → обычная модель этого пола.
 					const char* base = (spectype == PED_TYPE_CIVFEMALE) ? "WFYST" : "HMYBE";
 					int bm = find_in_map(name_peds_list, base);
 					int bt = find_in_map(type_peds_list, base);
-					if (bm != 0 && load_model_before_avalible(bm)) {
-						Command<COMMAND_CREATE_CHAR>(bt, bm, pos.x, pos.y, pos.z, &ped);
-						if (ped != NULL) hold_model(L, bm);
+					if (bm == 0 || bt == 0 || !ma_model_requestable(bm)) {
+						writelog("Createped: нет базовой модели пола спец-актора");
+						lua_pushnil(L);
+						return 1;
 					}
-					if (ped != NULL) writelog("Createped: спец-слот недоступен — создан обычный пед по полу");
+					// ПРОВЕРЕННЫЙ путь Кометы-2021 (bm уже загейчен ma_model_requestable).
+					load_model_before_avalible(bm);
+					Command<COMMAND_CREATE_CHAR>(bt, bm, pos.x, pos.y, pos.z, &ped);
+					if (ped == NULL) {
+						release_model(bm);
+						writelog("Createped: CREATE_CHAR вернул NULL (спец-актор)");
+						lua_pushnil(L);
+						return 1;
+					}
+					// выгрузить модель из памяти (MARK) и дать движку несколько мс.
+					release_model(bm);
+					this_thread::sleep_for(chrono::milliseconds(3));
 				}
 			}
 
 			if (ped == NULL) { writelog("Createped: CREATE_CHAR вернул NULL"); lua_pushnil(L); return 1; }
 			{ std::lock_guard<std::mutex> lk(mtx); mappeds.emplace(ped, L); }// добавить map для педов.
+
 			lua_pushlightuserdata(L, ped);// отправить в стек и получить из стека можно.
 			return 1;
 		}// int
@@ -346,16 +347,14 @@ int Createcar(lua_State* L) {// макрос создать авто на коо
 			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
 			float z = lua_tonumber(L, 4); CVector pos = { x, y, z };
 			if (model == 0) { writelog("Createcar: имени нет в списке или модель не загрузилась"); lua_pushnil(L); return 1; }// (финал-8) model==0 = имени НЕТ (0 — валидный id, но не авто/объект)
-			// (26.10) Клавиша N / сцена миссии: модель авто догружается на игровом
-			// потоке синхронно (ma_stream_wait → wait_sync). Кооперативный yield
-			// здесь НЕЛЬЗЯ: Lua 5.4 завершает C-функцию при возобновлении, и код
-			// после ожидания (Command<CREATE_CAR>, release) не исполнялся — отсюда
-			// были nil вместо 3 грузовиков SPAND. load_model_before_avalible сама
-			// не тронута (директива).
-			ma_stream_want(model);
-			if (!ma_stream_wait(model, 10000)) {// модель не встала за 10 с.
+			// (27.10, директива юзера) Модель догружается ПРОВЕРЕННЫМ путём
+			// Кометы-2021 — load_model_before_avalible (REQUEST_MODEL + busy-
+			// опрос HAS_MODEL_LOADED через очередь команд). ma_stream_want/
+			// ma_stream_wait приводил к вылету (CTD) при создании нескольких
+			// авто: 3 SPAND-грузовика сцены мятежа создавались, затем вылет.
+			// load_model_before_avalible сама не тронута (директива).
+			if (!ma_model_requestable(model) || !load_model_before_avalible(model)) {
 				writelog("Createcar: модель не загрузилась — авто не создаётся");
-				release_model(model);// снять want (парная сторона).
 				lua_pushnil(L);
 				return 1;
 			}
@@ -363,26 +362,26 @@ int Createcar(lua_State* L) {// макрос создать авто на коо
 			Command<COMMAND_CREATE_CAR>(model, pos.x, pos.y, pos.z, &car);
 			if (car != NULL) hold_model(L, model);
 			if (car == NULL) {
-				// (26.10, P0 по консультантской матрице) БЫЛО: здесь release_model
-				// не вызывался — want(213) висел вечно и менеджер стриминга
-				// продолжал требовать модель, хотя машина не создана (дисбаланс
-				// ссылок при сцене: 3×NIL грузовиков). Теперь симметрия: каждый
-				// ma_stream_want закрывается ровно одним снятием на всех ветках.
+				// (27.10) Загрузка теперь идёт через load_model_before_avalible
+				// (без ma_stream_want). Модель встала, а CREATE_CAR вернул NULL —
+				// отпускаем её MARK'ом (release_model = MARK_MODEL_AS_NO_LONGER_
+				// NEEDED + снятие want'а). Ветка «модель не встала» выше уже
+				// вернула nil; до сюда доходит только успешная загрузка.
 				release_model(model);
 				// (26.10, P0) Диагностика причины NULL: состояние модели/стриминга/
 				// пула авто в момент отказа — «каждый исход неудачи имеет свой код».
-				{
-					char b[220];
-					int n = _snprintf(b, sizeof(b),
-						"Createcar: CREATE_CAR вернул NULL (model=%d x=%.1f y=%.1f z=%.1f "
-						"has_model=%d cd_ok=%d пул авто: свободно %u из %d)",
-						model, x, y, z,
-						(int)CStreaming::HasModelLoaded(model),
-						(int)CStreaming::IsObjectInCdImage(model),
-						CPools::ms_pVehiclePool->GetNoOfFreeSpaces(),
-						(unsigned int)CPools::ms_pVehiclePool->m_nSize);
-					if (n > 0) writelog(b);
-				}
+				// {
+				// 	char b[220];
+				// 	int n = _snprintf(b, sizeof(b),
+				// 		"Createcar: CREATE_CAR вернул NULL (model=%d x=%.1f y=%.1f z=%.1f "
+				// 		"has_model=%d cd_ok=%d пул авто: свободно %u из %d)",
+				// 		model, x, y, z,
+				// 		(int)CStreaming::HasModelLoaded(model),
+				// 		(int)CStreaming::IsObjectInCdImage(model),
+				// 		CPools::ms_pVehiclePool->GetNoOfFreeSpaces(),
+				// 		(unsigned int)CPools::ms_pVehiclePool->m_nSize);
+				// 	if (n > 0) writelog(b);
+				// }
 				lua_pushnil(L);
 				return 1;
 			}
@@ -500,17 +499,15 @@ map<string, int> type_specpeds_list = { {"BGA", 4}, {"BGB", 4}, {"BOUNCA", 4}, {
 {"IGPHIL3", 4}, {"IGSONNY", 4}, {"MBA", 4}, {"MBB", 4}, {"MGOONA", 4}, {"MPORNA", 4}, {"MSERVER", 4}, {"PLAY10", 4}, {"PLAY11", 4},
 {"PLAY12", 4}, {"PLAYER2", 4}, {"PLAYER3", 4}, {"PLAYER4", 4}, {"PLAYER5", 4}, {"PLAYER6", 4}, {"PLAYER7", 4}, {"PLAYER8", 4},
 {"PLAYER9", 4}, {"PRINTRA", 4}, {"PRINTRB", 4}, {"PRINTRC", 4}, {"PSYCHO", 4}, {"SAM", 4}, {"SGC", 4}, {"SGOONA", 4}, {"SGOONB", 4},
-{"SHOOTRA", 5}, {"SHOOTRB", 4}, {"SPANDXA", 5}, {"SPANDXB", 5}, {"STRIPA", 5}, {"S_KEEP", 4} };
+{"SHOOTRA", 5}, {"SHOOTRB", 4}, {"SPANDXA", 4}, {"SPANDXB", 4}, {"STRIPA", 5}, {"S_KEEP", 4} };
 
-// Слоты LOAD_SPECIAL_CHARACTER (0x23C) для спец-акторов: имя → слот 1..8.
-// Модель слота = 109 + (slot - 1) (special01..special08 в default.ide, 109..116).
-// В оригинале миссия Riot делает LOAD_SPECIAL_CHARACTER 4 'SPANDXA' и 5 'SPANDXB',
-// затем CREATE_CHAR 4 112 / 4 113 — см. мд документы /12_ВЫЛЕТ_МИССИИ_RIOT_СТРОЙКА.md
+// (27.10, директива юзера) Спец-акторы с ИЗВЕСТНОЙ моделью: имя → слот
+// LOAD_SPECIAL_CHARACTER (1..8 → модель 108+slot, т.е. 109..116). Эти
+// создаются ПРЯМО на спец-модели (RequestSpecialChar + CREATE_CHAR), БЕЗ
+// UNDRESS/DRESS. Оригинал Riot: LOAD_SPECIAL_CHARACTER 4 'SPANDXA' → 112,
+// 5 'SPANDXB' → 113, CREATE_CHAR 4 112/113. Акторы, которых НЕТ в этом
+// списке, фолбэкиваются на обычную модель пола (HMYBE/WFYST).
 map<string, int> special_actor_slots = { {"SPANDXA", 4}, {"SPANDXB", 5} };
-// (25.10, директива юзера) Наши брони спец-слотов 1..8 (слот -> имя актёра):
-// спец-акторам без фиксированного слота даём СВОБОДНЫЙ слот — скин грузится
-// туда (CREATE_CHAR(тип-пол, 108+слот)). Чистится в cleanstl при перезагрузке.
-map<int, string> special_slot_busy;
 
 map<int, int> type_and_model = { {0, 0}, {1, 259}, {2, 260}, {3, 261}, {4, 262}, {5, 263}, {6, 264}, {7, 265},
 {8, 266}, {9, 267}, {10, 268}, {11, 269}, {12, 270}, {13, 291}, {14, 271}, {15, 272}, {16, 273}, {17, 274},
@@ -1845,10 +1842,15 @@ static void hold_model(lua_State* L, int model) {
 	ma_stream_hold((void*)L, model);
 	ma_stream_release(model);
 }
+
+// (27.10) Держание СПЕЦ-МОДЕЛИ (108+slot, 109..116) тем же механизмом: «массив»
+// держаний — owners-карта менеджера стриминга (владелец lua_State* → модель).
+// destroy(L) → ma_stream_let_go_all(L) и cleanstl() → ma_stream_let_go_everything()
+// найдут спец-модель по владельцу и снимут держание — ровно как у обычных педов.
 static void hold_model_special(lua_State* L, int slot, const char* name) {
-	if (slot <= 0) return;
-	ma_stream_hold_special((void*)L, slot, name);
-	ma_stream_release(108 + slot);
+	if (slot <= 0 || slot > 8) return;
+	ma_stream_hold_special((void*)L, slot, name);// holds++ + owners[L][108+slot]++
+	ma_stream_release(108 + slot);// закрыть эфемерный want (парная сторона ma_stream_want_special)
 }
 
 // ==== Обёртка регистрации Lua-API (18.10.2026) ====
@@ -2942,12 +2944,20 @@ int remove_ped(lua_State* L) {// удалить педа.
  	try {
  		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
 
- 			const void* p = lua_topointer(L, 1);
- 			CPed* ped = findpedinpool(p);// получить указатель на педа.
- 			if (ped == NULL) { return 0; }
- 			warp_ped_out_of_car(ped);// пед сидит в авто? высадить перед удалением.
- 			ped->ClearInvestigateEvent();// пед уходит, опустить педа.
- 			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
+  			const void* p = lua_topointer(L, 1);
+  			CPed* ped = findpedinpool(p);// получить указатель на педа.
+  			if (ped == NULL) { return 0; }
+  			int pedModel = ped->m_nModelIndex;// (27.10) запомнить ДО команд — пед ещё валиден.
+  			warp_ped_out_of_car(ped);// пед сидит в авто? высадить перед удалением.
+  			ped->ClearInvestigateEvent();// пед уходит, опустить педа.
+  			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
+  			// (27.10) Проверка: вдруг пед — спец-актор (модель 109..116)? Тогда
+  			// снимаем ЕГО держание спец-модели из «массива» (owners): ушёл
+  			// последний пед этой модели → hold=0 → модель отпустится и выгрузится.
+  			// Обычные педы (модель < 109) не трогаем — их держание живёт до destroy/cleanstl.
+  			if (pedModel >= 109 && pedModel <= 116) {
+  				ma_stream_let_go((void*)L, pedModel);
+  			}
  			{ std::lock_guard<std::mutex> lk(mtx);// find+erase атомарно: иначе другой поток успеет вставить/стереть между find и erase
  				auto it = mappeds.find(ped);
  				if (it != mappeds.end() && L == it->second) {
@@ -3296,7 +3306,6 @@ int cleanstl() {//удаления объектов из всех stl.
 	// (26.10) Полная перезагрузка скриптов: снимаем ВСЕ держания моделей —
 	// дальше модели живут обычным циклом стриминга (иначе «навсегда» = утечка VRAM).
 	ma_stream_let_go_everything();
-	special_slot_busy.clear();// (25.10) брони спец-слотов снимаются — перезагрузка возвращает слоты 1..8.
 	{ std::lock_guard<std::mutex> lk(mtx_markeron);// clear под блокировкой
 		markeron.clear();// маркеры
 	}
@@ -3608,134 +3617,16 @@ int createped(lua_State* L) {// создать педа.
 
 
 // ============================================================================
-// СПЕЦ-АКТОРЫ (SPANDXA/SPANDXB, IGMERC, IGPHIL ...): правильный путь загрузки.
+// СПЕЦ-АКТОРЫ (SPANDXA/SPANDXB, IGMERC, IGPHIL ...).
 //
-// ПОЧЕМУ НЕЛЬЗЯ КАК РАНЬШЕ (CREATE_CHAR базовой модели + UNDRESS/DRESS):
-//  1) CPed::Undress → CStreaming::RequestSpecialModel(базовая_модель, name):
-//     если у базовой модели есть ссылки, он УДАЛЯЕТ ВСЕХ педов с этой моделью
-//     (reVC Streaming.cpp: `if(mi->GetNumRefs() > 0) ... RemoveThisPed(ped)`,
-//     а RemoveThisPed (Script5.cpp) — это immediate `delete pPed`). То есть
-//     UNDRESS только что созданного педа удаляет ЕГО ЖЕ и всех горожан этой
-//     модели во всём мире.
-//  2) Следующий DRESS_CHAR идёт по ссылке на уже удалённый слот пула →
-//     CPed::Dress() на освобождённой памяти → AV 0x00640D0B (NULL+offset).
-//  3) Миссия Riot создавала 21 пикетчика, чередуя SPANDXA/SPANDXB в ОДНОМ
-//     слоте (база WFYST, 49): каждая смена имени → RemoveModel(49) →
-//     DeleteRwObject у модели, которую держат ЖИВЫЕ педы → NULL-clump.
-//
-// ПРАВИЛЬНО (как оригинальный SCM): LOAD_SPECIAL_CHARACTER (0x23C) грузит
-// spandxa.dff/spandxb.dff в СВОЙ слот special01..08 (109..116) — эти модели
-// горожанами не используются, переименование никого не задевает; дальше
-// CREATE_CHAR создаёт педа СРАЗУ с моделью specialNN, без UNDRESS/DRESS.
-// Жизненный цикл: LOAD_SPECIAL_CHARACTER (SCRIPTOWNED) → CREATE_CHAR (refcount
-// модели) → MARK_NO_LONGER_NEEDED (снимаем бронь скрипта) → движок сам выгрузит
-// модель, когда умрёт последний пед.
+// (27.10, директива юзера) Спец-слоты LOAD_SPECIAL_CHARACTER (109..116) НЕ
+// используются. Логика полностью находится в Createped: имя → пол →
+// обычная модель пола (HMYBE/WFYST) → загрузка + HasModelLoaded → CREATE_CHAR →
+// release_model (MARK) → пауза 3 мс. Отдельных хелперов спец-акторов нет.
 // ============================================================================
-// 18.10.2026: wait_special_actor_loaded (0x23D через очередь) УДАЛЁН — ожидание
-// слота ведёт менеджер стриминга (ma_stream_want_special + ma_stream_wait):
-// REQUEST шлёт кадровый обработчик, статус читается напрямую у движка, без
-// кругов очереди и 1мс-опроса HAS_SPECIAL_CHARACTER_LOADED.
 
-static CPed* create_special_actor(lua_State* L, const char* name, int type, int slot, CVector pos) {
-	int model = 108 + slot;// MI_SPECIAL01(109) + (slot-1).
-	// Быстрый путь: интерес к спец-слоту + событийное ожидание (RequestSpecialChar
-	// slot-1 шлёт ma_stream_frame на игровом потоке, DEPENDENCY|SCRIPTOWNED).
-	ma_diag::model_event(model, "wait_start", 0);
-	ma_stream_want_special(slot, name);
-	if (!ma_stream_wait(model, 10000)) {
-		ma_stream_release(model);// баланс неудачного want (движок не трогаем — как раньше)
-		ma_diag::model_event(model, "timeout", 0);
-		return NULL;
-	}
-	ma_diag::model_event(model, "wait_done", 0);
-	// ГОТОВНОСТЬ перед CREATE_CHAR: у модели обязан быть живой RwObject (клумп/атомик).
-	// Вылет 18.10 08:45 (AV 0x0064996A — RpSkinGeometryGetSkin, поток 452): после серии
-	// рестартов в одном сеансе стриминг был уже сломан (модель 282 не грузилась за 3 с),
-	// и CREATE_CHAR клонировал клумп спец-модели в негодном состоянии. Пустой/битый
-	// клумп — педа НЕ создаём: в trace останется диагностика вместо падения.
-	// (Гонку «выгрузка между проверкой и CREATE_CHAR» это не закрывает — полностью
-	// её снимет только исполнение Command<> на игровом потоке.)
-	{
-		CBaseModelInfo* mi = (model >= 0 && model < CModelInfo::ms_modelInfoCount)
-			? CModelInfo::ms_modelInfoPtrs[model] : NULL;
-		RwObject* rw = (mi != NULL) ? mi->GetRwObject() : NULL;
-		if (mi == NULL || rw == NULL) {
-			return NULL;
-		}
-	}
-	CPed* ped = NULL;
-	Command<COMMAND_CREATE_CHAR>(type, model, pos.x, pos.y, pos.z, &ped);
-	// (26.10, директива юзера) Успех — ДЕРЖИМ спец-слот за скриптом (без MARK);
-	// пед живёт на модели, модель не выгружается до destroy/releasemodel.
-	if (ped != NULL) hold_model_special(L, model - 108, name);
-	else ma_stream_release(model);// CREATE_CHAR не создал педа — закрыть want, иначе стриминг требует модель вечно
-	return ped;
-};
-
-// Обычный пед базовой модели — безопасная замена UNDRESS/DRESS для спец-имён,
-// чей слот неизвестен (см. special_actor_slots).
-static CPed* create_plain_ped(lua_State* L, const char* base_ped, CVector pos) {
-	int base_model = find_in_map(name_peds_list, base_ped);
-	int base_type = find_in_map(type_peds_list, base_ped);
-	if (base_model == 0) return NULL;
-	if (!load_model_before_avalible(base_model)) return NULL;// модель не встала — педа не создаём
-	CPed* ped = NULL;
-	Command<COMMAND_CREATE_CHAR>(base_type, base_model, pos.x, pos.y, pos.z, &ped);
-	if (ped != NULL) hold_model(L, base_model);// (26.10) модель ДЕРЖИТСЯ скриптом (без MARK)
-	return ped;
-};
-
-// Создать спец-актора по ИМЕНИ: если для имени известен слот specialNN — грузим
-// туда (правильный путь), иначе — обычный пед базовой модели по полу.
-// Возвращает NULL, если имя вообще не спец-актор.
-static CPed* create_actor_by_name(lua_State* L, const char* name, CVector pos) {
-	// (25.10, директива юзера) Спец-актор создаётся так: СНАЧАЛА определяем ПОЛ
-	// (type_specpeds_list: 4 — мужчина, 5 — женщина), пед создаётся СООТВЕТСТВУЮЩЕГО
-	// типа, и ему даётся СКИН спец-актора — спец-модель в слот 109..116
-	// (CREATE_CHAR(тип-пол, 108+слот) — так создаёт спец-акторов сама игра;
-	// переодевание ОБЩИХ моделей через UNDRESS удаляет горожан той модели —
-	// поэтому только спец-слоты). Фиксированный слот известен лишь для части имён
-	// (special_actor_slots), остальным берём СВОБОДНЫЙ слот из наших броней.
-	int spectype = find_in_map(type_specpeds_list, name);// 4 мужской, 5 женский.
-	if (spectype == 0) return NULL;
-	int slot = find_in_map(special_actor_slots, name);
-	if (slot <= 0) {// фиксированного слота нет — ищем свободный (или уже занятый ЭТИМ именем — переиспользуем).
-		for (int s = 1; s <= 8; s++) {
-			auto it = special_slot_busy.find(s);
-			if (it == special_slot_busy.end() || it->second == name) { slot = s; break; }
-		}
-	}
-	if (slot > 0) {
-		special_slot_busy[slot] = name;// бронь слота за этим актёром (снимается в cleanstl при перезагрузке).
-		CPed* p = create_special_actor(L, name, spectype, slot, pos);// тип педа = ПОЛ актёра (муж./жен.).
-		if (p != NULL) return p;
-		special_slot_busy.erase(slot);// не получилось (таймаут/битый клумп) — слот свободен.
-	}
-	const char* base_ped = (spectype == PED_TYPE_CIVFEMALE) ? "WFYST" : "HMYBE";// все 8 слотов заняты — обычный пед по полу.
-	return create_plain_ped(L, base_ped, pos);
-};
-
-int create_spec_ped(lua_State* L) {// создать спец педа.
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
-	try {
-		if (LUA_TSTRING == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
-			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {// значение число.
-			char const* model = lua_tostring(L, 1);// модель, например, "sam".
-			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
-			float z = lua_tonumber(L, 4);
-			CVector pos = { x, y, z };
-
-			CPed* ped = create_actor_by_name(L, model, pos);// без model 0 и без UNDRESS/DRESS.
-			if (ped == NULL) { writelog("create_spec_ped: пед не создан (нет модели/слота)"); lua_pushnil(L); return 1; }
-
-			{ std::lock_guard<std::mutex> lk(mtx); mappeds.emplace(ped, L); }// добавить map для педов.
-			lua_pushlightuserdata(L, ped);// отправить в стек.
-			return 1;
-		}
-		else { throw "bad argument in function create_spec_ped"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
+int create_spec_ped(lua_State* L) {// создать спец педа — тот же путь, что Createped.
+	return Createped(L);
 };
 
 int isped(lua_State* L) {// проверка это пед?.

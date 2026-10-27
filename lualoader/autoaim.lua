@@ -1,45 +1,172 @@
 ﻿require("lualoader/mod")
--- (26.10) ОБРАБОТЧИК КЛАВИШ (G/H/S/N) ПОЛНОСТЬЮ ОТКЛЮЧЁН — директива юзера:
--- именно эти ветки (Createcar PCJ600 / Giveweaponped uzi / телепорт / save-меню)
--- дают heap-AV в msvcrt при сцене миссии (Riot). false = ветки НЕ гонятся,
--- игра возвращается в стабильное состояние без вылетов (A/B-прогон).
--- Лёгкая проверка «клавиша СЕЙЧАС нажата?» (C++ keypress(name), без блокировки)
--- не тронута — она только читает состояние, без действий. Включить ветки:
--- поставить KEY_ACTIONS_ON = true.
-local KEY_ACTIONS_ON = false
+
+local function spawn_trucks()
+
+ local m1, m2, m3
+ if t1 ~= nil then m1 = create_marker(t1) end  -- маркер над грузовиком (mod.lua:709 → create_marker_car → ADD_BLIP_FOR_CAR)
+ if t2 ~= nil then m2 = create_marker(t2) end
+ if t3 ~= nil then m3 = create_marker(t3) end
+ ma_trace("riot: 3 грузовика SPAND созданы, маркеры навешены (главный поток)")
+ local step = 1          -- этап миссии: 1 = переодевание/подъезд к стройке, 3 = бой, nil = конец
+ local bitten = 0        -- сколько пикетчиков игрок уже «укусил» ($2212)
+ local killed = 0        -- сколько пикетчиков умерло ($2198)
+ local escalated = 0     -- толпа взбешена ($2205)
+ local riot_intensity = 127  -- уровень беспорядков (0552), убывает по убийствам пикетчиков
+ local gates_open = 0    -- ворота стройки открыты ($2206); 25.10: счётчик кадров убран — ворота ставятся мгновенно (setobjcoordes)
+ local law4_13_shown = 0  -- LAW4_13 печатается один раз при подъезде близко
+ local frame = 0          -- счётчик кадров боя (step==3): для низкочастотной диагностики — боевой цикл не оставляет трейсов, иначе краш/ошибку не локализовать
+ local agit1_drop = 0    -- колт уже выпал из трупа агитатора 1
+ local agit2_drop = 0    -- колт уже выпал из трупа агитатора 2
+
+ local rioters = {}      -- 21 пикетчик (SPANDXA/SPANDXB)
+ local bite_flag = {}    -- bite_flag[i] — «укушен» ли пикетчик i
+ local dead_flag = {}    -- dead_flag[i] — умер ли пикетчик i
+ local hp_prev = {}      -- hp_prev[i] — HP пикетчика i в прошлом кадре (float): любой урон = падение HP
+  local truck1, truck2, truck3  -- 3 грузовика рабочих (MODEL_SPAND=213) — главная цель миссии
+ local mt1, mt2, mt3  -- маркеры грузовиков; снимаются главным циклом В КАДР уничтожения (потоки-наблюдатели убраны — см. spawn_trucks)
+ local obj1, obj2        -- 2 объекта -114 (приоритетные цели, 035D)
+ local agit1, agit2, leader  -- 3 зачинщика GDA: 2 с nitestick + бригадир с colt45
+ local gate
+ for i, p in ipairs({
+  {304.7,-316.8},{302.8,-318.8},{301.6,-316.7},{299.8,-318.2},
+  {300.9,-321.6},{299.0,-322.1},{295.0,-320.7},{293.5,-317.8},
+  {296.2,-325.3},{299.3,-329.3},{303.8,-329.7},{308.5,-328.4},
+  {310.2,-324.2},{305.6,-322.2},{300.0,-317.5},{294.9,-317.6},
+  {291.0,-320.0},{293.0,-324.8},{291.6,-317.2},{301.1,-324.0},
+  {297.6,-327.649}
+ }) do  -- 21 ПИКЕТЧИК (CREATE_CHAR 4 112/113), каждому — как оригинал L46c6c
+  local skin = (i % 2 == 1) and "SPANDXA" or "SPANDXB"  -- оригинал: чередование 112/113
+  local r = Createped(skin, p[1], p[2], 10.9)  -- пед на координате пикетчика
+  if r ~= nil then
+   ped_clean_threat(r)  -- 01ED CLEAR_CHAR_THREAT_SEARCH
+   set_ped_personality(r, 16)  -- (оригинал 0243 SET_CHAR_PERSONALITY 16: обычный горожанин)
+   set_ped_only_damaged_by_player(r, true)  -- (оригинал 02A9 SET_CHAR_ONLY_DAMAGED_BY_PLAYER: ранить может только игрок)
+   set_ped_wait_state(r, 29, 99999999)  -- (оригинал 0372 SET_CHAR_WAIT_STATE 29: стоит, пока игрок не ранит)
+   table.insert(rioters, r)
+   bite_flag[#rioters] = 0
+   dead_flag[#rioters] = 0
+   hp_prev[#rioters] = getpedhealthf(r)
+  end
+ end
+end
+ -- return t1, t2, t3, m1, m2, m3
+-- end
+
+-- start_riot(pl, rioters, agit1, agit2, leader, guard_target): ЭСКАЛАЦИЯ мятежа —
+-- вызывается ОДИН раз при первом уроне/убийстве рабочего. Одежду определяет
+-- dressed_as_worker() (по скину, не по флагу). guard_target — таблица
+-- «охранник → цель-мятежник», мутируется тут и читается главным циклом для
+-- перебинда, если цель умрёт; escalated = 1 выставляет ВЫЗЫВАЮЩИЙ.
+-- Ветвление: БЕЗ одежды — толпа И охранники валят ИГРОКА (01CA); В ОЖЕДЕ рабочего —
+-- рабочие дерутся друг с другом (0216 по «соседу»), а охранники GDA бегут и бьют
+-- мятежников: 0350-флаг бригадира («держать позицию») снимается, personality 30 +
+-- threat 16 (прохожие) и ЯВНАЯ цель 0216 — без явной цели ped_search_threat не
+-- атакует (урок 6-й ревизии).
+local function start_riot(pl, rioters, agit1, agit2, leader, guard_target)
+ local guards = {}  -- список охранников БЕЗ дыр (ipairs остановился бы на nil-дыре и пропустил бы бригадира)
+ if agit1  ~= nil then guards[#guards + 1] = agit1  end
+ if agit2  ~= nil then guards[#guards + 1] = agit2  end
+ if leader ~= nil then guards[#guards + 1] = leader end
+
+ if not dressed_as_worker() then  -- (БЕЗ одежды: рабочие поняли, что игрок — чужак → ВСЯ толпа валит НА ИГРОКА)
+  for _, r in ipairs(rioters) do
+   if isped(r) then
+    clean_ped_wait(r)                        -- 053D: снять wait-state 29 (иначе педы стоят и не дерются)
+    set_ped_personality(r, 30)               -- 0243
+    ped_search_threat(r, 16)                 -- 011A (прохожие)
+    ped_search_threat(r, 1)                  -- 011A (игрок — главная цель)
+    set_char_obj_kill_player_on_foot(r, pl)  -- 01CA: ЯВНАЯ цель — игрок
+   end
+  end
+  for _, g in ipairs(guards) do  -- охранники БЕЗ одежды открывают огонь ПО ИГРОКУ, мятежников не трогают
+   if isped(g) then
+    set_ped_personality(g, 30)
+    ped_search_threat(g, 1)
+    if g == leader then set_ped_accuracy(leader, 10) end  -- стрелок с colt45
+    set_char_obj_kill_player_on_foot(g, pl)  -- 01CA: ЯВНАЯ цель — игрок
+   end
+  end
+  --printmessage("~r~They've seen you! Get out!", 4000, 1)
+ else  -- (В одежде рабочего: рабочие дерутся ДРУГ С ДРУГОМ; охранники добивают мятежников)
+  local n = #rioters
+  for i, r in ipairs(rioters) do
+   if isped(r) then
+    clean_ped_wait(r)                         -- 053D
+    set_ped_only_damaged_by_player(r, false)  -- 02A9: снять «только игрок ранит» — иначе урон между рабочими не проходит
+    set_ped_personality(r, 30)                -- 0243
+    ped_search_threat(r, 16)                  -- 011A (прохожие — бьют друг друга)
+    local t = rioters[(i % n) + 1]            -- цель-«сосед»: каждый рабочий СРАЗУ целится в соседа
+    if t ~= nil and isped(t) and t ~= r then
+     set_char_obj_kill_char_on_foot(r, t)     -- 0216: гарантирует реальное нападение на другого рабочего
+    end
+   end
+  end
+  for _, g in ipairs(guards) do  -- охранники В ОДЕЖДЕ бегут к мятежниками и бьют их (агитаторы — с nitestick, бригадир — с colt45)
+   if isped(g) then
+    set_ped_stay_when_attacked(g, false)      -- 0350: СНЯТЬ «держать позицию» (бригадир сто́ял с 0350=true — не бежал на цель)
+    set_ped_personality(g, 30)                -- 0243
+    ped_search_threat(g, 16)                  -- 011A (прохожие = мятежники в рабочей одежде)
+    if g == leader then set_ped_accuracy(leader, 10) end
+    local gt = nil                            -- первый живой мятежник — цель для охранника
+    for _, r in ipairs(rioters) do if isped(r) and not ispeddead(r) then gt = r break end end
+    if gt ~= nil then
+     set_char_obj_kill_char_on_foot(g, gt)    -- 0216: ЯВНАЯ цель — мятежник (без неё threat_search не атакует)
+     guard_target[g] = gt                     -- запомнить для перебинда в главном цикле, если цель умрёт
+    end
+   end
+  end
+  --printmessage("~r~The workers have turned on each other! Get the trucks!", 4000, 1)
+ end
+ ma_trace("riot: вся толпа взбешена ($2205=1), dressed=" .. tostring(dressed_as_worker()))
+end
+
+-- drop_agitator_colt(agit, dropped): зачинщик GDA умер → выпадает его колт из
+-- трупа (оригинал 04A5 GET_DEAD_CHAR_PICKUP_COORDS + 032B CREATE_PICKUP_WITH_AMMO
+-- 274 3 17). dropped = «колт уже выпал» (1 = да). Возвращает обновлённый флаг:
+-- 1, если колт выпал сейчас (или уже был), иначе старое значение.
+local function drop_agitator_colt(agit, dropped)
+ if dropped == 0 and agit ~= nil and isped(agit) and ispeddead(agit) then
+  local dx, dy, dz = get_dead_char_pickup_coords(agit)
+  if dx ~= nil then
+   create_weapon_pickup(274, 3, 17, dx, dy, dz + 0.5)
+   return 1
+  end
+ end
+ return dropped
+end
 function main()
 while true do wait(10)-- задержка.
   player = findplayer()-- получить игрока.
-
-  printmessage("~g~You look like a worker. ~y~Now hit the construction site!", 5000, 1)
-  if Keypress("VK_G") -- если клавиша H.
-  then   Giveweaponped(player,600,"uzi")-- дать педу оружие.
+ if Keypress("VK_G") -- если клавиша H.
+  then   --Giveweaponped(player,600,"uzi")-- дать педу оружие.
 setpedcoordes(player,118.0, -825.9, 10.5)
-  set_skin(player, "PLAYER3") -- Переодевание
-  x,y,z = getcoordinates_on_y(player, 5)
-   car = Createcar("MODEL_PCJ600",x,y,z)
-
+  --set_skin(player, "PLAYER3") -- Переодевание
+  -- spawn_trucks()
  end
-  --mod_autoaim("m4", "on")  printmessage("~r~on autoaim", 3400,1 )
-  --
+ --mod_autoaim("m4", "on")  printmessage("~r~on autoaim", 3400,1 )
+ --
 
  if Keypress("VK_H") -- если клавиша H.
   then  --mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
+  -- setpedcoordes(player,286.7, -303.1, 11.9)
   setpedcoordes(player,95.4, -1135.5, 9.4)
-  --  Giveweaponped(player,600,"m4")-- дать педу оружие.
-  end
+ end
  if Keypress("VK_S") -- если клавиша H.
- then  show_save_menu()
-   end
+then  show_save_menu()
+  end
+  if Keypress("VK_Z") -- если клавиша H.
+    then    x,y,z = getcoordinates_on_y(player, 5)
+     car = Createcar("MODEL_PCJ600",x,y,z)
+     Giveweaponped(player,600,"m4")-- дать педу оружие.
+    end
+  if Keypress("VK_N") -- если клавиша H.
+    then    x,y,z = getcoordinates_on_y(player, 5)
+    -- car = Createcar("MODEL_PCJ600",x,y,z)
+      setpedcoordes(player,286.7, -303.1, 11.9)
+    end
+  end
 
-   if Keypress("VK_N") -- если клавиша H.
-     then    x,y,z = getcoordinates_on_y(player, 5)
-      -- car = Createcar("MODEL_PCJ600",x,y,z)
-      end
-   end  -- конец if KEY_ACTIONS_ON (обработчик клавиш отключён: false)
 end
-
-
 
 	-- if Keypress("VK_J") -- если клавиша H.
   --    then Giveweaponped(player,600,"M40")-- дать педу оружие.

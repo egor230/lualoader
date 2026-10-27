@@ -69,9 +69,9 @@ end
 -- а не провал). Снятие маркеров — в главном цикле, каждый кадр (даже быстрее
 -- потоков с wait(100)); подробно — ПОТОКИ_CREATE_NEWTHREAD.md.
 local function spawn_trucks()
- local t1 = Createcar("MODEL_SPAND", 286.7, -302.1, 11.9) if t1 ~= nil then setangle(t1, 270) end  -- 3 грузовика рабочих (MODEL_SPAND=213), углы как в оригинале
- local t2 = Createcar("MODEL_SPAND", 312.2, -304.7, 11.9) if t2 ~= nil then setangle(t2, 90) end
- local t3 = Createcar("MODEL_SPAND", 312.2, -300.7, 11.9) if t3 ~= nil then setangle(t3, 90) end
+  local t1 = Createcar("MODEL_SPAND", 286.7, -302.1, 11.9) if t1 ~= nil then setangle(t1, 270) end  -- 3 грузовика рабочих (MODEL_SPAND=213), углы как в оригинале
+  local t2 = Createcar("MODEL_SPAND", 312.2, -304.7, 11.9) if t2 ~= nil then setangle(t2, 90) end
+  local t3 = Createcar("MODEL_SPAND", 312.2, -300.7, 11.9) if t3 ~= nil then setangle(t3, 90) end
  local m1, m2, m3
  if t1 ~= nil then m1 = create_marker(t1) end  -- маркер над грузовиком (mod.lua:709 → create_marker_car → ADD_BLIP_FOR_CAR)
  if t2 ~= nil then m2 = create_marker(t2) end
@@ -189,7 +189,7 @@ ped_frozen(1)  -- 01B4 SET_PLAYER_CONTROL 1 — разморозить игро�
 set_widescreen(false)  -- 02A3 SWITCH_WIDESCREEN 0 — широкий экран выкл
 if dress_blip ~= nil then remove_blip(dress_blip) dress_blip = nil end
 if dress_sphere ~= nil then remove_sphere(dress_sphere) dress_sphere = nil end
---printmessage("~g~You look like a worker. ~y~Now hit the construction site!", 5000, 1)
+printmessage("~g~You look like a worker. ~y~Now hit the construction site!", 5000, 1)
 ma_trace("riot: Томми переоделся в рабочего у Рафаэля ($2213=1)")
   return dress_blip, dress_sphere
  end
@@ -272,7 +272,7 @@ while true do wait(10)  local player = findplayer()  -- указатель иг�
   fade(1, 1200)  -- проявление экрана после Star_mission_marker
   wait(1200)
 
-  local step = 1          -- этап миссии: 1 = переодевание/подъезд к стройке, 3 = бой, nil = конец
+  local step = 1          -- этап миссии: 1 = подъезд (без сцены), 2 = сцена создана (у места), 3 = бой, nil = конец
   local bitten = 0        -- сколько пикетчиков игрок уже «укусил» ($2212)
   local killed = 0        -- сколько пикетчиков умерло ($2198)
   local escalated = 0     -- толпа взбешена ($2205)
@@ -294,11 +294,11 @@ while true do wait(10)  local player = findplayer()  -- указатель иг�
   local gate              -- ворота стройки (глобальный объект -33) — открываются при эскалации
   set_wanted(0)  -- очистить розыск перед началом миссии
   showtext(" Riot", 500, 1)  -- заголовок миссии на экране
-  ma_trace("riot: СТАРТ у офиса Кена (118.0, -825.9, 10.5)")
+  -- ma_trace("riot: СТАРТ у офиса Кена (118.0, -825.9, 10.5)")
 
-  --printmessage("~w~Ken: Tommy! The workers at Avery's site have gone on the rampage!", 5000, 1)  -- катсцена LAW_4 → короткий текст (LOAD_CUTSCENE в API нет)
+  printmessage("~w~Ken: Tommy! The workers at Avery's site have gone on the rampage!", 5000, 1)  -- катсцена LAW_4 → короткий текст (LOAD_CUTSCENE в API нет)
   wait(2000)
-  --printmessage("~w~Ken: Get some work clothes from Rafael's so they don't recognize you!", 6000, 1)
+  printmessage("~w~Ken: Get some work clothes from Rafael's so they don't recognize you!", 6000, 1)
   wait(2000)
 
   set_ped_mood(1, 60000)  -- 04E3 SET_PLAYER_MOOD 1 60000 — настроение игрока на 60 сек
@@ -310,43 +310,45 @@ while true do wait(10)  local player = findplayer()  -- указатель иг�
    local site_blip = radar_add_blip_for_coord(299.0, -314.6, 11.4)  -- (оригинал 018A ADD_BLIP_FOR_COORD 299 -314.6 11.4: квадрат на карте, 018A даёт цвет 5)
    radar_change_blip_colour(site_blip, 4)  -- (оригинал 016B CHANGE_BLIP_COLOUR 4: жёлтый квадрат бунта — от предыдущего штатного цвета 5 (пурпур))
 
-  --printmessage("~g~Get the work outfit at Rafael's, then hit the construction site.", 6000, 1)
+  printmessage("~g~Get the work outfit at Rafael's, then hit the construction site.", 6000, 1)
    ma_trace("riot: блайпы Рафаэля (спрайт 28) и стройки созданы, сферы не дикие")
 
    local guard_target = {}  -- guard_target[g] = текущая цель-мятежник охранника g (для перебинда, если цель умрёт; ключи — lightuserdata, валидны в Lua)
-   truck1, truck2, truck3, mt1, mt2, mt3, obj1, obj2, gate, agit1, agit2, leader = spawn_riot_scene(player, rioters, bite_flag, dead_flag, hp_prev, riot_intensity)  -- создать всю сцену бунта (оружие, грузовики, объекты, ворота, 21 пикетчик, 3 GDA) — сущности возвращаются функцией, таблицы мутируются по ссылке
+   -- (27.10) Сцена НЕ создаётся на старте: игрок в офисе Кена (118,-825.9), стройка (299,-314.6)
+   -- не загружена → рабочие/машины «проваливались под землю и появлялись на дорогах».
+   -- Сцена создаётся в ЭТАПЕ 2 (блок step==1 ниже) — когда игрок у места и оно загружено.
 
    while true == Getflagmission() do --wait(10)
     local pp = findplayer()  -- указатель игрока на этой итерации цикла миссии
    if pp == nil then pp = player end  -- запасной: свежий не получен — берём внешний
 
-    if (step == 1 or step == 3) and not dressed_as_worker() and not is_ped_in_car(pp)  -- шаг 3 тоже: игрок мог прийти на стройку БЕЗ одежды — переодевание остаётся доступным всю миссию, пока не оденется (фикс софтлока «пикап одежды пропадает»); одежду проверяет dressed_as_worker() по скину
+    if (step == 1 or step == 2 or step == 3) and not dressed_as_worker() and not is_ped_in_car(pp)  -- шаг 3 тоже: игрок мог прийти на стройку БЕЗ одежды — переодевание остаётся доступным всю миссию, пока не оденется (фикс софтлока «пикап одежды пропадает»); одежду проверяет dressed_as_worker() по скину
     and ped_in_point_in_radius(pp, 95.4, -1135.5, 9.4, 1.2, 1.2, 3.0) then  -- (оригинал 00F6 LOCATE_PLAYER_ON_FOOT_3D 95.4 -1135.5 9.4 1.2 1.2 3: игрок пешком у двери Рафаэля)
     dress_blip, dress_sphere = dress_cutscene(pp, dress_blip, dress_sphere)
    end
 
-   if step == 1 and ped_in_point_in_radius(pp, 299.0, -314.6, 11.4, 70.0, 70.0, 30.0) then  -- (оригинал L46bee: LOCATE_PLAYER_ANY_MEANS_3D 299 -314.6 11.4 70 70 30: подъезд к стройплощадке)
-     if site_blip ~= nil then remove_blip(site_blip) site_blip = nil end
-     if dressed_as_worker() then  -- игрок УЖЕ в одежде рабочего (проверка по скину, не по флагу) → блайп и сферу у Рафаэля убираем (больше не нужны); БЕЗ одежды — ОСТАВЛЯЕМ: игрок пришёл на стройку первым, и переодевание всё ещё должно быть доступно (софтлок: иначе метка одежды пропадала навсегда)
+   if step == 1 and ped_in_point_in_radius(pp, 299.0, -314.6, 11.4, 70.0, 70.0, 10.0) then  -- (оригинал L46bee: подъезд к стройке) → ЭТАП 2
+     -- ЭТАП 2: игрок у места (место загружено) — создаём сцену ЗДЕСЬ, метка на карте пропадает
+     truck1, truck2, truck3, mt1, mt2, mt3, obj1, obj2, gate, agit1, agit2, leader = spawn_riot_scene(player, rioters, bite_flag, dead_flag, hp_prev, riot_intensity)
+     if site_blip ~= nil then remove_blip(site_blip) site_blip = nil end  -- метка на карте пропала
+     if dressed_as_worker() then  -- игрок в одежде → блайп/сферу у Рафаэля убираем; БЕЗ одежды — оставляем (переодевание доступно)
       if dress_blip ~= nil then remove_blip(dress_blip) dress_blip = nil end
       if dress_sphere ~= nil then remove_sphere(dress_sphere) dress_sphere = nil end
      end
-
-
-    --printmessage("~g~Destroy the workers' trucks to break the strike!", 6000, 1)
-    --printmessage("~r~Workers: This is our site! Get out!", 5000, 1)
-    --printmessage("~r~Workers: Burn everything! Strike forever!", 5000, 1)
-    ma_trace("riot: сцена создана (3 SPAND, 2 obj -114, 21 пикетчик, 3 GDA); бунт")
-    step = 3
+     printmessage("~g~Destroy the workers' trucks to break the strike!", 6000, 1)
+     printmessage("~r~Workers: This is our site! Get out!", 5000, 1)
+     printmessage("~r~Workers: Burn everything! Strike forever!", 5000, 1)
+     ma_trace("riot: ЭТАП 2 — сцена создана на подъезде (3 SPAND, 2 obj -114, 21 пикетчик, 3 GDA)")
+     step = 2
    end
 
-   if step == 3 and law4_13_shown == 0
-    and ped_in_point_in_radius(pp, 299.0, -314.6, 11.4, 20.0, 20.0, 10.0) then  -- (оригинал @L4849f: LOCATE_PLAYER_ANY_MEANS_3D 299 -314.6 11.4 20 20 10: LAW4_13, игрок близко к стройке)
+   if step == 2 and law4_13_shown == 0
+    and ped_in_point_in_radius(pp, 299.0, -314.6, 11.4, 20.0, 20.0, 10.0) then  -- (оригинал @L4849f: LAW4_13, игрок близко к стройке) — ЭТАП 2
     law4_13_shown = 1
-    --printmessage("~r~Destroy the trucks! Now!", 8000, 1)
+    printmessage("~r~Destroy the trucks! Now!", 8000, 1)
    end
 
- if step == 3 then  -- (оригинал @L4725d: главный цикл боя — любой урон пикетчику от игрока ЛЮБЫМ оружием → вся толпа сразу дерётся; 5-я ревизия: HP-детектор по кадрам, 6-я: явные цели kill_char_on_foot)
+ if step == 2 or step == 3 then  -- детектор урона: ЭТАП 2 (сцена жива, ждём начало драки) / ЭТАП 3 (убито → intensity -6)
      for i, r in ipairs(rioters) do
      if isped(r) then
       if not ispeddead(r) then
@@ -368,18 +370,21 @@ while true do wait(10)  local player = findplayer()  -- указатель иг�
      end
     end
 
-      if escalated == 0 and (bitten > 0 or killed > 0) then  -- (оригинал L47c68 → GOSUB L48970: любой урон/убийство рабочего → ВСЯ толпа вступает; порог >3/>2 заменён на «сразу»)
+      if escalated == 0 and (bitten > 0 or killed > 0) then  -- (оригинал L47c68 → GOSUB L48970) → драка началась
        start_riot(pp, rioters, agit1, agit2, leader, guard_target)
-       escalated = 1  -- эскалация прошла (start_riot выставляет поведение педов, флаг — здесь: это состояние главного цикла)
+       escalated = 1
+       step = 3  -- → ЭТАП 3 (идёт драка)
       end
+    end  -- конец блока детектора (step 2/3)
+
+     if step == 3 then  -- ЭТАП 3: идёт драка (ворота, перебинд целей, колты, маркеры, победа)
 
       if escalated == 1 and gates_open == 0 then  -- (оригинал L47dfc: ворота открываются ВСЕГДА после эскалации — $1778 → 304 -313.6 11, LAW4_14; одежда определяет КОГО бьют охранники, но не факт открытия ворот — теперь это в start_riot)
        gates_open = 1
        if gate ~= nil then
         setobjcoordes(gate, 304.0, -313.6, 11.0)  -- 25.10: мгновенное открытие — счётчик кадров (SLIDE_OBJECT по 0.1/кадр, 60 кадров) убран: ворота тормозили
-        ma_trace("riot: ворота открыты (298 → 304 -313.6 11, мгновенно)")
        end
-       --printmessage("~r~Lawyers and cops are on their way! Get the trucks!", 8000, 1)
+       printmessage("~r~Lawyers and cops are on their way! Get the trucks!", 8000, 1)
       end
 
      if escalated == 1 and dressed_as_worker() then  -- перебинд целей охранников: если цель-мятежник умерла, охранник сразу получает НОВУЮ живую цель (один стартовый бинд в start_riot быстро протухает — за бой гибнет много мятежников); только в одежде (проверка по скину)
@@ -414,7 +419,7 @@ while true do wait(10)  local player = findplayer()  -- указатель иг�
        and (truck3 == nil or iscardead(truck3)) then  -- (оригинал L4850c: все 3 грузовика уничтожены → ПОБЕДА $1000; маркеры уже сняты кадровым блоком выше — каждый в кадр уничтожения своего грузовика)
       remove_animation("RIOT")  -- (оригинал 04EF REMOVE_ANIMATION 'RIOT' + SET_RIOT_INTENSITY 0, очистка L4864f)
      set_riot_intensity(0)
-     --printmessage("~g~The strike is broken! Avery's site is secure.", 4000, 1)
+     printmessage("~g~The strike is broken! Avery's site is secure.", 4000, 1)
      wait(4000)
      for _, r in ipairs(rioters) do if isped(r) then remove_ped(r) end end
      if agit1 ~= nil and isped(agit1) then remove_ped(agit1) end
@@ -440,7 +445,7 @@ while true do wait(10)  local player = findplayer()  -- указатель иг�
     if mt1 ~= nil then remove_blip(mt1) mt1 = nil end  -- и маркеры грузовиков (если миссия провалена до их уничтожения — иначе висели бы на мёртвых/чужих авто)
     if mt2 ~= nil then remove_blip(mt2) mt2 = nil end
     if mt3 ~= nil then remove_blip(mt3) mt3 = nil end
-   if step == 3 then set_riot_intensity(0) end
+   if #rioters > 0 then set_riot_intensity(0) end  -- (27.10) сцена создаётся с ЭТАПА 2 (не на старте) — сбрасываем интенсивность, если сцена была создана (этап 2 или 3), а не только при step==3
   if gates_open == 1 and gate ~= nil then  -- (оригинал @L485a1 M_FAIL: ворота открывались — закрыть обратно в 298,-313.6,11)
    setobjcoordes(gate, 298.0, -313.6, 11.0)  -- 25.10: мгновенное закрытие (старый одиночный move_obj на 0.15 ед ворота фактически не закрывал)
    ma_trace("riot: ворота закрыты (M_FAIL)")
