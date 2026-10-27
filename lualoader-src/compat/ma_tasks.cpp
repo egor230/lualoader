@@ -7,6 +7,25 @@
 #include "ma_tasks.h"
 #include "diag.h"
 
+// (23.10) ma_game_ms: была только ОБЪЯВЛЕНА (ma_tasks.h) — линковка упала бы
+// "undefined". Игровое время из SDK (funcs.h подключает CTimer.h).
+unsigned long long ma_game_ms() {
+    return (unsigned long long)CTimer::m_snTimeInMilliseconds;
+}
+
+// (23.10) Псевдо-«стоп всех скриптов»: было extern ma_should_stop_all(), но
+// ОПРЕДЕЛЕНИЯ не было нигде. Здесь — function-local static (в этом TU глобальный
+// объект с конструктором запрещён: см. комментарий ниже, из-за него глохла Wine).
+std::atomic<bool>& ma_should_stop_all() {
+    static std::atomic<bool> s{false};
+    return s;
+}
+
+// (23.10) Пул ПОСТОЯННЫХ строк сообщений — определён в funcs.cpp (внешняя связь),
+// объявление здесь. Add*Message* хранит НАШ указатель (дизасм 20.10), getwchat()
+// возвращает временный буфер → посылать сообщение можно только из ma_msgpool.
+namespace ma_msgpool { wchar_t* put(const char* c); }
+
 // ВАЖНО (05.10): здесь НЕТ ни одного глобального объекта с нетривиальным конструктором.
 // Реестр и зеркало — function-local static. Причина: порядок динамической инициализации
 // в PE/COFF следует порядку объектных файлов, и глобал с конструктором в этом TU уезжал
@@ -32,7 +51,7 @@ std::atomic<bool>& ma_star_mirror() {
 // Вызывается только с игрового потока.
 // ============================================================
 void ma_tasks_frame() {
-    if (teardown_active.load() || g_shouldStopAllScripts.load()) {
+    if (teardown_active.load() || ma_should_stop_all().load()) {
         ma_tasks_teardown();
         return;
     }
@@ -53,10 +72,6 @@ void ma_tasks_frame() {
 
         if (done) {
             ma_tasks().remove(t);
-            // 19.10.2026 (план юзера): каждая задача планировщика фиксирует
-            // СВОИ вызовы в единый журнал (cpp_tracef -> lualoader\log.txt) —
-            // по обрыву журнала видно, на какой задаче вылетело.
-            cpp_tracef("tasks: [%s] задача завершена (осталось %zu)", t->name, ma_tasks().size());
             delete t;
         }
         budget++;
@@ -65,11 +80,9 @@ void ma_tasks_frame() {
 
 void ma_tasks_teardown() {
     auto snap = ma_tasks().snapshot();
-    cpp_tracef("tasks: teardown всех задач (%zu шт)", snap.size());
     for (auto* t : snap) {
         ma_tasks().remove(t);
         if (t == g_keyboard) g_keyboard = nullptr;   // не оставляем висячий указатель
-        cpp_tracef("tasks: [-%s] снята при teardown", t ? t->name : "?");
         delete t;
     }
     g_keyboard = nullptr;
@@ -79,32 +92,37 @@ void ma_tasks_teardown() {
 // ma_task_getcord::step — одна итерация маршрута.
 // ============================================================
 bool ma_task_getcord::step() {
-    if (teardown_active.load() || g_shouldStopAllScripts.load()) return true;
+    if (teardown_active.load() || ma_should_stop_all().load()) return true;
 
     if (scripts_paused.load()) {
         wake = ma_game_ms() + 10;
         return false;
     }
 
-    if (q.empty()) return true;
-
     CVehicle* car = findcarinpool(p);
     if (!car) {
-        cpp_tracef("getcord: авто %p исчезло из пула — выход", (void*)p);
         return true;
     }
 
-    float x = q.front(); q.pop();
-    float y = q.front(); q.pop();
-    float z = q.front(); q.pop();
-
-    Command<COMMAND_CAR_GOTO_COORDINATES>(car, x, y, z);
-
-    if (!car->IsSphereTouchingVehicle(x, y, z, 3.0f)) {
-        wake = ma_game_ms() + 16;
-        return false;
+    // (23.10) Точка маршрута ТОЛЬКО задаётся ЦЕЛЬЮ в CAR_GOTO. Точка удерживается
+    // до её касания (bugfix: pop-и-забыли терял недоеденные точки маршрута в wake).
+    if (!has_cur) {
+        if (q.empty()) {
+            return true;
+        }
+        cur_x = q.front(); q.pop();
+        cur_y = q.front(); q.pop();
+        cur_z = q.front(); q.pop();
+        has_cur = true;
     }
 
+    Command<COMMAND_CAR_GOTO_COORDINATES>(car, cur_x, cur_y, cur_z);
+
+    if (!car->IsSphereTouchingVehicle(cur_x, cur_y, cur_z, 3.0f)) {
+        wake = ma_game_ms() + 16; // не доехали — повторный прогон (point НЕ выпадает)
+        return false;
+    }
+    has_cur = false;
     wake = ma_game_ms();
     return false;
 }
@@ -113,10 +131,9 @@ bool ma_task_getcord::step() {
 // ma_task_expectations::step — ждём видимости модели.
 // ============================================================
 bool ma_task_expectations::step() {
-    if (teardown_active.load() || g_shouldStopAllScripts.load()) return true;
+    if (teardown_active.load() || ma_should_stop_all().load()) return true;
 
     if (attempts >= kMaxAttempts) {
-        cpp_tracef("expectations: модель %d не стала видимой за ~60с — оставляем загруженной", model);
         return true;
     }
     attempts++;
@@ -130,7 +147,6 @@ bool ma_task_expectations::step() {
     }
 
     Command<COMMAND_MARK_MODEL_AS_NO_LONGER_NEEDED>(model);
-    cpp_tracef("expectations: модель %d стала видимой — освобождена", model);
     return true;
 }
 
@@ -138,16 +154,15 @@ bool ma_task_expectations::step() {
 // ma_task_turncar::step — вращение авто по оси.
 // ============================================================
 bool ma_task_turncar::step() {
-    if (teardown_active.load() || g_shouldStopAllScripts.load()) return true;
+    if (teardown_active.load() || ma_should_stop_all().load()) return true;
 
     if (scripts_paused.load()) {
         wake = ma_game_ms() + 10;
         return false;
     }
 
-    CVehicle* car = findcarinpool(owner);
+    CVehicle* car = findcarinpool(p);
     if (!car) {
-        cpp_tracef("turncar: авто %p исчезло из пула — выход", (void*)owner);
         return true;
     }
 
@@ -170,7 +185,6 @@ bool ma_task_turncar::step() {
     }
 
     if (done) {
-        cpp_tracef("turncar: авто %p достигло угла %f по оси %d", (void*)car, angle, switc);
         return true;
     }
 
@@ -182,16 +196,15 @@ bool ma_task_turncar::step() {
 // ma_task_turncar_delay::step — вращение с задержкой.
 // ============================================================
 bool ma_task_turncar_delay::step() {
-    if (teardown_active.load() || g_shouldStopAllScripts.load()) return true;
+    if (teardown_active.load() || ma_should_stop_all().load()) return true;
 
     if (scripts_paused.load()) {
         wake = ma_game_ms() + 10;
         return false;
     }
 
-    CVehicle* car = findcarinpool(owner);
+    CVehicle* car = findcarinpool(p);
     if (!car) {
-        cpp_tracef("turncar_with_delay: авто %p исчезло из пула — выход", (void*)owner);
         return true;
     }
 
@@ -221,10 +234,10 @@ bool ma_task_turncar_delay::step() {
     }
 
     if (done) {
-        cpp_tracef("turncar_with_delay: авто %p достигло угла %f по оси %d", (void*)car, angle, switc);
         return true;
     }
 
+    wake = next_iter; // (23.10) явное ожидание до следующей итерации
     return false;
 }
 
@@ -234,28 +247,27 @@ bool ma_task_turncar_delay::step() {
 ma_task_getcord* ma_task_create_getcord(std::queue<float> q, const void* p) {
     auto* t = new ma_task_getcord(std::move(q), p);
     ma_tasks().add(t);
-    cpp_tracef("tasks: [+%s] очередь точек %zu", t->name, t->q.size());
     return t;
 }
 
 ma_task_expectations* ma_task_create_expectations(int model, CVehicle* car) {
     auto* t = new ma_task_expectations(model, car);
     ma_tasks().add(t);
-    cpp_tracef("tasks: [+%s] модель %d ждёт видимости", t->name, model);
     return t;
 }
 
-ma_task_turncar* ma_task_create_turncar(CVehicle* car, float angle, float speed, int switc) {
-    auto* t = new ma_task_turncar(car, angle, speed, switc);
+// (23.10) Фабрики turncar* принимают СЫРОЙ ключ из Lua: авто может быть удалено,
+// пока задача крутится — резолв живёт в step() на игровом потоке.
+ma_task_turncar* ma_task_create_turncar(const void* p, float angle, float speed, int switc) {
+    auto* t = new ma_task_turncar(p, angle, speed, switc);
     ma_tasks().add(t);
-    cpp_tracef("tasks: [+%s] авто %p угол %f ось %d", t->name, (void*)car, (double)angle, switc);
     return t;
 }
 
-ma_task_turncar_delay* ma_task_create_turncar_delay(CVehicle* car, float angle, int time_ms, int switc) {
-    auto* t = new ma_task_turncar_delay(car, angle, time_ms, switc);
+ma_task_turncar_delay* ma_task_create_turncar_delay(const void* p, float angle, int time_ms, int switc) {
+    auto* t = new ma_task_turncar_delay(p, angle, time_ms, switc);
+    t->next_iter = ma_game_ms() + time_ms; // (23.10) первый оборот — ПОСЛЕ паузы (как старое тело)
     ma_tasks().add(t);
-    cpp_tracef("tasks: [+%s] авто %p угол %f задержка %dмс ось %d", t->name, (void*)car, (double)angle, time_ms, switc);
     return t;
 }
 
@@ -277,7 +289,7 @@ ma_task_turncar_delay* ma_task_create_turncar_delay(CVehicle* car, float angle, 
 //   6. Иначе: wake = now+100, возвращаем false (продолжить).
 // ============================================================
 bool ma_task_mission_watch::step() {
-    if (teardown_active.load() || g_shouldStopAllScripts.load()) {
+    if (teardown_active.load() || ma_should_stop_all().load()) {
         // teardown: завершаем без destroy (реестр уже чистит задачи)
         if (running) running->store(false);
         return true;
@@ -303,14 +315,15 @@ bool ma_task_mission_watch::step() {
     bool flag_active = flag_valid ? (bool)CTheScripts::ScriptSpace[OnAMissionFlag] : false;
 
     if (dead || arest) {
-        cpp_trace("mission_watch: игрок погиб/арестован -> Миссия провалена");
-        const wchar_t* str = getwchat("Mission failed!");
-        CMessages::AddBigMessage((wchar_t*)str, 5000, 0);
+        // (23.10) Буфер AddBigMessage обязан жить вечно (движок хранит УКАЗАТЕЛЬ,
+        // дизасм 20.10): та же правка, что у printmessage — пул ma_msgpool.
+        // getwchat() давал висячий wchar на временной памяти.
+        wchar_t* str = ma_msgpool::put("Mission failed!");
+        CMessages::AddBigMessage(str, 5000, 0);
         if (flag_valid) {
             CTheScripts::ScriptSpace[OnAMissionFlag] = false;
         }
         if (L != nullptr) {
-            cpp_trace("mission_watch: очистка (destroy)");
             destroy(L);
         }
         if (running) running->store(false);
@@ -329,9 +342,20 @@ bool ma_task_mission_watch::step() {
 
 ma_task_mission_watch* ma_task_create_mission_watch(
     lua_State* L, std::atomic<bool>* stop, std::atomic<bool>* running) {
+    // (23.10) РОВНО ОДИН сторож: живой — обновляем Lua-состояние (как старый
+    // mission_watch_start уничтожал старый поток и поднимал новый). Двойной new
+    // давал бы двойное удаление из реестра = класс double-free (док 02:3203).
+    auto snap = ma_tasks().snapshot();
+    for (auto* t : snap) {
+        if (t->name != nullptr && std::strcmp(t->name, "mission_watch") == 0) {
+            auto* mw = static_cast<ma_task_mission_watch*>(t);
+            mw->L = L;
+            if (running) running->store(true);
+            return mw;
+        }
+    }
     auto* t = new ma_task_mission_watch(L, stop, running);
     ma_tasks().add(t);
-    cpp_tracef("tasks: [+%s] СТОРОЖ МИССИИ создан (миссия запущена, Lua-состояние %p)", t->name, (void*)L);
     return t;
 }
 
@@ -351,6 +375,13 @@ ma_task_mission_watch* ma_task_create_mission_watch(
 // убирает только ma_tasks_teardown().
 // ============================================================
 bool ma_task_keyboard::step() {
+    // (26.10, P1) ЕДИНЫЙ СНИМОК КЛАВИАТУРЫ: единственный Win32-опрос клавиш
+    // (GetAsyncKeyState) во всём лоадере — здесь, раз в кадр, НА ИГРОВОМ
+    // ПОТОКЕ, до скриптов (задача идёт перед планировщиком). getkey/
+    // keypress/wait_key читают только снимок ma_keys() — без syscall'ов
+    // в пути Lua (прежние ~183 GetAsyncKeyState/кадр на чек-стринг сняты).
+    ma_keys_poll();
+
     // ---- Ctrl-фаза: аналогия reload() ----
     // Фазовая машина: «был отжат -> нажат» = одно нажатие = один teardown_all(true)
     // (вызовет plugin.cpp по флагу ctrl_req). Пока Ctrl удерживаем, ждём отпускания.
@@ -361,24 +392,32 @@ bool ma_task_keyboard::step() {
             ctrl_phase = true; // дальше только ждём отпускания
         }
     } else if (!ctrl) {
+        // (23.10) Старый reload-поток делал teardown НА ОТПУСКАНИИ Ctrl.
+        // Plugin.cpp ждёт release_pending, а не ctrl_req — семантика сохранена.
+        if (ctrl_req) release_pending = true;
         ctrl_phase = false;
     }
 
-    // ---- Опрос клавиш (аналогия getkeyenvent): только когда star_thread разрешён ----
-    // Зеркало star_thread (определяется в plugin.cpp): без него task не видел бы
-    // struct star_thread, и опрос вёл бы клавиши даже когда скрипты запрещены.
+    // ---- Опрос клавиш (аналог getkeyenvent из plugin.cpp): только когда star_thread разрешён ----
+    // (23.10) ОРИГИНАЛЬНАЯ версия ma_task_keyboard не существовала в сборке и звала
+    // несуществующие обёртки cheatstr_add/... — заменено на работу с ЕДИНЫМ глобалом
+    // cheatstr (funcs.cpp:28), который читает Lua-функция checkcheat.
+    // Детектор нажатия по КРАЮ (last_char): как старый getkeyenvent, удержание
+    // клавиши не вливает символ в cheatstr заново — иначе cheatstr заполнялся бы
+    // повторами каждый кадр и checkcheat() ломался.
     if (ma_star_mirror().load()) {
         for (int q = 8; q <= 190; q++) {
-            string s = getkey(q); // GetAsyncKeyState внутри — thread-safe
-            if (s != "") {
-                // Все операции с cheatstr — через обёртки под g_cheat_mx.
-                cheatstr_add(s);
-                if (cheatstr_len() > 19) { cheatstr_reset(); }
-                // "clrfl" — чит-команда ПОЛНОЙ ОСТАНОВКИ всех Lua-скриптов.
-                if (cheatstr_has("clrfl")) {
-                    cheatstr_reset(); // сброс, чтобы не сработало повторно
-                    clrfl_req = true;  // игровому потоку: HandleClearFlush()
-                }
+            string s = getkey(q); // читает единый снимок (ma_keys), без Win32-вызова
+            if (s.empty()) { last_char[q].clear(); continue; } // клавиша отпущена → готовы к повтору
+            if (last_char[q] == s) continue; // клавиша ещё зажата — уже записано
+            last_char[q] = s;
+            cheatstr = cheatstr + s;
+            int size = (int)cheatstr.size(); // длина больше 20 — чистим (как getkeyenvent)
+            if (size > 19) { cheatstr.clear(); }
+            // "clrfl" — чит-команда ПОЛНОЙ ОСТАНОВКИ всех Lua-скриптов.
+            if (cheatstr.find("clrfl") != string::npos) {
+                cheatstr.clear(); // сброс, чтобы не сработало повторно
+                clrfl_req = true; // игровому потоку: полная остановка (plugin.cpp)
             }
         }
     }
@@ -394,11 +433,10 @@ void ma_task_start_keyboard() {
     if (g_keyboard) return;              // уже есть — не плодим дублей (O(1), без лока)
     auto snap = ma_tasks().snapshot();
     for (auto* t : snap) {
-        if (t->name == "keyboard") { g_keyboard = static_cast<ma_task_keyboard*>(t); return; }
+        if (t->name != nullptr && std::strcmp(t->name, "keyboard") == 0) { g_keyboard = static_cast<ma_task_keyboard*>(t); return; }
     }
     g_keyboard = new ma_task_keyboard();
     ma_tasks().add(g_keyboard);
-    cpp_tracef("tasks: [+%s] клавиатурная задача добавлена", g_keyboard->name);
 }
 
 // O(1)-доступ к клавиатурной задаче для покадрового обработчика в plugin.cpp.

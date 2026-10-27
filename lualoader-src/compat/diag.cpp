@@ -6,6 +6,7 @@
 #include <windows.h>
 #include <dbghelp.h>
 #include <tlhelp32.h>
+#include <malloc.h>
 
 #include <atomic>
 #include <cstdarg>
@@ -32,7 +33,7 @@
 
 // ---------------------------------------------------------------------------
 // Хлебные крошки: кольцевой буфер в памяти. Без мьютексов намеренно.
-// Если крашится поток, державший глобальный мьютекс (как mtx в cpp_trace),
+// Если крашится поток, державший глобальный мьютекс (как mtx в writelog),
 // обработчик не должен ждать этот мьютекс — иначе он сам зависнет и мы
 // потеряем отчёт. Запись — атомарный индекс + memcpy структуры целиком.
 // ---------------------------------------------------------------------------
@@ -101,9 +102,6 @@ std::atomic<unsigned long long> g_skipped{ 0 };       // сколько раз �
 std::atomic<int>  g_cmdDepth{ 0 };
 std::atomic<int>  g_cmdMaxDepth{ 0 };
 std::atomic<int>  g_reentrancyHits{ 0 };
-std::atomic<int>  g_liveStates{ -1 };
-std::atomic<int>  g_frameSeen{ 0 };
-std::atomic<unsigned long long> g_lastFrameTick{ 0 };
 
 // --- ОЧЕРЕДЬ КОМАНД (LUALOADER_CMDQ) ---
 // Worker-потоки скриптов кладут сюда замыкания с Command<>() и блокируются.
@@ -375,6 +373,18 @@ void report(EXCEPTION_POINTERS* ep, const char* how) {
     // Пишем всегда, даже если уже что-то писали: второй отчёт не хуже первого,
     // а thread_local реентерабельность защищает от рекурсии.
     if (InterlockedExchange(&g_inHandler, 1) != 0) return;
+    if (!ep || !ep->ExceptionRecord) { InterlockedExchange(&g_inHandler, 0); return; }
+
+    // (27.10.2026) ИСХОДНЫЙ контекст упавшего потока. StackWalk64 ниже МЕНЯЕТ
+    // ctx (Esp/Ebp/Eip двигаются по кадрам), поэтому запоминаем значения ДО
+    // обхода. Раньше дамп стека брал ctx.Esp ПОСЛЕ StackWalk64 — на Wine там
+    // оказывался мусор (наблюдали Esp=0xFFFFFFE8), и report() падал на чтении
+    // [0xFFFFFFE8]. Именно эти падения и были видны в журнале как «AV в msvcrt»
+    // (0x772E1C00/0x772F1AB0 — на самом деле report()+0xF50/+0xE00): первичное
+    // исключение до журнала не доходило.
+    const DWORD origEip = ep->ContextRecord ? (DWORD)ep->ContextRecord->Eip : 0;
+    const DWORD origEsp = ep->ContextRecord ? (DWORD)ep->ContextRecord->Esp : 0;
+    const DWORD origEbp = ep->ContextRecord ? (DWORD)ep->ContextRecord->Ebp : 0;
 
     // Буфер большой: в отчёт теперь попадают регистры, стек до 40 кадров, список
     // модулей и список потоков. Раньше было 4096 — не хватало, отчёт обрезался.
@@ -608,7 +618,8 @@ void report(EXCEPTION_POINTERS* ep, const char* how) {
             SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
             SymInitialize(GetCurrentProcess(), NULL, TRUE);
         }
-        CONTEXT ctx = *ep->ContextRecord;      // копия: StackWalk64 портит контекст
+        CONTEXT ctx; ZeroMemory(&ctx, sizeof(ctx));
+        if (ep->ContextRecord) ctx = *ep->ContextRecord; // копия: StackWalk64 портит контекст
         STACKFRAME64 sf; ZeroMemory(&sf, sizeof(sf));
         sf.AddrPC.Offset   = ctx.Eip;
         sf.AddrPC.Mode     = AddrModeFlat;
@@ -674,34 +685,42 @@ void report(EXCEPTION_POINTERS* ep, const char* how) {
             // мусор (окно 0xFFFFFFE8..0x00001FE8 → «найдено 0» всегда). Теперь
             // окно НАДЕЖНО = [Esp-0x40, Esp+0x1000]; VQ-окно применяем только
             // если оно реально накрывает ESP-окно.
-            DWORD stackLo = (DWORD)ctx.Esp, stackHi = stackLo + 0x1000;
+            DWORD stackLo = origEsp, stackHi = origEsp + 0x1000;
+            bool stackOk = false;
             MEMORY_BASIC_INFORMATION smbi;
-            if (stackLo >= 0x40 && VirtualQuery((void*)(ULONG_PTR)(stackLo - 0x40), &smbi, sizeof(smbi))
+            if (origEsp >= 0x40 && VirtualQuery((void*)(ULONG_PTR)origEsp, &smbi, sizeof(smbi))
                 && smbi.State == MEM_COMMIT) {
                 const DWORD b = (DWORD)smbi.BaseAddress;
                 const DWORD e = b + (DWORD)smbi.RegionSize;
-                if (b <= stackLo && e >= stackHi) { stackLo = b; stackHi = e; }
+                if (b <= origEsp) {
+                    stackLo = b;
+                    if (e < stackHi) stackHi = e;   // не выходим за committed-регион
+                    stackOk = true;
+                }
             }
             // Сырой дамп стека — первые 4 строки по 12 dword (48 всего): по ним
             // вручную всегда видны адреса возврата индивидно, даже если
             // эвристика их отфильтрует.
-            n += _snprintf_s(buf + n, sizeof(buf) - n, _TRUNCATE,
-                "\r\n  СЫРОЙ СТЕК [Esp..Esp+0xC0] (4 строки по 12 dword):\r\n");
-            {
-                const DWORD* sp = (const DWORD*)(ULONG_PTR)ctx.Esp;
+            if (stackOk && stackHi - origEsp >= 0xC0) {
+                n += _snprintf_s(buf + n, sizeof(buf) - n, _TRUNCATE,
+                    "\r\n  СЫРОЙ СТЕК [Esp..Esp+0xC0] (4 строки по 12 dword):\r\n");
+                const DWORD* sp = (const DWORD*)(ULONG_PTR)origEsp;
                 for (int row = 0; row < 4; row++, sp += 12) {
                     n += _snprintf_s(buf + n, sizeof(buf) - n, _TRUNCATE, "    +0x%02X:", row * 0x30);
                     for (int i = 0; i < 12; i++)
                         n += _snprintf_s(buf + n, sizeof(buf) - n, _TRUNCATE, " %08X", sp[i]);
                     n += _snprintf_s(buf + n, sizeof(buf) - n, _TRUNCATE, "\r\n");
                 }
+            } else {
+                n += _snprintf_s(buf + n, sizeof(buf) - n, _TRUNCATE,
+                    "\r\n  СЫРОЙ СТЕК: пропущен (Esp=%08X не в COMMIT)\r\n", origEsp);
             }
             // --- проход 1: цепочка EBP ---
             n += _snprintf_s(buf + n, sizeof(buf) - n, _TRUNCATE,
                 "\r\n  цепочка EBP (ручной разбор):\r\n");
-            DWORD ebp = ctx.Ebp;
+            DWORD ebp = origEbp;
             int guard = 0;
-            for (int k = 0; k < 24 && ebp >= stackLo && ebp + 8 <= stackHi; k++) {
+            for (int k = 0; k < 24 && stackOk && ebp >= stackLo && ebp + 8 <= stackHi; k++) {
                 const DWORD* f = (const DWORD*)(ULONG_PTR)ebp;
                 DWORD ret = f[1];
                 DWORD nextEbp = f[0];
@@ -722,7 +741,7 @@ void report(EXCEPTION_POINTERS* ep, const char* how) {
             int printed = 0;
             const DWORD* base = (const DWORD*)stackLo;
             const DWORD* end = (const DWORD*)stackHi;
-            for (const DWORD* p = base; p + 1 <= end && printed < 24 && n < (int)sizeof(buf) - 300; p++) {
+            for (const DWORD* p = base; stackOk && p + 1 <= end && printed < 24 && n < (int)sizeof(buf) - 300; p++) {
                 DWORD v = *p;
                 if (v < 0x401000 || v > 0xA00000) continue;         // не в диапазоне .text игры
                 // Перед адресом возврата в _thiscall-кадре лежит this — проверяем,
@@ -1326,6 +1345,89 @@ void font_traps_install() {
     _snprintf_s(b, sizeof(b), _TRUNCATE, "FONT-TRAP: установлено %d из 8 ловушек (база exe 0x%X)", ok, base);
     diag_line(b);
 }
+// ============================================================================
+// PRINT-CLAMP (27.10.2026) — ТИХИЙ предохранитель построителя сообщений.
+//
+// Вылет 27.10 01:26: EIP=0x551E0D, чтение по адресу 0xFFC6C66A. В шаблоне
+// RenderState.FontStyle=0x9CDC (мусор), указатель записи [0x70975C]=0x71BA74
+// (далеко за концом буфера 0x70975C). Механика: одна запись длиннее буфера
+// достраивается ЗА его конец и затирает сам курсор [0x70975C]; следующий
+// рендер идёт по мусорным «записям» и читает стиль 0x9CDC → AV.
+//
+// Единственная write-side проверка переполнения — 0x55188F: ESI=начало строки,
+// EBX=конец, длина = EBX-ESI. Она флушит буфер, но НЕ ограничивает длину одной
+// записи. Здесь ставим постоянный (не INT3, без спама в журнал) детур:
+//   len = EBX-ESI; if (len > 0x3C0) { EDX = EBX = ESI+0x3C0; }
+// 0x3C0 байт текста (480 wchar) + шапка 0x34 = 0x3F4 ≤ 0x400 — запись
+// гарантированно влезает в пустой буфер. Работает для ЛЮБОГО вызывающего.
+// Детур ставится один раз при install(); если байты exe не совпали — не трогаем.
+namespace {
+void print_clamp_install() {
+    DWORD base = (DWORD)(uintptr_t)GetModuleHandleA("gta-vc.exe");
+    if (!base) base = (DWORD)(uintptr_t)GetModuleHandleA(nullptr);
+    if (!base) return;
+    const DWORD target = base + 0x15188F;
+    const unsigned char expect[7] = { 0x89, 0xDA, 0xB8, 0x5C, 0x97, 0x70, 0x00 };
+    const unsigned char* p = (const unsigned char*)(uintptr_t)target;
+    if (p[0] == 0xE9) {
+        diag_line("PRINT-CLAMP: уже установлен (0x55188F начинается с E9)");
+        return;
+    }
+    if (memcmp(p, expect, 7) != 0) {
+        char b[200];
+        _snprintf_s(b, sizeof(b), _TRUNCATE,
+            "PRINT-CLAMP: ОТКЛЮЧЁН — байты 0x55188F не совпали "
+            "(%02X %02X %02X %02X %02X %02X %02X)",
+            p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
+        diag_line(b);
+        return;
+    }
+    unsigned char* cave = (unsigned char*)VirtualAlloc(nullptr, 64,
+        MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    if (!cave) {
+        diag_line("PRINT-CLAMP: VirtualAlloc не удался — страж не установлен");
+        return;
+    }
+    int n = 0;
+    cave[n++] = 0x89; cave[n++] = 0xDA;                  // mov edx, ebx
+    cave[n++] = 0x29; cave[n++] = 0xF2;                  // sub edx, esi
+    cave[n++] = 0x81; cave[n++] = 0xFA;                  // cmp edx, 0x3C0
+    *(DWORD*)(cave + n) = kPrintClampBytes; n += 4;
+    cave[n++] = 0x76; cave[n++] = 0x0B;                  // jbe +11 (пропустить кламп)
+    cave[n++] = 0xBA;                                    // mov edx, 0x3C0
+    *(DWORD*)(cave + n) = kPrintClampBytes; n += 4;
+    cave[n++] = 0x8D; cave[n++] = 0x9E;                  // lea ebx, [esi+0x3C0]
+    *(DWORD*)(cave + n) = kPrintClampBytes; n += 4;
+    cave[n++] = 0xB8;                                    // mov eax, 0x70975C
+    *(DWORD*)(cave + n) = kTplEnd; n += 4;
+    cave[n++] = 0xE9;                                    // jmp 0x551898 (после sub edx,esi)
+    {
+        DWORD rel = (base + 0x151898) - ((DWORD)(uintptr_t)(cave + n) + 4);
+        *(DWORD*)(cave + n) = rel; n += 4;
+    }
+    DWORD oldProt = 0;
+    if (!VirtualProtect((LPVOID)(uintptr_t)target, 7, PAGE_EXECUTE_READWRITE, &oldProt)) {
+        VirtualFree(cave, 0, MEM_RELEASE);
+        diag_line("PRINT-CLAMP: VirtualProtect не удался — страж не установлен");
+        return;
+    }
+    unsigned char patch[7];
+    patch[0] = 0xE9;
+    *(DWORD*)(patch + 1) = (DWORD)(uintptr_t)cave - (target + 5);
+    patch[5] = 0x90; patch[6] = 0x90;
+    memcpy((void*)(uintptr_t)target, patch, 7);
+    DWORD tmp = 0;
+    VirtualProtect((LPVOID)(uintptr_t)target, 7, oldProt, &tmp);
+    FlushInstructionCache(GetCurrentProcess(), (LPCVOID)(uintptr_t)target, 7);
+    FlushInstructionCache(GetCurrentProcess(), cave, (SIZE_T)n);
+    char b[200];
+    _snprintf_s(b, sizeof(b), _TRUNCATE,
+        "PRINT-CLAMP: установлен на 0x55188F (cave=0x%X, предел записи 0x%X байт)",
+        (unsigned)(uintptr_t)cave, (unsigned)kPrintClampBytes);
+    diag_line(b);
+}
+} // namespace (print clamp)
+
 } // namespace (ловушки стиля)
 
 // ============================================================================
@@ -1509,6 +1611,25 @@ void wp_arm() {
 }
 } // namespace (watchpoints)
 
+// (27.10.2026) ПЕРВИЧНОЕ исключение — в журнал ДО тяжёлого report().
+// Причина: первым в цепочке VEH стоит этот файл (AddVectoredExceptionHandler
+// вызван последним), и если report() упадёт, plugin.cpp-фильтр увидит уже
+// ВТОРИЧНОЕ исключение внутри отчёта. Так и терялся настоящий адрес: в журнале
+// были только «VECTORED» с EIP внутри lualoader.asi (report+0xE00..0x1100).
+// Строка пишется через append_raw — без мьютексов, без кучи, без dbghelp.
+void log_firstchance(EXCEPTION_POINTERS* ep, const char* how) {
+    if (!ep || !ep->ExceptionRecord) return;
+    const EXCEPTION_RECORD* r = ep->ExceptionRecord;
+    const CONTEXT* c = ep->ContextRecord;
+    static char b[320];
+    int n = _snprintf_s(b, sizeof(b), _TRUNCATE,
+        "C++| %s: code=0x%08X addr=%p EIP=%08X ESP=%08X EBP=%08X tid=%lu\r\n",
+        how, (unsigned)r->ExceptionCode, r->ExceptionAddress,
+        c ? (unsigned)c->Eip : 0u, c ? (unsigned)c->Esp : 0u,
+        c ? (unsigned)c->Ebp : 0u, (unsigned long)GetCurrentThreadId());
+    if (n > 0) append_raw(kLogPath, b, (DWORD)n);
+}
+
 LONG WINAPI veh(EXCEPTION_POINTERS* ep) {
     // 64 КБ гарантированных последних страниц стека: у VEH-потока может быть
     // исчерпан стек (RECURSION), и без guarantee отчёт сам упадёт на WriteFile.
@@ -1532,6 +1653,7 @@ LONG WINAPI veh(EXCEPTION_POINTERS* ep) {
     // на first chance их ловить нельзя. Реальный необработанный C++ EH поймает UEF.
     if (code == 0xE06D7363)
         return EXCEPTION_CONTINUE_SEARCH;
+    log_firstchance(ep, "FIRSTCHANCE");
     report(ep, "VEH (first chance)");
     return EXCEPTION_CONTINUE_SEARCH;   // игру не swallows — пусть упадёт как обычно
 }
@@ -1540,6 +1662,7 @@ LONG WINAPI uef(EXCEPTION_POINTERS* ep) {
     // 64 КБ гарантированных последних страниц стека: у UEF-потока может быть
     // исчерпан стек (RECURSION), и без guarantee отчёт сам упадёт на WriteFile.
     ULONG guarantee = 65536; SetThreadStackGuarantee(&guarantee);
+    log_firstchance(ep, "UNHANDLED");
     if (!InterlockedCompareExchange(&g_reported, 1, 0)) {
         report(ep, "UnhandledExceptionFilter (последний шанс)");
     }
@@ -1571,29 +1694,6 @@ void watchdog() {
                 diag_line(b);
             }
         }
-        // ── СЕРДЦЕБИЕНИЕ ──────────────────────────────────────────────────
-        // Раз в 2 с пишем, что игровой поток ЖИВ и ЧТО делает. Это единственный
-        // след, если процесс умрёт молча (без отчёта VEH): будет видно, держит ли
-        // он сейчас команду, не застрял ли кадр, не залип ли в реентрантности.
-        {
-            static unsigned long long hb = 0;
-            unsigned long long now2 = GetTickCount64();
-            if (now2 - hb >= 2000) {
-                hb = now2;
-                unsigned long long sinceFrame = now2 - g_lastFrameTick.load();
-                char b[280];
-                _snprintf_s(b, sizeof(b), _TRUNCATE,
-                    "HEARTBEAT: cmd=0x%X в работе %llu мс | глубина Command=%d (макс %d, вложений %d) "
-                    "| кадров=%d (последний %llu мс назад) | состояний Lua=%d | очередь=%d",
-                    g_inflightCmd.load(),
-                    g_inflightSince.load() ? now2 - g_inflightSince.load() : 0ULL,
-                    g_cmdDepth.load(), g_cmdMaxDepth.load(), g_reentrancyHits.load(),
-                    g_frameSeen.load(), sinceFrame,
-                    g_liveStates.load(), ma_cmdq_pending());
-                diag_line(b);
-            }
-        }
-
         // Периодический сброс буфера журнала. Нужен для СИЛЬНОГО зависания:
         // если игровой поток стоит колом и до отчёта о вылете дело не доходит,
         // последние строки иначе остались бы в памяти и потерялись. Раз в
@@ -1640,12 +1740,25 @@ void install() {
     CreateDirectoryA("lualoader", nullptr);   // каталог для log.txt
     InitializeCriticalSection(&g_fileLock);
     AddVectoredExceptionHandler(1, veh);      // FIRST: ловим сразу, до разрушения контекста
-    font_traps_install();                     // INT3-ловушки стиля шрифта (0x551E0D)
+    // (25.10, директива юзера) INT3-ловушки шрифта и DR-точки ВЫКЛЮЧЕНЫ: они
+    // срабатывали на каждую обычную запись стиля шрифта и ЗАЛИВАЛИ log.txt
+    // строками FONT-TRAP/WATCH («ерунда»). Журнал — только ошибки и вылеты.
+    // font_traps_install();
+    // (27.10) Вместо INT3-ловушек — ОДИН тихий детур на write-side проверку:
+    // запись длиннее 0x3C0 байт обрезается до безопасной (класс AV 0x551E0D).
+    print_clamp_install();
     SetUnhandledExceptionFilter(uef);
     if (!g_watchdogStarted.exchange(true)) {
         HANDLE t = CreateThread(nullptr, 0, &watchdog_thread, nullptr, 0, nullptr);
         if (t) CloseHandle(t);
     }
+}
+
+// (25.10) Полный отчёт о вылете: определение — глобальный ::report (выше, строка ~371,
+// не в namespace — исторически), объявление в diag.h — в namespace ma_diag.
+// Обёртка связывает: вызов ma_diag::report() из обработчиков plugin.cpp.
+void report(EXCEPTION_POINTERS* ep, const char* how) {
+    ::report(ep, how);
 }
 
 void mark(const char* fmt, ...) {
@@ -1705,26 +1818,18 @@ void cmd_end(const char* res) {
 // breakpoint'ы и C++ throw. Значит исключения не было вовсе: процесс убили
 // снаружи, он завис и был закрыт, либо упал ниже уровня SEH.
 //
-// ЧТО ДЕЛАЕМ: пишем в журнал СЕРДЦЕБИЕНИЕ — строку раз в 2 с с состоянием
-// игрового потока. Если процесс умрёт молча, последняя строка сердцебиения покажет, ЧТО
-// он делал в момент смерти: какая Command<> шла, какая глубина вложенности,
-// какой .lua качался, сколько живых состояний Lua. Это единственный способ
-// получить след при «смерти без отчёта».
+// СЕРДЦЕБИЕНИЕ УБРАНО (24.10.2026): раньше watchdog раз в 2 с писал строку
+// HEARTBEAT в журнал. Теперь log.txt содержит только ошибки, поэтому
+// периодической записи нет — остаются отчёт о вылете и записи о проблемах
+// (зависшая команда, застрявшая модель, ошибка Lua).
 //
-// Дополнительно считаем ГЛУБИНУ ВЛОЖЕННОСТИ Command<>. Шаблон Command<> в SDK
+// Считаем ГЛУБИНУ ВЛОЖЕННОСТИ Command<>. Шаблон Command<> в SDK
 // использует ОДИН общий `static CRunningScript script` на весь модуль. Если
 // команда вложится в другую команду (реентрантность), внутренний вызов делает
 // memset этого объекта и затирает m_nIp внешнего — после чего движок читает
 // команды по мусорному указателю. Это тихий порча состояния без исключения.
 // Счётчик глубины делает такой случай видимым в журнале.
 // ============================================================================
-
-// Вызывается из plugin.cpp каждый кадр (игровой поток) — «игра жива».
-void ma_diag::heartbeat(int nStates) {
-    g_frameSeen.fetch_add(1);
-    g_lastFrameTick.store(GetTickCount64());
-    g_liveStates.store(nStates);
-}
 
 void set_thread_name(const char* name) {
     _snprintf_s(g_threadName[slot_of(GetCurrentThreadId())], 32, _TRUNCATE, "%s", name ? name : "?");
@@ -2030,14 +2135,18 @@ void ma_diag_exit(unsigned int id, const char* res) {
 // СТОРОЖ СТИЛЯ ШРИФТА + ВРЕМЯ ЖИЗНИ ТЕКСТА СООБЩЕНИЙ (18.10.2026)
 //
 // Доказанная цепочка вылета 0x551E0D (дамп crash_280_*, арифметика бит-в-бит):
-//   CFont::PrintChar -> movsx eax, word[edx*4 + 0x696D7A], где edx = FontStyle*105
+//   CFont::PrintChar -> movsx eax, word[edx*4+0x696D7A], где edx = FontStyle*105
 //   в дампе edx = 0xFFD7563C = 105 * (-25380)  =>  FontStyle = 0x9CDC
 //   адрес данных 0xFFD7563C*4 + 0x696D7A = 0xFFC6C66A — совпадает с EXCEPTION_RECORD.
-// Стиль пишет ТОЛЬКО CFont::SetFontStyle (0x54FFE0), причём БЕЗ клампа: младшие
-// 16 бит аргумента кладутся в CFont::Details.m_FontStyle (0x97F858), оттуда он
-// копируется в CFont::RenderState.FontStyle (0x94B924) и попадает в PrintChar.
-// Сторож ниже ловит оба поля и обнуляет мусор ДО отрисовки кадра: вылет
-// превращается в строку журнала FONT: с значениями и контекстом Lua.
+// Details.m_FontStyle (0x97F858) пишет ТОЛЬКО CFont::SetFontStyle (0x54FFE0):
+// значения 0..2 → 1 (флаговое поле 0x97F85A=1), >2 → как есть.
+// (25.10, дизасм gta-vc.exe): RenderState.FontStyle (0x94B924) game пишет САМА —
+// CFont::InitPerFrame (0x5522B0) каждый кадр `or word [0x94B924], -1` (сентинель
+// «стиль не установлен»), дальше значение приходит копированием состояния.
+// Поэтому used == -1 — штатно, guard его НЕ трогает (см. font_style_guard).
+// Сторож ниже ловит мусор (значения вне 0..5, кроме -1) и обнуляет его ДО
+// отрисовки кадра: вылет превращается в строку журнала FONT: с значениями
+// и контекстом Lua. Игру больше ничем не меняет.
 // ---------------------------------------------------------------------------
 namespace ma_diag {
 
@@ -2068,16 +2177,25 @@ short g_lastBadUsed = -1;
 } // namespace
 
 void font_style_guard() {
-    // DR-точки на запись стиля (DR0/DR1): вооружаем ОДИН раз на игровом потоке —
-    // здесь (guard зовётся из Events::gameProcessEvent каждый кадр).
-    if (g_wpState == 0) wp_arm();
+    // (25.10, директива юзера) DR-точки НЕ вооружаем: их обработчик писал в log.txt
+    // поток строк WATCH/FONT-TRAP на каждую обычную запись стиля («ерунда»).
+    // Сам guard ниже остаётся: клампит мусорный стиль и пишет ОДНУ строку только
+    // при настоящей аномалии.
+    // if (g_wpState == 0) wp_arm();
     // Адреса через SDK: CFont::Details = 0x97F820 (+0x38 = 0x97F858),
     // CFont::RenderState = 0x94B8F8 (+0x2C = 0x94B924). Проверены дизасмом.
     short& want = CFont::Details.m_FontStyle;     // «запрошенный» стиль
     short& used = CFont::RenderState.FontStyle;   // «применённый» стиль (его читает PrintChar)
 
+    // (25.10, дизасм gta-vc.exe) CFont::InitPerFrame (0x5522B0) КАЖДЫЙ КАДР делает
+    // `or word [0x94B924], -1` — used == -1 это штатный сентинель «стиль ещё не
+    // установлен в этом кадре», а НЕ мусор. Раньше guard считал -1 мусором:
+    // логил «FONT: МУСОРНЫЙ СТИЛЬ ... used=-1» и обнулял поле — то есть перебивал
+    // собственное состояние шрифта игры каждый кадр (ветка рисованного текста
+    // `if (style==-1)` в CFont шла не так). Теперь -1 пропускается молча;
+    // клампится только настоящий мусор (другие значения вне 0..5 — класс 0x551E0D).
     const bool badWant = (want < 0 || want > kFontStyleMax);
-    const bool badUsed = (used < 0 || used > kFontStyleMax);
+    const bool badUsed = (used != -1) && (used < 0 || used > kFontStyleMax);
     if (!badWant && !badUsed) {
         g_lastBadWant = -1;
         g_lastBadUsed = -1;
@@ -2191,6 +2309,196 @@ void msg_keepalive_purge() {
             g_msgKeep[i].text = nullptr;
         }
     }
+}
+
+// ===========================================================================
+// (27.10.2026) ДИАГНОСТИКА ПОРЧИ КУЧИ И СТЕК БЕЗ ВЫДЕЛЕНИЯ ПАМЯТИ
+// ===========================================================================
+// Зачем: все свежие вылеты — AV ВНУТРИ msvcrt (0x772F1AB0, 0x772E1C00,
+// 0x772A9E60), т.е. порча кучи случилась раньше, а Lua-строка в журнале лишь
+// называет последний вход в API. report() в VEH сам ходит в Toolhelp/dbghelp
+// (выделяет память) и на испорченной куче обрывается — в log.txt оставалась
+// одна строка VECTORED. Здесь всё наоборот: только статический буфер,
+// _snprintf и WriteFile.
+
+namespace {
+
+int addf(char* b, int n, size_t cap, const char* fmt, ...) {
+    if (n < 0) n = 0;
+    if ((size_t)n >= cap - 1) return (int)cap - 2;
+    va_list ap; va_start(ap, fmt);
+    int r = _vsnprintf(b + n, cap - (size_t)n - 1, fmt, ap);
+    va_end(ap);
+    if (r < 0) return n;
+    if ((size_t)(n + r) >= cap - 1) return (int)cap - 2;
+    return n + r;
+}
+
+// «msvcrt.dll+0x1C00» без единого выделения памяти.
+void module_of(void* addr, char* out, size_t cap) {
+    if (!out || cap < 8) return;
+    out[0] = '\0';
+    HMODULE h = NULL;
+    if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+                           GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                           (LPCSTR)addr, &h) && h) {
+        char path[MAX_PATH]; path[0] = '\0';
+        DWORD n = GetModuleFileNameA(h, path, MAX_PATH);
+        const char* base = path;
+        if (n) {
+            for (DWORD i = 0; i < n; i++)
+                if (path[i] == '\\' || path[i] == '/') base = path + i + 1;
+        }
+        _snprintf(out, cap, "%s+0x%X", n ? base : "?", (unsigned)((char*)addr - (char*)h));
+        out[cap - 1] = '\0';
+    } else {
+        _snprintf(out, cap, "%p", addr);
+        out[cap - 1] = '\0';
+    }
+}
+
+// Код ли это (для «сырого» скана стека): страница исполняемая.
+bool looks_code(void* addr) {
+    MEMORY_BASIC_INFORMATION mi;
+    if (!VirtualQuery(addr, &mi, sizeof(mi))) return false;
+    if (mi.State != MEM_COMMIT) return false;
+    DWORD p = mi.Protect & 0xFF;
+    return p == PAGE_EXECUTE || p == PAGE_EXECUTE_READ ||
+           p == PAGE_EXECUTE_READWRITE || p == PAGE_EXECUTE_WRITECOPY;
+}
+
+} // namespace
+
+bool heap_check(const char* tag) {
+    static ULONGLONG last = 0;
+    ULONGLONG now = GetTickCount64();
+    if (tag == NULL) {
+        if (now - last < 1000) return true;   // периодическая — не чаще раза в секунду
+    }
+    last = now;
+
+    // Крошка ДО проверки: если _heapchk сам упадёт на испорченной куче,
+    // в отчёте/журнале останется имя контрольной точки.
+    char crumb[120];
+    _snprintf(crumb, sizeof(crumb), "HEAPCHECK-BEGIN %s", tag ? tag : "(периодически)");
+    crumb[sizeof(crumb) - 1] = '\0';
+    push_crumb(0, 0, crumb);
+
+    if (tag != NULL) {
+        char line[160];
+        int n = _snprintf(line, sizeof(line), "C++| HEAPCHECK-BEGIN %s\n", tag);
+        if (n > 0) append_raw(kLogPath, line, (DWORD)n);
+    }
+
+    int r = _heapchk();
+    if (r == _HEAPOK || r == _HEAPEMPTY) {
+        if (tag != NULL) {
+            char line[160];
+            int n = _snprintf(line, sizeof(line), "C++| HEAPCHECK-OK %s\n", tag);
+            if (n > 0) append_raw(kLogPath, line, (DWORD)n);
+        }
+        return true;
+    }
+
+    // Порча найдена ВПЕРВЫЕ (или повторно) — пишем всегда, это главный факт.
+    char line[192];
+    int n = _snprintf(line, sizeof(line),
+        "C++| HEAPCHECK-BAD code=%d (%s) после: %s\n", r,
+        r == _HEAPBADBEGIN ? "BADBEGIN" : r == _HEAPBADNODE ? "BADNODE" :
+        r == _HEAPEND ? "BADEND" : r == _HEAPEMPTY ? "EMPTY" : "?",
+        tag ? tag : "(периодически)");
+    if (n > 0) append_raw(kLogPath, line, (DWORD)n);
+    return false;
+}
+
+void dump_stack_noheap(EXCEPTION_POINTERS* ep, const char* how) {
+    if (!ep || !ep->ExceptionRecord || !ep->ContextRecord) return;
+    EXCEPTION_RECORD* rec = ep->ExceptionRecord;
+    CONTEXT* c = ep->ContextRecord;
+
+    static char out[4096];
+    int n = 0;
+    char mod[160];
+
+    unsigned acc = 0, bad = 0;
+    if (rec->NumberParameters >= 2) {
+        acc = (unsigned)rec->ExceptionInformation[0];
+        bad = (unsigned)rec->ExceptionInformation[1];
+    }
+    module_of((void*)c->Eip, mod, sizeof(mod));
+    n = addf(out, n, sizeof(out),
+        "C++| %s: fault EIP=%08X (%s) %s addr=%08X\r\n",
+        how ? how : "STACK", (unsigned)c->Eip, mod,
+        acc == 1 ? "WRITE" : acc == 0 ? "READ" : "EXEC", bad);
+    n = addf(out, n, sizeof(out),
+        "  regs eax=%08X ebx=%08X ecx=%08X edx=%08X esi=%08X edi=%08X ebp=%08X esp=%08X\r\n",
+        (unsigned)c->Eax, (unsigned)c->Ebx, (unsigned)c->Ecx, (unsigned)c->Edx,
+        (unsigned)c->Esi, (unsigned)c->Edi, (unsigned)c->Ebp, (unsigned)c->Esp);
+
+    // Байты по EIP — distinguishes «вызов через битый указатель» от «чтения данных».
+    n = addf(out, n, sizeof(out), "  code@eip:");
+    for (int i = 0; i < 16; i++) n = addf(out, n, sizeof(out), " %02X", (unsigned)((unsigned char*)c->Eip)[i]);
+
+    // Цепочка EBP (msvcrt/игровые модули собраны с frame pointer).
+    n = addf(out, n, sizeof(out), "\r\n  ebp-chain:\r\n");
+    DWORD ebp = (DWORD)c->Ebp;
+    for (int i = 0; i < 16 && ebp; i++) {
+        MEMORY_BASIC_INFORMATION mi;
+        if (!VirtualQuery((void*)ebp, &mi, sizeof(mi)) || mi.State != MEM_COMMIT) break;
+        if ((DWORD)((char*)mi.BaseAddress + mi.RegionSize - (char*)ebp) < 8) break;
+        DWORD prev = ((DWORD*)ebp)[0];
+        DWORD ret  = ((DWORD*)ebp)[1];
+        if (!ret) break;
+        module_of((void*)ret, mod, sizeof(mod));
+        n = addf(out, n, sizeof(out), "    #%d ret=%08X %s (frame %08X)\r\n", i, ret, mod, ebp);
+        if (prev <= ebp || prev - ebp > 0x20000) break;   // стек растёт вниз
+        ebp = prev;
+    }
+
+    // «Сырой» скан стека: адреса возврата на месте даже без frame pointer.
+    // Печатаем только то, что лежит в исполняемой странице.
+    n = addf(out, n, sizeof(out), "  stack-scan (code words):\r\n");
+    MEMORY_BASIC_INFORMATION mi;
+    if (VirtualQuery((void*)c->Esp, &mi, sizeof(mi)) && mi.State == MEM_COMMIT) {
+        DWORD avail = (DWORD)((char*)mi.BaseAddress + mi.RegionSize - (char*)c->Esp);
+        int words = (int)(avail / 4);
+        if (words > 160) words = 160;
+        for (int i = 0; i < words; i++) {
+            DWORD v = ((DWORD*)c->Esp)[i];
+            if (v < 0x10000) continue;
+            if (!looks_code((void*)v)) continue;
+            module_of((void*)v, mod, sizeof(mod));
+            n = addf(out, n, sizeof(out), "    [esp+%03X] %08X %s\r\n", i * 4, v, mod);
+            if ((size_t)n > sizeof(out) - 200) break;
+        }
+    }
+
+    if (n > 0) append_raw(kLogPath, out, (DWORD)n);
+}
+
+void dump_modules_once() {
+    static bool done = false;
+    if (done) return;
+    done = true;
+
+    HANDLE snap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, GetCurrentProcessId());
+    if (snap == INVALID_HANDLE_VALUE) return;
+    MODULEENTRY32 me;
+    me.dwSize = sizeof(me);
+    static char buf[1024];
+    int n = 0;
+    if (Module32First(snap, &me)) {
+        do {
+            if (n > (int)sizeof(buf) - 200) {
+                append_raw(kLogPath, buf, (DWORD)n);
+                n = 0;
+            }
+            n = addf(buf, n, sizeof(buf), "MOD %08X %08X %s\r\n",
+                     (unsigned)(DWORD_PTR)me.modBaseAddr, (unsigned)me.modBaseSize, me.szModule);
+        } while (Module32Next(snap, &me));
+    }
+    CloseHandle(snap);
+    if (n > 0) append_raw(kLogPath, buf, (DWORD)n);
 }
 
 } // namespace ma_diag

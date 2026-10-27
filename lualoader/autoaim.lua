@@ -1,31 +1,45 @@
 ﻿require("lualoader/mod")
+-- (26.10) ОБРАБОТЧИК КЛАВИШ (G/H/S/N) ПОЛНОСТЬЮ ОТКЛЮЧЁН — директива юзера:
+-- именно эти ветки (Createcar PCJ600 / Giveweaponped uzi / телепорт / save-меню)
+-- дают heap-AV в msvcrt при сцене миссии (Riot). false = ветки НЕ гонятся,
+-- игра возвращается в стабильное состояние без вылетов (A/B-прогон).
+-- Лёгкая проверка «клавиша СЕЙЧАС нажата?» (C++ keypress(name), без блокировки)
+-- не тронута — она только читает состояние, без действий. Включить ветки:
+-- поставить KEY_ACTIONS_ON = true.
+local KEY_ACTIONS_ON = false
 function main()
-while true do wait()-- задержка.
+while true do wait(10)-- задержка.
   player = findplayer()-- получить игрока.
- if Keypress("VK_G") -- если клавиша H.
+
+  printmessage("~g~You look like a worker. ~y~Now hit the construction site!", 5000, 1)
+  if Keypress("VK_G") -- если клавиша H.
   then   Giveweaponped(player,600,"uzi")-- дать педу оружие.
 setpedcoordes(player,118.0, -825.9, 10.5)
-  -- set_skin(player, "PLAYER3") -- Переодевание
+  set_skin(player, "PLAYER3") -- Переодевание
+  x,y,z = getcoordinates_on_y(player, 5)
+   car = Createcar("MODEL_PCJ600",x,y,z)
+
  end
- --mod_autoaim("m4", "on")  printmessage("~r~on autoaim", 3400,1 )
- --
+  --mod_autoaim("m4", "on")  printmessage("~r~on autoaim", 3400,1 )
+  --
 
  if Keypress("VK_H") -- если клавиша H.
   then  --mod_autoaim("M40", "off") printmessage("~r~off autoaim", 3400,1 )
   setpedcoordes(player,95.4, -1135.5, 9.4)
- --  Giveweaponped(player,600,"m4")-- дать педу оружие.
- end
+  --  Giveweaponped(player,600,"m4")-- дать педу оружие.
+  end
  if Keypress("VK_S") -- если клавиша H.
-then  show_save_menu()
-  end
+ then  show_save_menu()
+   end
 
-  if Keypress("VK_N") -- если клавиша H.
-    then    x,y,z = getcoordinates_on_y(player, 5)
-    car = Createcar("MODEL_PCJ600",x,y,z)
-    end
-  end
-
+   if Keypress("VK_N") -- если клавиша H.
+     then    x,y,z = getcoordinates_on_y(player, 5)
+      -- car = Createcar("MODEL_PCJ600",x,y,z)
+      end
+   end  -- конец if KEY_ACTIONS_ON (обработчик клавиш отключён: false)
 end
+
+
 
 	-- if Keypress("VK_J") -- если клавиша H.
   --    then Giveweaponped(player,600,"M40")-- дать педу оружие.

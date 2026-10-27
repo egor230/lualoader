@@ -19,6 +19,7 @@
 
 #include <atomic>
 #include <chrono>
+#include <cstring>
 #include <mutex>
 #include <vector>
 #include <queue>
@@ -32,13 +33,18 @@ struct CVector;
 // Объявления функций из funcs.cpp / plugin.cpp.
 CVehicle* findcarinpool(const void* p);
 CVector* get_car_angles_on_axes(CVehicle* car);
+// (23.10) Даёт доступ к CTimer::m_snTimeInMilliseconds (игровое время в мс).
+// Была объявлена, но НЕ определена — активация в build.sh падала на линковке.
 unsigned long long ma_game_ms();
-void cpp_tracef(const char* fmt, ...);
 
 // Атомарные флаги (определения — в plugin.cpp, объявления — в funcs.h).
 extern std::atomic<bool> teardown_active;
-extern std::atomic<bool> g_shouldStopAllScripts;
 extern std::atomic<bool> scripts_paused;
+// Псевдо-«стоп всех скриптов» (модель по директиве юзера 18.10). Было extern
+// g_shouldStopAllScripts, но НИКТО его не определял → undefined symbol при линковке.
+// Теперь function-local static в ma_tasks.cpp + доступ через эту ссылку
+// (правило: никакого глобального объекта с конструктором в этом TU).
+std::atomic<bool>& ma_should_stop_all();
 
 // Зеркало star_thread::get() (function-local static, см. ma_tasks.cpp): разрешён ли сейчас
 // опрос клавиш. Старые detached-потоки getkeyenvent крутили цикл только пока star_thread=true,
@@ -89,10 +95,13 @@ public:
         out = tasks_;
     }
     // Найти задачу по имени (nullptr если нет).
+    // 23.10: сравниваем СОДЕРЖИМОЕ строки, а не указатели. Литералы "mission_watch"
+    // в разных TU могут иметь разные адреса — указательное сравнение молча не
+    // находило задачу (и планировщик не мог дождаться снятия сторожа).
     ma_task_base* find_task(const char* task_name) {
         std::lock_guard<std::mutex> lk(mx_);
         for (auto* t : tasks_) {
-            if (t->name == task_name) return t;
+            if (t->name != nullptr && std::strcmp(t->name, task_name) == 0) return t;
         }
         return nullptr;
     }
@@ -142,7 +151,11 @@ void ma_tasks_teardown();
 struct ma_task_keyboard : ma_task_base {
     bool ctrl_req = false;   // Ctrl-нажатие поймано -> plugin.cpp вызовет teardown_all(true).
     bool ctrl_phase = false; // ждём отпускания Ctrl (фаза wait_for_release).
-    bool clrfl_req = false;  // "clrfl" собран -> plugin.cpp вызовет HandleClearFlush().
+    bool release_pending = false; // (23.10) Ctrl ОТПУЩЕН в фазе ctrl_phase -> plugin.cpp
+                                  // делает reload РОВНО как старый reload-поток (на отпускании).
+    bool clrfl_req = false;  // "clrfl" собран -> plugin.cpp вызовет полную остановку скриптов.
+    string last_char[191];   // (23.10) край нажатия по клавише (9..190): без него символы
+                             // удержания вливаются каждый кадр — checkcheat ломался.
     ma_task_keyboard() { name = "keyboard"; }
     bool step() override;
 };
@@ -154,9 +167,15 @@ void ma_task_start_keyboard();
 // Магазинные задачи: создаются в funcs.cpp, крутятся в ma_tasks_frame().
 
 // 1) getcord — ведёт авто по очереди координат.
+//    (23.10) Исправлен класс бага «точка маршрута теряется»: step() вытаскивал
+//    точку из очереди pop-ом, а при «не доехали» уходил в wake=+16мс — точка
+//    терялась навсегда. Теперь точка держится (cur_*/has_cur) до касания сферы
+//    (семантика старого тела потока getcord: крутиться по точке, пока не доехал).
 struct ma_task_getcord : ma_task_base {
     std::queue<float> q;
     const void* p = nullptr;
+    float cur_x = 0, cur_y = 0, cur_z = 0;   // (23.10) текущая точка маршрута (не вынутое из q).
+    bool has_cur = false;                    // (23.10) точка выбрана и ждёт достижения.
     ma_task_getcord(std::queue<float> q_, const void* p_) : q(std::move(q_)), p(p_) {
         name = "getcord";
         owner = const_cast<void*>(p_);
@@ -178,30 +197,36 @@ struct ma_task_expectations : ma_task_base {
 };
 
 // 3) turncar — вращает авто по оси (switc: 1=x, 2=y, 3=z) со скоростью.
+//    (23.10) Хранит СЫРОЙ ключ (lightuserdata) из Lua, а не CVehicle*: авто может быть
+//    удалено ПОКА задача крутится (старый detached-поток писал бы в освобождённую
+//    память — класс use-after-free). step() решает findcarinpool(p) на игровом
+//    потоке; авто нет → задача завершена.
 struct ma_task_turncar : ma_task_base {
-    CVehicle* car = nullptr;
+    const void* p = nullptr;
     float angle = 0.0f;
     float speed = 0.0f;
     int switc = 1;
-    ma_task_turncar(CVehicle* car_, float angle_, float speed_, int switc_)
-        : car(car_), angle(angle_), speed(speed_ / 360.0f), switc(switc_) {
+    ma_task_turncar(const void* p_, float angle_, float speed_, int switc_)
+        : p(p_), angle(angle_), speed(speed_ / 360.0f), switc(switc_) {
         name = "turncar";
-        owner = car;
+        owner = const_cast<void*>(p_);
     }
     bool step() override;
 };
 
 // 4) turncar_with_delay — то же, но с задержкой между итерациями.
+//    (23.10) p — сырой ключ (как в turncar); first_iter задерживается на time_ms,
+//    чтобы первый оборот был ПОСЛЕ паузы, как в старом теле turncar_with_delay.
 struct ma_task_turncar_delay : ma_task_base {
-    CVehicle* car = nullptr;
+    const void* p = nullptr;
     float angle = 0.0f;
     int time_ms = 0;
     int switc = 1;
     unsigned long long next_iter = 0;
-    ma_task_turncar_delay(CVehicle* car_, float angle_, int time_ms_, int switc_)
-        : car(car_), angle(angle_), time_ms(time_ms_), switc(switc_) {
+    ma_task_turncar_delay(const void* p_, float angle_, int time_ms_, int switc_)
+        : p(p_), angle(angle_), time_ms(time_ms_), switc(switc_) {
         name = "turncar_delay";
-        owner = car;
+        owner = const_cast<void*>(p_);
     }
     bool step() override;
 };
@@ -236,7 +261,9 @@ struct ma_task_mission_watch : ma_task_base {
     bool step() override;
 };
 
-// Фабрика: создаёт и регистрирует задачу.
+// Фабрика: РОВНО ОДИН экземпляр (23.10 — устраняет двойной-free из док 02):
+//   * существующий сторож жив → только обновляет L/running (reuse, как mission_watch_start);
+//   * нет — создаёт и регистрирует. Двойное создание = двойное удаление из реестра.
 ma_task_mission_watch* ma_task_create_mission_watch(
     lua_State* L, std::atomic<bool>* stop, std::atomic<bool>* running);
 
@@ -244,10 +271,12 @@ ma_task_mission_watch* ma_task_create_mission_watch(
 ma_task_keyboard* ma_keyboard();
 
 // Фабрики (создают задачу и регистрируют в реестре). Безопасны из любого потока.
+// (23.10) turncar/turncar_delay принимают СЫРОЙ ключ из Lua (не CVehicle*) —
+// stale-указатель невозможен: резолв findcarinpool в step() на игровом потоке.
 ma_task_getcord* ma_task_create_getcord(std::queue<float> q, const void* p);
 ma_task_expectations* ma_task_create_expectations(int model, CVehicle* car);
-ma_task_turncar* ma_task_create_turncar(CVehicle* car, float angle, float speed, int switc);
-ma_task_turncar_delay* ma_task_create_turncar_delay(CVehicle* car, float angle, int time_ms, int switc);
+ma_task_turncar* ma_task_create_turncar(const void* p, float angle, float speed, int switc);
+ma_task_turncar_delay* ma_task_create_turncar_delay(const void* p, float angle, int time_ms, int switc);
 
 // Объявления для ma_tasks.cpp (определения — в funcs.cpp).
 CVector* get_car_angles_on_axes(CVehicle* car);

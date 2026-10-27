@@ -1,7 +1,7 @@
 // Диагностика вылетов lualoader — ТОЛЬКО чтение/логирование, игру не меняет.
 //
 // Модуль ловит вылет и отвечает на вопрос «почему упало»:
-//   lualoader\log.txt — ЕДИНЫЙ файл. Туда же пишут writelog() и cpp_trace() из funcs.cpp.
+//   lualoader\log.txt — ЕДИНЫЙ файл. Туда же пишет writelog() из funcs.cpp.
 //   В нём: отчёт о вылете (код исключения, адрес, модуль, поток, состояние мьютекса,
 //   ПОСЛЕДНИЕ 64 крошки, значения out-параметров команды) и журнал (кто какой
 //   Command<> исполнял, сколько ждали модели, какой .lua на каком потоке, зависания).
@@ -14,13 +14,22 @@
 #define LUALOADER_DIAG_H
 
 #include <string>
+#include <windows.h>
 
 namespace ma_diag {
 
-// Ставит VEH + UnhandledExceptionFilter + журнал + сторожевой поток.
-// Вызывается из Message (plugin.cpp) при загрузке DLL — НЕ из глобального
-// конструктора (иначе игра не стартует: RtlpWaitForCriticalSection).
-void install();
+    // Ставит VEH + UnhandledExceptionFilter + журнал + сторожевой поток.
+    // Вызывается из Message (plugin.cpp) при загрузке DLL — НЕ из глобального
+    // конструктора (иначе игра не стартует: RtlpWaitForCriticalSection).
+    void install();
+
+    // Полный отчёт о вылете (определён в diag.cpp): регистры, байты по EIP,
+    // крошки Command<>, очередь команд, состояние шрифта/моделей, Lua-контекст,
+    // игровой контекст, StackWalk64 + ручной разбор стека, модули, потоки,
+    // авто-заключение. Пишет в lualoader\log.txt напрямую (без общего буфера),
+    // реентерабелен: отчёт — ОДИН на процесс (g_inHandler). Зовётся из VEH-
+    // обработчика (стек ещё здоров) и из unhandled-filter.
+    void report(EXCEPTION_POINTERS* ep, const char* how);
 
 // Хлебная крошка: кольцевой буфер в памяти (БЕЗ мьютексов — на пути краша взаимоблокировка
 // невозможна) + строка в lualoader\log.txt.
@@ -40,11 +49,6 @@ void cmd_ctx(unsigned int commandId, const void* script, int ip, unsigned int ba
 
 // Имя .lua-потока (для отчёта о краше).
 void set_thread_name(const char* name);
-
-// Сердцебиение: вызывается из игрового кадра. По нему watchdog пишет в журнал
-// «игра жива + что делает». Если процесс умрёт МОЛЧА (без отчёта VEH) — последняя
-// такая строка покажет, на чём он стоял. nStates — число живых lua_State.
-void heartbeat(int nStates);
 
 // Событие загрузки модели: phase = "wait_start" | "wait_done" | "timeout".
 void model_event(int model, const char* phase, int elapsedMs);
@@ -112,6 +116,29 @@ void intro_text_guard();
 // потоке в ma_diag::msg_keepalive_purge().
 void msg_keepalive(wchar_t* text, unsigned int timeMs);
 void msg_keepalive_purge();
+
+// --- Целостность кучи CRT (27.10.2026) --------------------------------------
+// _heapchk() обходит кучу msvcrt — ту самую, в которой падает игра
+// (heap AV 0x772Fxxxx). Зовётся в контрольных точках (set_skin, destroy) и
+// раз в секунду из кадра (tag == nullptr — с троттлингом). Перед проверкой
+// кладёт крошку «HEAPCHECK-BEGIN <tag>»: если _heapchk упадёт сам, в отчёте
+// будет видно, какая операция проверялась. Ничего не выделяет из кучи.
+bool heap_check(const char* tag);
+
+// --- Снимок стека БЕЗ выделения памяти (27.10.2026) -------------------------
+// Причина: report() в VEH делает Toolhelp/dbghelp-вызовы, которые сами
+// выделяют память; при уже испорченной куче отчёт не дописывался и в журнале
+// оставалась одна строка VECTORED без модуля, стека и доступа. Эта функция
+// пишет ТОЛЬКО в статический буфер через _snprintf + WriteFile: код и адрес
+// исключения, тип доступа (READ/WRITE/EXEC), регистры, байты по EIP, слова
+// стека и цепочку EBP с модулем+смещением для каждого адреса.
+void dump_stack_noheap(EXCEPTION_POINTERS* ep, const char* how);
+
+// --- Карта модулей (27.10.2026) ---------------------------------------------
+// Один раз при старте пишет в журнал «MOD <base> <size> <имя>»: по ней
+// абсолютный адрес падения (например 0x772E1C00) переводится в модуль+смещение
+// даже если полный отчёт не записался.
+void dump_modules_once();
 
 } // namespace ma_diag
 

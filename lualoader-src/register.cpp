@@ -7,6 +7,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "setpedhealth", setpedhealth); // 2 установить здоровье педу.
 	lua_register(L, "setarmour", setarmour); // 3 установить броню педу.
 	lua_register(L, "wait", wait); // 4 задержка.
+	lua_register(L, "wait_key", wait_key); // 1587 (26.10) обработчик нажатия клавиш как гражданин планировщика: wait_key("VK_G", 5000) — ждёт нажатие и отпускание, паркуя корутину (остальные скрипты переключаются, кадр не блокируется).
 	lua_register(L, "getpedhealth", getpedhealth); // 5 получить здоровье педа.
 	lua_register(L, "getpedhealthf", getpedhealthf); // получить здоровье педа (float).
 	lua_register(L, "getpedangle", getpedangle); // 6 получить угол педа.
@@ -120,6 +121,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "setpedangle", setpedangle); // 112 установить угол педа.
 	lua_register(L, "setcaraction", setcaraction); // 113 установить поведение авто.
 	lua_register(L, "move_obj", move_obj); // 114 двигать объект.
+	lua_register(L, "move_obj_to", move_obj_to); // двигать объект в заданные координаты с заданной скоростью ед/сек (свой поток, скрипт не ждёт).
 	lua_register(L, "move_rotate", move_rotate); // 115 вращать объект.
 	lua_register(L, "getobjangle", getobjangle); // 116 получить угол объекта.
 	lua_register(L, "findcar", findcar); // 117 Найти авто.

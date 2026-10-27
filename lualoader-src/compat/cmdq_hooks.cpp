@@ -41,23 +41,10 @@ void ma_cmdq_install_hook() {
     g_installed = true;
 
     plugin::Events::gameProcessEvent += [] {
-        // ЗАМЕР разбора очереди (06.10). Это ОТДЕЛЬНЫЙ обработчик gameProcessEvent,
-        // поэтому в счётчик plugin.cpp он не попадает — а именно сюда уходит
-        // основная работа: выполнение Command<>() скриптов. Раз в 600 кадров пишем
-        // в log.txt (НЕ через ma_boot — тот флашит файл и сам создавал бы микрофриз).
-        const unsigned long long t0 = GetTickCount64();
-        const int before = ma_cmdq_pending();
+        // Только разбор очереди. Периодический ЗАМЕР (раз в 600 кадров) убран
+        // 24.10.2026: log.txt должен содержать только ошибки, а «вызовов=600»
+        // писалось каждые ~10 секунд игры.
         ma_cmdq_drain();
-        const unsigned long long dt = GetTickCount64() - t0;
-        static unsigned long long sum = 0, cnt = 0, mx = 0, did = 0;
-        sum += dt; cnt++; did += (unsigned long long)(before > 0 ? before : 0);
-        if (dt > mx) mx = dt;
-        if (cnt >= 600) {
-            ma_diag::mark("ЗАМЕР ОЧЕРЕДИ: вызовов=%llu  %.2f мс/вызов (сред)  %.2f мс (макс)  команд всего=%llu",
-                (unsigned long long)cnt, (double)sum / (double)cnt, (double)mx,
-                (unsigned long long)(did / 600));
-            sum = 0; cnt = 0; mx = 0; did = 0;
-        }
     };
     ma_diag::mark("CMDQ: разбор очереди команд включён (Events::gameProcessEvent, "
                   "регистрация из Message в plugin.cpp — порядок инициализации соблюдён)");

@@ -62,9 +62,15 @@ done
 #     Глобальных конструкторов в этих TU нет — иначе игра не стартует
 #     (RtlpWaitForCriticalSection "... blocked by 0000"). Регистрация хуков — из
 #     Message в plugin.cpp, ПОСЛЕ инициализации SDK.
-for c in compat/diag.cpp compat/cmdq_hooks.cpp compat/ma_streaming.cpp; do
+#     + compat/ma_tasks.cpp — кооперативные задачи игрового потока (keyboard,
+#       mission_watch, getcord/turncar): раньше файл не входил в сборку, хотя
+#       plugin.cpp уже вызывал ma_tasks_frame/ma_task_start_keyboard.
+#     + compat/ma_sched.cpp — ПЛАНИРОВЩИК LUA-СКРИПТОВ (23.10.2026): один поток
+#       на все .lua, wait() = парковка корутины (lua_yield), вытеснение по
+#       бюджету count-хуком. Ноль OS-потоков на скрипт.
+for c in compat/diag.cpp compat/cmdq_hooks.cpp compat/ma_streaming.cpp compat/ma_tasks.cpp compat/ma_sched.cpp; do
     o="$BUILD/$(basename "${c%.cpp}").o"
-    if [ "$c" -nt "$o" ] || [ "compat/diag.h" -nt "$o" ] || [ "compat/ma_streaming.h" -nt "$o" ]; then
+    if [ "$c" -nt "$o" ] || [ "compat/diag.h" -nt "$o" ] || [ "compat/ma_streaming.h" -nt "$o" ] || [ "compat/ma_tasks.h" -nt "$o" ] || [ "compat/ma_sched.h" -nt "$o" ]; then
         echo "CXX  $c"
         $CXX "${COMMON[@]}" -std=c++23 -w "${INCLUDES[@]}" -c "$c" -o "$o"
     fi
@@ -78,6 +84,22 @@ $CXX --target=i686-w64-mingw32 -m32 "${OBJS[@]}" -shared \
     -L"$SDK/output/lib" -lPlugin_VC \
     -ldbghelp \
     -o "$OUT"
+
+# 4. BUILD-GATE (правило 13.10: compat/* не добавляют глобальных конструкторов
+# и TLS — std::thread / thread_local / нетривиальные глобалы = в Wine игра не
+# стартует, RtlpWaitForCriticalSection "... blocked by 0000"). Плохой .asi удаляется.
+if [ -z "$LUALOADER_SKIP_GATE" ]; then
+    GATE_SUB_I=$(nm -C "$OUT" 2>/dev/null | grep -c "_GLOBAL__sub_I" || true)
+    GATE_TLS_HEX=$(objdump -h "$OUT" 2>/dev/null | awk '$2==".tls"{print $3; exit}')
+    GATE_TLS=$((16#${GATE_TLS_HEX:-00}))
+    if [ "${GATE_SUB_I:-0}" -ne 30 ] || [ "$GATE_TLS" -ne 36 ]; then
+        echo "BUILD-GATE FAIL: _GLOBAL__sub_I=$GATE_SUB_I (ожидается 30), .tls=$GATE_TLS (ожидается 36 = 0x24)"
+        echo "Плохой .asi удалён. Аварийный обход: LUALOADER_SKIP_GATE=1 ./build.sh"
+        rm -f "$OUT"
+        exit 1
+    fi
+    echo "BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24"
+fi
 
 echo ""
 echo "ГОТОВО: $OUT ($(du -h "$OUT" | cut -f1))"

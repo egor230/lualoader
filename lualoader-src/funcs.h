@@ -29,6 +29,10 @@
 // Хук регистрирует Message в plugin.cpp (ma_stream_install_hook).
 #include "compat/ma_streaming.h"
 
+// ==== Кооперативный планировщик скриптов (23.10.2026) ====
+// Один поток на все .lua; wait() = парковка корутины, а не сон OS-потока.
+#include "compat/ma_sched.h"
+
 // ==== Обёртка регистрации Lua-API (18.10.2026) ====
 // Каждая C-функция получает крошку «файл:строка скрипта -> имя API» для отчёта о
 // вылете (ma_diag::lua_note в compat/diag.cpp). Макрос перекрывает lua_register
@@ -128,6 +132,9 @@ bool lua_state_obsolete(lua_State* L);     // состояние из старо
 // сигнал «всем срочно выйти из длинных циклов». Ставится ПЕРВЫМ шагом teardown (пауза всех
 // скриптов ДО разборки), снимается когда разборка запущена.
 extern std::atomic<bool> teardown_active;
+// (25.10, финал-6) ЕДИНЫЙ мьютекс всех Lua-API: guard в теле каждой зарегистрированной
+// функции. wait() и yield() его НЕ берут (паркуются изнутри — держать = зависание).
+extern std::recursive_mutex g_lua_api_mx;
 // ПАУЗА по yield: поставлена pause_scripts() (определение — в plugin.cpp). wait() внутри
 // скриптов при этом делает return lua_yield(L,0) — скрипт БЕЗОПАСНО замирает со своего же
 // кадра (yield из СВОЕГО wait), pump-поток паркуется и ничего не закрывает. Обратимо.
@@ -267,12 +274,23 @@ wchar_t* getwchat(const char* c); // перевод в строку.
 
 int funs(lua_State* L);// список функций.
 void writelog(const char x[]);// запись ошибок в файл.
-void cpp_trace(const char x[]);// запись трейса C++ (в тот же trace.txt).
-void cpp_tracef(const char* fmt, ...);// форматированная запись трейса C++.
 void dellod(); // удалить лог ошибок.
 int cleanstl();// очистка stl.
 
-int wait(lua_State* L);// задержка
+int wait(lua_State* L);// пауза корутины: wait([мс]); без аргумента — 1 мс (park + yield)
+int wait_key(lua_State* L);// (26.10) обработчик нажатия клавиш через планировщик: ждёт press→release, паркуя корутину (скрипты переключаются, игра не блокируется)
+
+// (26.10, P1) ЕДИНЫЙ СНИМОК СОСТОЯНИЯ КЛАВИАТУРЫ: единственный опрос Win32
+// клавиш (GetAsyncKeyState) делает ma_keys_poll() — раз в кадр на игровом
+// потоке из клавиатурной задачи ПЕРЕД скриптами. C++ API getkey/keypress/
+// wait_key читают только снимок: без системных вызовов в пути скриптов и
+// без ~183 GetAsyncKeyState на опрос чек-стринга каждый кадр.
+struct ma_key_state {
+	unsigned char held[256];// клавиша удержана (бит 0x8000) на последнем опросе
+	unsigned char was_held[256];// была удержана кадром раньше (диагностика)
+};
+ma_key_state& ma_keys();// снимок (function-local static в funcs.cpp)
+void ma_keys_poll();// единственный GetAsyncKeyState (игровой поток, задача-клавиатура)
 int findplayer(lua_State* L);// найти педа.
 int getpedhealth(lua_State* L);// получить здоровье педа.
 int getpedhealthf(lua_State* L);// получить здоровье педа (float).
@@ -412,6 +430,7 @@ int isobject(lua_State* L); // проверка это объект?.
 int setpedangle(lua_State* L); // установить угол педа.
 int setcaraction(lua_State* L);// установить поведение авто.
 int move_obj(lua_State* L); //двигать объект.
+int move_obj_to(lua_State* L); //двигать объект в заданные координаты с заданной скоростью (свой поток).
 
 int move_rotate(lua_State* L); // вращать объект.
 int getobjangle(lua_State* L); // получить угол объекта.

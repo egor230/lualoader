@@ -264,7 +264,7 @@ local function spawn_riot_scene(player, rioters, bite_flag, dead_flag, hp_prev, 
 end
 
 function main()
-while true do wait()  local player = findplayer()  -- указатель игрока (обновляется каждую итерацию внешнего цикла)
+while true do wait(10)  local player = findplayer()  -- указатель игрока (обновляется каждую итерацию внешнего цикла)
 
  if Star_mission_marker(9, 118.0, -825.9, 10.5)
  then
@@ -277,8 +277,7 @@ while true do wait()  local player = findplayer()  -- указатель игр�
   local killed = 0        -- сколько пикетчиков умерло ($2198)
   local escalated = 0     -- толпа взбешена ($2205)
   local riot_intensity = 127  -- уровень беспорядков (0552), убывает по убийствам пикетчиков
-  local gates_open = 0    -- ворота стройки открыты ($2206)
-  local gate_frames = 0   -- осталось кадров движения ворот (6ед / 0.1ед-в-кадр = 60 кадров ≈ 2 с; как оригинал L47f4e)
+  local gates_open = 0    -- ворота стройки открыты ($2206); 25.10: счётчик кадров убран — ворота ставятся мгновенно (setobjcoordes)
   local law4_13_shown = 0  -- LAW4_13 печатается один раз при подъезде близко
   local frame = 0          -- счётчик кадров боя (step==3): для низкочастотной диагностики — боевой цикл не оставляет трейсов, иначе краш/ошибку не локализовать
   local agit1_drop = 0    -- колт уже выпал из трупа агитатора 1
@@ -315,6 +314,7 @@ while true do wait()  local player = findplayer()  -- указатель игр�
    ma_trace("riot: блайпы Рафаэля (спрайт 28) и стройки созданы, сферы не дикие")
 
    local guard_target = {}  -- guard_target[g] = текущая цель-мятежник охранника g (для перебинда, если цель умрёт; ключи — lightuserdata, валидны в Lua)
+   truck1, truck2, truck3, mt1, mt2, mt3, obj1, obj2, gate, agit1, agit2, leader = spawn_riot_scene(player, rioters, bite_flag, dead_flag, hp_prev, riot_intensity)  -- создать всю сцену бунта (оружие, грузовики, объекты, ворота, 21 пикетчик, 3 GDA) — сущности возвращаются функцией, таблицы мутируются по ссылке
 
    while true == Getflagmission() do --wait(10)
     local pp = findplayer()  -- указатель игрока на этой итерации цикла миссии
@@ -332,7 +332,6 @@ while true do wait()  local player = findplayer()  -- указатель игр�
       if dress_sphere ~= nil then remove_sphere(dress_sphere) dress_sphere = nil end
      end
 
-      truck1, truck2, truck3, mt1, mt2, mt3, obj1, obj2, gate, agit1, agit2, leader = spawn_riot_scene(player, rioters, bite_flag, dead_flag, hp_prev, riot_intensity)  -- создать всю сцену бунта (оружие, грузовики, объекты, ворота, 21 пикетчик, 3 GDA) — сущности возвращаются функцией, таблицы мутируются по ссылке
 
     --printmessage("~g~Destroy the workers' trucks to break the strike!", 6000, 1)
     --printmessage("~r~Workers: This is our site! Get out!", 5000, 1)
@@ -374,11 +373,11 @@ while true do wait()  local player = findplayer()  -- указатель игр�
        escalated = 1  -- эскалация прошла (start_riot выставляет поведение педов, флаг — здесь: это состояние главного цикла)
       end
 
-      if escalated == 1 and gates_open == 0 then  -- (оригинал L47dfc: ворота открываются ВСЕГДА после эскалации — SLIDE_OBJECT $1778 → 304 -313.6 11, LAW4_14; одежда определяет КОГО бьют охранники, но не факт открытия ворот — теперь это в start_riot)
+      if escalated == 1 and gates_open == 0 then  -- (оригинал L47dfc: ворота открываются ВСЕГДА после эскалации — $1778 → 304 -313.6 11, LAW4_14; одежда определяет КОГО бьют охранники, но не факт открытия ворот — теперь это в start_riot)
        gates_open = 1
-       gate_frames = 60  -- SLIDE_OBJECT по 0.1/кадр: 298→304 = 6 ед = 60 кадров (оригинал L47f4e)
        if gate ~= nil then
-        ma_trace("riot: ворота открываются (SLIDE_OBJECT 298 → 304 -313.6 11)")  -- движение ниже, каждый кадр (как L47f4e: SLIDE_OBJECT двигает на 0.1 за кадр, пока не доедет)
+        setobjcoordes(gate, 304.0, -313.6, 11.0)  -- 25.10: мгновенное открытие — счётчик кадров (SLIDE_OBJECT по 0.1/кадр, 60 кадров) убран: ворота тормозили
+        ma_trace("riot: ворота открыты (298 → 304 -313.6 11, мгновенно)")
        end
        --printmessage("~r~Lawyers and cops are on their way! Get the trucks!", 8000, 1)
       end
@@ -397,11 +396,6 @@ while true do wait()  local player = findplayer()  -- указатель игр�
        end
       end
      end
-
-     if gates_open == 1 and gate ~= nil and gate_frames > 0 then  -- (оригинал @L47f4e: движение ворот БЕЗ кадрового getobjcoordes, каждый кадр SLIDE_OBJECT — ровно 60 кадров, потом стоп; getobjcoordes каждый кадр навсегда = findobjinpool sleep_for(1ms)+скан пула → зависание кадра)
-     move_obj(gate, 304.0, -313.6, 11.0, 0.1, 0.1, 0.0, 0)
-     gate_frames = gate_frames - 1
-    end
 
     if killed > 14 then  -- убито >14 → SET_RIOT_INTENSITY 0 (оригинал L47cac)
      set_riot_intensity(0)
@@ -447,8 +441,8 @@ while true do wait()  local player = findplayer()  -- указатель игр�
     if mt2 ~= nil then remove_blip(mt2) mt2 = nil end
     if mt3 ~= nil then remove_blip(mt3) mt3 = nil end
    if step == 3 then set_riot_intensity(0) end
-  if gates_open == 1 and gate ~= nil then  -- (оригинал @L485a1 M_FAIL: ворота открывались — закрыть обратно SLIDE_OBJECT в 298,-313.6,11)
-   move_obj(gate, 298.0, -313.6, 11.0, 0.15, 0.15, 0.0, 0)
+  if gates_open == 1 and gate ~= nil then  -- (оригинал @L485a1 M_FAIL: ворота открывались — закрыть обратно в 298,-313.6,11)
+   setobjcoordes(gate, 298.0, -313.6, 11.0)  -- 25.10: мгновенное закрытие (старый одиночный move_obj на 0.15 ед ворота фактически не закрывал)
    ma_trace("riot: ворота закрыты (M_FAIL)")
   end
   step = nil
