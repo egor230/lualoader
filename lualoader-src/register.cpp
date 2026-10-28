@@ -1610,5 +1610,12 @@ int funs(lua_State* L) {// список функций.
 
 	lua_register(L, "get_player_wanted_level", get_player_wanted_level); // 1580 уровень розыска игрока (детектор респрея Swine).
 
+
+	lua_register(L, "register_mission_given", register_mission_given); // 1588 0317 отметить миссию выданной (CStats::MissionsGiven).
+	lua_register(L, "register_mission_passed", register_mission_passed); // 1589 0318 отметить миссию пройденной (CStats::MissionsPassed).
+	lua_register(L, "set_police_ignore_player", set_police_ignore_player); // 1590 01F7 копы игнорируют игрока.
+	lua_register(L, "set_object_collision", set_object_collision); // 1591 0382 объект сталкивается с миром.
+	lua_register(L, "set_object_dynamic", set_object_dynamic); // 1592 0392 объект динамический (падает/двигается).
+
 	return 0;
 };

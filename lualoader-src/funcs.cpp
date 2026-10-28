@@ -79,7 +79,7 @@ int wait(lua_State* L) {
 	// (заморозка кадра), без OS-потоков (RtlpWaitForCriticalSection в Wine),
 	// без одноразового флага -32767.
 	int time = 1; // wait() / wait(nil): минимальный квант планировщика — 1 мс.
-	this_thread::sleep_for(chrono::milliseconds(time));
+	// this_thread::sleep_for(chrono::milliseconds(time));
 	if (!lua_isnoneornil(L, 1)) {
 		if (LUA_TNUMBER != lua_type(L, 1)) {
 			return luaL_argerror(L, 1, "number or nil expected");// строка/флаг/таблица — ошибка Lua, не тихие 1 мс.
@@ -2562,6 +2562,40 @@ int make_obj_targettable(lua_State* L) {// в объект можно целит
 	return 0;
 };
 
+int set_object_collision(lua_State* L) {// объект сталкивается с миром? (0382: SET_OBJECT_COLLISION).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// (obj, flag).
+			const void* p = lua_topointer(L, 1);
+			CObject* obj = findobjinpool(p);// получить указатель на объект.
+			if (obj == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
+			bool flag = lua_toboolean(L, 2);
+			Command<COMMAND_SET_OBJECT_COLLISION>(CPools::GetObjectRef(obj), flag);// bUsesCollision (reVC Script4.cpp).
+			return 0;
+		}
+		else { throw "bad argument in function set_object_collision"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int set_object_dynamic(lua_State* L) {// объект динамический (падает/двигается)? (0392: SET_OBJECT_DYNAMIC).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// (obj, flag).
+			const void* p = lua_topointer(L, 1);
+			CObject* obj = findobjinpool(p);// получить указатель на объект.
+			if (obj == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
+			bool flag = lua_toboolean(L, 2);
+			Command<COMMAND_SET_OBJECT_DYNAMIC>(CPools::GetObjectRef(obj), flag);// SetIsStatic/AddToMovingList (reVC Script4.cpp).
+			return 0;
+		}
+		else { throw "bad argument in function set_object_dynamic"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
 int get_dead_char_pickup_coords(lua_State* L) {// координаты трупного пикапа (04A5: GET_DEAD_CHAR_PICKUP_COORDS).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
@@ -2936,6 +2970,20 @@ int clear_wanted(lua_State* L) {// убрать уровень розыска.
 	CPlayerPed& player1 = *FindPlayerPed();
 	player1.SetWantedLevel(0);
 	//Command<COMMAND_CLEAR_WANTED_LEVEL>(CWorld::PlayerInFocus);
+	return 0;
+};
+
+int set_police_ignore_player(lua_State* L) {// копы игнорируют игрока? (01F7: SET_POLICE_IGNORE_PLAYER).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TBOOLEAN == lua_type(L, 1)) {// (flag) — игрок всегда фокусный (CWorld::PlayerInFocus).
+			bool flag = lua_toboolean(L, 1);
+			Command<COMMAND_SET_POLICE_IGNORE_PLAYER>(CWorld::PlayerInFocus, flag);// m_bIgnoredByCops + StopAllLawEnforcers (reVC Script3.cpp).
+			return 0;
+		}
+		else { throw "bad argument in function set_police_ignore_player"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
 };
 
@@ -3344,6 +3392,30 @@ int setflagmission(lua_State* L) {// уcтановить флага миссии
 			return 0;
 		}
 		else { throw "bad argument in function setflagmission"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int register_mission_given(lua_State* L) {// отметить миссию ВЫДАННОЙ (0317: REGISTER_MISSION_GIVEN).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		Command<COMMAND_REGISTER_MISSION_GIVEN>();// CStats::MissionsGiven++ (reVC Script3.cpp).
+		return 0;
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int register_mission_passed(lua_State* L) {// отметить миссию ПРОЙДЕННОЙ (0318: REGISTER_MISSION_PASSED).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TSTRING == lua_type(L, 1)) {// (key) — ключ текста до 7 символов, как в оригинале: LAW_4.
+			const char* key = lua_tostring(L, 1);
+			Command<COMMAND_REGISTER_MISSION_PASSED>(key);// MissionsPassed++, ключ последней миссии, снятие шортката (reVC Script3.cpp).
+			return 0;
+		}
+		else { throw "bad argument in function register_mission_passed"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;

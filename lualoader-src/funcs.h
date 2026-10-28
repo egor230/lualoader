@@ -336,6 +336,8 @@ int set_ped_personality(lua_State* L);// уст. личность педа (0243
 int set_ped_only_damaged_by_player(lua_State* L);// пед ранен только игроком (02A9: SET_CHAR_ONLY_DAMAGED_BY_PLAYER).
 int is_ped_health_greater(lua_State* L);// здоровье педа больше? (0184: IS_CHAR_HEALTH_GREATER, возвращает bool).
 int make_obj_targettable(lua_State* L);// в объект можно целиться (035D: MAKE_OBJECT_TARGETTABLE).
+int set_object_collision(lua_State* L);// объект сталкивается с миром (0382: SET_OBJECT_COLLISION).
+int set_object_dynamic(lua_State* L);// объект динамический: падает/двигается (0392: SET_OBJECT_DYNAMIC).
 int get_dead_char_pickup_coords(lua_State* L);// координаты трупного пикапа (04A5: GET_DEAD_CHAR_PICKUP_COORDS, 3 float).
 int set_ped_mood(lua_State* L);// настроение педа (04E3: SET_PLAYER_MOOD).
 int request_animation(lua_State* L);// запросить анимацию по имени (04ED: REQUEST_ANIMATION).
@@ -356,6 +358,7 @@ int remove_car(lua_State* L); // удалить авто.
 int car_in_water(lua_State* L); // проверка авто в воде?.
 int set_wanted(lua_State* L); // уcтановить уровень розыска.
 int clear_wanted(lua_State* L);// убрать уровень розыска.
+int set_police_ignore_player(lua_State* L);// копы игнорируют игрока (01F7: SET_POLICE_IGNORE_PLAYER).
 int kill_ped(lua_State* L); // убить педа.
 
 int setpedcoordes(lua_State* L); // установить координаты для педа.
@@ -365,6 +368,8 @@ int cardrive(lua_State* L); // авто едет в точку.
 int setcarspeed(lua_State* L); // установить скорость авто.
 int getflagmission(lua_State* L); // проверка флага миссии.
 int setflagmission(lua_State* L); // уcтановить флага миссии.
+int register_mission_given(lua_State* L); // отметить миссию выданной (0317: REGISTER_MISSION_GIVEN).
+int register_mission_passed(lua_State* L); // отметить миссию пройденной (0318: REGISTER_MISSION_PASSED).
 int showtext(lua_State* L);// Вывод особого текста на экран.
 
 int remove_blip(lua_State* L);// удалить метку с карты.
