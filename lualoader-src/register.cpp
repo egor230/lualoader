@@ -1617,5 +1617,24 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_object_collision", set_object_collision); // 1591 0382 объект сталкивается с миром.
 	lua_register(L, "set_object_dynamic", set_object_dynamic); // 1592 0392 объект динамический (падает/двигается).
 
+	// ---- (06.11) Новые функции и вариации (миссия 07 - Treacherous Swine / main.scm) ----
+	lua_register(L, "load_mission_audio", load_mission_audio); // 1593 03CF загрузить миссийную аудиофразу (слот, имя).
+	lua_register(L, "has_mission_audio_loaded", has_mission_audio_loaded); // 1594 03D0 аудиофраза слота загружена?
+	lua_register(L, "play_mission_audio", play_mission_audio); // 1595 03D1 проиграть загруженную фразу слота.
+	lua_register(L, "has_mission_audio_finished", has_mission_audio_finished); // 1596 03D2 фраза слота доиграла?
+	lua_register(L, "clear_mission_audio", clear_mission_audio); // 1597 040D выгрузить фразу слота.
+	lua_register(L, "set_everyone_ignore_player", set_everyone_ignore_player); // 1598 03BF все игнорируют игрока (сцены).
+	lua_register(L, "alter_wanted_level", alter_wanted_level); // 1599 010D поставить уровень розыска (с авто-спадом).
+	lua_register(L, "alter_wanted_level_no_drop", alter_wanted_level_no_drop); // 1600 010E уровень розыска без авто-спада.
+	lua_register(L, "is_wanted_level_greater", is_wanted_level_greater); // 1601 010F розыск выше N?
+	lua_register(L, "remove_char_elegantly", remove_char_elegantly); // 1602 034F мягкое удаление педа (MISSION→RANDOM+fade).
+	lua_register(L, "locate_char_any_means_2d", locate_char_any_means_2d); // 1603 00EC пед (пешком/в авто) в круге.
+	lua_register(L, "locate_char_any_means_3d", locate_char_any_means_3d); // 1604 00FE пед (пешком/в авто) в сфере.
+	lua_register(L, "locate_player_any_means_char_2d", locate_player_any_means_char_2d); // 1605 00E9 игрок рядом с педом (2D).
+	lua_register(L, "locate_player_any_means_char_3d", locate_player_any_means_char_3d); // 1606 00FB игрок рядом с педом (3D).
+	lua_register(L, "is_player_in_area_3d", is_player_in_area_3d); // 1607 0057 игрок в 3D-зоне по двум углам.
+	lua_register(L, "is_char_in_area_3d", is_char_in_area_3d); // 1608 0154 пед в 3D-зоне по двум углам.
+	lua_register(L, "player_made_progress", player_made_progress); // 1609 030C процент прохождения игры.
+
 	return 0;
 };

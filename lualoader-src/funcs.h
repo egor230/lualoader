@@ -29,9 +29,10 @@
 // Хук регистрирует Message в plugin.cpp (ma_stream_install_hook).
 #include "compat/ma_streaming.h"
 
-// ==== Кооперативный планировщик скриптов (23.10.2026) ====
-// Один поток на все .lua; wait() = парковка корутины, а не сон OS-потока.
-#include "compat/ma_sched.h"
+// ==== Планировщик скриптов (2021, директива юзера) ====
+// ОДИН OS-ПОТОК НА КАЖДЫЙ .lua (plugin.cpp): каждый скрипт — своё lua_State и
+// свой поток создания; wait(ms) спит ЭТИМ потоком (2021-модель). Планировщик
+// ma_sched кооперативной парковки удалён; streams/keyboard — прежние compat-модули.
 
 // ==== Обёртка регистрации Lua-API (18.10.2026) ====
 // Каждая C-функция получает крошку «файл:строка скрипта -> имя API» для отчёта о
@@ -2021,3 +2022,28 @@ int switch_streaming(lua_State* L); // 03AF: вкл/выкл стриминг.
 int mark_char_as_no_longer_needed(lua_State* L); // 01C2: пометить педа как ненужного.
 int set_visibility_of_closest_object_of_type(lua_State* L); // 0363: видимость ближайшего объекта типа.
 int get_player_wanted_level(lua_State* L); // уровень розыска игрока (детектор респрея Swine). // 0363: видимость ближайшего объекта типа.
+
+// ---- (06.11) Чистка при выходе из цикла Getflagmission (директива юзера) ----
+// Тело destroy() вынесено из funcs.cpp: его зовут destroy() (end_mission/
+// перезагрузка), Getflagmission() (миссия кончилась — флаг сменился или игрок
+// погиб/арестован) и сторож миссии. Реестры per-lua_State, повторный вызов — no-op.
+void purge_script_entities(lua_State* L);
+
+// ---- (06.11) Новые функции и вариации прежних (по опкодам 07 - Treacherous Swine / main.scm) ----
+int load_mission_audio(lua_State* L); // 03CF: загрузить миссийную аудиофразу (слот, имя).
+int has_mission_audio_loaded(lua_State* L); // 03D0: аудиофраза слота загружена? (булево)
+int play_mission_audio(lua_State* L); // 03D1: проиграть загруженную фразу слота.
+int has_mission_audio_finished(lua_State* L); // 03D2: фраза слота доиграла? (булево)
+int clear_mission_audio(lua_State* L); // 040D: выгрузить фразу слота.
+int set_everyone_ignore_player(lua_State* L); // 03BF: все игнорируют игрока (вариация set_police_ignore_player).
+int alter_wanted_level(lua_State* L); // 010D: поставить уровень розыска (вариация set_wanted, с авто-спадом).
+int alter_wanted_level_no_drop(lua_State* L); // 010E: уровень розыска без авто-спада (погоня после убийства цели).
+int is_wanted_level_greater(lua_State* L); // 010F: розыск выше N? (вариация get_player_wanted_level).
+int remove_char_elegantly(lua_State* L); // 034F: мягкое удаление педа (MISSION→RANDOM + fade) — вариация remove_ped.
+int locate_char_any_means_2d(lua_State* L); // 00EC: пед (пешком/в авто) в круге — вариация ped_in_point_in_radius.
+int locate_char_any_means_3d(lua_State* L); // 00FE: пед (пешком/в авто) в сфере.
+int locate_player_any_means_char_2d(lua_State* L); // 00E9: игрок рядом с педом (2D) — погоня Swine.
+int locate_player_any_means_char_3d(lua_State* L); // 00FB: игрок рядом с педом (3D).
+int is_player_in_area_3d(lua_State* L); // 0057: игрок в 3D-зоне ПО ДВУМ УГЛАМ (вариация ped_in_point_in_radius).
+int is_char_in_area_3d(lua_State* L); // 0154: пед в 3D-зоне по двум углам.
+int player_made_progress(lua_State* L); // 030C: процент прохождения игры (CStats::ProgressMade).

@@ -9,19 +9,22 @@
 #include <exception>
 #include "compat/diag.h"
 #include "compat/ma_tasks.h"
-#include "compat/ma_sched.h"
 using namespace plugin;
 using namespace std;
 
 // ============================================================================
-// ПЛАНИРОВЩИК (25.10, финал-7, директива юзера): ВСЕ скрипты — на ИГРОВОМ потоке.
-// До входа в игру: ma_sched_scan() находит и проверяет все .lua (порциями).
-// Каждый кадр (Events::gameProcessEvent): удостоверяемся, что игрок в игре
-// (gGameState == 9), и крутим ЦИКЛ FOR ПО СКРИПТАМ — ma_sched_frame(): каждое
-// состояние получает resume до ближайшего yield; wait(ms)/yield() паркуют
-// корутину до следующего кадра. Ни одного OS-потока на скрипты → гонок нет
-// по построению. (Поточная машина «Комета»/pump удалена — она и давала
-// вылеты при 2-3 скриптах: параллельные потоки лезли в общее состояние.)
+// ПЛАНИРОВЩИК (2021, директива юзера): ОДИН OS-ПОТОК НА КАЖДЫЙ .lua.
+//
+// Каждый скрипт живёт в своём lua_State и своём std::thread:
+//   * wait(ms) спит ЭТИМ потоком (как в последнем коммите 2021);
+//   * create_newthread() поднимает ещё один поток/состояние;
+//   * игровой поток не блокируется, остальные скрипты продолжают работать.
+//
+// Разборка (Ctrl-reload / выход из игры) — фоновый поток: ставит
+// teardown_active, ждёт завершения скриптовых потоков (wait() и count-хук
+// бросают SCRIPT_STOPPED_BY_CPP), затем destroy(L) + cleanstl() через очередь
+// команд (Command<> исполняется на игровом потоке). lua_close не зовём:
+// состояние могло остаться у зависшего потока — утечка лучше UAF (как в 2021).
 // ============================================================================
 
 static std::atomic<bool> reload_busy(false);
@@ -29,6 +32,8 @@ static std::atomic<bool> scripts_disabled(false);
 std::atomic<bool> scripts_paused(false);
 std::atomic<bool> teardown_active(false);
 static std::atomic<bool> scripts_started(false);
+static std::atomic<bool> rescan_requested(false);
+static std::atomic<bool> start_pending(false);
 
 struct star_thread {
     static bool star_second_thread;
@@ -74,7 +79,212 @@ void writelog3(int x) {
     f1.close();
 };
 
-// ==== Разборка (реальная работа — в ma_sched, двухфазная) ====
+// ==== Реестр скриптовых потоков =============================================
+// Аргументы create_newthread переносятся между независимыми lua_State как
+// простые значения (lua_xmove между разными global state — UB).
+struct ScriptArg {
+    int type = LUA_TNIL;
+    double num = 0;
+    bool b = false;
+    std::string str;
+    const void* ptr = nullptr;
+};
+
+struct ScriptRec {
+    lua_State* L = nullptr;   // главное состояние (GC-якорь; не закрываем)
+    lua_State* T = nullptr;   // корутина, на которой исполняется скрипт
+    std::atomic<bool> done{ false };
+    std::string file;
+};
+
+struct ScriptRegistry {
+    std::mutex mx;
+    std::vector<std::shared_ptr<ScriptRec>> active;
+    std::vector<std::shared_ptr<ScriptRec>> zombies;
+};
+
+static ScriptRegistry& script_registry() {
+    static ScriptRegistry r;
+    return r;
+}
+
+// count-хук: разборка должна уметь прервать даже busy-цикл без wait().
+static void script_stop_hook(lua_State* L, lua_Debug* ar) {
+    (void)ar;
+    if (teardown_active.load()) {
+        luaL_error(L, "SCRIPT_STOPPED_BY_CPP");
+    }
+}
+
+static void push_script_arg(lua_State* L, const ScriptArg& a) {
+    switch (a.type) {
+        case LUA_TBOOLEAN: lua_pushboolean(L, a.b ? 1 : 0); break;
+        case LUA_TNUMBER:  lua_pushnumber(L, (lua_Number)a.num); break;
+        case LUA_TSTRING:  lua_pushlstring(L, a.str.data(), a.str.size()); break;
+        case LUA_TLIGHTUSERDATA: lua_pushlightuserdata(L, const_cast<void*>(a.ptr)); break;
+        default: lua_pushnil(L); break;
+    }
+}
+
+static void log_lua_error(lua_State* L, const char* where) {
+    const char* e = lua_tostring(L, -1);
+    if (!e) e = "(ошибка без текста)";
+    writelog(e);
+    ma_diag::lua_error_note("%s: %s", where ? where : "?", e);
+    lua_pop(L, 1);
+}
+
+static void script_thread_main(std::shared_ptr<ScriptRec> rec, std::string dumped, std::vector<ScriptArg> args) {
+    lua_State* L = luaL_newstate();
+    if (!L) { rec->done.store(true); return; }
+    luaL_openlibs(L);
+    lua_State* T = lua_newthread(L);   // остаётся на стеке L — GC-якорь
+    rec->L = L;
+    rec->T = T;
+    lua_state_stamp(T);
+
+    // Имя файла для wait_script_name()/create_newthread(): ключ — сама корутина.
+    lua_pushlightuserdata(T, T);
+    lua_pushstring(T, rec->file.c_str());
+    lua_settable(T, LUA_REGISTRYINDEX);
+
+    std::error_code cec;
+    std::string pp = (std::filesystem::current_path(cec) / "?.lua").string();
+    if (cec) pp = "?.lua";
+    lua_pushstring(T, pp.c_str());
+    lua_setglobal(T, "fullpath");
+    luaL_dostring(T, "package.path = fullpath");
+
+    funs(T);   // ~1583 Lua-API функции
+    lua_sethook(T, script_stop_hook, LUA_MASKCOUNT, 2000);
+    ma_diag::set_thread_name(rec->file.c_str());
+
+    int st = luaL_loadfile(T, rec->file.c_str());
+    if (st != LUA_OK) {
+        log_lua_error(T, "luaL_loadfile");
+        rec->done.store(true);
+        return;
+    }
+    int pst = lua_pcall(T, 0, 0, 0);
+    if (pst != LUA_OK) {
+        log_lua_error(T, "верхний блок скрипта");
+        rec->done.store(true);
+        return;
+    }
+    if (teardown_active.load()) { rec->done.store(true); return; }
+
+    int nargs = 0;
+    if (dumped.empty()) {
+        // Обычный скан: запускаем глобальную main().
+        lua_getglobal(T, "main");
+        if (lua_type(T, -1) != LUA_TFUNCTION) {
+            lua_pop(T, 1);
+            rec->done.store(true);
+            return;
+        }
+    }
+    else {
+        // create_newthread: файл уже исполнен (глобалы на месте), грузим байткод
+        // переданной функции и её аргументы.
+        if (luaL_loadbuffer(T, dumped.data(), dumped.size(), "=create_newthread") != LUA_OK) {
+            log_lua_error(T, "create_newthread: loadbuffer");
+            rec->done.store(true);
+            return;
+        }
+        for (const ScriptArg& a : args) push_script_arg(T, a);
+        nargs = (int)args.size();
+    }
+
+    int nres = 0;
+    int status = lua_resume(T, nullptr, nargs, &nres);
+    while (status == LUA_YIELD) {
+        if (teardown_active.load()) break;
+        status = lua_resume(T, nullptr, 0, &nres);
+    }
+    if (status != LUA_OK && status != LUA_YIELD) {
+        log_lua_error(T, dumped.empty() ? "main" : "create_newthread");
+    }
+    rec->done.store(true);
+}
+
+static bool spawn_script(const std::string& file, std::string dumped, std::vector<ScriptArg> args) {
+    if (scripts_disabled.load() || teardown_active.load()) return false;
+    std::shared_ptr<ScriptRec> rec = std::make_shared<ScriptRec>();
+    rec->file = file;
+    {
+        ScriptRegistry& reg = script_registry();
+        std::lock_guard<std::mutex> lk(reg.mx);
+        reg.active.push_back(rec);
+    }
+    try {
+        std::thread([rec, dumped = std::move(dumped), args = std::move(args)]() mutable {
+            script_thread_main(rec, std::move(dumped), std::move(args));
+        }).detach();
+    }
+    catch (...) {
+        rec->done.store(true);
+        writelog("не удалось создать поток скрипта");
+        return false;
+    }
+    return true;
+}
+
+static void scan_and_start_scripts() {
+    if (scripts_disabled.load() || teardown_active.load()) return;
+    dellod();   // новый журнал на новую загрузку (как старый search)
+
+    namespace fs = std::filesystem;
+    std::error_code ec;
+    fs::path root = fs::current_path(ec) / "lualoader";
+    if (ec) return;
+    fs::recursive_directory_iterator it(root, fs::directory_options::skip_permission_denied, ec), end;
+    for (; !ec && it != end; it.increment(ec)) {
+        std::error_code fec;
+        if (!it->is_regular_file(fec)) continue;
+        std::string ext = it->path().extension().string();
+        if (ext != ".lua" && ext != ".LUA") continue;
+        std::string res = it->path().string();
+        char* luafile = strdup(res.c_str());
+        if (luafile) listfile.push_back(luafile);
+        spawn_script(res, std::string(), std::vector<ScriptArg>());
+    }
+}
+
+// ==== Разборка (фон, чтобы не блокировать игровой поток) ====================
+static void teardown_worker(std::vector<std::shared_ptr<ScriptRec>> snap, bool restart) {
+    const unsigned long long deadline = GetTickCount64() + 15000;
+    for (auto& r : snap) {
+        while (!r->done.load() && GetTickCount64() < deadline) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(2));
+        }
+    }
+
+    bool all_done = true;
+    for (auto& r : snap) {
+        if (!r->done.load()) { all_done = false; continue; }
+        if (r->T) {
+            try { destroy(r->T); } catch (...) {}
+            lua_state_unstamp(r->T);
+        }
+    }
+    cleanstl();
+
+    if (!all_done) {
+        ScriptRegistry& reg = script_registry();
+        std::lock_guard<std::mutex> lk(reg.mx);
+        for (auto& r : snap) {
+            if (!r->done.load()) reg.zombies.push_back(r);
+        }
+        reload_busy.store(false);
+        writelog("teardown: часть скриптов не завершилась за 15 с — повтор при следующей разборке");
+        return;   // teardown_active остаётся true: зависшие увидят флаг на wait()/хуке
+    }
+
+    teardown_active.store(false);
+    reload_busy.store(false);
+    if (restart || start_pending.exchange(false)) rescan_requested.store(true);
+}
+
 static void teardown_all(bool restart) {
     if (reload_busy.exchange(true)) { return; }
     teardown_active.store(true);
@@ -90,24 +300,52 @@ static void teardown_all(bool restart) {
 
     stop_mission_watch();
     g_lua_epoch.fetch_add(1);
-    ma_sched_request_teardown(restart);
-    reload_busy.store(false);
+
+    std::vector<std::shared_ptr<ScriptRec>> snap;
+    {
+        ScriptRegistry& reg = script_registry();
+        std::lock_guard<std::mutex> lk(reg.mx);
+        snap.swap(reg.active);
+        for (auto& z : reg.zombies) snap.push_back(z);
+        reg.zombies.clear();
+    }
+
+    if (snap.empty()) {
+        cleanstl();
+        teardown_active.store(false);
+        reload_busy.store(false);
+        if (restart || start_pending.exchange(false)) rescan_requested.store(true);
+        return;
+    }
+
+    std::thread([snap = std::move(snap), restart]() mutable {
+        teardown_worker(std::move(snap), restart);
+    }).detach();
 }
 
 // ==== Per-frame: старт при входе в игру, разборка при выходе ====
 static void lifecycle_tick() {
     const bool in_game = (gGameState == 9);
 
-    // Вход в игру: один раз на сессию — найти и проверить все .lua.
+    // Отложенный скан после фоновой разборки (Ctrl-reload).
+    if (rescan_requested.exchange(false)) {
+        if (in_game && !scripts_disabled.load()) {
+            scan_and_start_scripts();
+            scripts_started.store(true);
+        }
+    }
+
+    // Вход в игру: один раз на сессию — найти и запустить все .lua.
     if (in_game && !scripts_started.load()) {
         if (scripts_disabled.load()) return;
+        if (teardown_active.load() || reload_busy.load()) { start_pending.store(true); return; }
         int gtg = CTimer::m_snTimeInMilliseconds;
         bool can_start = (gtg < 1000)
             ? (Command<COMMAND_CAN_PLAYER_START_MISSION>(CWorld::PlayerInFocus) != 0)
             : true;
         if (can_start) {
             star_thread::set(true);
-            ma_sched_scan();// скан и проверка всех скриптов (грузит порциями по 2 файла/кадр)
+            scan_and_start_scripts();
             scripts_started.store(true);
         }
         return;
@@ -124,7 +362,7 @@ static void lifecycle_tick() {
 void search_scripts() {
     if (scripts_disabled.load()) return;
     if (scripts_started.load()) return;
-    ma_sched_scan();
+    scan_and_start_scripts();
     scripts_started.store(true);
 }
 
@@ -132,7 +370,7 @@ int start_lualoder() {
     if (scripts_disabled.load()) { star_thread::set(false); return 0; }
     star_thread::set(true);
     if (!scripts_started.load()) {
-        ma_sched_scan();
+        scan_and_start_scripts();
         scripts_started.store(true);
     }
     return 0;
@@ -160,7 +398,6 @@ int pause_scripts() {
     };
     if (ma_cmdq_on_game_thread()) off();
     else ma_cmdq_post(off);
-    ma_sched_request_pause(true);
     return 0;
 };
 
@@ -342,9 +579,6 @@ public: Message() {
         // 3) Игрок в игре? старт при входе / разборка при выходе.
         lifecycle_tick();
 
-        // 4) ЦИКЛ FOR ПО СКРИПТАМ: каждому состоянию — resume до ближайшего
-        //    yield (wait()/yield() паркуют корутину до следующего кадра).
-        ma_sched_frame();
     };
 
     Events::gameProcessEvent += spite::draw;
@@ -359,16 +593,70 @@ public: Message() {
     ~Message() { }
 } message;
 
-int create_newthread(lua_State* L) {// создания нового потока (корутина планировщика).
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// общий мьютекс всех API.
-	try {
-		if (LUA_TFUNCTION == lua_type(L, 1)) {
-			if (!ma_sched_spawn(L, 1))
-				writelog("create_newthread: планировщик недоступен");
-			return 0;
-		}
-		else { throw "bad argument in create_newthread"; }
-	}
-	catch (const char* x) { writelog(x); }
-	return 0;
+struct DumpBuf { std::string s; };
+
+static int dump_writer(lua_State* L, const void* p, size_t sz, void* ud) {
+    (void)L;
+    static_cast<DumpBuf*>(ud)->s.append(static_cast<const char*>(p), sz);
+    return 0;
+}
+
+int create_newthread(lua_State* L) {// создания нового потока (2021: свой OS-поток).
+    try {
+        if (LUA_TFUNCTION != lua_type(L, 1)) { throw "bad argument in function create_newthread"; }
+
+        // Имя файла — из реестра (ключ = сам L), как в 2021.
+        lua_pushlightuserdata(L, L);
+        lua_gettable(L, LUA_REGISTRYINDEX);
+        const char* luaname = lua_tostring(L, -1);
+        std::string file = luaname ? luaname : "";
+        lua_pop(L, 1);
+        if (file.empty()) {
+            writelog("create_newthread: не найдено имя lua-файла");
+            return 0;
+        }
+
+        // Переносим БАЙТКОД функции, а не Lua-значения между состояниями
+        // (lua_xmove между разными global state — UB, как было в 2021).
+        lua_pushvalue(L, 1);
+        DumpBuf db;
+        int dr = lua_dump(L, dump_writer, &db, 0);
+        lua_pop(L, 1);
+        if (dr != 0 || db.s.empty()) {
+            writelog("create_newthread: lua_dump failed");
+            return 0;
+        }
+
+        // Аргументы: nil/bool/number/string/lightuserdata; остальное — nil.
+        std::vector<ScriptArg> args;
+        int n = lua_gettop(L);
+        for (int i = 2; i <= n; i++) {
+            ScriptArg a;
+            a.type = lua_type(L, i);
+            switch (a.type) {
+                case LUA_TBOOLEAN: a.b = lua_toboolean(L, i) != 0; break;
+                case LUA_TNUMBER:  a.num = (double)lua_tonumber(L, i); break;
+                case LUA_TSTRING: {
+                    size_t len = 0;
+                    const char* s = lua_tolstring(L, i, &len);
+                    if (s) a.str.assign(s, len);
+                    break;
+                }
+                case LUA_TLIGHTUSERDATA: a.ptr = lua_topointer(L, i); break;
+                case LUA_TNIL: break;
+                default:
+                    writelog("create_newthread: аргумент неподдерживаемого типа заменён на nil");
+                    a.type = LUA_TNIL;
+                    break;
+            }
+            args.push_back(std::move(a));
+        }
+
+        if (!spawn_script(file, std::move(db.s), std::move(args))) {
+            writelog("create_newthread: не удалось запустить поток");
+        }
+        return 0;
+    }
+    catch (const char* x) { writelog(x); }
+    return 0;
 };

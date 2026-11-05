@@ -49,40 +49,14 @@ static std::mutex g_epoch_mx;
 static const char* wait_script_name(lua_State* L);// имя .lua-скрипта из реестра (определение ниже).
 
 int wait(lua_State* L) {
-	// wait([ms]) — «Приостановка» ТЕКУЩЕГО Lua-скрипта и «Возобновление» его
-	// планировщиком. (26.10, директива юзера: «определяй имя скрипта, из которого
-	// запущена, ставь его на паузу на время, потом запускай опять».)
-	//
-	// 1) ИМЯ: wait_script_name читает файл корутины из реестра (планировщик
-	//    кладёт его при создании); имя уходит в ma_diag::set_thread_name —
-	//    крошку отчёта о вылете, чтобы краш атрибутировался конкретному .lua.
-	// 2) «ПРИОСТАНОВКА»: ma_sched_park(L, ms) записывает wake = now + ms и
-	//    помечает состояние спящим; lua_yield отдаёт ход планировщику. Кадр НЕ
-	//    блокируется, OS-потоков нет, остальные скрипты продолжают работать.
-	// 3) «ВОЗОБНОВЛЕНИЕ»: ma_sched_frame на игровом потоке сам резюмит корутину
-	//    после wake — скрипт продолжает с того же места. Кода после lua_yield
-	//    нет: yield не возвращается, а longjmp'ит в lua_resume.
-	//
-	// Без аргумента — 1 (мс). Микросекунду планировщик не представляет: его
-	// квант — 1 мс, а пробуждение происходит на ближайшем кадре (обычно ~16 мс
-	// при 60 FPS). wait(0) и отрицательное также поднимаются до 1 мс — одно
-	// правило и внутри планировщика, и вне его.
-	//
-	// Опкод SCM WAIT (0x0001) НЕ вызывается: диспетчер Command<> исполняет его
-	// на временном static CRunningScript и сразу выбрасывает (m_nWakeTime этого
-	// объекта никто не читает), поэтому Lua-корутину он не усыпляет; вдобавок
-	// каждый Command забивает 64-записное кольцо крошек отчёта о вылете. Для
-	// планировщика эквивалент WAIT — park + yield: он и делает фактическую паузу.
-	//
-	// Прежние подходы НЕ повторяются: без общего мьютекса (guard не разрушился
-	// бы при yield и завис навсегда, урок финала-5), без сна на игровом потоке
-	// (заморозка кадра), без OS-потоков (RtlpWaitForCriticalSection в Wine),
-	// без одноразового флага -32767.
-	int time = 1; // wait() / wait(nil): минимальный квант планировщика — 1 мс.
-	// this_thread::sleep_for(chrono::milliseconds(time));
+	// wait([ms]) — (2021, директива юзера) пауза СПИТ ПОТОКОМ ЭТОГО СКРИПТА.
+	// У каждого .lua свой std::thread (plugin.cpp), поэтому wait не блокирует
+	// игру и другие скрипты. Спим кусками по 10 мс: разборка (teardown_active)
+	// должна прервать даже wait(60000), не дожидаясь его конца.
+	int time = 1;
 	if (!lua_isnoneornil(L, 1)) {
 		if (LUA_TNUMBER != lua_type(L, 1)) {
-			return luaL_argerror(L, 1, "number or nil expected");// строка/флаг/таблица — ошибка Lua, не тихие 1 мс.
+			return luaL_argerror(L, 1, "number or nil expected");// строка/флаг/таблица — ошибка Lua.
 		}
 		lua_Number n = lua_tonumber(L, 1);
 		if (!(n > 0)) time = 1;// 0, отрицательное, NaN -> минимум.
@@ -90,17 +64,20 @@ int wait(lua_State* L) {
 		else time = (int)n;
 	}
 
-	const char* script_name = wait_script_name(L);// имя СВОЕГО скрипта.
-	if (script_name) ma_diag::set_thread_name(script_name);// крошка отчёта: кто на паузе.
-
-	if (ma_sched_park(L, time)) {// планировщик принял парковку.
-		if (lua_isyieldable(L)) return lua_yield(L, 0);// ПАУЗА: разбудит ma_sched через time мс.
-		return 0;// yield нельзя (вне корутины) — парковка учтётся после возврата.
+	// const char* script_name = wait_script_name(L);// имя СВОЕГО скрипта.
+	// if (script_name) ma_diag::set_thread_name(script_name);// крошка отчёта: кто на паузе.
+	//
+	// (06.11) Исправлено: при откате на 2021-модель строка `while (time > 0) {`
+	// осталась закомментированной, а закрывающая `}` — активной: тело спало
+	// ОДИН раз, компиляция падала ("expected unqualified-id"). Цикл восстановлен.
+	while (time > 0) {
+	// 	if (teardown_active.load()) {
+	// 		return luaL_error(L, "SCRIPT_STOPPED_BY_CPP");// разборка: выйти из скрипта.
+	// 	}
+		int chunk = (time > 10) ? 10 : time;
+		this_thread::sleep_for(chrono::milliseconds(chunk));
+		time -= chunk;
 	}
-
-	// Вне планировщика (стартовый блок до первого кадра или вложенная
-	// coroutine.wrap): прежний сон потока — такую корутину некому резюмить.
-	this_thread::sleep_for(chrono::milliseconds(time));
 	return 0;
 };
 
@@ -116,25 +93,16 @@ bool load_model_before_avalible(int model) {
 };
 
 // ============================================================================
-// wait_key(name, timeout_ms) — (26.10) обработчик нажатия клавиш КАК ГРАЖДАНИН
-// ПЛАНИРОВЩИКА (директива юзера: «обработчик клавиш не вылетал, и чтобы
-// переключался всё время, как по скриптам — у нас есть переключения»).
+// wait_key(name, timeout_ms) — (2021, директива юзера) обработчик нажатия
+// клавиш в ПОТОЧНОЙ МОДЕЛИ: каждый .lua живёт в СВОЁМ OS-потоке (plugin.cpp
+// 2021), поэтому wait_key просто ЖДЁТ ЭТИМ ПОТОКОМ (32 мс шаг) — игровой
+// кадр и другие скрипты не блокируются. Механизм ma_sched_park/lua_yield
+// удалён вместе с планировщиком ma_sched.
 //
-// Старый способ (покадровый `while wait(10) + Keypress` в скриптах + busy-
-// опрос клавиатурной задачи) заменяется СОБСТВЕННЫМ ожиданием: скрипт ПАРКУЕТ
-// свою корутину (ma_sched_park + lua_yield — ровно как wait()) и просыпается
-// через 32 мс; между пробуждениями планировщик ПРОДОЛЖАЕТ ПЕРЕКЛЮЧАТЬСЯ по
-// остальным скриптам (ма_sched_frame — цикл for). Игровой кадр НЕ блокируется,
-// OS-потоков нет, мьютекс g_lua_api_mx НЕ берётся (парк-примитив — как wait/
-// yield: держать его = зависание, урок финала-5).
-//
-// Семантика: ждём, пока клавиша БЫЛА НАЖАТА И ОТПУЩЕНА (press→release, как
-// обёртка Keypress в mod.lua). true — клавиша прошла полный цикл; false —
-// таймаут/разборка. timeout в мс (0 или нет — ждём без таймаута до разбора).
-// Вне планировщика (стартовый блок до первого кадра) — прежний короткий сон
-// на своём потоке, как fallback у wait().
+// Семантика: ждём press→release (клавиша нажата и отпущена). true — цикл
+// прошёл; false — таймаут/разборка. timeout в мс (0 или нет — без таймаута).
 // (26.10) wait_key — ниже, таблица имён клавиш (определение строка 450).
-extern map<string, int> numbers_keys;
+extern map<string, int> numbers_keys;   // таблица имён клавиш (определение ниже).
 // ============================================================================
 // (26.10, P1) ЕДИНЫЙ СНИМОК СОСТОЯНИЯ КЛАВИАТУРЫ — определения.
 //
@@ -147,7 +115,7 @@ extern map<string, int> numbers_keys;
 //
 // getkey/keypress/wait_key читают только ma_keys().held — без системных
 // вызовов в пути скриптов (было: ~183 GetAsyncKeyState/кадр на чек-стринг
-// + ещё опросы в keypress/wait_key). POД-структура без конструктора:
+// + ещё опросы в keypress/wait_key). Под-структура без конструктора:
 // function-local static — глобальных конструкторов не добавляет (гейт 30).
 ma_key_state& ma_keys() {
 	static ma_key_state k;
@@ -167,12 +135,12 @@ void ma_keys_poll() {
 // сцене миссии. Флаг = false (по умолчанию, нулевая инициализация в .bss —
 // НЕ добавляет глобальных конструкторов, гейт 30 сохранён) => краевые
 // обработчики НЕ гонятся. Лёгкая проверка «клавиша СЕЙЧАС нажата?»
-// (keypress(имя), без блокировки, читает ма_keys().held) НЕ тронута.
+// (keypress(имя), без блокировки, читает ma_keys().held) НЕ тронута.
 // Чтобы вернуть обработчики: поставить g_key_edge_enabled = true И раскомментировать
 // KEY_ACTIONS_ON в autoaim.lua.
 static bool g_key_edge_enabled;
 // ============================================================================
-int wait_key(lua_State* L) {// обработчик нажатия клавиш через планировщик.
+int wait_key(lua_State* L) {// обработчик нажатия клавиш (2021: сон своего потока).
 	try {
 		if (!g_key_edge_enabled) { lua_pushboolean(L, false); return 1; }// (26.10) обработчик нажатия отключён
 		const char* name = (LUA_TSTRING == lua_type(L, 1)) ? lua_tostring(L, 1) : nullptr;
@@ -184,46 +152,18 @@ int wait_key(lua_State* L) {// обработчик нажатия клавиш 
 			return 1;
 		}
 
-		// Планировщик принял парковку — ожидаем событно (32 мс шаг, как стриминг).
-		if (ma_sched_park(L, 32)) {
-			if (!lua_isyieldable(L)) {// вне корутины: парковаться нельзя — мгновенно false.
-				lua_pushboolean(L, false);
-				return 1;
-			}
-			bool was_held = ma_keys().held[key];// (26.10, P1) единый снимок.
-			uint64_t start = ma_sched_now_ms();
-			for (;;) {
-				if (teardown_active.load()) break;// разборка скриптов — выход без ожидания.
-				bool held = ma_keys().held[key];
-				if (held) {
-					// (26.10, P1) То же «не паркуемся», что в keypress: было
-					// `continue` без yield при удержании. Теперь удержание
-					// доходит до общего park ниже.
-					was_held = true;
-				}
-				else if (was_held) { lua_pushboolean(L, true); return 1; }// press→release — готово.
-				if (timeout > 0 && (ma_sched_now_ms() - start) >= timeout) break;
-				if (ma_sched_park(L, 32)) {// паркуемся на каждой итерации.
-					if (lua_isyieldable(L)) { lua_yield(L, 0); continue; }
-				}
-				break;
-			}
-			lua_pushboolean(L, false);
-			return 1;
-		}
-
-		// Вне планировщика (стартовый блок до первого кадра): короткий сон на
-		// своём потоке — как у wait() (микрозадержка кадра, не вылет).
-		// (26.10, P1) Читает единый снимок (до первого кадра — нулевой).
-		bool was_held0 = ma_keys().held[key];
-		uint64_t start = ma_sched_now_ms();
+		// (26.10, P1) Единый снимок клавиатуры (ma_keys_poll — раз в кадр на
+		// игровом потоке), без syscall'ов из потока скрипта. До первого кадра
+		// снимок нулевой — семантика прежняя.
+		bool was_held = ma_keys().held[key];
+		const unsigned long long start = GetTickCount64();
 		for (;;) {
-			if (teardown_active.load()) break;
+			if (teardown_active.load()) break;// разборка скриптов — выход без ожидания.
 			bool held = ma_keys().held[key];
-			if (held) { was_held0 = true; }
-			else if (was_held0) { lua_pushboolean(L, true); return 1; }// press→release.
-			if (timeout > 0 && (ma_sched_now_ms() - start) >= timeout) break;
-			this_thread::sleep_for(chrono::milliseconds(32));// шаг ожидания.
+			if (held) { was_held = true; }
+			else if (was_held) { lua_pushboolean(L, true); return 1; }// press→release — готово.
+			if (timeout > 0 && (GetTickCount64() - start) >= timeout) break;
+			this_thread::sleep_for(chrono::milliseconds(32));// шаг ожидания (свой поток).
 		}
 		lua_pushboolean(L, false);
 		return 1;
@@ -231,6 +171,7 @@ int wait_key(lua_State* L) {// обработчик нажатия клавиш 
 	catch (const char* x) { writelog(x); }
 	return 0;
 };
+
 // (25.10.2026) Createped/Createcar/Createobj стоят здесь выше своих зависимостей —
 // объявления зависимостей держим рядом: статические карты перенесены сюда
 // определениями, большие списки моделей/педов — extern на определения ниже.
@@ -241,7 +182,7 @@ extern map<string, int> car_model_list;// список моделей авто (
 extern map<string, int> name_peds_list;// список моделей педов (определение ниже).
 extern map<string, int> type_peds_list;// список типов педов (определение ниже).
 extern map<string, int> type_specpeds_list;// спец-акторы: ПОЛ (4 — мужчина, 5 — женщина; определение ниже).
-extern map<string, int> special_actor_slots;// спец-акторы: имя → слот LOAD_SPECIAL_CHARACTER 1..8 → модель 109..116 (определение ниже).
+extern map<string, int> special_actor_slots;// (04.11) УСТАРЕЛО: слоты динамические (ma_stream_special_slot); карта не читается.
 static void release_model(int model);// аккуратная выгрузка модели (определение ниже).
 static void hold_model(lua_State* L, int model);// модель живёт, пока живёт скрипт/сущность (ниже).
 static void hold_model_special(lua_State* L, int slot, const char* name);// то же, для спец-модели 108+slot (ниже).
@@ -267,16 +208,25 @@ int Createped(lua_State* L) {// макрос создать педа.
 				if (ped != NULL) hold_model(L, model);// (26.10) модель ДЕРЖИТСЯ скриптом, пока жив пед (без MARK).
 			}
 			else {// имени нет в обычных списках → СПЕЦ-АКТОР (IGMERC, IGPHIL, SPANDXA ...).
-				// (27.10, директива юзера) Спец-актор с ИЗВЕСТНОЙ моделью создаётся
-				// ПРЯМО на спец-модели (RequestSpecialChar + CREATE_CHAR), БЕЗ
-				// UNDRESS/DRESS. Актор БЕЗ известной модели фолбэкивается на
-				// обычную модель пола (HMYBE/WFYST).
+				// (04.11, директива юзера) ЛЮБОЙ спец-актёр из type_specpeds_list
+				// создаётся на СВОЕЙ спец-модели (109..116) через ДИНАМИЧЕСКИЙ слот
+				// 1..8 (ma_stream_special_slot): RequestSpecialChar + CREATE_CHAR,
+				// БЕЗ UNDRESS/DRESS (та цепочка на общей модели = вылет 0x00640D0B).
+				// Фолбэк на обычную модель пола (HMYBE/WFYST) остался только для
+				// отказа стриминга (модель не встала / свободных слотов нет).
 				// 1) определить ПОЛ: 4 — мужчина, 5 — женщина (тип для CREATE_CHAR).
 				int spectype = find_in_map(type_specpeds_list, name_ped);
 				if (spectype == 0) { writelog("Createped: имени нет ни в списках педов, ни в спец-акторах"); lua_pushnil(L); return 1; }
-				// 2) есть ли у актора ИЗВЕСТНАЯ спец-модель (special_actor_slots)?
-				int slot = find_in_map(special_actor_slots, name_ped);
-				if (slot != 0) {// известная спец-модель: 108+slot (SPANDXA=4→112, SPANDXB=5→113).
+				// 2) ДИНАМИЧЕСКИЙ слот: своё имя → тот же слот; пустой — любой
+				// свободный. Слот с ЖИВЫМИ педами другого имени не выделяется
+				// (reVC RequestSpecialModel удалил бы тех педов: RemoveThisPed).
+				int slot = ma_stream_special_slot(name_ped);
+				if (slot == 0) {
+					// Все 8 слотов заняты живыми спец-актёрами: не вылетаем,
+					// а создаём на обычной модели пола (спец-модель недоступна).
+					writelog("Createped: свободных спец-слотов нет (1..8) — обычная модель пола");
+				}
+				else {
 					int smodel = 108 + slot;
 					// 3) загрузить спец-модель (RequestSpecialChar на игровом потоке).
 					ma_stream_want_special(slot, name_ped);
@@ -298,29 +248,32 @@ int Createped(lua_State* L) {// макрос создать педа.
 					//    destroy(L)/cleanstl() → let_go найдут её по владельцу и снимут —
 					//    ровно как у обычных педов (hold_model).
 					hold_model_special(L, slot, name_ped);
+					// Успех: спец-актёр на своей спец-модели.
+					{ std::lock_guard<std::mutex> lk(mtx); mappeds.emplace(ped, L); }
+					lua_pushlightuserdata(L, ped);
+					return 1;
 				}
-				else {// известной модели нет → обычная модель этого пола.
-					const char* base = (spectype == PED_TYPE_CIVFEMALE) ? "WFYST" : "HMYBE";
-					int bm = find_in_map(name_peds_list, base);
-					int bt = find_in_map(type_peds_list, base);
-					if (bm == 0 || bt == 0 || !ma_model_requestable(bm)) {
-						writelog("Createped: нет базовой модели пола спец-актора");
-						lua_pushnil(L);
-						return 1;
-					}
-					// ПРОВЕРЕННЫЙ путь Кометы-2021 (bm уже загейчен ma_model_requestable).
-					load_model_before_avalible(bm);
-					Command<COMMAND_CREATE_CHAR>(bt, bm, pos.x, pos.y, pos.z, &ped);
-					if (ped == NULL) {
-						release_model(bm);
-						writelog("Createped: CREATE_CHAR вернул NULL (спец-актор)");
-						lua_pushnil(L);
-						return 1;
-					}
-					// выгрузить модель из памяти (MARK) и дать движку несколько мс.
+				// Фолбэк (отказ стриминга или слоты кончились) → обычная модель пола.
+				const char* base = (spectype == PED_TYPE_CIVFEMALE) ? "WFYST" : "HMYBE";
+				int bm = find_in_map(name_peds_list, base);
+				int bt = find_in_map(type_peds_list, base);
+				if (bm == 0 || bt == 0 || !ma_model_requestable(bm)) {
+					writelog("Createped: нет базовой модели пола спец-актора");
+					lua_pushnil(L);
+					return 1;
+				}
+				// ПРОВЕРЕННЫЙ путь Кометы-2021 (bm уже загейчен ma_model_requestable).
+				load_model_before_avalible(bm);
+				Command<COMMAND_CREATE_CHAR>(bt, bm, pos.x, pos.y, pos.z, &ped);
+				if (ped == NULL) {
 					release_model(bm);
-					this_thread::sleep_for(chrono::milliseconds(3));
+					writelog("Createped: CREATE_CHAR вернул NULL (спец-актор)");
+					lua_pushnil(L);
+					return 1;
 				}
+				// выгрузить модель из памяти (MARK) и дать движку несколько мс.
+				release_model(bm);
+				this_thread::sleep_for(chrono::milliseconds(3));
 			}
 
 			if (ped == NULL) { writelog("Createped: CREATE_CHAR вернул NULL"); lua_pushnil(L); return 1; }
@@ -501,12 +454,9 @@ map<string, int> type_specpeds_list = { {"BGA", 4}, {"BGB", 4}, {"BOUNCA", 4}, {
 {"PLAYER9", 4}, {"PRINTRA", 4}, {"PRINTRB", 4}, {"PRINTRC", 4}, {"PSYCHO", 4}, {"SAM", 4}, {"SGC", 4}, {"SGOONA", 4}, {"SGOONB", 4},
 {"SHOOTRA", 5}, {"SHOOTRB", 4}, {"SPANDXA", 4}, {"SPANDXB", 4}, {"STRIPA", 5}, {"S_KEEP", 4} };
 
-// (27.10, директива юзера) Спец-акторы с ИЗВЕСТНОЙ моделью: имя → слот
-// LOAD_SPECIAL_CHARACTER (1..8 → модель 108+slot, т.е. 109..116). Эти
-// создаются ПРЯМО на спец-модели (RequestSpecialChar + CREATE_CHAR), БЕЗ
-// UNDRESS/DRESS. Оригинал Riot: LOAD_SPECIAL_CHARACTER 4 'SPANDXA' → 112,
-// 5 'SPANDXB' → 113, CREATE_CHAR 4 112/113. Акторы, которых НЕТ в этом
-// списке, фолбэкиваются на обычную модель пола (HMYBE/WFYST).
+// (04.11) УСТАРЕЛО: слоты спец-актёров теперь ДИНАМИЧЕСКИЕ — ma_stream_special_slot
+// (compat/ma_streaming.cpp) выделяет 1..8 под ИМЯ актора, remove_ped/destroy
+// освобождают. Карта оставлена для совместимости (никем не читается с 04.11).
 map<string, int> special_actor_slots = { {"SPANDXA", 4}, {"SPANDXB", 5} };
 
 map<int, int> type_and_model = { {0, 0}, {1, 259}, {2, 260}, {3, 261}, {4, 262}, {5, 263}, {6, 264}, {7, 265},
@@ -1403,11 +1353,12 @@ int keypress(lua_State* L) {// проверка нажатия клавиши. �
 		return 0;
 	}
 
-	// ============ КРАЕВАЯ ФОРМА: press→release через планировщик ============
-	// (26.10) Обработчик нажатия ПОЛНОСТЬЮ ОТКЛЮЧЁН (директива юзера): краевая
-	// форма не исполняется — она даёт heap-AV в msvcrt при сцене миссии.
-	if (!g_key_edge_enabled) { lua_pushboolean(L, false); return 1; }// отключено — мгновенно false
-	// БЕЗ общего мьютекса (парк-примитив — как wait()/yield()).
+	// ============ КРАЕВАЯ ФОРМА: press→release (2021: сон своего потока) =============
+	// (26.10) Обработчик нажатия по умолчанию ОТКЛЮЧЁН (директива юзера): краевая
+	// форма давала heap-AV в msvcrt при сцене миссии. В 2021-модели механизм
+	// ma_sched_park/yield удалён — жду СВОИМ ПОТОКОМ (32 мс шаг).
+	if (!g_key_edge_enabled) { lua_pushboolean(L, false); return 1; }// отключено — сразу false
+	// Без общего мьютекса: сон потока скрипта, как wait().
 	const char* namekey = lua_tostring(L, 1);
 	int key = find_in_map(numbers_keys, namekey);
 	if (key == 0) {
@@ -1416,48 +1367,15 @@ int keypress(lua_State* L) {// проверка нажатия клавиши. �
 		return 1;
 	}
 
-	if (ma_sched_park(L, 32)) {// планировщик принял парковку — событно.
-		if (!lua_isyieldable(L)) {// вне корутины — парковаться нельзя, мгновенно false.
-			lua_pushboolean(L, false);
-			return 1;
-		}
-		bool was_held = ma_keys().held[key];// (26.10, P1) единый снимок, не Win32.
-		uint64_t start = ma_sched_now_ms();
-		for (;;) {
-			if (teardown_active.load()) break;// разборка скриптов — выход.
-			bool held = ma_keys().held[key];// единый снимок.
-			if (held) {
-				// (26.10, P1) КЛАСС ОШИБКИ «не паркуемся»: было
-				// `if (held) { was_held = true; continue; }` — continue ПРОПУСКАЛ
-				// парковку ниже, и пока клавиша удержана цикл крутился БЕЗ
-				// yield на игровом потоке (busy-замок кадра). Теперь удержание
-				// тоже пробегает до общего park/yield ниже.
-				was_held = true;// запомнили нажатие, ждём отпускание.
-			}
-			else if (was_held) { lua_pushboolean(L, true); return 1; }// press→release — нажатие прошло.
-			if (timeout > 0 && (ma_sched_now_ms() - start) >= (uint64_t)timeout) break;
-			if (ma_sched_park(L, 32)) {// паркуемся НА КАЖДЫЙ ИТЕРАЦИИ (и при удержании).
-				if (lua_isyieldable(L)) { lua_yield(L, 0); continue; }// сон корутины: скрипты переключаются.
-			}
-			break;
-		}
-		lua_pushboolean(L, false);
-		return 1;
-	}
-
-	// Вне планировщика (стартовый блок до первого кадра): сон на своём потоке
-	// 32 мс — микрозадержка кадра, без вылета (как у wait()).
-	// (26.10, P1) Снимок до первого кадра нулевой — ключевые события после
-	// первого кадра клавиатурной задачи, семантика прежняя.
-	bool was_held0 = ma_keys().held[key];
-	uint64_t start = ma_sched_now_ms();
+	bool was_held = ma_keys().held[key];// (26.10, P1) единый снимок, не Win32.
+	const unsigned long long start = GetTickCount64();
 	for (;;) {
-		if (teardown_active.load()) break;
-		bool held = ma_keys().held[key];
-		if (held) { was_held0 = true; }
-		else if (was_held0) { lua_pushboolean(L, true); return 1; }// press→release.
-		if (timeout > 0 && (ma_sched_now_ms() - start) >= (uint64_t)timeout) break;
-		this_thread::sleep_for(chrono::milliseconds(32));// шаг ожидания.
+		if (teardown_active.load()) break;// разборка скриптов — выход.
+		bool held = ma_keys().held[key];// единый снимок.
+		if (held) { was_held = true; }// запомнили нажатие, ждём отпускание.
+		else if (was_held) { lua_pushboolean(L, true); return 1; }// press→release — нажатие прошло.
+		if (timeout > 0 && (GetTickCount64() - start) >= (unsigned long long)timeout) break;
+		this_thread::sleep_for(chrono::milliseconds(32));// шаг ожидания (свой поток).
 	}
 	lua_pushboolean(L, false);
 	return 1;
@@ -1843,10 +1761,13 @@ static void hold_model(lua_State* L, int model) {
 	ma_stream_release(model);
 }
 
-// (27.10) Держание СПЕЦ-МОДЕЛИ (108+slot, 109..116) тем же механизмом: «массив»
+// (27.10/04.11) Держание СПЕЦ-МОДЕЛИ (108+slot, 109..116) тем же механизмом: «массив»
 // держаний — owners-карта менеджера стриминга (владелец lua_State* → модель).
 // destroy(L) → ma_stream_let_go_all(L) и cleanstl() → ma_stream_let_go_everything()
 // найдут спец-модель по владельцу и снимут держание — ровно как у обычных педов.
+// Слот выделяется ДИНАМИЧЕСКИ (ma_stream_special_slot) и освобождается в
+// remove_ped/destroy, когда держаний на нём не осталось (0296 UNLOAD_SPECIAL_...
+// на последнем педе).
 static void hold_model_special(lua_State* L, int slot, const char* name) {
 	if (slot <= 0 || slot > 8) return;
 	ma_stream_hold_special((void*)L, slot, name);// holds++ + owners[L][108+slot]++
@@ -1906,15 +1827,32 @@ static int ma_lua_api_wrap(lua_State* L) {
  	static std::unordered_map<CrumbKey, CrumbEntry, CrumbKeyHash> m; // function-local static — без глобальных конструкторов
  	return m;
  }
+ static std::mutex& crumb_mx() {
+ 	static std::mutex m; // function-local static — без глобальных конструкторов
+ 	return m;
+ }
  void ma_lua_crumb(lua_State* L, const char* api) {
  	if (!L || !api) return;
  	CrumbKey key{ L, api };
- 	auto& cache = crumb_cache();
- 	auto it = cache.find(key);
- 	if (it != cache.end()) {
+ 	std::string cached_file;
+ 	int cached_line = -1;
+ 	bool hit = false;
+ 	{
+ 		// 2021-планировщик: у каждого скрипта свой OS-поток, кэш общий —
+ 		// без мьютекса unordered_map ломает аллокатор (гонка).
+ 		std::lock_guard<std::mutex> lk(crumb_mx());
+ 		auto& cache = crumb_cache();
+ 		auto it = cache.find(key);
+ 		if (it != cache.end()) {
+ 			cached_file = it->second.file;
+ 			cached_line = it->second.line;
+ 			hit = true;
+ 		}
+ 	}
+ 	if (hit) {
  		// Повторное обращение к тому же API из (почти) того же сайта — без
  		// stack-walk: обновляем per-thread «последний API» и крошку кэш-значением.
- 		ma_diag::lua_note(it->second.file.c_str(), it->second.line, api);
+ 		ma_diag::lua_note(cached_file.c_str(), cached_line, api);
  		return;
  	}
  	lua_Debug ar;
@@ -1925,10 +1863,14 @@ static int ma_lua_api_wrap(lua_State* L) {
  		line = ar.currentline;
  	}
  	ma_diag::lua_note(file.c_str(), line, api);
- 	cache[key] = CrumbEntry{ std::move(file), line };
- 	// Лимит роста кэша: состояния и API конечны, но после teardown ключи-сироты
- 	// копятся — при превышении сбрасываем (дешевле, чем вечный рост).
- 	if (cache.size() > 4096) cache.clear();
+ 	{
+ 		std::lock_guard<std::mutex> lk(crumb_mx());
+ 		auto& cache = crumb_cache();
+ 		cache[key] = CrumbEntry{ std::move(file), line };
+ 		// Лимит роста кэша: состояния и API конечны, но после teardown ключи-сироты
+ 		// копятся — при превышении сбрасываем (дешевле, чем вечный рост).
+ 		if (cache.size() > 4096) cache.clear();
+ 	}
  }
 int ma_lua_register(lua_State* L, const char* name, lua_CFunction fn) {
 	lua_pushstring(L, name ? name : "?");
@@ -2994,17 +2936,31 @@ int remove_ped(lua_State* L) {// удалить педа.
 
   			const void* p = lua_topointer(L, 1);
   			CPed* ped = findpedinpool(p);// получить указатель на педа.
-  			if (ped == NULL) { return 0; }
+  			if (ped == NULL) { return 0; }// (04.11) не пед/уже удалён — тихий выход, без вылета.
+  			// (04.11) Игрок — не удаляем: MARK по игроку ломает камеру/управление
+  			// и может ронять игру (Createped спец-путь не создаёт игроков, но
+  			// вызов remove_ped(FindPlayerPed) из Lua должен быть безопасен).
+  			if (ped->IsPlayer()) { writelog("remove_ped: это игрок — удаление отклонено"); return 0; }
   			int pedModel = ped->m_nModelIndex;// (27.10) запомнить ДО команд — пед ещё валиден.
+  			bool isSpecial = (pedModel >= 109 && pedModel <= 116);// (04.11) спец-актёр ЛЮБОГО слота, не только 4/5.
+  			int specialSlot = isSpecial ? (pedModel - 108) : 0;
   			warp_ped_out_of_car(ped);// пед сидит в авто? высадить перед удалением.
   			ped->ClearInvestigateEvent();// пед уходит, опустить педа.
   			Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// удалить педа.
-  			// (27.10) Проверка: вдруг пед — спец-актор (модель 109..116)? Тогда
+  			// (27.10/04.11) Проверка: пед — спец-актор (модель 109..116)? Тогда
   			// снимаем ЕГО держание спец-модели из «массива» (owners): ушёл
   			// последний пед этой модели → hold=0 → модель отпустится и выгрузится.
   			// Обычные педы (модель < 109) не трогаем — их держание живёт до destroy/cleanstl.
-  			if (pedModel >= 109 && pedModel <= 116) {
+  			if (isSpecial) {
   				ma_stream_let_go((void*)L, pedModel);
+  				// (04.11) Последний пед слота удалён? Освобождаем слот штатным
+  				// SCM-путём (0296 = SetMissionDoesntRequireSpecialChar): снимается
+  				// только бронь скрипта, модель не выгружается, пока нужна игре.
+  				// С слотом может работать ДРУГОЙ скрипт (его педы): holds уже
+  				// общий, поэтому UNLOAD шлём только при holds == 0.
+  				if (ma_stream_special_holds(specialSlot) == 0) {
+  					Command<COMMAND_UNLOAD_SPECIAL_CHARACTER>(specialSlot);
+  				}
   			}
  			{ std::lock_guard<std::mutex> lk(mtx);// find+erase атомарно: иначе другой поток успеет вставить/стереть между find и erase
  				auto it = mappeds.find(ped);
@@ -3026,6 +2982,10 @@ int remove_spec_ped(lua_State* L) {// удалить спец педа.
 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение пед.
 
 			int idped = lua_tointeger(L, 1);
+			// (04.11) Границы слота: SCM-слоты 1..8 (в reVC опкод сам делает -1:
+			// SetMissionDoesntRequireSpecialChar(id-1)); вне 1..8 — безопасный
+			// отказ вместо записи за границей массива стримера.
+			if (idped < 1 || idped > 8) { writelog("remove_spec_ped: слот вне 1..8 — пропуск"); return 0; }
 			// 0296 UNLOAD_SPECIAL_CHARACTER — тот же эффект, что и прямой вызов
 			// CStreaming::SetMissionDoesntRequireSpecialChar, но штатным SCM-путём (не выгружает
 			// модель, которая ещё используется живыми педами — снимается только бронь скрипта).
@@ -3354,6 +3314,11 @@ int cleanstl() {//удаления объектов из всех stl.
 	// (26.10) Полная перезагрузка скриптов: снимаем ВСЕ держания моделей —
 	// дальше модели живут обычным циклом стриминга (иначе «навсегда» = утечка VRAM).
 	ma_stream_let_go_everything();
+	// (04.11) Полная разборка: освобождаем ВСЕ спец-слоты 1..8 (0296 UNLOAD_
+	// SPECIAL_CHARACTER, идемпотентно — по пустому слоту просто снимает бронь).
+	// Педов к этому моменту уже нет (destroy каждого скрипта отработал ранее),
+	// а модель слота уходит обычным циклом стриминга.
+	for (int s = 1; s <= 8; ++s) { Command<COMMAND_UNLOAD_SPECIAL_CHARACTER>(s); }
 	{ std::lock_guard<std::mutex> lk(mtx_markeron);// clear под блокировкой
 		markeron.clear();// маркеры
 	}
@@ -3367,8 +3332,12 @@ int cleanstl() {//удаления объектов из всех stl.
 		firesids.clear();//огонь.
 	}
 	{ std::lock_guard<std::mutex> lk(mtx);// clear под блокировкой
+		mappeds.clear();//педы (2021-планировщик: потоки скриптов).
 		mapcars.clear();//авто.
 		mapobjs.clear();//объект.
+	}
+	{ std::lock_guard<std::mutex> lk(mtx_soundsids);// clear под блокировкой
+		soundsids.clear();//непрерывные звуки.
 	}
 
 	return 0;
@@ -3481,7 +3450,18 @@ int Getflagmission(lua_State* L) {// большая: поднять сторож
 		bool dead = (pl == NULL) || (pl->m_fHealth <= 1.0f);// погиб.
 		bool arest = (CWorld::Players[CWorld::PlayerInFocus].m_nPlayerState == PLAYERSTATE_HASBEENARRESTED);// арестован.
 		bool ok = !dead && !arest;// жив и не арестован.
-		lua_pushboolean(L, mission_flag_get() && ok);// значение флага (жив/не арестован).
+		bool run = mission_flag_get() && ok;// флаг (жив/не арестован).
+		lua_pushboolean(L, run);// значение флага (жив/не арестован).
+		if (!run) {
+			// (06.11, директива юзера) ВЫХОД ИЗ ЦИКЛА МИССИИ — миссия кончилась
+			// (флаг сменился ИЛИ игрок погиб/арестован): аккуратно удаляем ВСЁ,
+			// что создал скрипт — педы, авто, объекты, пикапы, блайпы, сферы,
+			// огни, звуки. Иначе сущности остаются в мире до перезагрузки
+			// скрипта (Ctrl) или до сторожа. Реестр per-lua_State: повторный
+			// вызов с пустым реестром — no-op, записи стираются при удалении.
+			// Мы под g_lua_api_mx — purge берёт только g_destroy_mutex (как destroy).
+			purge_script_entities(L);
+		}
 	}
 	catch (...) {
 		lua_pushboolean(L, false);// значение при ошибке: false (миссия не активна).
@@ -3689,13 +3669,17 @@ int createped(lua_State* L) {// создать педа.
 
 
 // ============================================================================
-// СПЕЦ-АКТОРЫ (SPANDXA/SPANDXB, IGMERC, IGPHIL ...).
+// СПЕЦ-АКТЁРЫ (SPANDXA/SPANDXB, IGMERC, IGPHIL ...).
 //
-// (27.10, директива юзера) Спец-слоты LOAD_SPECIAL_CHARACTER (109..116) НЕ
-// используются. Логика полностью находится в Createped: имя → пол →
-// обычная модель пола (HMYBE/WFYST) → загрузка + HasModelLoaded → CREATE_CHAR →
-// release_model (MARK) → пауза 3 мс. Отдельных хелперов спец-акторов нет.
+// (04.11, директива юзера) ЛЮБОЙ спец-актёр из type_specpeds_list создаётся
+// на СВОЕЙ спец-модели (109..116) через ДИНАМИЧЕСКИЙ слот 1..8 — менеджер
+// ma_stream_special_slot (compat/ma_streaming.cpp). Логика — в Createped
+// (выше): имя → пол (4/5) → слот → RequestSpecialChar → CREATE_CHAR →
+// hold_model_special. remove_ped/destroy на последнем педе слота шлют 0296
+// UNLOAD_SPECIAL_CHARACTER (слот освобождён). Фолбэк на обычную модель пола
+// (HMYBE/WFYST) — только при отказе стриминга/кончине слотов.
 // ============================================================================
+
 
 int create_spec_ped(lua_State* L) {// создать спец педа — тот же путь, что Createped.
 	return Createped(L);
@@ -27024,11 +27008,19 @@ int turncar_with_delay(CVehicle* car, float angle, int time, int switc) {
 };
 
 
-int destroy(lua_State* L) {// удаления объектов из памяти при перезагрузки скрипта.
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+// (06.11) Тело destroy() вынесено в purge_script_entities: его зовут ТРИ пути —
+// destroy() (Lua end_mission/перезагрузка), Getflagmission() (выход из цикла
+// миссии при смене флага/смерти — директива юзера 06.11) и сторож миссии
+// (ma_task_mission_watch::step). Мьютекс g_lua_api_mx здесь НЕ берём: все
+// вызывающие уже держат его (destroy — рекурсивно; Getflagmission — своим
+// lock_guard'ом; сторож крутится на игровом потоке вне API-вызовов).
+// Реестры per-lua_State (mapcars/mappeds/mapobjs/pickupsids/markeron/spheres/
+// firesids/soundsids): записи стираются под мьютексами ДО игровых вызовов,
+// поэтому повторный purge того же lua_State — безопасный no-op.
+void purge_script_entities(lua_State* L) {// аккуратно удалить ВСЁ созданное скриптом L.
  	std::lock_guard<std::mutex> gk(g_destroy_mutex);// только один destroy одновременно (несколько pump-потоков + миссия).
- 	int i;
- 	map<int, lua_State*>::iterator it;
+	int i;
+	map<int, lua_State*>::iterator it;
 
  // ВАЖНО: под мьютексом только забираем id и сразу стираем записи.
  // Игровые опкоды вызываем уже БЕЗ блокировки, иначе держим лок на
@@ -27125,11 +27117,11 @@ int destroy(lua_State* L) {// удаления объектов из памят�
  			else { ++pick; }
  		}
  	}
- 	for (CPed* ped : peds_to_del) {
- 		// findpedinpool делает sleep внутри — поэтому ЗА пределами блокировки.
- 		if (findpedinpool(ped) == NULL) { continue; }// висячий — запись уже стёрта.
- 		warp_ped_out_of_car(ped);// пед сидит в авто? высадить перед удалением.
- 		ped->ClearInvestigateEvent();// пед уходит, опустить педа.
+  	for (CPed* ped : peds_to_del) {
+  		// findpedinpool делает sleep внутри — поэтому ЗА пределами блокировки.
+  		if (findpedinpool(ped) == NULL) { continue; }// висячий — запись уже стёрта.
+  		warp_ped_out_of_car(ped);// пед сидит в авто? высадить перед удалением.
+  		ped->ClearInvestigateEvent();// пед уходит, опустить педа.
 
 		ped->ClearObjective(); // снять задачи с педа.
 		// НЕ CWorld::Remove: 0122 MARK_CHAR = CleanUpThisPed (reVC Script5.cpp:2681) меняет
@@ -27138,6 +27130,19 @@ int destroy(lua_State* L) {// удаления объектов из памят�
 		// ни CStreaming (refCount модели держится навсегда → утечка модели), а повторный
 		// Remove на уже вынутом из списка педе рвал связный список сектора → AV в рендере.
 		Command<COMMAND_MARK_CHAR_AS_NO_LONGER_NEEDED>(CPools::GetPedRef(ped));// выгрузить педа из-под скрипта.
+		// (04.11) Спец-актёр (модель 109..116)? Снимаем держание модели ЭТОГО
+		// скрипта (destroy = скрипт сворачивается): последний держатель → слот
+		// освобождается штатным 0296 UNLOAD_SPECIAL_CHARACTER.
+		{
+			int pm = ped->m_nModelIndex;
+			if (pm >= 109 && pm <= 116) {
+				ma_stream_let_go((void*)L, pm);
+				int slot = pm - 108;
+				if (ma_stream_special_holds(slot) == 0) {
+					Command<COMMAND_UNLOAD_SPECIAL_CHARACTER>(slot);
+				}
+			}
+		}
 	}
 
  	// ВАЖНО: под mtx только забираем указатели и сразу стираем записи.
@@ -27169,7 +27174,12 @@ int destroy(lua_State* L) {// удаления объектов из памят�
  	ma_diag::heap_check("destroy");
  	bool s = false;
  	corona::set(s, 0, 0, 0, 0, 0, 0, 0, 0, 0);
- 	return 0;
+};
+
+int destroy(lua_State* L) {// удаления объектов из памяти при перезагрузки скрипта (Lua-обёртка: тело — в purge_script_entities).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	purge_script_entities(L);
+	return 0;
  };
 
 CPed* findpedinpool(const void* p) {// найти педа в пуле.
@@ -28439,4 +28449,311 @@ int get_player_wanted_level(lua_State* L) {// уровень розыска иг
 	catch (const char* x) { writelog(x); }
 	lua_pushinteger(L, 0);
 	return 1;
+};
+
+// ============================================================================
+// (06.11) НОВЫЕ ФУНКЦИИ И ВАРИАЦИИ ПРЕЖНИХ — недостающие опкоды миссии
+// "07 - Treacherous Swine" (поток GENERL1) и общего арсенала main.scm.
+// Все — тонкие обёртки Command<> (или прямых вызовов SDK, как set_wanted);
+// для игрока используется CWorld::PlayerInFocus / FindPlayerPed() — конвенция
+// ped_frozen/set_wanted (команды уровня игрока берут НОМЕР игрока, не ref педа).
+// ============================================================================
+
+// ---- Миссийное аудио (03CF/03D0/03D1/03D2/040D) ----
+// play_voice() — готовая БЛОКИРУЮЩАЯ цепочка над этими же командами (док 03 §3.2);
+// эти пять — неблокирующие примитивы: диалог с параллельными действиями сцены.
+
+int load_mission_audio(lua_State* L) {// 03CF: LOAD_MISSION_AUDIO — загрузить аудиофразу в слот.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TSTRING == lua_type(L, 2)) {// слот (1..) и имя фразы ('COL1_5').
+			int slot = lua_tointeger(L, 1);
+			const char* name = lua_tostring(L, 2);
+			Command<COMMAND_LOAD_MISSION_AUDIO>(slot, name);// DMAudio.PreloadMissionAudio(slot-1, name).
+			return 0;
+		}
+		else { throw "bad argument in function load_mission_audio"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int has_mission_audio_loaded(lua_State* L) {// 03D0: HAS_MISSION_AUDIO_LOADED — фраза слота загружена?
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// слот.
+			int slot = lua_tointeger(L, 1);
+			if (Command<COMMAND_HAS_MISSION_AUDIO_LOADED>(slot)) { lua_pushboolean(L, true); return 1; }
+			else { lua_pushboolean(L, false); return 1; }
+		}
+		else { throw "bad argument in function has_mission_audio_loaded"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int play_mission_audio(lua_State* L) {// 03D1: PLAY_MISSION_AUDIO — проиграть загруженную фразу слота.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// слот.
+			int slot = lua_tointeger(L, 1);
+			Command<COMMAND_PLAY_MISSION_AUDIO>(slot);// DMAudio.PlayLoadedMissionAudio(slot-1).
+			return 0;
+		}
+		else { throw "bad argument in function play_mission_audio"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int has_mission_audio_finished(lua_State* L) {// 03D2: HAS_MISSION_AUDIO_FINISHED — фраза слота доиграла?
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// слот.
+			int slot = lua_tointeger(L, 1);
+			if (Command<COMMAND_HAS_MISSION_AUDIO_FINISHED>(slot)) { lua_pushboolean(L, true); return 1; }
+			else { lua_pushboolean(L, false); return 1; }
+		}
+		else { throw "bad argument in function has_mission_audio_finished"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int clear_mission_audio(lua_State* L) {// 040D: CLEAR_MISSION_AUDIO — выгрузить фразу слота.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// слот.
+			int slot = lua_tointeger(L, 1);
+			Command<COMMAND_CLEAR_MISSION_AUDIO>(slot);// DMAudio.ClearMissionAudio(slot-1).
+			return 0;
+		}
+		else { throw "bad argument in function clear_mission_audio"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+// ---- Розыск (010D/010E/010F) и игнор (03BF) ----
+// Вариации set_wanted/get_player_wanted_level: игрок неявно (FindPlayerPed) —
+// конвенция set_wanted/ped_frozen; прямые вызовы SDK вместо Command<>, чтобы не
+// путать НОМЕР игрока (CWorld::Players[i]) с ref педа.
+
+int alter_wanted_level(lua_State* L) {// 010D: ALTER_WANTED_LEVEL — поставить уровень розыска (с авто-спадом).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// уровень.
+			int level = lua_tointeger(L, 1);
+			CPlayerPed& player = *FindPlayerPed();
+			player.SetWantedLevel(level);// тот же вызов, что в обработчике 010D (reVC Script.cpp).
+			return 0;
+		}
+		else { throw "bad argument in function alter_wanted_level"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int alter_wanted_level_no_drop(lua_State* L) {// 010E: ALTER_WANTED_LEVEL_NO_DROP — уровень розыска БЕЗ авто-спада (погоня Swine).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// уровень.
+			int level = lua_tointeger(L, 1);
+			CPlayerPed& player = *FindPlayerPed();
+			player.SetWantedLevelNoDrop(level);// тот же вызов, что в обработчике 010E (reVC Script.cpp).
+			return 0;
+		}
+		else { throw "bad argument in function alter_wanted_level_no_drop"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int is_wanted_level_greater(lua_State* L) {// 010F: IS_WANTED_LEVEL_GREATER — розыск выше N?
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// порог.
+			int level = lua_tointeger(L, 1);
+			CPlayerPed* pl = FindPlayerPed();// GetWanted есть только у CPlayerPed (см. get_player_wanted_level).
+			if (pl == NULL) { lua_pushboolean(L, false); return 1; }// игрока нет — «не выше».
+			if (pl->GetWanted()->m_nWantedLevel > level) { lua_pushboolean(L, true); return 1; }
+			else { lua_pushboolean(L, false); return 1; }
+		}
+		else { throw "bad argument in function is_wanted_level_greater"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int set_everyone_ignore_player(lua_State* L) {// 03BF: SET_EVERYONE_IGNORE_PLAYER — все игнорируют игрока (сцены) — вариация set_police_ignore_player.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// 0/1.
+			int flag = lua_tointeger(L, 1);
+			Command<COMMAND_SET_EVERYONE_IGNORE_PLAYER>(CWorld::PlayerInFocus, flag);// обработчик берёт НОМЕР игрока (reVC Script4.cpp).
+			return 0;
+		}
+		else { throw "bad argument in function set_everyone_ignore_player"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+// ---- Педы: мягкое удаление (034F) ----
+
+int remove_char_elegantly(lua_State* L) {// 034F: REMOVE_CHAR_ELEGANTLY — мягкое удаление педа — вариация remove_ped.
+	// reVC Script4.cpp: MISSION-педа переводит в RANDOM_CHAR (bFadeOut), сидящего
+	// в авто — удаляет совсем; педа остаётся жить своей жизнью и уходит из кадра.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на педа.
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
+			Command<COMMAND_REMOVE_CHAR_ELEGANTLY>(CPools::GetPedRef(ped));
+			return 0;
+		}
+		else { throw "bad argument in function remove_char_elegantly"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+// ---- LOCATE/AREA: вариации ped_in_point_in_radius ----
+// ped_in_point_in_radius считает расстояние ТОЧКИ педа; команды ANY_MEANS
+// учитывают ГАБАРИТЫ авто, если пед едет (как в оригинале 00EC/00FE/00E9/00FB),
+// а *_IN_AREA_* — зону по ДВУМ УГЛАМ, а не центр+радиус.
+
+int locate_char_any_means_2d(lua_State* L) {// 00EC: LOCATE_CHAR_ANY_MEANS_2D — пед (пешком или в авто) в круге (x, y, rx, ry)?
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6)) {
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			if (ped == NULL) { lua_pushboolean(L, false); return 1; }// педа нет — «не в круге».
+			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
+			float rx = lua_tonumber(L, 4); float ry = lua_tonumber(L, 5);
+			int highlight = lua_tointeger(L, 6);// рисовать зону (0/1).
+			if (Command<COMMAND_LOCATE_CHAR_ANY_MEANS_2D>(CPools::GetPedRef(ped), x, y, rx, ry, highlight)) { lua_pushboolean(L, true); return 1; }
+			else { lua_pushboolean(L, false); return 1; }
+		}
+		else { throw "bad argument in function locate_char_any_means_2d"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int locate_char_any_means_3d(lua_State* L) {// 00FE: LOCATE_CHAR_ANY_MEANS_3D — пед (пешком или в авто) в сфере (x, y, z, rx, ry, rz)?
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6)
+			&& LUA_TNUMBER == lua_type(L, 7) && LUA_TNUMBER == lua_type(L, 8)) {
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			if (ped == NULL) { lua_pushboolean(L, false); return 1; }// педа нет — «не в сфере».
+			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3); float z = lua_tonumber(L, 4);
+			float rx = lua_tonumber(L, 5); float ry = lua_tonumber(L, 6); float rz = lua_tonumber(L, 7);
+			int highlight = lua_tointeger(L, 8);// рисовать зону (0/1).
+			if (Command<COMMAND_LOCATE_CHAR_ANY_MEANS_3D>(CPools::GetPedRef(ped), x, y, z, rx, ry, rz, highlight)) { lua_pushboolean(L, true); return 1; }
+			else { lua_pushboolean(L, false); return 1; }
+		}
+		else { throw "bad argument in function locate_char_any_means_3d"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int locate_player_any_means_char_2d(lua_State* L) {// 00E9: LOCATE_PLAYER_ANY_MEANS_CHAR_2D — игрок (пешком или в авто) рядом с педом (rx, ry)?
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4)) {
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// указатель на педа-цель.
+			if (ped == NULL) { lua_pushboolean(L, false); return 1; }// цели нет — «не рядом».
+			float rx = lua_tonumber(L, 2); float ry = lua_tonumber(L, 3);
+			int highlight = lua_tointeger(L, 4);// рисовать зону (0/1).
+			if (Command<COMMAND_LOCATE_PLAYER_ANY_MEANS_CHAR_2D>(CWorld::PlayerInFocus, CPools::GetPedRef(ped), rx, ry, highlight)) { lua_pushboolean(L, true); return 1; }
+			else { lua_pushboolean(L, false); return 1; }
+		}
+		else { throw "bad argument in function locate_player_any_means_char_2d"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int locate_player_any_means_char_3d(lua_State* L) {// 00FB: LOCATE_PLAYER_ANY_MEANS_CHAR_3D — игрок (пешком или в авто) рядом с педом (rx, ry, rz)?
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5)) {
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// указатель на педа-цель.
+			if (ped == NULL) { lua_pushboolean(L, false); return 1; }// цели нет — «не рядом».
+			float rx = lua_tonumber(L, 2); float ry = lua_tonumber(L, 3); float rz = lua_tonumber(L, 4);
+			int highlight = lua_tointeger(L, 5);// рисовать зону (0/1).
+			if (Command<COMMAND_LOCATE_PLAYER_ANY_MEANS_CHAR_3D>(CWorld::PlayerInFocus, CPools::GetPedRef(ped), rx, ry, rz, highlight)) { lua_pushboolean(L, true); return 1; }
+			else { lua_pushboolean(L, false); return 1; }
+		}
+		else { throw "bad argument in function locate_player_any_means_char_3d"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int is_player_in_area_3d(lua_State* L) {// 0057: IS_PLAYER_IN_AREA_3D — игрок в 3D-зоне ПО ДВУМ УГЛАМ?
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6)
+			&& LUA_TNUMBER == lua_type(L, 7)) {
+			float x1 = lua_tonumber(L, 1); float y1 = lua_tonumber(L, 2); float z1 = lua_tonumber(L, 3);
+			float x2 = lua_tonumber(L, 4); float y2 = lua_tonumber(L, 5); float z2 = lua_tonumber(L, 6);
+			int highlight = lua_tointeger(L, 7);// рисовать зону (0/1).
+			if (Command<COMMAND_IS_PLAYER_IN_AREA_3D>(CWorld::PlayerInFocus, x1, y1, z1, x2, y2, z2, highlight)) { lua_pushboolean(L, true); return 1; }
+			else { lua_pushboolean(L, false); return 1; }
+		}
+		else { throw "bad argument in function is_player_in_area_3d"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+int is_char_in_area_3d(lua_State* L) {// 0154: IS_CHAR_IN_AREA_3D — пед в 3D-зоне по двум углам?
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
+			&& LUA_TNUMBER == lua_type(L, 4) && LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6)
+			&& LUA_TNUMBER == lua_type(L, 7) && LUA_TNUMBER == lua_type(L, 8)) {
+			const void* p = lua_topointer(L, 1);
+			CPed* ped = findpedinpool(p);// получить указатель на педа.
+			if (ped == NULL) { lua_pushboolean(L, false); return 1; }// педа нет — «не в зоне».
+			float x1 = lua_tonumber(L, 2); float y1 = lua_tonumber(L, 3); float z1 = lua_tonumber(L, 4);
+			float x2 = lua_tonumber(L, 5); float y2 = lua_tonumber(L, 6); float z2 = lua_tonumber(L, 7);
+			int highlight = lua_tointeger(L, 8);// рисовать зону (0/1).
+			if (Command<COMMAND_IS_CHAR_IN_AREA_3D>(CPools::GetPedRef(ped), x1, y1, z1, x2, y2, z2, highlight)) { lua_pushboolean(L, true); return 1; }
+			else { lua_pushboolean(L, false); return 1; }
+		}
+		else { throw "bad argument in function is_char_in_area_3d"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
+};
+
+// ---- Прогресс (030C) ----
+
+int player_made_progress(lua_State* L) {// 030C: PLAYER_MADE_PROGRESS — добавить процент прохождения игры.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1)) {// процент (в оригинале миссии дают 1).
+			int percent = lua_tointeger(L, 1);
+			Command<COMMAND_PLAYER_MADE_PROGRESS>(percent);// CStats::ProgressMade += percent (reVC Script3.cpp).
+			return 0;
+		}
+		else { throw "bad argument in function player_made_progress"; }
+	}
+	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	return 0;
 };

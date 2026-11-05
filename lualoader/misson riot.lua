@@ -80,7 +80,9 @@ local function update_trucks_and_check_win(state)  -- функция прове�
   local tr = state.trucks[i]  -- получаем текущий грузовик
   local mk = state.markers[i]  -- получаем текущий маркер
   -- проверка авто ПЕРЕД снятием маркера: есть в пуле, не уничтожено, не горит (для вывезенной машины iscardead вернёт true)
-  local alive = tr ~= nil or  iscardead(tr) or iscarfire(tr) and getcarhealth(tr)<200
+  -- ВАЖНО: цепочка именно через AND — старый вариант через OR считал «живым» ЛЮБОЙ существующий хэндл,
+  -- а хэндл остаётся валидным даже у взорванного остова → маркер над уничтоженным грузовиком не снимался
+  local alive = tr ~= nil and not iscardead(tr) and not (iscarfire(tr) and getcarhealth(tr)<200)
 
   if alive then  -- если машина цела
    all_dead = false  -- сбрасываем флаг победы

@@ -130,6 +130,85 @@ void lower_copy(const char* name, char out[64]) {
 } // namespace
 
 // ---------------------------------------------------------------------------
+// СПЕЦ-АКТЁРЫ (04.11.2026, директива юзера): ДИНАМИЧЕСКИЕ СЛОТЫ 1..8.
+//
+// Раньше слоты были захардкожены (SPANDXA=4, SPANDXB=5 в special_actor_slots),
+// остальные спец-актёры шли фолбэком на обычную модель пола. Теперь ЛЮБОЙ
+// спец-актёр из type_specpeds_list создаётся на СВОЕЙ спец-модели: слот
+// 1..8 (модель 109..116, reVC ModelIndices.h: MI_SPECIAL01 = 109) выделяется
+// менеджером на имя актора и освобождается, когда педов этой модели не осталось.
+//
+// ГЛАВНАЯ ОПАСНОСТЬ (класс вылетов, reVC Streaming.cpp:985 RequestSpecialModel):
+// запрос ДРУГОГО имени на слот, где живут педы этой модели, заставляет движок
+// САМОМУ удалить этих педов (CTheScripts::RemoveThisPed) и переименовать модель
+// — мы теряем сущности и получаем UAF по указателям Lua. Защита: слот с живыми
+// педами (holds > 0) НЕ переиспользуется; имя в слоте не меняется, пока счётчик
+// педов > 0 (см. special_slot_same_name).
+// ---------------------------------------------------------------------------
+
+// Найти слот с этим именем (или НЕзанятый) под мьютексом. Возврат:
+// found = индекс 1..8 (0 — нет), busy_count — число держаний на нём.
+struct SpecialSlotProbe { int found; int busy_count; };
+static SpecialSlotProbe special_slot_probe(const char* name) {
+    SpecialSlotProbe r = { 0, 0 };
+    char lower[64];
+    lower_copy(name, lower);
+    for (int s = 1; s <= 8; ++s) {
+        auto wit = st().wants.find(108 + s);
+        if (wit == st().wants.end()) continue;         // слот свободен
+        const Want& w = wit->second;
+        if (!w.special) continue;                      // не спец-модель
+        if (w.name == lower) {
+            // Слот уже несёт ИМЕННО эту спец-модель: используем его.
+            r.found = s;
+            r.busy_count = w.holds;
+            return r;
+        }
+        if (w.holds > 0 || w.refs > 0) continue;       // чужое имя, слот занят — мимо
+        // Чужое имя, но запись пустая: можно переименовать (спросим у вызова).
+        if (r.found == 0) r.found = -s;                // отрицательный = «пустой чужой»
+    }
+    return r;
+}
+
+// (04.11) Выделить слот 1..8 под имя спец-актёра. Возвращает:
+//   >0 — слот (1..8), под этим именем уже живут/держатся педы ИЛИ слот свободен;
+//   0  — свободных слотов нет (все 8 заняты ЖИВЫМИ педами других имён).
+// Создатель СНАЧАЛА зовёт want_special, потом (после успешного CREATE_CHAR)
+// hold_special — holds вырастет и слот закрепится за именем до let_go.
+int ma_stream_special_slot(const char* name) {
+    if (!name || !name[0]) return 0;
+    std::lock_guard<std::mutex> lk(st().mx);
+    SpecialSlotProbe p = special_slot_probe(name);
+    if (p.found > 0) return p.found;                   // своё имя — слот наш
+    if (p.found < 0) return -p.found;                  // пустая чужая запись — переименуем
+    for (int s = 1; s <= 8; ++s) {                     // свободных записей нет — ищем дырку
+        if (st().wants.find(108 + s) == st().wants.end()) return s;
+    }
+    return 0;                                          // все 8 заняты живыми акторами
+}
+
+// (04.11) Число живых педов, созданных на спец-модели слота (для remove_ped:
+// UNLOAD_SPECIAL_CHARACTER шлём только на последнем педе).
+int ma_stream_special_holds(int slot) {
+    if (slot <= 0 || slot > 8) return 0;
+    std::lock_guard<std::mutex> lk(st().mx);
+    auto wit = st().wants.find(108 + slot);
+    if (wit == st().wants.end()) return 0;
+    return wit->second.holds;
+}
+
+// (04.11) Имя спец-модели в слоте (NULL — слот пуст). Для диагностики/логов.
+bool ma_stream_special_name(int slot, char out[64]) {
+    if (slot <= 0 || slot > 8) return false;
+    std::lock_guard<std::mutex> lk(st().mx);
+    auto wit = st().wants.find(108 + slot);
+    if (wit == st().wants.end() || !wit->second.special) return false;
+    if (out) { strncpy(out, wit->second.name.c_str(), 63); out[63] = '\0'; }
+    return true;
+}
+
+// ---------------------------------------------------------------------------
 // Worker-сторона
 // ---------------------------------------------------------------------------
 

@@ -48,6 +48,20 @@ unsigned ma_stream_wants();
 // name — строка как в SCM (SPANDXA, IGMERC...), регистр НЕ меняем.
 void ma_stream_want_special(int slot, const char* name);
 
+// --- ДИНАМИЧЕСКИЕ СЛОТЫ СПЕЦ-АКТЁРОВ (04.11.2026, директива юзера) ----------
+// Слоты 1..8 (модели 109..116, reVC MI_SPECIAL01=109) выделяются менеджером
+// на ИМЯ актора, а не захардкожены. Защита от класса вылетов reVC
+// RequestSpecialModel: слот с живыми педами (holds>0) под другим именем
+// НЕ переиспользуется — иначе движок сам удалит тех педов (RemoveThisPed).
+//
+// ma_stream_special_slot(имя) — выделить слот: >0 слот, 0 — все 8 заняты.
+int ma_stream_special_slot(const char* name);
+// Число живых держаний (педов) на спец-модели слота: remove_ped шлёт
+// UNLOAD_SPECIAL_CHARACTER только когда их не осталось.
+int ma_stream_special_holds(int slot);
+// Имя спец-модели в слоте (false — слот пуст).
+bool ma_stream_special_name(int slot, char out[64]);
+
 // --- ДЕРЖАНИЕ МОДЕЛИ СУЩНОСТЬЮ (26.10, директива юзера) ---------------------
 // «Модель, под которую создана сущность, остаётся в памяти, пока жива сущность».
 // hold — отдельный счётчик (не refs): интерес держится до let_go/let_go_all,
