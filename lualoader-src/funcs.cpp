@@ -2573,12 +2573,63 @@ int set_ped_mood(lua_State* L) {// настроение педа (04E3: SET_PLAY
 	return 0;
 };
 
+// (07.11) Команды с ИМЕНЕМ-МЕТКОЙ (04ED REQUEST_ANIMATION, 04EF REMOVE_ANIMATION,
+// 0318 REGISTER_MISSION_PASSED, 03CF LOAD_MISSION_AUDIO, 00BA/00BC PRINT_*) читают
+// имя из потока как СЫРЫЕ 8 байт (KEY_LENGTH_IN_SCRIPT) БЕЗ type-байта —
+// main.scm: «CF 03 | 04 01 | "COL1_5\0\0"» (проверено по байтам main.scm 0x49ed6).
+// ScriptCode::operator<<(const char*) пакует Pascal-string ([type][len][байты]) —
+// обработчик принимал [type][len] за ЧАСТЬ имени: FindMissionAudioSfx /
+// GetAnimationBlockIndex не находили ничего → play_voice «играл» тишину
+// (движок на пустом слоте сразу отдаёт статусы загруженности), анимации молча
+// не грузились. Собираем буфер команды вручную и исполняем ProcessOneCommand —
+// как CallCommandByIdNow, но с сырыми метками. ТОЛЬКО на игровом потоке
+// (вызовы из worker-потоков — через ma_cmdq_defer).
+static bool ma_run_label_command(unsigned int commandId, bool hasIntParam, int intParam, const char* label) {
+	static CRunningScript script;
+	memset(&script, 0, sizeof(CRunningScript));
+	script.m_bWastedBustedCheck = true;
+	strcpy_s(script.m_szName, "plg-sdk");
+	script.m_bIsMission = false;
+	script.m_bUseMissionCleanup = false;
+	script.m_bNotFlag = (commandId >> 15) & 1;
+	// Буфер команды собираем РУКАМИ (plugin::scripting::ScriptCode приватен):
+	// формат потока SCM — [id uint16 LE][type byte][значение]... Для int-параметра
+	// type = 0x01 (ARGUMENT_INT32); метка — 8 СЫРЫХ байт без type-байта.
+	unsigned char buf[2 + 5 + 8];
+	buf[0] = (unsigned char)(commandId & 0xFF);
+	buf[1] = (unsigned char)((commandId >> 8) & 0xFF);
+	int n = 2;
+	if (hasIntParam) {
+		buf[n++] = 0x01;// ARGUMENT_INT32 (reVC Script.cpp CollectParameters)
+		buf[n++] = (unsigned char)(intParam & 0xFF);
+		buf[n++] = (unsigned char)((intParam >> 8) & 0xFF);
+		buf[n++] = (unsigned char)((intParam >> 16) & 0xFF);
+		buf[n++] = (unsigned char)((intParam >> 24) & 0xFF);
+	}
+	char key[8];// KEY_LENGTH_IN_SCRIPT = 8: сырые байты метки, БЕЗ type-байта
+	memset(key, 0, sizeof(key));
+	for (int k = 0; k < 7 && label[k] != '\0'; k++) {
+		char c = label[k];
+		if (c >= 'A' && c <= 'Z') c = (char)(c - 'A' + 'a');// reVC приводит имя к нижнему регистру
+		key[k] = c;
+	}
+	memcpy(buf + n, key, 8);
+	n += 8;
+	script.m_nIp = (int)buf - (int)CRunningScript::GetScriptSpaceBase();
+	script.ProcessOneCommand();
+	return script.m_bCondResult ? true : false;
+}
+
 int request_animation(lua_State* L) {// запросить анимацию по имени (04ED: REQUEST_ANIMATION).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TSTRING == lua_type(L, 1)) {// (name).
 			const char* name = lua_tostring(L, 1);
-			Command<COMMAND_REQUEST_ANIMATION>(name);// запросить анимацию.
+			std::string v(name);// копия: замыкание живёт до исполнения на игровом потоке.
+			// (07.11) сырые 8 байт метки — Pascal-string попадал в имя мусором.
+			ma_cmdq_defer([&v]() -> bool {
+				return ma_run_label_command((unsigned int)COMMAND_REQUEST_ANIMATION - 0x10000, false, 0, v.c_str());
+			});
 			return 0;
 		}
 		else { throw "bad argument in function request_animation"; }
@@ -2592,7 +2643,11 @@ int remove_animation(lua_State* L) {// удалить анимацию (04EF: RE
 	try {
 		if (LUA_TSTRING == lua_type(L, 1)) {// (name).
 			const char* name = lua_tostring(L, 1);
-			Command<COMMAND_REMOVE_ANIMATION>(name);// удалить анимацию.
+			std::string v(name);// копия: замыкание живёт до исполнения на игровом потоке.
+			// (07.11) сырые 8 байт метки — Pascal-string попадал в имя мусором.
+			ma_cmdq_defer([&v]() -> bool {
+				return ma_run_label_command((unsigned int)COMMAND_REMOVE_ANIMATION - 0x10000, false, 0, v.c_str());
+			});
 			return 0;
 		}
 		else { throw "bad argument in function remove_animation"; }
@@ -3381,7 +3436,12 @@ int register_mission_passed(lua_State* L) {// отметить миссию ПР
 	try {
 		if (LUA_TSTRING == lua_type(L, 1)) {// (key) — ключ текста до 7 символов, как в оригинале: LAW_4.
 			const char* key = lua_tostring(L, 1);
-			Command<COMMAND_REGISTER_MISSION_PASSED>(key);// MissionsPassed++, ключ последней миссии, снятие шортката (reVC Script3.cpp).
+			std::string v(key);// копия: замыкание живёт до исполнения на игровом потоке.
+			// (07.11) сырые 8 байт метки (reVC Script3.cpp:2328 — strncpy 8 байт
+			// напрямую): Pascal-string попадал в имя миссии мусором.
+			ma_cmdq_defer([&v]() -> bool {
+				return ma_run_label_command((unsigned int)COMMAND_REGISTER_MISSION_PASSED - 0x10000, false, 0, v.c_str());
+			});
 			return 0;
 		}
 		else { throw "bad argument in function register_mission_passed"; }
@@ -3607,7 +3667,15 @@ int play_voice(lua_State* L) {// проиграть реплику педа.
 	try {
 		if (LUA_TSTRING == lua_type(L, 1)) {// значение число.
 			const char* voice = lua_tostring(L, 1);
-			Command<COMMAND_LOAD_MISSION_AUDIO>(1, voice);// загрузить реплику.
+			std::string v(voice);// копия: замыкание живёт до исполнения на игровом потоке.
+			// (07.11) 03CF — команда с ИМЕНЕМ-МЕТКОЙ: грузим через сырые 8 байт
+			// (ma_run_label_command). Pascal-string попадал в имя мусором →
+			// PreloadMissionAudio не находил сэмпл → воспроизведение «заканчивалось»
+			// мгновенно без звука (см. ma_run_label_command выше).
+			ma_cmdq_defer([&v]() -> bool {
+				return ma_run_label_command((unsigned int)COMMAND_LOAD_MISSION_AUDIO - 0x10000, true, 1, v.c_str());
+			});
+			auto t0 = std::chrono::steady_clock::now();// предохранитель от вечного ожидания
 			while (true) {
 				if (teardown_active.load()) break;// пауза: reload выключает скрипты — аудио не ждём.
 				this_thread::sleep_for(chrono::milliseconds(1));
@@ -3617,6 +3685,14 @@ int play_voice(lua_State* L) {// проиграть реплику педа.
 						Command<COMMAND_CLEAR_MISSION_AUDIO>(1);
 						break;
 					}
+				}
+				// (07.11) если файла нет/не открылся, движок 90 кадров «притворно
+				// играет» и сам ставит FINISHED; на прочие затыки — 30 с, чтобы
+				// скрипт не завис навсегда (раньше зацикливался при NO_SAMPLE).
+				if (std::chrono::steady_clock::now() - t0 > std::chrono::seconds(30)) {
+					writelog("play_voice: таймаут 30 с ожидания миссийного аудио");
+					Command<COMMAND_CLEAR_MISSION_AUDIO>(1);
+					break;
 				}
 			}
 			return 0;
@@ -28258,17 +28334,22 @@ int dont_remove_object(lua_State* L) {// 01C7: DONT_REMOVE_OBJECT — движо
 };
 
 int char_follow_path(lua_State* L) {// 009E: CHAR_FOLLOW_PATH — пед идёт по пути к точке.
+	// (07.11) ОПКОД БЕРЁТ 6 ПАРАМЕТРОВ (reVC Script.cpp:3728, CollectParameters(6)):
+	// (пед, x, y, z, РАДИУС (float), СКОРОСТЬ: 0=шаг / 1=БЕГ — reVC Script.cpp:3740).
+	// Раньше обёртка клала 5-й аргумент в слот РАДИУСА, а в слоте скорости читался
+	// ноль за концом буфера → PEDMOVE_WALK: цель Swine ШЛА к точке побега вместо бега.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
 			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
-			&& LUA_TNUMBER == lua_type(L, 5)) {
+			&& LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6)) {
 			const void* p = lua_topointer(L, 1);
 			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3); float z = lua_tonumber(L, 4);
-			int flag = lua_tointeger(L, 5);
+			float radius = lua_tonumber(L, 5);// радиус подхода к точке (в оригинале 1)
+			int state = lua_tointeger(L, 6);// 0 = PEDMOVE_WALK, 1 = PEDMOVE_RUN
 			CPed* ped = findpedinpool(p);
 			if (ped == NULL) { throw "entity not found in function char_follow_path"; }
-			Command<COMMAND_CHAR_FOLLOW_PATH>(CPools::GetPedRef(ped), x, y, z, flag);
+			Command<COMMAND_CHAR_FOLLOW_PATH>(CPools::GetPedRef(ped), x, y, z, radius, state);
 			return 0;
 		}
 		else { throw "bad argument in function char_follow_path"; }
@@ -28469,7 +28550,12 @@ int load_mission_audio(lua_State* L) {// 03CF: LOAD_MISSION_AUDIO — загру
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TSTRING == lua_type(L, 2)) {// слот (1..) и имя фразы ('COL1_5').
 			int slot = lua_tointeger(L, 1);
 			const char* name = lua_tostring(L, 2);
-			Command<COMMAND_LOAD_MISSION_AUDIO>(slot, name);// DMAudio.PreloadMissionAudio(slot-1, name).
+			std::string v(name);// копия: замыкание живёт до исполнения на игровом потоке.
+			// (07.11) сырые 8 байт метки: Pascal-string попадал в имя мусором —
+			// PreloadMissionAudio не находил сэмпл (см. ma_run_label_command).
+			ma_cmdq_defer([&v, slot]() -> bool {
+				return ma_run_label_command((unsigned int)COMMAND_LOAD_MISSION_AUDIO - 0x10000, true, slot, v.c_str());
+			});
 			return 0;
 		}
 		else { throw "bad argument in function load_mission_audio"; }

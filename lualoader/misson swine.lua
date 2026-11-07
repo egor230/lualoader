@@ -116,7 +116,7 @@ local function gonzo_run(gonzo, x, y, z)  -- функция побега Гон�
  if is_char_wander_path_clear(gonzo, x, y, z, 1) then  -- путь свободен?
   set_char_obj_run_to_coord(gonzo, x, y, z)  -- прямой бег к точке
  else  -- путь занят
-  char_follow_path(gonzo, x, y, z, 1)  -- обход по узлам маршрута
+  char_follow_path(gonzo, x, y, z, 1, 1)  -- обход по узлам: радиус 1, СКОРОСТЬ 1 = БЕГ (0 = шаг)
  end  -- конец выбора способа
 end  -- конец функции gonzo_run
 
@@ -130,7 +130,7 @@ local function cook_chase(cook, pl, px, py, pz)  -- функция ИИ офиц
   if is_char_wander_path_clear(cook, px, py, pz, 1) then  -- путь к игроку свободен
    set_char_obj_run_to_coord(cook, px, py, pz)  -- прямой бег к игроку
   else  -- путь занят
-   char_follow_path(cook, px, py, pz, 1)  -- обход по узлам
+   char_follow_path(cook, px, py, pz, 1, 1)  -- обход по узлам: радиус 1, СКОРОСТЬ 1 = БЕГ
   end  -- конец выбора способа
  end  -- конец проверки дистанции
 end  -- конец функции cook_chase
