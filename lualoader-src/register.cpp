@@ -49,7 +49,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "removemarker", removemarker); // 42 удалить маркер.
 	lua_register(L, "setpedcoordes", setpedcoordes); // 43 установить координаты для педа.
 	lua_register(L, "remove_car", remove_car); // 44 удалить авто.
-	lua_register(L, "car_in_water", car_in_water); // 45 проверка авто в воде.
+	lua_register(L, "iscar_in_water", iscar_in_water); // 45 проверка авто в воде.
+	lua_register(L, "car_in_water", iscar_in_water); // алиас для совместимости со старыми скриптами.
 	lua_register(L, "set_wanted", set_wanted); // 46 уcтановить уровень розыска.
 	lua_register(L, "ped_in_point_in_radius", ped_in_point_in_radius); // 47 проверить находится пед в координатах с радиусом.
 	lua_register(L, "create_sphere", create_sphere); // 48 создать сферу.
@@ -1635,6 +1636,103 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_player_in_area_3d", is_player_in_area_3d); // 1607 0057 игрок в 3D-зоне по двум углам.
 	lua_register(L, "is_char_in_area_3d", is_char_in_area_3d); // 1608 0154 пед в 3D-зоне по двум углам.
 	lua_register(L, "player_made_progress", player_made_progress); // 1609 030C процент прохождения игры.
+
+
+	// (доп.) Обёртки по значениям: стиль вождения, временные действия и миссии авто
+	lua_register(L, "set_car_driving_style_stop_for_cars", set_car_driving_style_stop_for_cars);
+	lua_register(L, "set_car_driving_style_slow_down_for_cars", set_car_driving_style_slow_down_for_cars);
+	lua_register(L, "set_car_driving_style_avoid_cars", set_car_driving_style_avoid_cars);
+	lua_register(L, "set_car_driving_style_plough_through", set_car_driving_style_plough_through);
+	lua_register(L, "set_car_driving_style_stop_for_cars_ignore_lights", set_car_driving_style_stop_for_cars_ignore_lights);
+	lua_register(L, "car_temp_action_none", car_temp_action_none);
+	lua_register(L, "car_temp_action_wait", car_temp_action_wait);
+	lua_register(L, "car_temp_action_reverse", car_temp_action_reverse);
+	lua_register(L, "car_temp_action_handbrake_turn_left", car_temp_action_handbrake_turn_left);
+	lua_register(L, "car_temp_action_handbrake_turn_right", car_temp_action_handbrake_turn_right);
+	lua_register(L, "car_temp_action_handbrake_straight", car_temp_action_handbrake_straight);
+	lua_register(L, "car_temp_action_turn_left", car_temp_action_turn_left);
+	lua_register(L, "car_temp_action_turn_right", car_temp_action_turn_right);
+	lua_register(L, "car_temp_action_go_forward", car_temp_action_go_forward);
+	lua_register(L, "car_temp_action_swerve_left", car_temp_action_swerve_left);
+	lua_register(L, "car_temp_action_swerve_right", car_temp_action_swerve_right);
+	lua_register(L, "car_mission_none", car_mission_none);
+	lua_register(L, "car_mission_cruise", car_mission_cruise);
+	lua_register(L, "car_mission_ram_player_faraway", car_mission_ram_player_faraway);
+	lua_register(L, "car_mission_ram_player_close", car_mission_ram_player_close);
+	lua_register(L, "car_mission_block_player_faraway", car_mission_block_player_faraway);
+	lua_register(L, "car_mission_block_player_close", car_mission_block_player_close);
+	lua_register(L, "car_mission_block_player_handbrake_stop", car_mission_block_player_handbrake_stop);
+	lua_register(L, "car_mission_wait_for_deletion", car_mission_wait_for_deletion);
+	lua_register(L, "car_mission_goto_coords", car_mission_goto_coords);
+	lua_register(L, "car_mission_goto_coords_straight", car_mission_goto_coords_straight);
+	lua_register(L, "car_mission_emergency_vehicle_stop", car_mission_emergency_vehicle_stop);
+	lua_register(L, "car_mission_stop_forever", car_mission_stop_forever);
+	lua_register(L, "car_mission_goto_coords_accurate", car_mission_goto_coords_accurate);
+	lua_register(L, "car_mission_goto_coords_straight_accurate", car_mission_goto_coords_straight_accurate);
+	lua_register(L, "car_mission_goto_coords_as_the_crow_swims", car_mission_goto_coords_as_the_crow_swims);
+	lua_register(L, "car_mission_ram_car_faraway", car_mission_ram_car_faraway);
+	lua_register(L, "car_mission_ram_car_close", car_mission_ram_car_close);
+	lua_register(L, "car_mission_block_car_faraway", car_mission_block_car_faraway);
+	lua_register(L, "car_mission_block_car_close", car_mission_block_car_close);
+	lua_register(L, "car_mission_block_car_handbrake_stop", car_mission_block_car_handbrake_stop);
+	lua_register(L, "car_mission_heli_fly_to_coords", car_mission_heli_fly_to_coords);
+	lua_register(L, "car_mission_attack_player", car_mission_attack_player);
+	lua_register(L, "car_mission_plane_fly_to_coords", car_mission_plane_fly_to_coords);
+	lua_register(L, "car_mission_heli_land", car_mission_heli_land);
+	lua_register(L, "car_mission_slowly_drive_towards_player_1", car_mission_slowly_drive_towards_player_1);
+	lua_register(L, "car_mission_slowly_drive_towards_player_2", car_mission_slowly_drive_towards_player_2);
+	lua_register(L, "car_mission_block_player_forward_and_back", car_mission_block_player_forward_and_back);
+
+
+	// (доп.) Обёртки: скорость передвижения педа, pedstat, банды
+	lua_register(L, "ped_move_state_none", ped_move_state_none);
+	lua_register(L, "ped_move_state_still", ped_move_state_still);
+	lua_register(L, "ped_move_state_walk", ped_move_state_walk);
+	lua_register(L, "ped_move_state_run", ped_move_state_run);
+	lua_register(L, "ped_move_state_sprint", ped_move_state_sprint);
+	lua_register(L, "set_ped_stat_player", set_ped_stat_player);
+	lua_register(L, "set_ped_stat_cop", set_ped_stat_cop);
+	lua_register(L, "set_ped_stat_medic", set_ped_stat_medic);
+	lua_register(L, "set_ped_stat_fire", set_ped_stat_fire);
+	lua_register(L, "set_ped_stat_gang1", set_ped_stat_gang1);
+	lua_register(L, "set_ped_stat_gang2", set_ped_stat_gang2);
+	lua_register(L, "set_ped_stat_gang3", set_ped_stat_gang3);
+	lua_register(L, "set_ped_stat_gang4", set_ped_stat_gang4);
+	lua_register(L, "set_ped_stat_gang5", set_ped_stat_gang5);
+	lua_register(L, "set_ped_stat_gang6", set_ped_stat_gang6);
+	lua_register(L, "set_ped_stat_gang7", set_ped_stat_gang7);
+	lua_register(L, "set_ped_stat_street_guy", set_ped_stat_street_guy);
+	lua_register(L, "set_ped_stat_suit_guy", set_ped_stat_suit_guy);
+	lua_register(L, "set_ped_stat_sensible_guy", set_ped_stat_sensible_guy);
+	lua_register(L, "set_ped_stat_geek_guy", set_ped_stat_geek_guy);
+	lua_register(L, "set_ped_stat_old_guy", set_ped_stat_old_guy);
+	lua_register(L, "set_ped_stat_tough_guy", set_ped_stat_tough_guy);
+	lua_register(L, "set_ped_stat_street_girl", set_ped_stat_street_girl);
+	lua_register(L, "set_ped_stat_suit_girl", set_ped_stat_suit_girl);
+	lua_register(L, "set_ped_stat_sensible_girl", set_ped_stat_sensible_girl);
+	lua_register(L, "set_ped_stat_geek_girl", set_ped_stat_geek_girl);
+	lua_register(L, "set_ped_stat_old_girl", set_ped_stat_old_girl);
+	lua_register(L, "set_ped_stat_tough_girl", set_ped_stat_tough_girl);
+	lua_register(L, "set_ped_stat_tramp_male", set_ped_stat_tramp_male);
+	lua_register(L, "set_ped_stat_tramp_female", set_ped_stat_tramp_female);
+	lua_register(L, "set_ped_stat_tourist", set_ped_stat_tourist);
+	lua_register(L, "set_ped_stat_prostitute", set_ped_stat_prostitute);
+	lua_register(L, "set_ped_stat_criminal", set_ped_stat_criminal);
+	lua_register(L, "set_ped_stat_busker", set_ped_stat_busker);
+	lua_register(L, "set_ped_stat_taxidriver", set_ped_stat_taxidriver);
+	lua_register(L, "set_ped_stat_psycho", set_ped_stat_psycho);
+	lua_register(L, "set_ped_stat_steward", set_ped_stat_steward);
+	lua_register(L, "set_ped_stat_sportsfan", set_ped_stat_sportsfan);
+	lua_register(L, "set_ped_stat_shopper", set_ped_stat_shopper);
+	lua_register(L, "set_ped_stat_oldshopper", set_ped_stat_oldshopper);
+	lua_register(L, "set_ped_stat_beach_guy", set_ped_stat_beach_guy);
+	lua_register(L, "set_ped_stat_beach_girl", set_ped_stat_beach_girl);
+	lua_register(L, "set_ped_stat_skater", set_ped_stat_skater);
+	lua_register(L, "set_ped_stat_std_mission", set_ped_stat_std_mission);
+	lua_register(L, "set_ped_stat_coward", set_ped_stat_coward);
+	lua_register(L, "gang_enable_attack_player_with_cops", gang_enable_attack_player_with_cops);
+	lua_register(L, "gang_disable_attack_player_with_cops", gang_disable_attack_player_with_cops);
+	lua_register(L, "reset_gangs", reset_gangs);
 
 	return 0;
 };

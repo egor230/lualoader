@@ -162,8 +162,21 @@ then  show_save_menu()
   if Keypress("VK_N") -- если клавиша H.
     then    x,y,z = getcoordinates_on_y(player, 5)
     -- car = Createcar("MODEL_PCJ600",x,y,z)
-      setpedcoordes(player,286.7, -303.1, 11.9)
+
+    Giveweaponped(player,600,"m4")-- дать педу оружие.
+      --setpedcoordes(player,286.7, -303.1, 11.9)
+      local car = Createcar("MODEL_SPAND",  x,y,z) if car ~= nil then setangle(car, 270) m1 = create_marker(car)
+       while true do wait(200)
+        h= getcarhealth(car)
+        printmessage("value = " .. string.format("%d", math.floor(h + 0.5)), 3400, 1) -- с округлением
+        if iscardead(car) or iscarfire(car) or iscar_in_water(car) and getcarhealth(car) < 100
+        then removemarker(m1)
+       end
+      end
     end
+  end
+
+
   end
 
 end

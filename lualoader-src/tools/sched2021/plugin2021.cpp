@@ -384,7 +384,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "removemarker", removemarker); // 31 удалить маркер.
 	lua_register(L, "setpedcoordes", setpedcoordes); // 32 установить координаты для педа.
 	lua_register(L, "remove_car", remove_car); // 33 удалить авто.
-	lua_register(L, "car_in_water", car_in_water); // 34 проверка авто в воде.
+	lua_register(L, "iscar_in_water", iscar_in_water);
+	lua_register(L, "car_in_water", iscar_in_water); // 34 проверка авто в воде.
 	lua_register(L, "set_wanted", set_wanted); // 35 уcтановить уровень розыска.
 	lua_register(L, "ped_in_point_in_radius", ped_in_point_in_radius); // 36 проверить находится пед в координатах с радиусом.
 	lua_register(L, "create_sphere", create_sphere); // 37 создать сферу.

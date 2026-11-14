@@ -79,20 +79,16 @@ local function update_trucks_and_check_win(state)  -- функция прове�
  for i = 1, 3 do  -- цикл по трем грузовикам
   local tr = state.trucks[i]  -- получаем текущий грузовик
   local mk = state.markers[i]  -- получаем текущий маркер
-  -- проверка авто ПЕРЕД снятием маркера: есть в пуле, не уничтожено, не горит (для вывезенной машины iscardead вернёт true)
-  -- ВАЖНО: цепочка именно через AND — старый вариант через OR считал «живым» ЛЮБОЙ существующий хэндл,
-  -- а хэндл остаётся валидным даже у взорванного остова → маркер над уничтоженным грузовиком не снимался
-  local alive = tr ~= nil and not iscardead(tr) and not (iscarfire(tr) and getcarhealth(tr)<200)
-
-  if alive then  -- если машина цела
+  -- грузовик считается потерянным, если уничтожен, горит или ушёл в воду при низком здоровье
+  if tr ~= nil and (iscardead(tr) or iscarfire(tr) or (iscar_in_water(tr) and getcarhealth(tr) < 100)) then
+   if mk ~= nil then  -- если маркер ещё висит
+    remove_blip(mk)  -- удаляем маркер уничтоженного/утонувшего грузовика
+    state.markers[i] = nil  -- обнуляем ячейку маркера
+    printmessage("~y~Truck Wrecked!", 3000, 1)  -- сообщение о потере грузовика
+   end
+  elseif tr ~= nil then  -- грузовик ещё цел
    all_dead = false  -- сбрасываем флаг победы
-  else  -- если машина уничтожена, горит или вывезена движком
-   if mk ~= nil then  -- если блайп еще висит над уничтоженной машиной
-    remove_blip(mk)  -- удаляем конкретный маркер уничтоженной машины
-    state.markers[i] = nil  -- обнуляем ячейку маркера в таблице
-    if tr ~= nil then printmessage("~y~Truck Wrecked!", 3000, 1) end  -- сообщение о разрушении
-   end  -- конец проверки блайпа
-  end  -- конец проверки состояния авто
+  end  -- если tr == nil, считаем уже обработанным/потерянным
  end  -- конец цикла
 
  return all_dead  -- возвращаем итоговое состояние цели

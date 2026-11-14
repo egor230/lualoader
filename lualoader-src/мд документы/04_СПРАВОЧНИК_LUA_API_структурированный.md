@@ -1,0 +1,1706 @@
+# Справочник Lua API lualoader (структурированный)
+
+Аналог документа `04_СПРАВОЧНИК_LUA_API.md`, пересобранный по тематическим категориям с закладками.
+
+- Всего зарегистрированных функций (уникальных имён): **1608**
+- Источник: `register.cpp` + описания из `04_СПРАВОЧНИК_LUA_API.md` (включая дополнения).
+- В документ включены все зарегистрированные функции; для функций с вариантами имён/опечаток сохранены отдельные записи.
+
+## Оглавление
+- [Пед и игрок / Действия и функции (пед, игрок)](#пед-и-игрок-действия-и-функции-пед-игрок) (558)
+- [Пед и игрок / Проверки (пед, игрок)](#пед-и-игрок-проверки-пед-игрок) (98)
+- [Транспорт / Действия и функции (авто, лодки, вертолёты, мото)](#транспорт-действия-и-функции-авто-лодки-вертол-ты-мото) (403)
+- [Транспорт / Проверки (авто, лодки, вертолёты, мото)](#транспорт-проверки-авто-лодки-вертол-ты-мото) (80)
+- [Объекты и пикапы / Действия и функции (объекты, пикапы)](#объекты-и-пикапы-действия-и-функции-объекты-пикапы) (80)
+- [Объекты и пикапы / Проверки (объекты, пикапы)](#объекты-и-пикапы-проверки-объекты-пикапы) (5)
+- [Проверки / Общие проверки](#проверки-общие-проверки) (57)
+- [Общие функции / Погода, время и окружение](#общие-функции-погода-время-и-окружение) (49)
+- [Общие функции / Розыск и полиция](#общие-функции-розыск-и-полиция) (1)
+- [Общие функции / Вода, уровень и физика мира](#общие-функции-вода-уровень-и-физика-мира) (4)
+- [Общие функции / Мир, зоны, стриминг и трафик](#общие-функции-мир-зоны-стриминг-и-трафик) (38)
+- [Общие функции / Камера, экран и эффекты отображения](#общие-функции-камера-экран-и-эффекты-отображения) (13)
+- [Общие функции / Звук и радио](#общие-функции-звук-и-радио) (13)
+- [Общие функции / Текст, HUD и сообщения](#общие-функции-текст-hud-и-сообщения) (29)
+- [Общие функции / Радар, маркеры и блипы](#общие-функции-радар-маркеры-и-блипы) (33)
+- [Общие функции / Оружие, боеприпасы и снаряды](#общие-функции-оружие-боеприпасы-и-снаряды) (40)
+- [Общие функции / Огонь и взрывы](#общие-функции-огонь-и-взрывы) (3)
+- [Общие функции / Деньги, статистика и прогресс](#общие-функции-деньги-статистика-и-прогресс) (33)
+- [Общие функции / Загрузка, создание и удаление](#общие-функции-загрузка-создание-и-удаление) (9)
+- [Общие функции / Математика и утилиты](#общие-функции-математика-и-утилиты) (6)
+- [Общие функции / Скрипты, миссии и система](#общие-функции-скрипты-миссии-и-система) (9)
+- [Общие функции / Прочее](#общие-функции-прочее) (43)
+
+## Пед и игрок / Действия и функции (пед, игрок)
+
+- **`add_ammo_to_char(пед, число, число)`** → действие — добавить патронов педу в оружие.  *Пример: `add_ammo_to_char(ped, x, y)`*
+- **`add_ammo_to_player(число, число)`** → действие — добавить патронов игроку.  *Пример: `add_ammo_to_player(x, y)`*
+- **`add_armour_to_char(пед, число)`** → действие — добавить брони педу.  *Пример: `add_armour_to_char(ped, x)`*
+- **`add_armour_to_player(число)`** → действие — добавить брони игроку.  *Пример: `add_armour_to_player(x)`*
+- **`addmoney_ped(пед, число)`** → действие — добавить кол-во деньги педа.  *Пример: `addmoney_ped(ped, x)`*
+- **`all_exit_from_car(авто, число)`** → действие — все педы выходят из авто.  *Пример: `all_exit_from_car(car, x)`*
+- **`alter_wanted_level(уровень)`** → действие — 010D ALTER_WANTED_LEVEL:
+- **`alter_wanted_level_no_drop(уровень)`** → действие — 010E
+- **`anim_set_group_ref(пед, число)`** → действие — задать группу анимаций.  *Пример: `anim_set_group_ref(ped, x)`*
+- **`annoy_player_ped(flag)`** → bool — разозлить педа на игрока.  *Пример: `annoy_player_ped(true)`*
+- **`camera_clear_player_weapon_mode()`** → действие — сбросить режим оружия.  *Пример: `camera_clear_player_weapon_mode()`*
+- **`car_to_player(авто)`** → действие — авто к игроку.  *Пример: `car_to_player(car)`*
+- **`char_follow_path(пед, x, y, z, радиус, скорость)`** → действие — 009E
+- **`char_set_idle(пед)`** → действие — пед в режим ожидания.  *Пример: `char_set_idle(ped)`*
+- **`check_ped_in_cord(число, число, число, число)`** → флаг — есть ли педа в радиусе с координатами.  *Пример: `check_ped_in_cord(x, y, z, 3)`*
+- **`choose_gang_ped_model(число)`** → целое — выбрать модель педа банды.  *Пример: `choose_gang_ped_model(x)`*
+- **`clean_ped_wait(пед)`** → действие — пед больше не ждет.  *Пример: `clean_ped_wait(ped)`*
+- **`clean_threat_for_ped_type(число, число)`** → действие — Убрать враждебность типа педа к другим типам педа.  *Пример: `clean_threat_for_ped_type(x, y)`*
+- **`clear_adrenaline()`** → bool — снять адреналин у игрока.  *Пример: `clear_adrenaline()`*
+- **`clear_all_char_anims(пед)`** → действие — очистить все анимации педа.  *Пример: `clear_all_char_anims(ped)`*
+- **`clear_area_of_chars(число, число, число, число)`** → действие — очистить зону от педов.  *Пример: `clear_area_of_chars(x, y, z, 3)`*
+- **`clear_char_follow_path(пед)`** → действие — очистить маршрут педа.  *Пример: `clear_char_follow_path(ped)`*
+- **`clear_char_last_damage_entity(пед)`** → действие — забыть последнюю повредившую сущность.  *Пример: `clear_char_last_damage_entity(ped)`*
+- **`clear_char_last_weapon_damage(пед)`** → действие — забыть последнее оружие урона.  *Пример: `clear_char_last_weapon_damage(ped)`*
+- **`clear_wanted()`** → действие — убрать уровень розыска.  *Пример: `clear_wanted()`*
+- **`create_phone(число, число)`** → целое — создать телефон на координатах.  *Пример: `create_phone(x, y)`*
+- **`create_random_char(x, y, z)`** → указ. — 0376 CREATE_RANDOM_CHAR.
+- **`create_shots_on_ped(пед)`** → действие — создать выстрелы.  *Пример: `create_shots_on_ped(ped)`*
+- **`create_spec_ped(строка, число, число, число)`** → указ. — создать спец педа — тот же путь, что `Createped` (04.11: динамические слоты 1..8, спец-модель 109..116).  *Пример: `create_spec_ped("текст", x, y, z)`*
+- **`createped(число, число, число, число, число)`** → указ. — создать педа: `(id_модели, type, x, y, z)`. Модель **ДЕРЖИТСЯ**, пока пед жив.  *Пример: `createped(49, 4, x, y, z)`*
+- **`Createped(строка, число, число, число)`** → указ. — макрос создать педа. **04.11 — создаёт И педа, И ЛЮБОГО специального актёра (динамические слоты):** имя в `name_peds_list` → обычный пед; имя в `type_specpeds_list` (все ~70 спец-имён: SPANDXA/SPANDXB, IGMERC, IGPHIL, IGDIAZ...) → **своей спец-моделью 109..116** через ДИНАМИЧЕСКИЙ слот 1..8 (`ma_stream_special_slot`: своё имя → тот же слот; пустой — любой свободный; все 8 заняты живыми акторами → фолбэк) — `want_special` → `wait` → `CREATE_CHAR(пол, 108+slot)` → `hold_model_special`, **без UNDRESS/DRESS**. Слот с живыми педами под другим именем НЕ переиспользуется (иначе движок сам удалил бы тех педов — reVC `RequestSpecialModel`). Отказ стриминга/нет слотов → фолбэк: обычная модель пола (HMYBE/WFYST). Любой отказ → `nil` + запись в журнал (без вылетов).  *Пример: `Createped("GDA", x, y, z)`*
+- **`del_anim(пед)`** → действие — удалить анимацию.  *Пример: `del_anim(ped)`*
+- **`ensure_drive_by()`** → действие — дать drive-by.  *Пример: `ensure_drive_by()`*
+- **`find_ped_by_model(число)`** → указ. — найти первого педа по модели.  *Пример: `find_ped_by_model(x)`*
+- **`findped()`** → указ. — найти педа в пуле.  *Пример: `findped()`*
+- **`findped_in_cord(число, число, число, число)`** → флаг, указ. — найти педа в радиусе с координатами.  *Пример: `findped_in_cord(x, y, z, 3)`*
+- **`findped_nearest_in_cord(число, число, число)`** → флаг, указ. — найти ближайшего педа в радиусе с координатами.  *Пример: `findped_nearest_in_cord(x, y, z)`*
+- **`findplayer()`** → действие — найти педа.  *Пример: `findplayer()`*
+- **`follow_the_leader(пед, указ.)`** → действие — 01DE / 01DF	следовать за лидером.  *Пример: `follow_the_leader(ped, entity)`*
+- **`gangs_choose_ped_model(число)`** → целое — модель педа банды.  *Пример: `gangs_choose_ped_model(x)`*
+- **`gangs_get_attack_with_cops(число)`** → флаг — банда атакует с копами.  *Пример: `gangs_get_attack_with_cops(x)`*
+- **`gangs_initialise()`** → действие — переинициализация банд.  *Пример: `gangs_initialise()`*
+- **`gangs_set_attack_with_cops(число, флаг)`** → действие — банда атакует с копами.  *Пример: `gangs_set_attack_with_cops(x, true)`*
+- **`gangs_set_ped_models(число, число, число)`** → действие — модели педов банды.  *Пример: `gangs_set_ped_models(x, y, z)`*
+- **`gangs_set_vehicle_model(число, число)`** → действие — авто банды.  *Пример: `gangs_set_vehicle_model(x, y)`*
+- **`gangs_set_weapons(число, число, число)`** → действие — оружие банды.  *Пример: `gangs_set_weapons(x, y, z)`*
+- **`get_aimgun_ped(пед)`** → целое — получить показатель цели педа.  *Пример: `get_aimgun_ped(ped)`*
+- **`get_all_random_peds_type()`** → целое — тип случайных педов.  *Пример: `get_all_random_peds_type()`*
+- **`get_ammo_in_char_weapon(пед, число)`** → целое — патроны в оружии педа.  *Пример: `get_ammo_in_char_weapon(ped, x)`*
+- **`get_ammo_in_clip_ped(пед)`** → целое — получить патроны в обойме.  *Пример: `get_ammo_in_clip_ped(ped)`*
+- **`get_ammo_weapon_ped(пед)`** → целое — получить кол-во патроны текущего оружие педа.  *Пример: `get_ammo_weapon_ped(ped)`*
+- **`get_anim_block_index(строка)`** → целое — индекс блока анимаций.  *Пример: `get_anim_block_index("текст")`*
+- **`get_bike_anim_group(авто)`** → целое — группа анимаций мотоцикла.  *Пример: `get_bike_anim_group(car)`*
+- **`get_boat_m_fBoatGasPedal(авто)`** → число — газ лодки.  *Пример: `get_boat_m_fBoatGasPedal(car)`*
+- **`get_car_brake_pedal(авто)`** → число — получить педаль тормоза авто.  *Пример: `get_car_brake_pedal(car)`*
+- **`get_car_gas_pedal(авто)`** → число — получить педаль газа авто.  *Пример: `get_car_gas_pedal(car)`*
+- **`get_car_m_fBoatBrakePedal(авто)`** → число — `m_fBoatBrakePedal` (Лодка тормоза педаль (число)).  *Пример: `get_car_m_fBoatBrakePedal(car)`*
+- **`get_car_m_fBoatGasPedal(авто)`** → число — `m_fBoatGasPedal` (Лодка газа педаль (число)).  *Пример: `get_car_m_fBoatGasPedal(car)`*
+- **`get_car_m_fBreakPedal(авто)`** → число — `m_fBreakPedal` (Тормоза педаль (число)).  *Пример: `get_car_m_fBreakPedal(car)`*
+- **`get_car_m_fGasPedal(авто)`** → число — `m_fGasPedal` (Газа педаль (число)).  *Пример: `get_car_m_fGasPedal(car)`*
+- **`get_car_m_nAttackPlayerTime(авто)`** → целое — `m_nAttackPlayerTime` (Attack игрок время (целое)).  *Пример: `get_car_m_nAttackPlayerTime(car)`*
+- **`get_char_in_seat(авто, число)`** → указ. — пассажир.  *Пример: `get_char_in_seat(car, x)`*
+- **`get_char_weapon_in_slot(пед, число)`** → целое — оружие в слоте педа.  *Пример: `get_char_weapon_in_slot(ped, x)`*
+- **`get_controller()`** → целое — получить контролер от игрока.  *Пример: `get_controller()`*
+- **`get_cops_in_pursuit()`** → целое — получить копов в погоне.  *Пример: `get_cops_in_pursuit()`*
+- **`get_criminal_rating()`** → целое — уровень преступника.  *Пример: `get_criminal_rating()`*
+- **`get_current_skin_name()`** → строка — имя последнего скина, установленного `set_skin` (кэш).  *Пример: `get_current_skin_name()`*
+- **`get_damage_weapon_ped(пед)`** → целое — получить последний урон педа от оружия.  *Пример: `get_damage_weapon_ped(ped)`*
+- **`get_hud_m_WantedTimer()`** → число — таймер розыска на HUD.  *Пример: `get_hud_m_WantedTimer()`*
+- **`get_hud_wanted_state()`** → целое — состояние розыска на HUD.  *Пример: `get_hud_wanted_state()`*
+- **`get_max_cop_cars_in_pursuit()`** → целое — получить макс полицейских авто.  *Пример: `get_max_cop_cars_in_pursuit()`*
+- **`get_max_cops_in_pursuit()`** → целое — получить макс копов в погоне.  *Пример: `get_max_cops_in_pursuit()`*
+- **`Get_model_and_type_current_weapon_ped(пед)`** → целое — макрос получить модель и тип текущего оружие педа.  *Пример: `Get_model_and_type_current_weapon_ped(ped)`*
+- **`Get_model_and_type_ped(строка)`** → целое — макрос получить модель и тип педа.  *Пример: `Get_model_and_type_ped("текст")`*
+- **`get_model_current_weapon_ped(пед)`** → целое — макрос получить модель текущего оружие педа.  *Пример: `get_model_current_weapon_ped(ped)`*
+- **`get_model_ped(строка)`** → целое — получить модель педа.  *Пример: `get_model_ped("текст")`*
+- **`get_ped_density_multiplier()`** → число — плотность пешеходов.  *Пример: `get_ped_density_multiplier()`*
+- **`get_ped_enter_type(пед)`** → целое — получить тип посадки педа в авто.  *Пример: `get_ped_enter_type(ped)`*
+- **`get_ped_from_vehicle(пед)`** → указ. — получить авто из которого вышел пед.  *Пример: `get_ped_from_vehicle(ped)`*
+- **`get_ped_heading(пед)`** → число — получить текущий угол поворота педа.  *Пример: `get_ped_heading(ped)`*
+- **`get_ped_heading_goal(пед)`** → число — получить желаемый угол поворота педа.  *Пример: `get_ped_heading_goal(ped)`*
+- **`get_ped_heading_rate(пед)`** → число — получить скорость поворота педа.  *Пример: `get_ped_heading_rate(ped)`*
+- **`get_ped_in_cord(число, число, число, число)`** → флаг, указ. — получить педа в радиусе с координатами.  *Пример: `get_ped_in_cord(x, y, z, 3)`*
+- **`get_ped_last_state(пед)`** → целое — получить прошлое состояние педа.  *Пример: `get_ped_last_state(ped)`*
+- **`get_ped_m_bCanPedTalk(пед)`** → флаг — `m_bCanPedTalk` (Can пед Talk (флаг)).  *Пример: `get_ped_m_bCanPedTalk(ped)`*
+- **`get_ped_m_bHasPhone(пед)`** → флаг — `m_bHasPhone` (Has Phone (флаг)).  *Пример: `get_ped_m_bHasPhone(ped)`*
+- **`get_ped_m_bInVehicle(пед)`** → флаг — `m_bInVehicle` (In транспорт (флаг)).  *Пример: `get_ped_m_bInVehicle(ped)`*
+- **`get_ped_m_fAngleToEvent(пед)`** → число — `m_fAngleToEvent` (Угол To Event (число)).  *Пример: `get_ped_m_fAngleToEvent(ped)`*
+- **`get_ped_m_fArmour(пед)`** → число — `m_fArmour` (Броня (число)).  *Пример: `get_ped_m_fArmour(ped)`*
+- **`get_ped_m_fAttachRot(пед)`** → число — `m_fAttachRot` (Attach Rot (число)).  *Пример: `get_ped_m_fAttachRot(ped)`*
+- **`get_ped_m_fCollisionSpeed(пед)`** → число — `m_fCollisionSpeed` (Столкновение скорость (число)).  *Пример: `get_ped_m_fCollisionSpeed(ped)`*
+- **`get_ped_m_fFleeFromPosX(пед)`** → число — `m_fFleeFromPosX` (Flee From позиция X (число)).  *Пример: `get_ped_m_fFleeFromPosX(ped)`*
+- **`get_ped_m_fFleeFromPosY(пед)`** → число — `m_fFleeFromPosY` (Flee From позиция Y (число)).  *Пример: `get_ped_m_fFleeFromPosY(ped)`*
+- **`get_ped_m_fHeadingChangeRate(пед)`** → число — `m_fHeadingChangeRate` (Курс Change Rate (число)).  *Пример: `get_ped_m_fHeadingChangeRate(ped)`*
+- **`get_ped_m_fHeadingCurrent(пед)`** → число — `m_fHeadingCurrent` (Курс текущий (число)).  *Пример: `get_ped_m_fHeadingCurrent(ped)`*
+- **`get_ped_m_fHeadingGoal(пед)`** → число — `m_fHeadingGoal` (Курс Goal (число)).  *Пример: `get_ped_m_fHeadingGoal(ped)`*
+- **`get_ped_m_fHealth(пед)`** → число — `m_fHealth` (Здоровье (число)).  *Пример: `get_ped_m_fHealth(ped)`*
+- **`get_ped_m_fLookDirection(пед)`** → число — `m_fLookDirection` (Look Direction (число)).  *Пример: `get_ped_m_fLookDirection(ped)`*
+- **`get_ped_m_fObjectiveAngle(пед)`** → число — `m_fObjectiveAngle` (Цель угол (число)).  *Пример: `get_ped_m_fObjectiveAngle(ped)`*
+- **`get_ped_m_fPathNextNodeDir(пед)`** → число — `m_fPathNextNodeDir` (Путь следующий узел Dir (число)).  *Пример: `get_ped_m_fPathNextNodeDir(ped)`*
+- **`get_ped_m_fSeatPrecisionX(пед)`** → число — `m_fSeatPrecisionX` (Сиденье Precision X (число)).  *Пример: `get_ped_m_fSeatPrecisionX(ped)`*
+- **`get_ped_m_fSeatPrecisionY(пед)`** → число — `m_fSeatPrecisionY` (Сиденье Precision Y (число)).  *Пример: `get_ped_m_fSeatPrecisionY(ped)`*
+- **`get_ped_m_fSeekExAngle(пед)`** → число — `m_fSeekExAngle` (Поиск Ex угол (число)).  *Пример: `get_ped_m_fSeekExAngle(ped)`*
+- **`get_ped_m_nActionTimer(пед)`** → целое — `m_nActionTimer` (Действие таймер (целое)).  *Пример: `get_ped_m_nActionTimer(ped)`*
+- **`get_ped_m_nAnimGroupId(пед)`** → целое — `m_nAnimGroupId` (Анимация Group ID (целое)).  *Пример: `get_ped_m_nAnimGroupId(ped)`*
+- **`get_ped_m_nAtchStoredWep(пед)`** → целое — `m_nAtchStoredWep` (Atch Stored оружие (целое)).  *Пример: `get_ped_m_nAtchStoredWep(ped)`*
+- **`get_ped_m_nAttachType(пед)`** → целое — `m_nAttachType` (Attach Type (целое)).  *Пример: `get_ped_m_nAttachType(ped)`*
+- **`get_ped_m_nAttachWepAmmo(пед)`** → целое — `m_nAttachWepAmmo` (Attach оружие патроны (целое)).  *Пример: `get_ped_m_nAttachWepAmmo(ped)`*
+- **`get_ped_m_nAttackTimer(пед)`** → целое — `m_nAttackTimer` (Attack таймер (целое)).  *Пример: `get_ped_m_nAttackTimer(ped)`*
+- **`get_ped_m_nBleedCounter(пед)`** → целое — `m_nBleedCounter` (Bleed Counter (целое)).  *Пример: `get_ped_m_nBleedCounter(ped)`*
+- **`get_ped_m_nBloodyTimer(пед)`** → целое — `m_nBloodyTimer` (Bloody таймер (целое)).  *Пример: `get_ped_m_nBloodyTimer(ped)`*
+- **`get_ped_m_nBodyPart(пед)`** → целое — `m_nBodyPart` (Кузов часть (целое)).  *Пример: `get_ped_m_nBodyPart(ped)`*
+- **`get_ped_m_nBodyPartBleeding(пед)`** → целое — `m_nBodyPartBleeding` (Кузов часть Bleeding (целое)).  *Пример: `get_ped_m_nBodyPartBleeding(ped)`*
+- **`get_ped_m_nCurrentWeapon(пед)`** → целое — `m_nCurrentWeapon` (Текущий оружие (целое)).  *Пример: `get_ped_m_nCurrentWeapon(ped)`*
+- **`get_ped_m_nDeadBleeding(пед)`** → целое — `m_nDeadBleeding` (Dead Bleeding (целое)).  *Пример: `get_ped_m_nDeadBleeding(ped)`*
+- **`get_ped_m_nDuckAndCoverTimer(пед)`** → целое — `m_nDuckAndCoverTimer` (Duck And Cover таймер (целое)).  *Пример: `get_ped_m_nDuckAndCoverTimer(ped)`*
+- **`get_ped_m_nDuckTimer(пед)`** → целое — `m_nDuckTimer` (Duck таймер (целое)).  *Пример: `get_ped_m_nDuckTimer(ped)`*
+- **`get_ped_m_nEnterType(пед)`** → целое — `m_nEnterType` (Вход Type (целое)).  *Пример: `get_ped_m_nEnterType(ped)`*
+- **`get_ped_m_nEventType(пед)`** → целое — `m_nEventType` (Event Type (целое)).  *Пример: `get_ped_m_nEventType(ped)`*
+- **`get_ped_m_nFearFlags(пед)`** → целое — `m_nFearFlags` (Fear флаги (целое)).  *Пример: `get_ped_m_nFearFlags(ped)`*
+- **`get_ped_m_nFightFlags1(пед)`** → целое — `m_nFightFlags1` (Fight Flags1 (целое)).  *Пример: `get_ped_m_nFightFlags1(ped)`*
+- **`get_ped_m_nFightFlags2(пед)`** → целое — `m_nFightFlags2` (Fight Flags2 (целое)).  *Пример: `get_ped_m_nFightFlags2(ped)`*
+- **`get_ped_m_nFightFlags3(пед)`** → целое — `m_nFightFlags3` (Fight Flags3 (целое)).  *Пример: `get_ped_m_nFightFlags3(ped)`*
+- **`get_ped_m_nFleeTimer(пед)`** → целое — `m_nFleeTimer` (Flee таймер (целое)).  *Пример: `get_ped_m_nFleeTimer(ped)`*
+- **`get_ped_m_nGangFlags(пед)`** → целое — `m_nGangFlags` (Банда флаги (целое)).  *Пример: `get_ped_m_nGangFlags(ped)`*
+- **`get_ped_m_nGetUpTimer(пед)`** → целое — `m_nGetUpTimer` (Get Up таймер (целое)).  *Пример: `get_ped_m_nGetUpTimer(ped)`*
+- **`get_ped_m_nHitCounter(пед)`** → целое — `m_nHitCounter` (Hit Counter (целое)).  *Пример: `get_ped_m_nHitCounter(ped)`*
+- **`get_ped_m_nHitRecoverTimer(пед)`** → целое — `m_nHitRecoverTimer` (Hit Recover таймер (целое)).  *Пример: `get_ped_m_nHitRecoverTimer(ped)`*
+- **`get_ped_m_nLastDamWep(пед)`** → целое — `m_nLastDamWep` (Последний урон оружие (целое)).  *Пример: `get_ped_m_nLastDamWep(ped)`*
+- **`get_ped_m_nLastHitState(пед)`** → целое — `m_nLastHitState` (Последний Hit состояние (целое)).  *Пример: `get_ped_m_nLastHitState(ped)`*
+- **`get_ped_m_nLastHitTime(пед)`** → целое — `m_nLastHitTime` (Последний Hit время (целое)).  *Пример: `get_ped_m_nLastHitTime(ped)`*
+- **`get_ped_m_nLastThreatCheck(пед)`** → целое — `m_nLastThreatCheck` (Последний Threat Check (целое)).  *Пример: `get_ped_m_nLastThreatCheck(ped)`*
+- **`get_ped_m_nLastThreatTimer(пед)`** → целое — `m_nLastThreatTimer` (Последний Threat таймер (целое)).  *Пример: `get_ped_m_nLastThreatTimer(ped)`*
+- **`get_ped_m_nLeaveCarTimer(пед)`** → целое — `m_nLeaveCarTimer` (Leave авто таймер (целое)).  *Пример: `get_ped_m_nLeaveCarTimer(ped)`*
+- **`get_ped_m_nLookingForPhone(пед)`** → целое — `m_nLookingForPhone` (Looking для Phone (целое)).  *Пример: `get_ped_m_nLookingForPhone(ped)`*
+- **`get_ped_m_nLookTimer(пед)`** → целое — `m_nLookTimer` (Look таймер (целое)).  *Пример: `get_ped_m_nLookTimer(ped)`*
+- **`get_ped_m_nNumNearPeds(пед)`** → целое — `m_nNumNearPeds` (Кол-во Near Peds (целое)).  *Пример: `get_ped_m_nNumNearPeds(ped)`*
+- **`get_ped_m_nObjectiveTimer(пед)`** → целое — `m_nObjectiveTimer` (Цель таймер (целое)).  *Пример: `get_ped_m_nObjectiveTimer(ped)`*
+- **`get_ped_m_nPanicCounter(пед)`** → целое — `m_nPanicCounter` (Panic Counter (целое)).  *Пример: `get_ped_m_nPanicCounter(ped)`*
+- **`get_ped_m_nPathNodeTimer(пед)`** → целое — `m_nPathNodeTimer` (Путь узел таймер (целое)).  *Пример: `get_ped_m_nPathNodeTimer(ped)`*
+- **`get_ped_m_nPathNodeType(пед)`** → целое — `m_nPathNodeType` (Путь узел Type (целое)).  *Пример: `get_ped_m_nPathNodeType(ped)`*
+- **`get_ped_m_nPedFormation(пед)`** → целое — `m_nPedFormation` (Пед Formation (целое)).  *Пример: `get_ped_m_nPedFormation(ped)`*
+- **`get_ped_m_nPedLastComment(пед)`** → целое — `m_nPedLastComment` (Пед последний Comment (целое)).  *Пример: `get_ped_m_nPedLastComment(ped)`*
+- **`get_ped_m_nPedMoney(пед)`** → целое — `m_nPedMoney` (Пед деньги (целое)).  *Пример: `get_ped_m_nPedMoney(ped)`*
+- **`get_ped_m_nPedStatus(пед)`** → целое — `m_nPedStatus` (Пед статус (целое)).  *Пример: `get_ped_m_nPedStatus(ped)`*
+- **`get_ped_m_nPhoneTalkTimer(пед)`** → целое — `m_nPhoneTalkTimer` (Phone Talk таймер (целое)).  *Пример: `get_ped_m_nPhoneTalkTimer(ped)`*
+- **`get_ped_m_nSayTimer(пед)`** → целое — `m_nSayTimer` (Say таймер (целое)).  *Пример: `get_ped_m_nSayTimer(ped)`*
+- **`get_ped_m_nSayType(пед)`** → целое — `m_nSayType` (Say Type (целое)).  *Пример: `get_ped_m_nSayType(ped)`*
+- **`get_ped_m_nSeatType(пед)`** → целое — `m_nSeatType` (Сиденье Type (целое)).  *Пример: `get_ped_m_nSeatType(ped)`*
+- **`get_ped_m_nShadowUpdateTimer(пед)`** → целое — `m_nShadowUpdateTimer` (Shadow Update таймер (целое)).  *Пример: `get_ped_m_nShadowUpdateTimer(ped)`*
+- **`get_ped_m_nShotTime(пед)`** → целое — `m_nShotTime` (Shot время (целое)).  *Пример: `get_ped_m_nShotTime(ped)`*
+- **`get_ped_m_nShotTimeAdd(пед)`** → целое — `m_nShotTimeAdd` (Shot время Add (целое)).  *Пример: `get_ped_m_nShotTimeAdd(ped)`*
+- **`get_ped_m_nStandardTimer(пед)`** → целое — `m_nStandardTimer` (Standard таймер (целое)).  *Пример: `get_ped_m_nStandardTimer(ped)`*
+- **`get_ped_m_nStateUnused(пед)`** → целое — `m_nStateUnused` (Состояние Unused (целое)).  *Пример: `get_ped_m_nStateUnused(ped)`*
+- **`get_ped_m_nStoredGiveAmmo(пед)`** → целое — `m_nStoredGiveAmmo` (Stored Give патроны (целое)).  *Пример: `get_ped_m_nStoredGiveAmmo(ped)`*
+- **`get_ped_m_nStoredGiveWep(пед)`** → целое — `m_nStoredGiveWep` (Stored Give оружие (целое)).  *Пример: `get_ped_m_nStoredGiveWep(ped)`*
+- **`get_ped_m_nTalkTimer(пед)`** → целое — `m_nTalkTimer` (Talk таймер (целое)).  *Пример: `get_ped_m_nTalkTimer(ped)`*
+- **`get_ped_m_nTalkTimerLast(пед)`** → целое — `m_nTalkTimerLast` (Talk таймер последний (целое)).  *Пример: `get_ped_m_nTalkTimerLast(ped)`*
+- **`get_ped_m_nThreatCheck(пед)`** → целое — `m_nThreatCheck` (Threat Check (целое)).  *Пример: `get_ped_m_nThreatCheck(ped)`*
+- **`get_ped_m_nThreatFlags(пед)`** → целое — `m_nThreatFlags` (Threat флаги (целое)).  *Пример: `get_ped_m_nThreatFlags(ped)`*
+- **`get_ped_m_nTimerUnused(пед)`** → целое — `m_nTimerUnused` (Таймер Unused (целое)).  *Пример: `get_ped_m_nTimerUnused(ped)`*
+- **`get_ped_m_nWaitState(пед)`** → целое — `m_nWaitState` (Wait состояние (целое)).  *Пример: `get_ped_m_nWaitState(ped)`*
+- **`get_ped_m_nWaitTimer(пед)`** → целое — `m_nWaitTimer` (Wait таймер (целое)).  *Пример: `get_ped_m_nWaitTimer(ped)`*
+- **`get_ped_m_nWalkAroundType(пед)`** → целое — `m_nWalkAroundType` (Walk Around Type (целое)).  *Пример: `get_ped_m_nWalkAroundType(ped)`*
+- **`get_ped_m_nWeaponAccuracy(пед)`** → целое — `m_nWeaponAccuracy` (Оружие Accuracy (целое)).  *Пример: `get_ped_m_nWeaponAccuracy(ped)`*
+- **`get_ped_m_nWepModelID(пед)`** → целое — `m_nWepModelID` (Оружие модель I D (целое)).  *Пример: `get_ped_m_nWepModelID(ped)`*
+- **`get_ped_m_nWepSkills(пед)`** → целое — `m_nWepSkills` (Оружие Skills (целое)).  *Пример: `get_ped_m_nWepSkills(ped)`*
+- **`get_ped_m_vecAttachOffset(пед)`** → число, число, число (X, Y, Z) — `m_vecAttachOffset` (Attach Offset (вектор (X, Y, Z))).  *Пример: `get_ped_m_vecAttachOffset(ped)`*
+- **`get_ped_m_vecHitLastPos(пед)`** → число, число, число (X, Y, Z) — `m_vecHitLastPos` (Hit последний позиция (вектор (X, Y, Z))).  *Пример: `get_ped_m_vecHitLastPos(ped)`*
+- **`get_ped_m_vecObjective(пед)`** → число, число, число (X, Y, Z) — `m_vecObjective` (Цель (вектор (X, Y, Z))).  *Пример: `get_ped_m_vecObjective(ped)`*
+- **`get_ped_m_vecOffsetFromPhysSurface(пед)`** → число, число, число (X, Y, Z) — `m_vecOffsetFromPhysSurface` (Offset From Phys Surface (вектор (X, Y, Z))).  *Пример: `get_ped_m_vecOffsetFromPhysSurface(ped)`*
+- **`get_ped_m_vecOffsetSeek(пед)`** → число, число, число (X, Y, Z) — `m_vecOffsetSeek` (Offset поиск (вектор (X, Y, Z))).  *Пример: `get_ped_m_vecOffsetSeek(ped)`*
+- **`get_ped_m_vecPathNextNode(пед)`** → число, число, число (X, Y, Z) — `m_vecPathNextNode` (Путь следующий узел (вектор (X, Y, Z))).  *Пример: `get_ped_m_vecPathNextNode(ped)`*
+- **`get_ped_m_vecSeekPosEx(пед)`** → число, число, число (X, Y, Z) — `m_vecSeekPosEx` (Поиск позиция Ex (вектор (X, Y, Z))).  *Пример: `get_ped_m_vecSeekPosEx(ped)`*
+- **`get_ped_m_wCurPathNode(пед)`** → целое — `m_wCurPathNode` (Текущий путь узел (целое)).  *Пример: `get_ped_m_wCurPathNode(ped)`*
+- **`get_ped_m_wPathNodes(пед)`** → целое — `m_wPathNodes` (Путь узлы (целое)).  *Пример: `get_ped_m_wPathNodes(ped)`*
+- **`get_ped_m_wPhoneId(пед)`** → целое — `m_wPhoneId` (Phone ID (целое)).  *Пример: `get_ped_m_wPhoneId(ped)`*
+- **`get_ped_m_wTalkType(пед)`** → целое — `m_wTalkType` (Talk Type (целое)).  *Пример: `get_ped_m_wTalkType(ped)`*
+- **`get_ped_m_wTalkTypeLast(пед)`** → целое — `m_wTalkTypeLast` (Talk Type последний (целое)).  *Пример: `get_ped_m_wTalkTypeLast(ped)`*
+- **`get_ped_model_index(пед)`** → целое — ID базовой модели педа; `-1` для NULL.  *Пример: `get_ped_model_index(ped)`*
+- **`get_ped_speed(пед)`** → число — скалярная скорость педа.  *Пример: `get_ped_speed(ped)`*
+- **`get_ped_stat_cheated()`** → целое — число читов игрока.  *Пример: `get_ped_stat_cheated()`*
+- **`get_ped_stat_kills()`** → целое — законные убийства игрока.  *Пример: `get_ped_stat_kills()`*
+- **`get_ped_state(пед)`** → целое — получить состояние педа.  *Пример: `get_ped_state(ped)`*
+- **`get_ped_vecSeekVehicle(пед)`** → число, число, число (X, Y, Z) — vecSeekVehicle.  *Пример: `get_ped_vecSeekVehicle(ped)`*
+- **`get_ped_velocity(пед)`** → число, число, число (X, Y, Z) — скорость педа `m_vecMoveSpeed` (Движение скорость (вектор (X, Y, Z))).  *Пример: `get_ped_velocity(ped)`*
+- **`get_ped_wRouteCurDir(пед)`** → целое — wRouteCurDir.  *Пример: `get_ped_wRouteCurDir(ped)`*
+- **`get_ped_wRouteLastPoint(пед)`** → целое — wRouteLastPoint.  *Пример: `get_ped_wRouteLastPoint(ped)`*
+- **`get_ped_wRoutePoints(пед)`** → целое — wRoutePoints.  *Пример: `get_ped_wRoutePoints(ped)`*
+- **`get_ped_wRoutePos(пед)`** → целое — wRoutePos.  *Пример: `get_ped_wRoutePos(ped)`*
+- **`get_ped_wRouteType(пед)`** → целое — wRouteType.  *Пример: `get_ped_wRouteType(ped)`*
+- **`get_pedik_m_fPitch(пед)`** → число — наклон головы педа по тангажу.  *Пример: `get_pedik_m_fPitch(ped)`*
+- **`get_pedik_m_fYaw(пед)`** → число — угол наклона головы педа.  *Пример: `get_pedik_m_fYaw(ped)`*
+- **`get_pedstat_m_fAttackStrength(пед)`** → число — сила атаки педа.  *Пример: `get_pedstat_m_fAttackStrength(ped)`*
+- **`get_pedstat_m_fDefendWeakness(пед)`** → число — слабость защиты педа.  *Пример: `get_pedstat_m_fDefendWeakness(ped)`*
+- **`get_pedstat_m_fFleeDistance(пед)`** → число — дистанция бегства педа.  *Пример: `get_pedstat_m_fFleeDistance(ped)`*
+- **`get_pedstat_m_fHeadingChangeRate(пед)`** → число — скорость поворота педа.  *Пример: `get_pedstat_m_fHeadingChangeRate(ped)`*
+- **`get_percentage_progress()`** → число — процент прохождения игры.  *Пример: `get_percentage_progress()`*
+- **`get_player_2wheels_distance()`** → число — дистанция на двух колёсах.  *Пример: `get_player_2wheels_distance()`*
+- **`get_player_2wheels_time()`** → целое — время на двух колёсах.  *Пример: `get_player_2wheels_time()`*
+- **`get_player_death_fade_timer()`** → целое — таймер затухания при смерти.  *Пример: `get_player_death_fade_timer()`*
+- **`get_player_display_money()`** → целое — получить отображаемые деньги.  *Пример: `get_player_display_money()`*
+- **`get_player_money_info()`** → целое — получить деньги игрока.  *Пример: `get_player_money_info()`*
+- **`get_player_road_density()`** → число — плотность дорог вокруг игрока.  *Пример: `get_player_road_density()`*
+- **`get_player_skin()`** → строка — настоящее имя текущей модели игрока из CModelInfo (например "player", "player3").  *Пример: `get_player_skin()`*
+- **`get_player_taxi_timer()`** → целое — таймер такси игрока.  *Пример: `get_player_taxi_timer()`*
+- **`get_player_wanted_level()`** → целое — текущий уровень розыска игрока
+- **`get_population_civ_peds()`** → число — мирных педов.  *Пример: `get_population_civ_peds()`*
+- **`get_population_gang_peds()`** → число — бандитских педов.  *Пример: `get_population_gang_peds()`*
+- **`get_population_mission_peds()`** → число — миссионных педов.  *Пример: `get_population_mission_peds()`*
+- **`get_population_total_peds()`** → число — всего педов в мире.  *Пример: `get_population_total_peds()`*
+- **`get_streaming_current_ped_grp()`** → число — текущая группа педов.  *Пример: `get_streaming_current_ped_grp()`*
+- **`get_time_ms_non_clipped()`** → целое — время в мс без клиппинга.  *Пример: `get_time_ms_non_clipped()`*
+- **`get_time_step_non_clipped()`** → число — шаг времени без клиппинга.  *Пример: `get_time_step_non_clipped()`*
+- **`get_type_current_weapon_ped(пед)`** → целое — макрос получить тип текущего оружие педа.  *Пример: `get_type_current_weapon_ped(ped)`*
+- **`get_type_ped(строка)`** → целое — получить тип педа.  *Пример: `get_type_ped("текст")`*
+- **`get_wanted_chaos_level()`** → целое — получить очки хаоса.  *Пример: `get_wanted_chaos_level()`*
+- **`get_wanted_last_decreased_time()`** → целое — время последнего понижения.  *Пример: `get_wanted_last_decreased_time()`*
+- **`get_wanted_level_before_parole()`** → целое — уровень розыска до пароля.  *Пример: `get_wanted_level_before_parole()`*
+- **`get_wanted_m_dwTimeOfParole()`** → целое — таймер условного освобождения.  *Пример: `get_wanted_m_dwTimeOfParole()`*
+- **`get_wanted_m_fMultiplier()`** → число — множитель розыска.  *Пример: `get_wanted_m_fMultiplier()`*
+- **`get_wanted_m_nCopsBeatingSuspect()`** → целое — копов избивают подозреваемого.  *Пример: `get_wanted_m_nCopsBeatingSuspect()`*
+- **`get_wanted_m_nCopsInPursuit()`** → целое — копов в погоне.  *Пример: `get_wanted_m_nCopsInPursuit()`*
+- **`get_wanted_m_nLastTimeWantedDecreased()`** → целое — последнее снижение розыска.  *Пример: `get_wanted_m_nLastTimeWantedDecreased()`*
+- **`get_wanted_m_nLastTimeWantedLevelChanged()`** → целое — последняя смена уровня розыска.  *Пример: `get_wanted_m_nLastTimeWantedLevelChanged()`*
+- **`get_wanted_m_nMaxCopCarsInPursuit()`** → целое — макс. машин копов в погоне.  *Пример: `get_wanted_m_nMaxCopCarsInPursuit()`*
+- **`get_wanted_m_nMaxCopsInPursuit()`** → целое — макс. копов в погоне.  *Пример: `get_wanted_m_nMaxCopsInPursuit()`*
+- **`get_wanted_multiplier()`** → число — получить множитель розыска.  *Пример: `get_wanted_multiplier()`*
+- **`get_weapon_reload(пед)`** → целое — получить время перезарядки.  *Пример: `get_weapon_reload(ped)`*
+- **`getmoney_ped(пед)`** → целое — получить кол-во деньги педа.  *Пример: `getmoney_ped(ped)`*
+- **`getpedangle(пед)`** → целое — получить угол педа.  *Пример: `getpedangle(ped)`*
+- **`getpedcoordes(пед)`** → число, число, число (X, Y, Z) — получить координаты.  *Пример: `getpedcoordes(ped)`*
+- **`getpedcoordinates_on_x(пед, число)`** → число, число, число (X, Y, Z) — Получить мировую координату по x для педа.  *Пример: `getpedcoordinates_on_x(ped, x)`*
+- **`getpedcoordinates_on_y(пед, число)`** → число, число, число (X, Y, Z) — Получить мировую координату по y для педа.  *Пример: `getpedcoordinates_on_y(ped, x)`*
+- **`getpedhealth(пед)`** → целое — получить здоровье педа.  *Пример: `getpedhealth(ped)`*
+- **`getpedhealthf(пед)`** → число — float-здоровье педа (для точного урона); `0.0`, если пед уже удалён.  *Пример: `getpedhealthf(ped)`*
+- **`getstamina_ped(пед)`** → число — получить выносливость педа.  *Пример: `getstamina_ped(ped)`*
+- **`give_player_goodies(число, число)`** → флаг — выдать игроку бонусы по модели.  *Пример: `give_player_goodies(x, y)`*
+- **`givemoney(число)`** → действие — дать денег.  *Пример: `givemoney(x)`*
+- **`giveweaponped(пед, число, число, число)`** → действие — дать педу оружие.  *Пример: `giveweaponped(ped, x, y, z)`*
+- **`Giveweaponped(пед, число, строка, ...)`** → действие — макрос дать педу оружие и патроны.  *Пример: `Giveweaponped(ped, x, "текст", ...)`*
+- **`hold_cellphone(пед, число)`** → действие — поднять телефон.  *Пример: `hold_cellphone(ped, x)`*
+- **`init_gangs()`** → действие — инициализировать банды.  *Пример: `init_gangs()`*
+- **`kill_char_any_means(пед, пед)`** → действие — убить педа любыми средствами.  *Пример: `kill_char_any_means(ped, ped)`*
+- **`kill_ped(пед)`** → действие — убить педа.  *Пример: `kill_ped(ped)`*
+- **`kill_ped_on_foot(пед, пед)`** → действие — убить педа пешком.  *Пример: `kill_ped_on_foot(ped, ped)`*
+- **`off_phone(число)`** → действие — выкл телефон.  *Пример: `off_phone(x)`*
+- **`on_phone(число)`** → действие — вкл телефон.  *Пример: `on_phone(x)`*
+- **`ped_aim_at_ped(пед, пед)`** → действие — пед целиться в педе.  *Пример: `ped_aim_at_ped(ped, ped)`*
+- **`ped_anim()`** → действие — анимация.  *Пример: `ped_anim()`*
+- **`ped_answer_mobile(пед)`** → действие — пед отвечает на телефон.  *Пример: `ped_answer_mobile(ped)`*
+- **`ped_atack(пед)`** → действие — пед бьет.  *Пример: `ped_atack(ped)`*
+- **`ped_attach_to_entity(ped, entity, x, y, z, [angle], [position], [weapon])`** → bool — прикрепить педа к сущности с отступом; position: 0 своё направление, 1-3 поворот относительно авто.  *Пример: `ped_attach_to_entity(ped, car, 0, 0, -1, 0, 0, 0)`*
+- **`ped_attack_car(пед, авто)`** → действие — пед атакует авто.  *Пример: `ped_attack_car(ped, car)`*
+- **`ped_blend_anim(пед, число, число, число)`** → действие — запустить анимацию со смешиванием.  *Пример: `ped_blend_anim(ped, x, y, z)`*
+- **`ped_buy_ice_cream(пед)`** → действие — пед покупает мороженое.  *Пример: `ped_buy_ice_cream(ped)`*
+- **`ped_calculate_new_orientation(пед)`** → действие — пересчитать ориентацию педа.  *Пример: `ped_calculate_new_orientation(ped)`*
+- **`ped_car(пед)`** → указ. — авто педа.  *Пример: `ped_car(ped)`*
+- **`ped_clean_threat(пед)`** → действие — очистить угрозы для педа.  *Пример: `ped_clean_threat(ped)`*
+- **`ped_clear_aim_flag(пед)`** → действие — сбросить флаг прицеливания.  *Пример: `ped_clear_aim_flag(ped)`*
+- **`ped_clear_answer_mobile(пед)`** → действие — сбросить разговор по телефону.  *Пример: `ped_clear_answer_mobile(ped)`*
+- **`ped_clear_attack(пед)`** → действие — сбросить у педы атаку.  *Пример: `ped_clear_attack(ped)`*
+- **`ped_clear_attack_anim(пед)`** → действие — сбросить атаку с удалением анимации.  *Пример: `ped_clear_attack_anim(ped)`*
+- **`ped_clear_chat(пед)`** → действие — пед прекращает болтать.  *Пример: `ped_clear_chat(ped)`*
+- **`ped_clear_follow_path(пед)`** → действие — сбросить следование по маршруту.  *Пример: `ped_clear_follow_path(ped)`*
+- **`ped_clear_investigate_event(пед)`** → действие — пед уходит, опустить педа.  *Пример: `ped_clear_investigate_event(ped)`*
+- **`ped_clear_look_flag(пед)`** → действие — сбросить флаг взгляда.  *Пример: `ped_clear_look_flag(ped)`*
+- **`ped_clear_point_gun_at(пед)`** → действие — опустить наведенное оружие.  *Пример: `ped_clear_point_gun_at(ped)`*
+- **`ped_clear_seek(пед)`** → действие — сбросить у педа поиск цели.  *Пример: `ped_clear_seek(ped)`*
+- **`ped_clear_wait_state(пед)`** → действие — сбросить состояние ожидания.  *Пример: `ped_clear_wait_state(ped)`*
+- **`ped_dress(пед)`** → действие — пед надевает одежду.  *Пример: `ped_dress(ped)`*
+- **`ped_face_phone(пед)`** → действие — пед поворачивается к телефону.  *Пример: `ped_face_phone(ped)`*
+- **`ped_fall(пед)`** → действие — пед падает.  *Пример: `ped_fall(ped)`*
+- **`ped_follow_ped(пед, указ.)`** → флаг — пед следует за педом.  *Пример: `ped_follow_ped(ped, entity)`*
+- **`ped_from_turret_on_car(пед)`** → действие — убрать педа из турели авто.  *Пример: `ped_from_turret_on_car(ped)`*
+- **`ped_frozen(число)`** → действие — заморозить игpока.  *Пример: `ped_frozen(x)`*
+- **`ped_in_turret_on_car(пед, авто, число, число, число, число, число, число)`** → действие — переместить педа в турель авто.  *Пример: `ped_in_turret_on_car(ped, car, x, y, z, 3, 4, 5)`*
+- **`ped_look_for_sexy_cars(пед)`** → действие — пед ищет красивые авто.  *Пример: `ped_look_for_sexy_cars(ped)`*
+- **`ped_look_for_sexy_peds(пед)`** → действие — пед ищет красивых педов.  *Пример: `ped_look_for_sexy_peds(ped)`*
+- **`ped_maintain_position_when_attacked(пед, число)`** → действие — пед удерживает позицию при атаке.  *Пример: `ped_maintain_position_when_attacked(ped, x)`*
+- **`ped_make_phonecall(пед)`** → действие — пед звонит по телефону.  *Пример: `ped_make_phonecall(ped)`*
+- **`ped_mug(пед)`** → действие — пед грабит ближайшего педа.  *Пример: `ped_mug(ped)`*
+- **`ped_pause(пед)`** → действие — пед замирает.  *Пример: `ped_pause(ped)`*
+- **`ped_play_anim(пед, число, число)`** → действие — запустить анимацию педа.  *Пример: `ped_play_anim(ped, x, y)`*
+- **`ped_point_gun_at(ped, entity)`** → bool — пед целится оружием в сущность.  *Пример: `ped_point_gun_at(ped, player)`*
+- **`ped_rebuff(пед, число)`** → действие — пед атакует любого, кто нападает на него.  *Пример: `ped_rebuff(ped, x)`*
+- **`ped_restart_non_partial_anims(пед)`** → действие — возобновить базовые анимации педа.  *Пример: `ped_restart_non_partial_anims(ped)`*
+- **`ped_restore_head_position(пед)`** → действие — вернуть голове положение.  *Пример: `ped_restore_head_position(ped)`*
+- **`ped_restore_heading_rate(пед)`** → действие — вернуть скорость поворота педа.  *Пример: `ped_restore_heading_rate(ped)`*
+- **`ped_restore_previous_state(пед)`** → действие — вернуть педу прошлое состояние.  *Пример: `ped_restore_previous_state(ped)`*
+- **`ped_road_off()`** → действие — выкл путь педов.  *Пример: `ped_road_off()`*
+- **`ped_road_on(число, число, число, число, число, число)`** → действие — вкл путь педов.  *Пример: `ped_road_on(x, y, z, 3, 4, 5)`*
+- **`ped_run_to_point(пед, число, число, число)`** → действие — пед бежит к точке пешком.  *Пример: `ped_run_to_point(ped, x, y, z)`*
+- **`ped_save_pos_attack(пед, число)`** → действие — пед сохраняет ли свою позицию при атаке.  *Пример: `ped_save_pos_attack(ped, x)`*
+- **`ped_search_threat(пед, число)`** → действие — пед ищет угрозу.  *Пример: `ped_search_threat(ped, x)`*
+- **`ped_set_follow_path(ped, x, y, z, [radius], [move])`** → bool — пед идёт по пути к точке; move как в ped_set_move_state.  *Пример: `ped_set_follow_path(ped, 100, 200, 30, 0, 2)`*
+- **`ped_set_get_up(пед)`** → действие — пед встает с земли.  *Пример: `ped_set_get_up(ped)`*
+- **`ped_set_idle(пед)`** → действие — пед переходит в состояние покоя.  *Пример: `ped_set_idle(ped)`*
+- **`ped_set_jump(пед)`** → действие — пед прыгает.  *Пример: `ped_set_jump(ped)`*
+- **`ped_set_landing(пед)`** → действие — пед приземляется.  *Пример: `ped_set_landing(ped)`*
+- **`ped_set_look(ped, entity)`** → bool — заставить педа смотреть на сущность (головой, поворачиваясь).  *Пример: `ped_set_look(ped, car)`*
+- **`ped_set_look_flag(ped, entity, [keepTrying], [cancelPrev])`** → bool — задать флаг взгляда педа; keepTrying= не бросать взгляд, cancelPrev= отменить предыдущий.  *Пример: `ped_set_look_flag(ped, car, true, false)`*
+- **`ped_set_move_anim(пед)`** → действие — задать педу анимацию движения.  *Пример: `ped_set_move_anim(ped)`*
+- **`ped_set_move_state(ped, state)`** → bool — скорость передвижения педа: 0 нет, 1 стоять, 2 идти, 4 бежать, 5 спринт.  *Пример: `ped_set_move_state(ped, 4)`*
+- **`ped_set_wander_path(ped, on)`** → bool — вкл/выкл блуждание педа по пешеходным путям.  *Пример: `ped_set_wander_path(ped, true)`*
+- **`ped_shutdown(пед)`** → действие — отключение текущего оружие педа.  *Пример: `ped_shutdown(ped)`*
+- **`ped_solicit(пед)`** → действие — пед предлагает услуги.  *Пример: `ped_solicit(ped)`*
+- **`ped_sprint_to_point(пед, число, число, число)`** → действие — пед делает спринт к точке.  *Пример: `ped_sprint_to_point(ped, x, y, z)`*
+- **`ped_stop_non_partial_anims(пед)`** → действие — остановить базовые анимации педа.  *Пример: `ped_stop_non_partial_anims(ped)`*
+- **`ped_turn_body(пед)`** → действие — пед поворачивает корпус к цели.  *Пример: `ped_turn_body(ped)`*
+- **`ped_update_position(пед)`** → действие — пед обновить позицию по анимации.  *Пример: `ped_update_position(ped)`*
+- **`ped_walk_to_point(пед, число, число, число)`** → действие — пед идет к точке.  *Пример: `ped_walk_to_point(ped, x, y, z)`*
+- **`player_made_progress(процент)`** → действие — 030C PLAYER_MADE_PROGRESS:
+- **`player_nearby_peds_interact()`** → bool — педы рядом взаимодействуют с игроком.  *Пример: `player_nearby_peds_interact()`*
+- **`population_remove_peds_full_pool()`** → действие — удалить педов при переполнении.  *Пример: `population_remove_peds_full_pool()`*
+- **`randomfindped(пед, число)`** → флаг, указ. — найти случайнного педа.  *Пример: `randomfindped(ped, x)`*
+- **`rc_give_remote_controlled_car_to_player()`** → целое — транспорт/краны/зоны.  *Пример: `rc_give_remote_controlled_car_to_player()`*
+- **`rc_give_remote_controlled_model_to_player()`** → целое — транспорт/краны/зоны.  *Пример: `rc_give_remote_controlled_model_to_player()`*
+- **`register_crime(type, x, y, z, [policeDontCare])`** → bool — зарегистрировать преступление игрока; type по eCrimeType: 1 оружие, 2 удар педа, 3 удар копа, 4 стрельба в педа, 5 стрельба в копа, 6 угон авто, 10 сбил педа, 11 сбил копа, 17 взрыв.  *Пример: `register_crime(6, x, y, z)`*
+- **`register_crime_immediately(type, x, y, z, [policeDontCare])`** → bool — то же, но без очереди (мгновенно).  *Пример: `register_crime_immediately(3, x, y, z)`*
+- **`register_mission_given()`** → действие — 0317: отметить миссию выданной (`CStats::MissionsGiven`).  *Пример: `register_mission_given()`*
+- **`register_mission_passed(ключ)`** → действие — 0318: отметить миссию пройденной (ключ — строка до 7 символов, напр. "LAW_4").  *Пример: `register_mission_passed("LAW_4")`*
+- **`remove_all_weapons_ped()`** → действие — удалить все оружия педа.  *Пример: `remove_all_weapons_ped()`*
+- **`remove_animation(имя)`** → действие — 04EF: выгрузить блок анимаций.  *Пример: `remove_animation("MEDIC")`*
+- **`remove_char_elegantly(пед)`** → действие — 034F REMOVE_CHAR_ELEGANTLY:
+- **`remove_spec_ped(число)`** → действие — удалить спец педа (0296 UNLOAD_SPECIAL_CHARACTER, слот 1..8; 04.11: вне 1..8 — безопасный отказ с записью в журнал).  *Пример: `remove_spec_ped(x)`*
+- **`remove_weapon_from_char(пед, число)`** → действие — удалить оружие у педа.  *Пример: `remove_weapon_from_char(ped, x)`*
+- **`request_animation(имя)`** → действие — 04ED: загрузить блок анимаций (имя пишется сырыми 8 байтами метки).  *Пример: `request_animation("MEDIC")`*
+- **`set_all_random_peds_type(число)`** → действие — установить тип случайных педов.  *Пример: `set_all_random_peds_type(x)`*
+- **`set_ammo_in_clip_ped(пед, число)`** → действие — установить патроны в обойме.  *Пример: `set_ammo_in_clip_ped(ped, x)`*
+- **`set_bike_anim_group(авто, число)`** → действие — уст. группу анимаций мотоцикла.  *Пример: `set_bike_anim_group(car, x)`*
+- **`set_boat_m_fBoatGasPedal(авто, число)`** → действие — уст. газ лодки.  *Пример: `set_boat_m_fBoatGasPedal(car, x)`*
+- **`set_camera_behind_player()`** → действие — 0373 SET_CAMERA_BEHIND_PLAYER.
+- **`set_car_dmg_player_only(авто, флаг)`** → действие — урон только от игрока.  *Пример: `set_car_dmg_player_only(car, true)`*
+- **`set_car_m_fBoatBrakePedal(авто, число)`** → действие — уст. `m_fBoatBrakePedal` (Лодка тормоза педаль (число)).  *Пример: `set_car_m_fBoatBrakePedal(car, x)`*
+- **`set_car_m_fBoatGasPedal(авто, число)`** → действие — уст. `m_fBoatGasPedal` (Лодка газа педаль (число)).  *Пример: `set_car_m_fBoatGasPedal(car, x)`*
+- **`set_car_m_fBreakPedal(авто, число)`** → действие — уст. `m_fBreakPedal` (Тормоза педаль (число)).  *Пример: `set_car_m_fBreakPedal(car, x)`*
+- **`set_car_m_fGasPedal(авто, число)`** → действие — уст. `m_fGasPedal` (Газа педаль (число)).  *Пример: `set_car_m_fGasPedal(car, x)`*
+- **`set_car_m_nAttackPlayerTime(авто, число)`** → действие — уст. `m_nAttackPlayerTime` (Attack игрок время (целое)).  *Пример: `set_car_m_nAttackPlayerTime(car, x)`*
+- **`set_char_ammo(пед, число, число)`** → действие — установить патроны педу в оружие.  *Пример: `set_char_ammo(ped, x, y)`*
+- **`set_char_obj_aim_gun_at_char(пед, пед)`** → действие — целиться из оружия в педа.  *Пример: `set_char_obj_aim_gun_at_char(ped, ped)`*
+- **`set_char_obj_buy_ice_cream(пед)`** → действие — купить мороженое.  *Пример: `set_char_obj_buy_ice_cream(ped)`*
+- **`set_char_obj_catch_train(пед)`** → действие — сесть на поезд.  *Пример: `set_char_obj_catch_train(ped)`*
+- **`set_char_obj_destroy_car(пед, авто)`** → действие — уничтожить машину.  *Пример: `set_char_obj_destroy_car(ped, car)`*
+- **`set_char_obj_destroy_object(пед, указ.)`** → действие — уничтожить объект.  *Пример: `set_char_obj_destroy_object(ped, entity)`*
+- **`set_char_obj_flee_car(пед, указ.)`** → действие — убежать от машины.  *Пример: `set_char_obj_flee_car(ped, entity)`*
+- **`set_char_obj_flee_char_on_foot_always(пед, пед)`** → действие — всегда убегать от педа.  *Пример: `set_char_obj_flee_char_on_foot_always(ped, ped)`*
+- **`set_char_obj_flee_char_on_foot_till_safe(пед, пед)`** → действие — убежать от педа до безопасного места.  *Пример: `set_char_obj_flee_char_on_foot_till_safe(ped, ped)`*
+- **`set_char_obj_flee_coord(пед, число, число, число)`** → действие — убежать от точки пешком до безопасности.  *Пример: `set_char_obj_flee_coord(ped, x, y, z)`*
+- **`set_char_obj_flee_player_on_foot_always(пед, указ.)`** → действие — всегда убегать от игрока.  *Пример: `set_char_obj_flee_player_on_foot_always(ped, entity)`*
+- **`set_char_obj_flee_player_on_foot_till_safe(пед, указ.)`** → действие — убежать от игрока до безопасного места.  *Пример: `set_char_obj_flee_player_on_foot_till_safe(ped, entity)`*
+- **`set_char_obj_follow_car_foot_offset(пед, авто, число, число, число)`** → действие — следовать за авто пешком смещение.  *Пример: `set_char_obj_follow_car_foot_offset(ped, car, x, y, z)`*
+- **`set_char_obj_follow_formation(пед, указ.)`** → действие — следовать в строю за лидером.  *Пример: `set_char_obj_follow_formation(ped, entity)`*
+- **`set_char_obj_follow_route(пед, число, число)`** → действие — следовать по маршруту.  *Пример: `set_char_obj_follow_route(ped, x, y)`*
+- **`set_char_obj_goto_area_any_means(пед, число, число, число)`** → действие — добираться любыми средствами.  *Пример: `set_char_obj_goto_area_any_means(ped, x, y, z)`*
+- **`set_char_obj_goto_area_on_foot(пед, число, число, число)`** → действие — идти к зоне пешком.  *Пример: `set_char_obj_goto_area_on_foot(ped, x, y, z)`*
+- **`set_char_obj_goto_car_on_foot(пед, авто)`** → действие — идти к машине пешком.  *Пример: `set_char_obj_goto_car_on_foot(ped, car)`*
+- **`set_char_obj_goto_char_on_foot(пед, пед)`** → действие — идти к педу пешком.  *Пример: `set_char_obj_goto_char_on_foot(ped, ped)`*
+- **`set_char_obj_goto_coord_on_foot(пед, число, число, число)`** → действие — идти к координатам пешком.  *Пример: `set_char_obj_goto_coord_on_foot(ped, x, y, z)`*
+- **`set_char_obj_goto_player_on_foot(пед, указ.)`** → действие — идти к игроку пешком.  *Пример: `set_char_obj_goto_player_on_foot(ped, entity)`*
+- **`set_char_obj_guard_area(пед, число, число, число, число)`** → действие — охранять зону.  *Пример: `set_char_obj_guard_area(ped, x, y, z, 3)`*
+- **`set_char_obj_guard_attack(пед, указ.)`** → действие — охрана — атаковать противника.  *Пример: `set_char_obj_guard_attack(ped, entity)`*
+- **`set_char_obj_guard_spot(пед, число, число, число)`** → действие — охранять точку.  *Пример: `set_char_obj_guard_spot(ped, x, y, z)`*
+- **`set_char_obj_hail_taxi(пед)`** → действие — вызвать такси.  *Пример: `set_char_obj_hail_taxi(ped)`*
+- **`set_char_obj_kill_char_any_means(пед, пед)`** → действие — убить педа любыми средствами.  *Пример: `set_char_obj_kill_char_any_means(ped, ped)`*
+- **`set_char_obj_kill_char_on_foot(пед, пед)`** → действие — убить педа пешком.  *Пример: `set_char_obj_kill_char_on_foot(ped, ped)`*
+- **`set_char_obj_kill_player_any_means(пед, указ.)`** → действие — убить игрока любыми средствами.  *Пример: `set_char_obj_kill_player_any_means(ped, entity)`*
+- **`set_char_obj_kill_player_on_foot(пед, указ.)`** → действие — убить игрока пешком.  *Пример: `set_char_obj_kill_player_on_foot(ped, entity)`*
+- **`set_char_obj_leave_any_car(пед)`** → действие — выйти из любого авто.  *Пример: `set_char_obj_leave_any_car(ped)`*
+- **`set_char_obj_leave_car(пед, указ.)`** → действие — выйти из машины.  *Пример: `set_char_obj_leave_car(ped, entity)`*
+- **`set_char_obj_no_obj(пед)`** → действие — снять задачу с педа.  *Пример: `set_char_obj_no_obj(ped)`*
+- **`set_char_obj_run_to_coord(пед, число, число, число)`** → действие — бежать к координатам.  *Пример: `set_char_obj_run_to_coord(ped, x, y, z)`*
+- **`set_char_obj_sprint_to_coord(пед, число, число, число)`** → действие — спринт к координатам.  *Пример: `set_char_obj_sprint_to_coord(ped, x, y, z)`*
+- **`set_char_obj_steal_any_car(пед)`** → действие — украсть любую машину.  *Пример: `set_char_obj_steal_any_car(ped)`*
+- **`set_char_obj_steal_any_car_mission(пед)`** → действие — украсть любую миссионную машину.  *Пример: `set_char_obj_steal_any_car_mission(ped)`*
+- **`set_char_obj_wait(пед)`** → действие — нет задач.  *Пример: `set_char_obj_wait(ped)`*
+- **`set_char_obj_walk_to_char(пед, пед)`** → действие — идти к другому педу.  *Пример: `set_char_obj_walk_to_char(ped, ped)`*
+- **`set_char_stop_shoot_dont_seek_entity(пед, флаг)`** → действие — пед перестаёт стрелять и не ищет цель.  *Пример: `set_char_stop_shoot_dont_seek_entity(ped, true)`*
+- **`set_chars_chatting(пед1, пед2, мс)`** → действие — 03F9 SET_CHARS_CHATTING.
+- **`set_cops_ignored(число)`** → действие — установить игнор копов.  *Пример: `set_cops_ignored(x)`*
+- **`set_current_weapon_ped(пед, тип)`** → действие — 01B9: положить оружие в руки педа.  *Пример: `set_current_weapon_ped(ped, 22)`*
+- **`set_everyone_ignore_player(флаг)`** → действие — 03BF SET_EVERYONE_IGNORE_PLAYER:
+- **`set_free_resprays(флаг)`** → действие — 0335 SET_FREE_RESPRAYS:
+- **`set_gang_attack_player_with_cops(число, флаг)`** → действие — банда атакует игрока с копами.  *Пример: `set_gang_attack_player_with_cops(x, true)`*
+- **`set_hud_m_WantedTimer(число)`** → действие — таймер розыска на HUD.  *Пример: `set_hud_m_WantedTimer(x)`*
+- **`set_max_cop_cars_in_pursuit(число)`** → действие — установить макс полицейских авто.  *Пример: `set_max_cop_cars_in_pursuit(x)`*
+- **`set_max_cops_in_pursuit(число)`** → действие — установить макс копов.  *Пример: `set_max_cops_in_pursuit(x)`*
+- **`set_max_wanted_level(n)`** → bool — задать максимум уровня розыска (потолок звёзд).  *Пример: `set_max_wanted_level(4)`*
+- **`set_ped_accuracy(пед, число)`** → действие — уст меткость педу.  *Пример: `set_ped_accuracy(ped, x)`*
+- **`set_ped_bleeding(пед, число)`** → действие — вкл\выкл крованные у педа.  *Пример: `set_ped_bleeding(ped, x)`*
+- **`set_ped_density_multiplier(число)`** → действие — установить плотность пешеходов.  *Пример: `set_ped_density_multiplier(x)`*
+- **`set_ped_drive_aggression(пед, число)`** → действие — агрессия.  *Пример: `set_ped_drive_aggression(ped, x)`*
+- **`set_ped_friend(пед, число)`** → действие — уст дружественное отношения педа.  *Пример: `set_ped_friend(ped, x)`*
+- **`set_ped_heading_goal(пед, число)`** → действие — установить желаемый угол поворота педа.  *Пример: `set_ped_heading_goal(ped, x)`*
+- **`set_ped_heading_rate(пед, число)`** → действие — установить скорость поворота педа.  *Пример: `set_ped_heading_rate(ped, x)`*
+- **`set_ped_immunities(пед, число, число, число, число, число)`** → действие — уст иммунитеты педу.  *Пример: `set_ped_immunities(ped, x, y, z, 3, 4)`*
+- **`set_ped_m_bCanPedTalk(пед, флаг)`** → действие — уст. `m_bCanPedTalk` (Can пед Talk (флаг)).  *Пример: `set_ped_m_bCanPedTalk(ped, true)`*
+- **`set_ped_m_bHasPhone(пед, флаг)`** → действие — уст. `m_bHasPhone` (Has Phone (флаг)).  *Пример: `set_ped_m_bHasPhone(ped, true)`*
+- **`set_ped_m_bInVehicle(пед, флаг)`** → действие — уст. `m_bInVehicle` (In транспорт (флаг)).  *Пример: `set_ped_m_bInVehicle(ped, true)`*
+- **`set_ped_m_fAngleToEvent(пед, число)`** → действие — уст. `m_fAngleToEvent` (Угол To Event (число)).  *Пример: `set_ped_m_fAngleToEvent(ped, x)`*
+- **`set_ped_m_fArmour(пед, число)`** → действие — уст. `m_fArmour` (Броня (число)).  *Пример: `set_ped_m_fArmour(ped, x)`*
+- **`set_ped_m_fAttachRot(пед, число)`** → действие — уст. `m_fAttachRot` (Attach Rot (число)).  *Пример: `set_ped_m_fAttachRot(ped, x)`*
+- **`set_ped_m_fCollisionSpeed(пед, число)`** → действие — уст. `m_fCollisionSpeed` (Столкновение скорость (число)).  *Пример: `set_ped_m_fCollisionSpeed(ped, x)`*
+- **`set_ped_m_fFleeFromPosX(пед, число)`** → действие — уст. `m_fFleeFromPosX` (Flee From позиция X (число)).  *Пример: `set_ped_m_fFleeFromPosX(ped, x)`*
+- **`set_ped_m_fFleeFromPosY(пед, число)`** → действие — уст. `m_fFleeFromPosY` (Flee From позиция Y (число)).  *Пример: `set_ped_m_fFleeFromPosY(ped, x)`*
+- **`set_ped_m_fHeadingChangeRate(пед, число)`** → действие — уст. `m_fHeadingChangeRate` (Курс Change Rate (число)).  *Пример: `set_ped_m_fHeadingChangeRate(ped, x)`*
+- **`set_ped_m_fHeadingCurrent(пед, число)`** → действие — уст. `m_fHeadingCurrent` (Курс текущий (число)).  *Пример: `set_ped_m_fHeadingCurrent(ped, x)`*
+- **`set_ped_m_fHeadingGoal(пед, число)`** → действие — уст. `m_fHeadingGoal` (Курс Goal (число)).  *Пример: `set_ped_m_fHeadingGoal(ped, x)`*
+- **`set_ped_m_fHealth(пед, число)`** → действие — уст. `m_fHealth` (Здоровье (число)).  *Пример: `set_ped_m_fHealth(ped, x)`*
+- **`set_ped_m_fLookDirection(пед, число)`** → действие — уст. `m_fLookDirection` (Look Direction (число)).  *Пример: `set_ped_m_fLookDirection(ped, x)`*
+- **`set_ped_m_fObjectiveAngle(пед, число)`** → действие — уст. `m_fObjectiveAngle` (Цель угол (число)).  *Пример: `set_ped_m_fObjectiveAngle(ped, x)`*
+- **`set_ped_m_fPathNextNodeDir(пед, число)`** → действие — уст. `m_fPathNextNodeDir` (Путь следующий узел Dir (число)).  *Пример: `set_ped_m_fPathNextNodeDir(ped, x)`*
+- **`set_ped_m_fSeatPrecisionX(пед, число)`** → действие — уст. `m_fSeatPrecisionX` (Сиденье Precision X (число)).  *Пример: `set_ped_m_fSeatPrecisionX(ped, x)`*
+- **`set_ped_m_fSeatPrecisionY(пед, число)`** → действие — уст. `m_fSeatPrecisionY` (Сиденье Precision Y (число)).  *Пример: `set_ped_m_fSeatPrecisionY(ped, x)`*
+- **`set_ped_m_fSeekExAngle(пед, число)`** → действие — уст. `m_fSeekExAngle` (Поиск Ex угол (число)).  *Пример: `set_ped_m_fSeekExAngle(ped, x)`*
+- **`set_ped_m_nActionTimer(пед, число)`** → действие — уст. `m_nActionTimer` (Действие таймер (целое)).  *Пример: `set_ped_m_nActionTimer(ped, x)`*
+- **`set_ped_m_nAnimGroupId(пед, число)`** → действие — уст. `m_nAnimGroupId` (Анимация Group ID (целое)).  *Пример: `set_ped_m_nAnimGroupId(ped, x)`*
+- **`set_ped_m_nAtchStoredWep(пед, число)`** → действие — уст. `m_nAtchStoredWep` (Atch Stored оружие (целое)).  *Пример: `set_ped_m_nAtchStoredWep(ped, x)`*
+- **`set_ped_m_nAttachType(пед, число)`** → действие — уст. `m_nAttachType` (Attach Type (целое)).  *Пример: `set_ped_m_nAttachType(ped, x)`*
+- **`set_ped_m_nAttachWepAmmo(пед, число)`** → действие — уст. `m_nAttachWepAmmo` (Attach оружие патроны (целое)).  *Пример: `set_ped_m_nAttachWepAmmo(ped, x)`*
+- **`set_ped_m_nAttackTimer(пед, число)`** → действие — уст. `m_nAttackTimer` (Attack таймер (целое)).  *Пример: `set_ped_m_nAttackTimer(ped, x)`*
+- **`set_ped_m_nBleedCounter(пед, число)`** → действие — уст. `m_nBleedCounter` (Bleed Counter (целое)).  *Пример: `set_ped_m_nBleedCounter(ped, x)`*
+- **`set_ped_m_nBloodyTimer(пед, число)`** → действие — уст. `m_nBloodyTimer` (Bloody таймер (целое)).  *Пример: `set_ped_m_nBloodyTimer(ped, x)`*
+- **`set_ped_m_nBodyPart(пед, число)`** → действие — уст. `m_nBodyPart` (Кузов часть (целое)).  *Пример: `set_ped_m_nBodyPart(ped, x)`*
+- **`set_ped_m_nBodyPartBleeding(пед, число)`** → действие — уст. `m_nBodyPartBleeding` (Кузов часть Bleeding (целое)).  *Пример: `set_ped_m_nBodyPartBleeding(ped, x)`*
+- **`set_ped_m_nCurrentWeapon(пед, число)`** → действие — уст. `m_nCurrentWeapon` (Текущий оружие (целое)).  *Пример: `set_ped_m_nCurrentWeapon(ped, x)`*
+- **`set_ped_m_nDeadBleeding(пед, число)`** → действие — уст. `m_nDeadBleeding` (Dead Bleeding (целое)).  *Пример: `set_ped_m_nDeadBleeding(ped, x)`*
+- **`set_ped_m_nDuckAndCoverTimer(пед, число)`** → действие — уст. `m_nDuckAndCoverTimer` (Duck And Cover таймер (целое)).  *Пример: `set_ped_m_nDuckAndCoverTimer(ped, x)`*
+- **`set_ped_m_nDuckTimer(пед, число)`** → действие — уст. `m_nDuckTimer` (Duck таймер (целое)).  *Пример: `set_ped_m_nDuckTimer(ped, x)`*
+- **`set_ped_m_nEnterType(пед, число)`** → действие — уст. `m_nEnterType` (Вход Type (целое)).  *Пример: `set_ped_m_nEnterType(ped, x)`*
+- **`set_ped_m_nEventType(пед, число)`** → действие — уст. `m_nEventType` (Event Type (целое)).  *Пример: `set_ped_m_nEventType(ped, x)`*
+- **`set_ped_m_nFearFlags(пед, число)`** → действие — уст. `m_nFearFlags` (Fear флаги (целое)).  *Пример: `set_ped_m_nFearFlags(ped, x)`*
+- **`set_ped_m_nFightFlags1(пед, число)`** → действие — уст. `m_nFightFlags1` (Fight Flags1 (целое)).  *Пример: `set_ped_m_nFightFlags1(ped, x)`*
+- **`set_ped_m_nFightFlags2(пед, число)`** → действие — уст. `m_nFightFlags2` (Fight Flags2 (целое)).  *Пример: `set_ped_m_nFightFlags2(ped, x)`*
+- **`set_ped_m_nFightFlags3(пед, число)`** → действие — уст. `m_nFightFlags3` (Fight Flags3 (целое)).  *Пример: `set_ped_m_nFightFlags3(ped, x)`*
+- **`set_ped_m_nFleeTimer(пед, число)`** → действие — уст. `m_nFleeTimer` (Flee таймер (целое)).  *Пример: `set_ped_m_nFleeTimer(ped, x)`*
+- **`set_ped_m_nGangFlags(пед, число)`** → действие — уст. `m_nGangFlags` (Банда флаги (целое)).  *Пример: `set_ped_m_nGangFlags(ped, x)`*
+- **`set_ped_m_nGetUpTimer(пед, число)`** → действие — уст. `m_nGetUpTimer` (Get Up таймер (целое)).  *Пример: `set_ped_m_nGetUpTimer(ped, x)`*
+- **`set_ped_m_nHitCounter(пед, число)`** → действие — уст. `m_nHitCounter` (Hit Counter (целое)).  *Пример: `set_ped_m_nHitCounter(ped, x)`*
+- **`set_ped_m_nHitRecoverTimer(пед, число)`** → действие — уст. `m_nHitRecoverTimer` (Hit Recover таймер (целое)).  *Пример: `set_ped_m_nHitRecoverTimer(ped, x)`*
+- **`set_ped_m_nLastDamWep(пед, число)`** → действие — уст. `m_nLastDamWep` (Последний урон оружие (целое)).  *Пример: `set_ped_m_nLastDamWep(ped, x)`*
+- **`set_ped_m_nLastHitState(пед, число)`** → действие — уст. `m_nLastHitState` (Последний Hit состояние (целое)).  *Пример: `set_ped_m_nLastHitState(ped, x)`*
+- **`set_ped_m_nLastHitTime(пед, число)`** → действие — уст. `m_nLastHitTime` (Последний Hit время (целое)).  *Пример: `set_ped_m_nLastHitTime(ped, x)`*
+- **`set_ped_m_nLastThreatCheck(пед, число)`** → действие — уст. `m_nLastThreatCheck` (Последний Threat Check (целое)).  *Пример: `set_ped_m_nLastThreatCheck(ped, x)`*
+- **`set_ped_m_nLastThreatTimer(пед, число)`** → действие — уст. `m_nLastThreatTimer` (Последний Threat таймер (целое)).  *Пример: `set_ped_m_nLastThreatTimer(ped, x)`*
+- **`set_ped_m_nLeaveCarTimer(пед, число)`** → действие — уст. `m_nLeaveCarTimer` (Leave авто таймер (целое)).  *Пример: `set_ped_m_nLeaveCarTimer(ped, x)`*
+- **`set_ped_m_nLookingForPhone(пед, число)`** → действие — уст. `m_nLookingForPhone` (Looking для Phone (целое)).  *Пример: `set_ped_m_nLookingForPhone(ped, x)`*
+- **`set_ped_m_nLookTimer(пед, число)`** → действие — уст. `m_nLookTimer` (Look таймер (целое)).  *Пример: `set_ped_m_nLookTimer(ped, x)`*
+- **`set_ped_m_nNumNearPeds(пед, число)`** → действие — уст. `m_nNumNearPeds` (Кол-во Near Peds (целое)).  *Пример: `set_ped_m_nNumNearPeds(ped, x)`*
+- **`set_ped_m_nObjectiveTimer(пед, число)`** → действие — уст. `m_nObjectiveTimer` (Цель таймер (целое)).  *Пример: `set_ped_m_nObjectiveTimer(ped, x)`*
+- **`set_ped_m_nPanicCounter(пед, число)`** → действие — уст. `m_nPanicCounter` (Panic Counter (целое)).  *Пример: `set_ped_m_nPanicCounter(ped, x)`*
+- **`set_ped_m_nPathNodeTimer(пед, число)`** → действие — уст. `m_nPathNodeTimer` (Путь узел таймер (целое)).  *Пример: `set_ped_m_nPathNodeTimer(ped, x)`*
+- **`set_ped_m_nPathNodeType(пед, число)`** → действие — уст. `m_nPathNodeType` (Путь узел Type (целое)).  *Пример: `set_ped_m_nPathNodeType(ped, x)`*
+- **`set_ped_m_nPedFormation(пед, число)`** → действие — уст. `m_nPedFormation` (Пед Formation (целое)).  *Пример: `set_ped_m_nPedFormation(ped, x)`*
+- **`set_ped_m_nPedLastComment(пед, число)`** → действие — уст. `m_nPedLastComment` (Пед последний Comment (целое)).  *Пример: `set_ped_m_nPedLastComment(ped, x)`*
+- **`set_ped_m_nPedMoney(пед, число)`** → действие — уст. `m_nPedMoney` (Пед деньги (целое)).  *Пример: `set_ped_m_nPedMoney(ped, x)`*
+- **`set_ped_m_nPedStatus(пед, число)`** → действие — уст. `m_nPedStatus` (Пед статус (целое)).  *Пример: `set_ped_m_nPedStatus(ped, x)`*
+- **`set_ped_m_nPhoneTalkTimer(пед, число)`** → действие — уст. `m_nPhoneTalkTimer` (Phone Talk таймер (целое)).  *Пример: `set_ped_m_nPhoneTalkTimer(ped, x)`*
+- **`set_ped_m_nSayTimer(пед, число)`** → действие — уст. `m_nSayTimer` (Say таймер (целое)).  *Пример: `set_ped_m_nSayTimer(ped, x)`*
+- **`set_ped_m_nSayType(пед, число)`** → действие — уст. `m_nSayType` (Say Type (целое)).  *Пример: `set_ped_m_nSayType(ped, x)`*
+- **`set_ped_m_nSeatType(пед, число)`** → действие — уст. `m_nSeatType` (Сиденье Type (целое)).  *Пример: `set_ped_m_nSeatType(ped, x)`*
+- **`set_ped_m_nShadowUpdateTimer(пед, число)`** → действие — уст. `m_nShadowUpdateTimer` (Shadow Update таймер (целое)).  *Пример: `set_ped_m_nShadowUpdateTimer(ped, x)`*
+- **`set_ped_m_nShotTime(пед, число)`** → действие — уст. `m_nShotTime` (Shot время (целое)).  *Пример: `set_ped_m_nShotTime(ped, x)`*
+- **`set_ped_m_nShotTimeAdd(пед, число)`** → действие — уст. `m_nShotTimeAdd` (Shot время Add (целое)).  *Пример: `set_ped_m_nShotTimeAdd(ped, x)`*
+- **`set_ped_m_nStandardTimer(пед, число)`** → действие — уст. `m_nStandardTimer` (Standard таймер (целое)).  *Пример: `set_ped_m_nStandardTimer(ped, x)`*
+- **`set_ped_m_nStateUnused(пед, число)`** → действие — уст. `m_nStateUnused` (Состояние Unused (целое)).  *Пример: `set_ped_m_nStateUnused(ped, x)`*
+- **`set_ped_m_nStoredGiveAmmo(пед, число)`** → действие — уст. `m_nStoredGiveAmmo` (Stored Give патроны (целое)).  *Пример: `set_ped_m_nStoredGiveAmmo(ped, x)`*
+- **`set_ped_m_nStoredGiveWep(пед, число)`** → действие — уст. `m_nStoredGiveWep` (Stored Give оружие (целое)).  *Пример: `set_ped_m_nStoredGiveWep(ped, x)`*
+- **`set_ped_m_nTalkTimer(пед, число)`** → действие — уст. `m_nTalkTimer` (Talk таймер (целое)).  *Пример: `set_ped_m_nTalkTimer(ped, x)`*
+- **`set_ped_m_nTalkTimerLast(пед, число)`** → действие — уст. `m_nTalkTimerLast` (Talk таймер последний (целое)).  *Пример: `set_ped_m_nTalkTimerLast(ped, x)`*
+- **`set_ped_m_nThreatCheck(пед, число)`** → действие — уст. `m_nThreatCheck` (Threat Check (целое)).  *Пример: `set_ped_m_nThreatCheck(ped, x)`*
+- **`set_ped_m_nThreatFlags(пед, число)`** → действие — уст. `m_nThreatFlags` (Threat флаги (целое)).  *Пример: `set_ped_m_nThreatFlags(ped, x)`*
+- **`set_ped_m_nTimerUnused(пед, число)`** → действие — уст. `m_nTimerUnused` (Таймер Unused (целое)).  *Пример: `set_ped_m_nTimerUnused(ped, x)`*
+- **`set_ped_m_nWaitState(пед, число)`** → действие — уст. `m_nWaitState` (Wait состояние (целое)).  *Пример: `set_ped_m_nWaitState(ped, x)`*
+- **`set_ped_m_nWaitTimer(пед, число)`** → действие — уст. `m_nWaitTimer` (Wait таймер (целое)).  *Пример: `set_ped_m_nWaitTimer(ped, x)`*
+- **`set_ped_m_nWalkAroundType(пед, число)`** → действие — уст. `m_nWalkAroundType` (Walk Around Type (целое)).  *Пример: `set_ped_m_nWalkAroundType(ped, x)`*
+- **`set_ped_m_nWeaponAccuracy(пед, число)`** → действие — уст. `m_nWeaponAccuracy` (Оружие Accuracy (целое)).  *Пример: `set_ped_m_nWeaponAccuracy(ped, x)`*
+- **`set_ped_m_nWepModelID(пед, число)`** → действие — уст. `m_nWepModelID` (Оружие модель I D (целое)).  *Пример: `set_ped_m_nWepModelID(ped, x)`*
+- **`set_ped_m_nWepSkills(пед, число)`** → действие — уст. `m_nWepSkills` (Оружие Skills (целое)).  *Пример: `set_ped_m_nWepSkills(ped, x)`*
+- **`set_ped_m_vecAttachOffset(пед, число, число, число)`** → действие — уст. `m_vecAttachOffset` (Attach Offset (вектор (X, Y, Z))).  *Пример: `set_ped_m_vecAttachOffset(ped, x, y, z)`*
+- **`set_ped_m_vecHitLastPos(пед, число, число, число)`** → действие — уст. `m_vecHitLastPos` (Hit последний позиция (вектор (X, Y, Z))).  *Пример: `set_ped_m_vecHitLastPos(ped, x, y, z)`*
+- **`set_ped_m_vecObjective(пед, число, число, число)`** → действие — уст. `m_vecObjective` (Цель (вектор (X, Y, Z))).  *Пример: `set_ped_m_vecObjective(ped, x, y, z)`*
+- **`set_ped_m_vecOffsetFromPhysSurface(пед, число, число, число)`** → действие — уст. `m_vecOffsetFromPhysSurface` (Offset From Phys Surface (вектор (X, Y, Z))).  *Пример: `set_ped_m_vecOffsetFromPhysSurface(ped, x, y, z)`*
+- **`set_ped_m_vecOffsetSeek(пед, число, число, число)`** → действие — уст. `m_vecOffsetSeek` (Offset поиск (вектор (X, Y, Z))).  *Пример: `set_ped_m_vecOffsetSeek(ped, x, y, z)`*
+- **`set_ped_m_vecPathNextNode(пед, число, число, число)`** → действие — уст. `m_vecPathNextNode` (Путь следующий узел (вектор (X, Y, Z))).  *Пример: `set_ped_m_vecPathNextNode(ped, x, y, z)`*
+- **`set_ped_m_vecSeekPosEx(пед, число, число, число)`** → действие — уст. `m_vecSeekPosEx` (Поиск позиция Ex (вектор (X, Y, Z))).  *Пример: `set_ped_m_vecSeekPosEx(ped, x, y, z)`*
+- **`set_ped_m_wCurPathNode(пед, число)`** → действие — уст. `m_wCurPathNode` (Текущий путь узел (целое)).  *Пример: `set_ped_m_wCurPathNode(ped, x)`*
+- **`set_ped_m_wPathNodes(пед, число)`** → действие — уст. `m_wPathNodes` (Путь узлы (целое)).  *Пример: `set_ped_m_wPathNodes(ped, x)`*
+- **`set_ped_m_wPhoneId(пед, число)`** → действие — уст. `m_wPhoneId` (Phone ID (целое)).  *Пример: `set_ped_m_wPhoneId(ped, x)`*
+- **`set_ped_m_wTalkType(пед, число)`** → действие — уст. `m_wTalkType` (Talk Type (целое)).  *Пример: `set_ped_m_wTalkType(ped, x)`*
+- **`set_ped_m_wTalkTypeLast(пед, число)`** → действие — уст. `m_wTalkTypeLast` (Talk Type последний (целое)).  *Пример: `set_ped_m_wTalkTypeLast(ped, x)`*
+- **`set_ped_max_drive_speed(пед, число)`** → действие — макс скорость.  *Пример: `set_ped_max_drive_speed(ped, x)`*
+- **`set_ped_mood(настроение, таймер)`** → действие — 04E3: настроение ИГРОКА (не педа).  *Пример: `set_ped_mood(1, 1000)`*
+- **`set_ped_personality(пед, личность)`** → действие — 0243: установить личность педа (16 — горожанин, 30 — агрессор).  *Пример: `set_ped_personality(ped, 16)`*
+- **`set_ped_range(число)`** → действие — установить множитель диапазона на угрозу для педа.  *Пример: `set_ped_range(x)`*
+- **`set_ped_reaction_threat(пед, флаг)`** → действие — уст реакцию педа на ответную угрозу.  *Пример: `set_ped_reaction_threat(ped, true)`*
+- **`set_ped_state(пед, число)`** → действие — установить состояние педа.  *Пример: `set_ped_state(ped, x)`*
+- **`set_ped_stats_to(пед, число)`** → действие — уст поведения педа.  *Пример: `set_ped_stats_to(ped, x)`*
+- **`set_ped_stay_when_attacked(пед, флаг)`** → действие — 0350: пед держит позицию при атаке.  *Пример: `set_ped_stay_when_attacked(ped, true)`*
+- **`set_ped_traffic(число)`** → действие — установить плотноcть трафика педов.  *Пример: `set_ped_traffic(x)`*
+- **`set_ped_vecSeekVehicle(пед, число, число, число)`** → действие — уст. vecSeekVehicle.  *Пример: `set_ped_vecSeekVehicle(ped, x, y, z)`*
+- **`set_ped_velocity(пед, число, число, число)`** → действие — уст. скорость педа `m_vecMoveSpeed` (Движение скорость (вектор (X, Y, Z))).  *Пример: `set_ped_velocity(ped, x, y, z)`*
+- **`set_ped_wait_state(пед, состояние, таймер)`** → действие — 0372: установить состояние ожидания педа (например, состояние 29, таймер 99999999).  *Пример: `set_ped_wait_state(ped, 29, 99999999)`*
+- **`set_ped_walk_style(пед, число)`** → действие — установить стиль ходьбы педа.  *Пример: `set_ped_walk_style(ped, x)`*
+- **`set_ped_wRouteCurDir(пед, число)`** → действие — уст. wRouteCurDir.  *Пример: `set_ped_wRouteCurDir(ped, x)`*
+- **`set_ped_wRouteLastPoint(пед, число)`** → действие — уст. wRouteLastPoint.  *Пример: `set_ped_wRouteLastPoint(ped, x)`*
+- **`set_ped_wRoutePoints(пед, число)`** → действие — уст. wRoutePoints.  *Пример: `set_ped_wRoutePoints(ped, x)`*
+- **`set_ped_wRoutePos(пед, число)`** → действие — уст. wRoutePos.  *Пример: `set_ped_wRoutePos(ped, x)`*
+- **`set_ped_wRouteType(пед, число)`** → действие — уст. wRouteType.  *Пример: `set_ped_wRouteType(ped, x)`*
+- **`set_pedik_m_fPitch(пед, число)`** → действие — уст. наклон головы педа по тангажу.  *Пример: `set_pedik_m_fPitch(ped, x)`*
+- **`set_pedik_m_fYaw(пед, число)`** → действие — уст. угол наклона головы педа.  *Пример: `set_pedik_m_fYaw(ped, x)`*
+- **`set_pedstat_m_fAttackStrength(пед, число)`** → действие — уст. сила атаки педа.  *Пример: `set_pedstat_m_fAttackStrength(ped, x)`*
+- **`set_pedstat_m_fDefendWeakness(пед, число)`** → действие — уст. слабость защиты педа.  *Пример: `set_pedstat_m_fDefendWeakness(ped, x)`*
+- **`set_pedstat_m_fFleeDistance(пед, число)`** → действие — уст. дистанция бегства педа.  *Пример: `set_pedstat_m_fFleeDistance(ped, x)`*
+- **`set_pedstat_m_fHeadingChangeRate(пед, число)`** → действие — уст. скорость поворота педа.  *Пример: `set_pedstat_m_fHeadingChangeRate(ped, x)`*
+- **`set_player_drive_by(флаг)`** → действие — стрельба на ходу вкл/выкл.  *Пример: `set_player_drive_by(true)`*
+- **`set_player_fast_reload(флаг)`** → действие — быстрая перезарядка игроку.  *Пример: `set_player_fast_reload(true)`*
+- **`set_player_mod(число, число)`** → действие — уст настроения игрока.  *Пример: `set_player_mod(x, y)`*
+- **`set_player_money_info(число)`** → действие — установить деньги игроку.  *Пример: `set_player_money_info(x)`*
+- **`set_player_road_density(число)`** → действие — уст. плотность дорог вокруг игрока.  *Пример: `set_player_road_density(x)`*
+- **`set_police_ignore_player(флаг)`** → действие — 01F7: копы игнорируют/замечают игрока.  *Пример: `set_police_ignore_player(true)`*
+- **`set_skin(пед, строка)`** → действие — установить скин педа. Порядок 27.10 — как в движке, ОДНИМ `ma_cmdq_defer`: `0352 UNDRESS_CHAR` → `038B LOAD_ALL_MODELS_NOW` → `0248 HasModelLoaded` (не загрузилась — отмена, пед не тронут) → `0353 DRESS_CHAR`. Предварительного `RequestSpecialModel` нет. Для игрока — затемнение 1 с без управления → окно → проявление 1.5 с.  *Пример: `set_skin(ped, "PLAYER3")`*
+- **`set_threat_for_ped_type(число, число)`** → действие — уст враждебность типа педа к другим типам педа.  *Пример: `set_threat_for_ped_type(x, y)`*
+- **`set_timer_ped_attack(пед, число)`** → действие — установить таймер атаки педа.  *Пример: `set_timer_ped_attack(ped, x)`*
+- **`set_wanted(число)`** → действие — уcтановить уровень розыска.  *Пример: `set_wanted(x)`*
+- **`set_wanted_chaos_level(число)`** → действие — установить очки хаоса.  *Пример: `set_wanted_chaos_level(x)`*
+- **`set_wanted_m_dwTimeOfParole(число)`** → действие — уст. таймер условного освобождения.  *Пример: `set_wanted_m_dwTimeOfParole(x)`*
+- **`set_wanted_m_fMultiplier(число)`** → действие — уст. множитель розыска.  *Пример: `set_wanted_m_fMultiplier(x)`*
+- **`set_wanted_m_nMaxCopCarsInPursuit(число)`** → действие — уст. макс. машин копов в погоне.  *Пример: `set_wanted_m_nMaxCopCarsInPursuit(x)`*
+- **`set_wanted_m_nMaxCopsInPursuit(число)`** → действие — уст. макс. копов в погоне.  *Пример: `set_wanted_m_nMaxCopsInPursuit(x)`*
+- **`set_wanted_multiplier(число)`** → действие — установить множитель розыска.  *Пример: `set_wanted_multiplier(x)`*
+- **`set_weapon_reload(пед, число)`** → действие — установить время перезарядки.  *Пример: `set_weapon_reload(ped, x)`*
+- **`setarmour(пед, число)`** → действие — установить броню педа.  *Пример: `setarmour(ped, x)`*
+- **`setflagmission(флаг)`** → действие — уcтановить флага миссии.  *Пример: `setflagmission(true)`*
+- **`Setflagmission(флаг)`** → действие — установить/снять флаг миссии (запускает или останавливает сторожа).  *Пример: `Setflagmission(true)`*
+- **`setmoney_ped(пед, число)`** → действие — установить кол-во деньги педа.  *Пример: `setmoney_ped(ped, x)`*
+- **`setpedangle(пед, число)`** → действие — установить угол педа.  *Пример: `setpedangle(ped, x)`*
+- **`setpedcoordes(пед, число, число, число)`** → действие — установить координаты для педа.  *Пример: `setpedcoordes(ped, x, y, z)`*
+- **`setpedcrouch(пед, флаг, число)`** → действие — пед сел.  *Пример: `setpedcrouch(ped, true, x)`*
+- **`setpedhealth(пед, число)`** → действие — установить здоровье педа.  *Пример: `setpedhealth(ped, x)`*
+- **`setpednode_seek(пед, флаг)`** → действие — пед игнорирорует пути педов.  *Пример: `setpednode_seek(ped, true)`*
+- **`setstamina_ped(пед, число)`** → действие — установить выносливость педа.  *Пример: `setstamina_ped(ped, x)`*
+- **`traffic_lights_for_peds()`** → действие — светофор для пешеходов.  *Пример: `traffic_lights_for_peds()`*
+- **`train_catch_char_obj(пед, флаг)`** → действие — транспорт/краны/зоны.  *Пример: `train_catch_char_obj(ped, true)`*
+- **`turn_char_to_face_coord(пед, x, y, z)`** → действие — 01BE.
+- **`turn_char_to_face_player(пед)`** → действие — 020F TURN_CHAR_TO_FACE_PLAYER.
+- **`turn_player_to_face_char(пед)`** → действие — 0210 TURN_PLAYER_TO_FACE_CHAR.
+- **`wait_key(строка, число)`** → действие — обработчик нажатия клавиши как гражданин планировщика: ждёт нажатие и отпускание, паркуя корутину (кадр не блокируется).  *Пример: `wait_key("VK_G", 5000)`*
+- **`wanted_cheat_level(число)`** → действие — читерский уровень розыска.  *Пример: `wanted_cheat_level(x)`*
+- **`wanted_clear_crimes()`** → действие — очистить очередь преступлений.  *Пример: `wanted_clear_crimes()`*
+- **`wanted_level()`** → целое — получить уровень розыска.  *Пример: `wanted_level()`*
+- **`wanted_reset_police_pursuit()`** → действие — сбросить полицейскую погоню.  *Пример: `wanted_reset_police_pursuit()`*
+- **`wanted_set_no_drop(число)`** → действие — уровень розыска без понижения.  *Пример: `wanted_set_no_drop(x)`*
+- **`wanted_update_wanted_level()`** → действие — обновить уровень розыска.  *Пример: `wanted_update_wanted_level()`*
+- **`warp_ped_from_car(пед, число, число, число)`** → действие — телепорт из авто.  *Пример: `warp_ped_from_car(ped, x, y, z)`*
+- **`warp_player_from_car(число, число, число)`** → действие — телепорт игрока.  *Пример: `warp_player_from_car(x, y, z)`*
+- **`weapon_reload_ped(пед)`** → действие — перезарядить оружие педа.  *Пример: `weapon_reload_ped(ped)`*
+- **`world_clear_peds_from_area(число, число, число, число, число, число)`** → действие — удалить педов из области.  *Пример: `world_clear_peds_from_area(x, y, z, 3, 4, 5)`*
+
+## Пед и игрок / Проверки (пед, игрок)
+
+- **`arrested()`** → флаг — пед арестован?.  *Пример: `arrested()`*
+- **`bike_is_char_on_any_bike(пед)`** → целое — транспорт/краны/зоны.  *Пример: `bike_is_char_on_any_bike(ped)`*
+- **`bike_is_player_on_any_bike()`** → целое — транспорт/краны/зоны.  *Пример: `bike_is_player_on_any_bike()`*
+- **`boat_is_char_in_any_boat(пед)`** → целое — транспорт/краны/зоны.  *Пример: `boat_is_char_in_any_boat(ped)`*
+- **`boat_is_player_in_any_boat()`** → целое — транспорт/краны/зоны.  *Пример: `boat_is_player_in_any_boat()`*
+- **`car_can_ped_enter(авто)`** → флаг — можно сесть в авто.  *Пример: `car_can_ped_enter(car)`*
+- **`car_damaged_by_ped(авто, пед)`** → целое — повреждено педом?.  *Пример: `car_damaged_by_ped(car, ped)`*
+- **`createfireonped(пед)`** → целое — создать огонь на педе.  *Пример: `createfireonped(ped)`*
+- **`get_dead_char_pickup_coords(пед)`** → число, число, число (X, Y, Z) — 04A5: координаты трупного пикапа педа.  *Пример: `get_dead_char_pickup_coords(ped)`*
+- **`get_streaming_peds_loaded()`** → число — загружено педов.  *Пример: `get_streaming_peds_loaded()`*
+- **`getflagmission()`** → флаг — проверка флага миссии.  *Пример: `getflagmission()`*
+- **`Getflagmission()`** → флаг — проверка флага миссии (умная C++-версия со сторожем; при false вызывает purge_script_entities).  *Пример: `Getflagmission()`*
+- **`has_respray_happened(гараж)`** → флаг — 0329 HAS_RESPRAY_HAPPENED:
+- **`heli_is_char_in_any_heli(пед)`** → целое — транспорт/краны/зоны.  *Пример: `heli_is_char_in_any_heli(ped)`*
+- **`heli_is_player_in_any_heli()`** → целое — транспорт/краны/зоны.  *Пример: `heli_is_player_in_any_heli()`*
+- **`incar(пед)`** → флаг, указ. — пед в авто?.  *Пример: `incar(ped)`*
+- **`is_car_stopped(авто)`** → флаг — авто остановилось.  *Пример: `is_car_stopped(car)`*
+- **`is_char_in_area_3d(пед, x1, y1, z1, x2, y2, z2, подсветка)`** → флаг — 0154.
+- **`is_char_in_flying_vehicle(пед)`** → целое — транспорт/краны/зоны.  *Пример: `is_char_in_flying_vehicle(ped)`*
+- **`is_char_shooting_in_area(пед, число, число, число, число, флаг)`** → флаг — пед стреляет в зоне.  *Пример: `is_char_shooting_in_area(ped, x, y, z, 3, true)`*
+- **`is_char_wander_path_clear(пед, x, y, z, флаг)`** → флаг — 0510.
+- **`is_current_weapon_ped(пед, число)`** → флаг — проверить текущее оружие.  *Пример: `is_current_weapon_ped(ped, x)`*
+- **`is_ped_damage_from_ped(пед, пед)`** → флаг — получил ли пед урон от педа.  *Пример: `is_ped_damage_from_ped(ped, ped)`*
+- **`is_ped_damaged_weapon(пед, число)`** → флаг — пед получает от определенного вида оружие.  *Пример: `is_ped_damaged_weapon(ped, x)`*
+- **`is_ped_driver_car(пед, авто)`** → флаг — пед пассажир авто.  *Пример: `is_ped_driver_car(ped, car)`*
+- **`is_ped_drowning(пед)`** → целое — тонет?.  *Пример: `is_ped_drowning(ped)`*
+- **`is_ped_duck(пед)`** → флаг — Проверяет, пед присел.  *Пример: `is_ped_duck(ped)`*
+- **`is_ped_health_greater(пед, порог)`** → флаг — 0184: здоровье педа строго больше порога?  *Пример: `is_ped_health_greater(ped, 50)`*
+- **`is_ped_in_air(пед)`** → флаг — если пед в воздухе.  *Пример: `is_ped_in_air(ped)`*
+- **`is_ped_in_car(пед)`** → флаг — игрок в авто?.  *Пример: `is_ped_in_car(ped)`*
+- **`is_ped_in_police_car(пед)`** → целое — в полицейском?.  *Пример: `is_ped_in_police_car(ped)`*
+- **`is_ped_in_this_car(пед, авто)`** → флаг — игрок в этом авто?.  *Пример: `is_ped_in_this_car(ped, car)`*
+- **`is_ped_in_water(пед)`** → целое — в воде?.  *Пример: `is_ped_in_water(ped)`*
+- **`is_ped_in_zone(пед, строка)`** → целое — в зоне?.  *Пример: `is_ped_in_zone(ped, "текст")`*
+- **`is_ped_incar(пед)`** → флаг — пед в авто или нет?.  *Пример: `is_ped_incar(ped)`*
+- **`is_ped_leaving_to_die(пед)`** → целое — умирает из авто?.  *Пример: `is_ped_leaving_to_die(ped)`*
+- **`is_ped_objective(пед)`** → флаг — если пед выполнил задачу.  *Пример: `is_ped_objective(ped)`*
+- **`is_ped_passenger_car(пед, авто)`** → флаг — пед пассажир авто.  *Пример: `is_ped_passenger_car(ped, car)`*
+- **`is_ped_shooting(пед)`** → флаг — пед стреляет?.  *Пример: `is_ped_shooting(ped)`*
+- **`is_ped_touching_vehicle(пед)`** → целое — касается?.  *Пример: `is_ped_touching_vehicle(ped)`*
+- **`is_player_in_area_3d(x1, y1, z1, x2, y2, z2, подсветка)`** → флаг — 0057:
+- **`is_player_in_flying_vehicle()`** → целое — транспорт/краны/зоны.  *Пример: `is_player_in_flying_vehicle()`*
+- **`is_player_in_zone(строка)`** → целое — игрок в зоне?.  *Пример: `is_player_in_zone("текст")`*
+- **`is_targetting_in_ped(пед)`** → флаг — игрок целиться в педа.  *Пример: `is_targetting_in_ped(ped)`*
+- **`is_wanted_level(число)`** → флаг — проверить уровень розыска.  *Пример: `is_wanted_level(x)`*
+- **`is_wanted_level_greater(порог)`** → флаг — 010F IS_WANTED_LEVEL_GREATER:
+- **`isped(пед)`** → флаг — проверка это пед?.  *Пример: `isped(ped)`*
+- **`isped_in_air(пед)`** → флаг — пед в воздухе.  *Пример: `isped_in_air(ped)`*
+- **`ispeddead(пед)`** → флаг — пед мертв.  *Пример: `ispeddead(ped)`*
+- **`keypress(строка)`** → флаг — удерживается ли клавиша (имя вида "VK_G"; 25.10 финал-8: раньше проверялся одноразовый флаг «нажато с прошлого вызова» — его съедала клавиатурная задача, теперь честное состояние удержания). Обёртка `Keypress` (mod.lua) ловит нажатие→отпускание: press → wait(300) → released → true. *Пример: `keypress("VK_G")`*
+- **`kill_peds_in_car(авто)`** → действие — убить педов в авто.  *Пример: `kill_peds_in_car(car)`*
+- **`locate_char_any_means_2d(пед, x, y, rx, ry, подсветка)`** → флаг — 00EC:
+- **`locate_char_any_means_3d(пед, x, y, z, rx, ry, rz, подсветка)`** → флаг — 00FE.
+- **`locate_player_any_means_char_2d(пед, rx, ry, подсветка)`** → флаг — 00E9:
+- **`locate_player_any_means_char_3d(пед, rx, ry, rz, подсветка)`** → флаг — 00FB:
+- **`mark_char_as_no_longer_needed(пед)`** → действие — 01C2.
+- **`ped_can_be_deleted(пед)`** → флаг — можно ли удалить педа из мира.  *Пример: `ped_can_be_deleted(ped)`*
+- **`ped_can_see_entity(ped, entity, [fovDeg])`** → bool — видит ли пед сущность; fov в градусах (по умолчанию ~47°).  *Пример: `if ped_can_see_entity(ped, player) then ...`*
+- **`ped_car_as_driver(пед, авто)`** → действие — пед садится в авто как водитель.  *Пример: `ped_car_as_driver(ped, car)`*
+- **`ped_car_as_passenger(пед, авто)`** → действие — пед садится в авто как пассажир.  *Пример: `ped_car_as_passenger(ped, car)`*
+- **`ped_char_spotted_player(пед)`** → флаг — если пед увидел игрока.  *Пример: `ped_char_spotted_player(ped)`*
+- **`ped_clear_objective(пед)`** → действие — снять задачи с педа.  *Пример: `ped_clear_objective(ped)`*
+- **`ped_in_point_in_radius(пед, число, число, число, число, число, число)`** → флаг — проверить находится пед в координатах с радиусом.  *Пример: `ped_in_point_in_radius(ped, x, y, z, 3, 4, 5)`*
+- **`ped_in_targetting()`** → указ. — пед на прицеле.  *Пример: `ped_in_targetting()`*
+- **`Ped_in_targetting()`** → флаг, указ. — Макрос пед на прицеле.  *Пример: `Ped_in_targetting()`*
+- **`ped_is_gang_member(пед)`** → флаг — пед член банды.  *Пример: `ped_is_gang_member(ped)`*
+- **`ped_is_in_control(пед)`** → флаг — пед управляем.  *Пример: `ped_is_in_control(ped)`*
+- **`ped_is_player(пед)`** → флаг — пед это игрок.  *Пример: `ped_is_player(ped)`*
+- **`ped_is_pointer_valid(пед)`** → флаг — указатель на педа валиден.  *Пример: `ped_is_pointer_valid(ped)`*
+- **`ped_is_shootable(пед)`** → флаг — в педа можно стрелять.  *Пример: `ped_is_shootable(ped)`*
+- **`ped_restore_previous_objective(пед)`** → действие — вернуть педу прошлую цель.  *Пример: `ped_restore_previous_objective(ped)`*
+- **`ped_set_dead(пед)`** → действие — пометить педа мертвым.  *Пример: `ped_set_dead(ped)`*
+- **`plane_is_char_in_any_plane(пед)`** → целое — транспорт/краны/зоны.  *Пример: `plane_is_char_in_any_plane(ped)`*
+- **`plane_is_player_in_any_plane()`** → целое — транспорт/краны/зоны.  *Пример: `plane_is_player_in_any_plane()`*
+- **`player_defined(пед)`** → флаг — пед существует?.  *Пример: `player_defined(ped)`*
+- **`player_is_in_remote_mode()`** → целое — транспорт/краны/зоны.  *Пример: `player_is_in_remote_mode()`*
+- **`putincar(пед, авто)`** → действие — переместить педа в авто.  *Пример: `putincar(ped, car)`*
+- **`remove_ped(пед)`** → действие — удалить педа. **04.11 — работает со ВСЕМИ специальными актёрами (проверки, без вылетов):** NULL/не-пед → тихий выход; игрок → отказ (MARK по игроку не шлётся); пед на спец-модели 109..116 (ЛЮБОЙ динамический слот) — снимает держание спец-модели своего скрипта (`ma_stream_let_go`), а на ПОСЛЕДНЕМ педе слота шлёт `0296 UNLOAD_SPECIAL_CHARACTER` — слот освобождён для нового имени. Спец-слоты других скриптов не трогаются. Обычные педы (модель < 109) — держание живёт до `destroy`/`cleanstl`.  *Пример: `remove_ped(ped)`*
+- **`set_char_obj_enter_car_driver(пед, указ.)`** → действие — сесть в авто как водитель.  *Пример: `set_char_obj_enter_car_driver(ped, entity)`*
+- **`set_char_obj_enter_car_passenger(пед, указ.)`** → действие — сесть в авто как пассажир.  *Пример: `set_char_obj_enter_car_passenger(ped, entity)`*
+- **`set_char_obj_fire_at_object_from_vehicle(пед, объект)`** → действие — стрелять по объекту из авто.  *Пример: `set_char_obj_fire_at_object_from_vehicle(ped, obj)`*
+- **`set_char_obj_follow_car_in_car(пед, указ.)`** → действие — следовать за авто из авто.  *Пример: `set_char_obj_follow_car_in_car(ped, entity)`*
+- **`set_char_obj_goto_area_in_car(пед, число, число, число)`** → действие — ехать к зоне.  *Пример: `set_char_obj_goto_area_in_car(ped, x, y, z)`*
+- **`set_char_obj_goto_coord_in_car(пед, число, число, число)`** → действие — ехать к координатам.  *Пример: `set_char_obj_goto_coord_in_car(ped, x, y, z)`*
+- **`set_char_obj_wait_in_car(пед, указ.)`** → действие — ждать в машине.  *Пример: `set_char_obj_wait_in_car(ped, entity)`*
+- **`set_ped_can_shot_in_car(пед, число)`** → действие — водитель авто может получить пули.  *Пример: `set_ped_can_shot_in_car(ped, x)`*
+- **`set_ped_damaged_gang(пед, число, число)`** → действие — уст педа уязвимым для членов банды.  *Пример: `set_ped_damaged_gang(ped, x, y)`*
+- **`set_ped_in_car(указ., строка, число)`** → указ. — установить педа в авто как водителя или пассажира.  *Пример: `set_ped_in_car(entity, "текст", x)`*
+- **`set_ped_only_damaged_by_player(пед, флаг)`** → действие — 02A9: педу может нанести урон только игрок.  *Пример: `set_ped_only_damaged_by_player(ped, true)`*
+- **`set_ped_running(пед, число)`** → действие — пед может бежать.  *Пример: `set_ped_running(ped, x)`*
+- **`set_ped_targetted(пед, число)`** → действие — запрет целиться в педа.  *Пример: `set_ped_targetted(ped, x)`*
+- **`set_ped_visible(пед, число)`** → действие — уст невидимость педу.  *Пример: `set_ped_visible(ped, x)`*
+- **`setped_damaged_player(пед, флаг)`** → действие — педу может нанести ущерб только игрок.  *Пример: `setped_damaged_player(ped, true)`*
+- **`wanted_are_army_required()`** → флаг — нужна ли армия.  *Пример: `wanted_are_army_required()`*
+- **`wanted_are_fbi_required()`** → флаг — нужны ли FBI.  *Пример: `wanted_are_fbi_required()`*
+- **`wanted_are_swat_required()`** → флаг — нужны ли SWAT.  *Пример: `wanted_are_swat_required()`*
+- **`wanted_num_helis_required()`** → флаг — нужны ли вертолеты.  *Пример: `wanted_num_helis_required()`*
+- **`warp_ped_passenger(пед, авто, число)`** → действие — в пассажиры.  *Пример: `warp_ped_passenger(ped, car, x)`*
+
+## Транспорт / Действия и функции (авто, лодки, вертолёты, мото)
+
+- **`apply_car_damage(авто, число, число)`** → действие — повредить компонент авто.  *Пример: `apply_car_damage(car, x, y)`*
+- **`arm_car_bomb(авто, число)`** → действие — установить бомбу.  *Пример: `arm_car_bomb(car, x)`*
+- **`boat_anchor(авто, флаг)`** → действие — транспорт/краны/зоны.  *Пример: `boat_anchor(car, true)`*
+- **`boat_goto_coords(авто, число, число, число)`** → действие — транспорт/краны/зоны.  *Пример: `boat_goto_coords(car, x, y, z)`*
+- **`boat_set_cruise_speed(авто, число)`** → действие — транспорт/краны/зоны.  *Пример: `boat_set_cruise_speed(car, x)`*
+- **`boat_start_foam_animation(авто)`** → действие — транспорт/краны/зоны.  *Пример: `boat_start_foam_animation(car)`*
+- **`boat_stop(авто)`** → действие — остановить катер.  *Пример: `boat_stop(car)`*
+- **`boat_update_foam_animation(авто)`** → действие — транспорт/краны/зоны.  *Пример: `boat_update_foam_animation(car)`*
+- **`car_activate_bomb(авто)`** → действие — активировать бомбу.  *Пример: `car_activate_bomb(car)`*
+- **`car_activate_bomb_when_entered(авто)`** → действие — бомба при посадке.  *Пример: `car_activate_bomb_when_entered(car)`*
+- **`car_any_bomb(авто)`** → целое — есть бомба?.  *Пример: `car_any_bomb(car)`*
+- **`car_block_car(авто, авто)`** → действие — блокировать авто.  *Пример: `car_block_car(car, car)`*
+- **`car_change_color(авто, число, число)`** → действие — сменить цвет.  *Пример: `car_change_color(car, x, y)`*
+- **`car_change_lane(авто, флаг)`** → действие — смена полосы.  *Пример: `car_change_lane(car, true)`*
+- **`car_convoy(авто, флаг)`** → действие — конвойное авто.  *Пример: `car_convoy(car, true)`*
+- **`car_currentgear(авто)`** → целое — текущая передача авто.  *Пример: `car_currentgear(car)`*
+- **`car_drive_straight(авто, флаг)`** → действие — ехать прямо.  *Пример: `car_drive_straight(car, true)`*
+- **`car_explode(авто)`** → действие — взорвать авто.  *Пример: `car_explode(car)`*
+- **`car_face_coord(авто, число, число, число)`** → действие — повернуть к координатам.  *Пример: `car_face_coord(car, x, y, z)`*
+- **`car_fade_in(авто, число)`** → действие — затухание.  *Пример: `car_fade_in(car, x)`*
+- **`car_get_height_above_road(авто)`** → число — высота авто над дорогой.  *Пример: `car_get_height_above_road(car)`*
+- **`car_goto_accurate(авто, число, число, число)`** → действие — точная езда на координаты.  *Пример: `car_goto_accurate(car, x, y, z)`*
+- **`car_goto_coors(car, x, y, z)`** → число — поручить авто (ИИ) ехать к точке, вернёт расстояние до цели.  *Пример: `car_goto_coors(car, 100, 200, 30)`*
+- **`car_join_road_goto(car, x, y, z, [anyRoad])`** → bool — встроить в дороги и ехать к точке.  *Пример: `car_join_road_goto(car, 100, 200, 30)`*
+- **`car_join_road_system(car)`** → bool — встроить авто в систему дорог (поедет по правилам трафика).  *Пример: `car_join_road_system(car)`*
+- **`car_lastweapondamage(авто)`** → целое — номер оружие, которое нанесло урон авто.  *Пример: `car_lastweapondamage(car)`*
+- **`car_load_collision(авто, флаг)`** → действие — загрузка коллизий.  *Пример: `car_load_collision(car, true)`*
+- **`car_make_stronger(авто)`** → действие — усилить авто Крейга.  *Пример: `car_make_stronger(car)`*
+- **`car_move_speed(авто)`** → действие — двигать авто с применением скорости.  *Пример: `car_move_speed(car)`*
+- **`car_moveforce_on_x(авто, число)`** → действие — Двигать авто по оси x.  *Пример: `car_moveforce_on_x(car, x)`*
+- **`car_moveforce_on_y(авто, число)`** → действие — Двигать авто по оси y.  *Пример: `car_moveforce_on_y(car, x)`*
+- **`car_moveforce_on_z(авто, число)`** → действие — Двигать авто по оси z.  *Пример: `car_moveforce_on_z(car, x)`*
+- **`car_park_at_coors(car, x, y, z)`** → число — авто паркуется у точки, вернёт расстояние.  *Пример: `car_park_at_coors(car, 10, 20, 0)`*
+- **`car_ram_car(авто, авто)`** → действие — таранить.  *Пример: `car_ram_car(car, car)`*
+- **`car_road_off(число, число, число, число, число, число)`** → действие — выкл путь авто.  *Пример: `car_road_off(x, y, z, 3, 4, 5)`*
+- **`car_road_on(число, число, число, число, число, число)`** → действие — вкл путь авто.  *Пример: `car_road_on(x, y, z, 3, 4, 5)`*
+- **`car_rotate_on_x(авто, число)`** → действие — Поворот угла авто по оси x.  *Пример: `car_rotate_on_x(car, x)`*
+- **`car_rotate_on_y(авто, число)`** → действие — Поворот угла авто по оси y.  *Пример: `car_rotate_on_y(car, x)`*
+- **`car_rotate_on_z(авто, число)`** → действие — Поворот угла авто по оси z.  *Пример: `car_rotate_on_z(car, x)`*
+- **`car_rotate_turn_on_x(авто, число, число)`** → действие — уст угол поворота авто по оси x.  *Пример: `car_rotate_turn_on_x(car, x, y)`*
+- **`car_rotate_turn_on_y(авто, число, число)`** → действие — уст угол поворота авто по оси y.  *Пример: `car_rotate_turn_on_y(car, x, y)`*
+- **`car_rotate_turn_on_z(авто, число, число)`** → действие — уст угол поворота авто по оси z.  *Пример: `car_rotate_turn_on_z(car, x, y)`*
+- **`car_route_seed(авто, число)`** → действие — seed маршрута.  *Пример: `car_route_seed(car, x)`*
+- **`car_set_comp(авто, число, число)`** → действие — компоненты модели.  *Пример: `car_set_comp(car, x, y)`*
+- **`car_set_component_rotation(car, component, x, y, z)`** → bool — повернуть компонент авто (5 капот, 6 багажник, 7-10 двери и т.д.); углы в градусах.  *Пример: `car_set_component_rotation(car, 5, 90, 0, 0)`*
+- **`car_set_idle(авто)`** → действие — авто в ожидание.  *Пример: `car_set_idle(car)`*
+- **`car_setrotate_on_x(авто, число)`** → действие — уст авто по оси x.  *Пример: `car_setrotate_on_x(car, x)`*
+- **`car_setrotate_on_y(авто, число)`** → действие — уст авто по оси y.  *Пример: `car_setrotate_on_y(car, x)`*
+- **`car_setrotate_on_z(авто, число)`** → действие — уст авто по оси z.  *Пример: `car_setrotate_on_z(car, x)`*
+- **`car_straight_dist(авто, число)`** → действие — дистанция прямой линии.  *Пример: `car_straight_dist(car, x)`*
+- **`car_switch_real_physics(car)`** → bool — вернуть авто настоящую физику.  *Пример: `car_switch_real_physics(car)`*
+- **`car_turn_on_x_with_delay(авто, число, число)`** → действие — повeрнуть авто по оси x на угол со задержкой.  *Пример: `car_turn_on_x_with_delay(car, x, y)`*
+- **`car_turn_on_x_with_speed(авто, число, число)`** → действие — повeрнуть авто по оси x на угол со скорость.  *Пример: `car_turn_on_x_with_speed(car, x, y)`*
+- **`car_turn_on_y_with_delay(авто, число, число)`** → действие — повeрнуть авто по оси y на угол со задержкой.  *Пример: `car_turn_on_y_with_delay(car, x, y)`*
+- **`car_turn_on_y_with_speed(авто, число, число)`** → действие — повeрнуть авто по оси y на угол со скорость.  *Пример: `car_turn_on_y_with_speed(car, x, y)`*
+- **`car_turn_on_z_with_delay(авто, число, число)`** → действие — повeрнуть авто по оси z на угол со задержкой.  *Пример: `car_turn_on_z_with_delay(car, x, y)`*
+- **`car_turn_on_z_with_speed(авто, число, число)`** → действие — повeрнуть авто по оси z на угол со скорость.  *Пример: `car_turn_on_z_with_speed(car, x, y)`*
+- **`car_turn_speed(авто)`** → действие — повернуть авто с применением скорости.  *Пример: `car_turn_speed(car)`*
+- **`car_turnforce_on_x(авто, число)`** → действие — Повернуть авто по оси x.  *Пример: `car_turnforce_on_x(car, x)`*
+- **`car_turnforce_on_y(авто, число)`** → действие — Повернуть авто по оси y.  *Пример: `car_turnforce_on_y(car, x)`*
+- **`car_turnforce_on_z(авто, число)`** → действие — Повернуть авто по оси z.  *Пример: `car_turnforce_on_z(car, x)`*
+- **`car_update_on_rails(car)`** → bool — обновить движение авто по «рельсам» (рельсовый/скриптовый режим).  *Пример: `car_update_on_rails(car)`*
+- **`car_upside_safe(авто, флаг)`** → действие — перевернутое не ломается.  *Пример: `car_upside_safe(car, true)`*
+- **`car_wait(авто, число)`** → действие — приказать ждать ms.  *Пример: `car_wait(car, x)`*
+- **`car_waiting_collision(авто)`** → целое — ждет коллизии?.  *Пример: `car_waiting_collision(car)`*
+- **`car_wander_randomly(авто)`** → действие — авто едет случайно.  *Пример: `car_wander_randomly(car)`*
+- **`cardrive(авто, число, число, число)`** → действие — авто едет в точку.  *Пример: `cardrive(car, x, y, z)`*
+- **`carmoveforce(авто, число, число, число)`** → действие — двигать авто с силой.  *Пример: `carmoveforce(car, x, y, z)`*
+- **`carmovespeed_on_x(авто, число)`** → действие — двигать авто с скоростью по x.  *Пример: `carmovespeed_on_x(car, x)`*
+- **`carmovespeed_on_y(авто, число)`** → действие — двигать авто с скоростью по y.  *Пример: `carmovespeed_on_y(car, x)`*
+- **`carmovespeed_on_z(авто, число)`** → действие — двигать авто с скоростью по z.  *Пример: `carmovespeed_on_z(car, x)`*
+- **`carturnforce(авто, число, число, число, число, число, число)`** → действие — повернуть авто с силой.  *Пример: `carturnforce(car, x, y, z, 3, 4, 5)`*
+- **`carturnfrictionforce(авто, число, число, число, число, число, число)`** → действие — повернуть авто с силой трения.  *Пример: `carturnfrictionforce(car, x, y, z, 3, 4, 5)`*
+- **`catalina_heli_fly_away()`** → действие — транспорт/краны/зоны.  *Пример: `catalina_heli_fly_away()`*
+- **`catalina_heli_grab()`** → действие — транспорт/краны/зоны.  *Пример: `catalina_heli_grab()`*
+- **`catalina_heli_remove()`** → действие — транспорт/краны/зоны.  *Пример: `catalina_heli_remove()`*
+- **`catalina_heli_start()`** → действие — транспорт/краны/зоны.  *Пример: `catalina_heli_start()`*
+- **`catalina_heli_take_off()`** → действие — транспорт/краны/зоны.  *Пример: `catalina_heli_take_off()`*
+- **`change_car_lock(авто, число)`** → действие — сменить замок.  *Пример: `change_car_lock(car, x)`*
+- **`check_car_in_cord(число, число, число, число)`** → флаг — есть ли авто в радиусе с координатами.  *Пример: `check_car_in_cord(x, y, z, 3)`*
+- **`choose_police_car_model()`** → целое — выбрать модель полицейской машины.  *Пример: `choose_police_car_model()`*
+- **`clear_area_of_cars(число, число, число, число)`** → действие — очистить зону от машин.  *Пример: `clear_area_of_cars(x, y, z, 3)`*
+- **`clear_car_dmg(авто)`** → действие — очистить урон.  *Пример: `clear_car_dmg(car)`*
+- **`clear_car_wep_dmg(авто)`** → действие — очистить урон оружием.  *Пример: `clear_car_wep_dmg(car)`*
+- **`clear_interesting_vehicles()`** → действие — очистить список интересных машин.  *Пример: `clear_interesting_vehicles()`*
+- **`close_car_boot(авто)`** → действие — закрыть багажник.  *Пример: `close_car_boot(car)`*
+- **`create_marker_car(авто)`** → целое — создать маркер над авто.  *Пример: `create_marker_car(car)`*
+- **`create_shots_on_car(авто, число, число)`** → действие — создать выстрелы.  *Пример: `create_shots_on_car(car, x, y)`*
+- **`createcar(число, число, число, число)`** → указ. — создать авто: `(id_модели, x, y, z)`. Модель догружается и **ДЕРЖИТСЯ**, пока авто живо.  *Пример: `createcar(159, x, y, z)`*
+- **`Createcar(строка, число, число, число)`** → указ. — макрос создать авто по имени модели: `("MODEL", x, y, z)`. Модель **ДЕРЖИТСЯ** (`hold_model`), пока авто живо; `releasemodel` сразу после создания не вызывать.  *Пример: `Createcar("текст", x, y, z)`*
+- **`crusher_crane_activate()`** → действие — активировать пресс-кран.  *Пример: `crusher_crane_activate()`*
+- **`disarm_car_bomb(авто)`** → действие — обезвредить.  *Пример: `disarm_car_bomb(car)`*
+- **`drag_car_to_point(авто, число, число, число)`** → действие — тащить машину к точке.  *Пример: `drag_car_to_point(car, x, y, z)`*
+- **`escalators_count()`** → целое — транспорт/краны/зоны.  *Пример: `escalators_count()`*
+- **`exitcar(пед)`** → действие — выйти из авто.  *Пример: `exitcar(ped)`*
+- **`find_car_by_model(число)`** → указ. — найти первое авто по модели.  *Пример: `find_car_by_model(x)`*
+- **`find_drop_off_plane_coords()`** → число, число, число (X, Y, Z) — транспорт/краны/зоны.  *Пример: `find_drop_off_plane_coords()`*
+- **`find_drug_plane_coords()`** → число, число, число (X, Y, Z) — транспорт/краны/зоны.  *Пример: `find_drug_plane_coords()`*
+- **`find_max_speed_in_traffic(авто)`** → число — макс. скорость машины в трафике.  *Пример: `find_max_speed_in_traffic(car)`*
+- **`find_road_for_car(число, число, число)`** → число, число, число (X, Y, Z) — найти дорогу.  *Пример: `find_road_for_car(x, y, z)`*
+- **`findcar(авто)`** → указ. — Найти авто.  *Пример: `findcar(car)`*
+- **`findcar_in_cord(число, число, число, число)`** → флаг, указ. — найти авто в радиусе с координатами.  *Пример: `findcar_in_cord(x, y, z, 3)`*
+- **`findcar_nearest_in_cord(число, число, число, число)`** → флаг, указ. — найти ближайшее авто в радиусе с координатами.  *Пример: `findcar_nearest_in_cord(x, y, z, 3)`*
+- **`freeze_car_no_collide(авто, флаг)`** → действие — заморозить без коллизий.  *Пример: `freeze_car_no_collide(car, true)`*
+- **`freeze_car_position(авто, флаг)`** → действие — заморозить позицию.  *Пример: `freeze_car_position(car, true)`*
+- **`fuck_car_completely(авто)`** → действие — уничтожить авто визуально.  *Пример: `fuck_car_completely(car)`*
+- **`get_bike_damage_flags(авто)`** → целое — флаги повреждений мотоцикла.  *Пример: `get_bike_damage_flags(car)`*
+- **`get_boat_m_fBoatSteeringLeftRight(авто)`** → число — руль лодки.  *Пример: `get_boat_m_fBoatSteeringLeftRight(car)`*
+- **`get_boat_m_fForcedZRotation(авто)`** → число — принудительный поворот лодки по Z.  *Пример: `get_boat_m_fForcedZRotation(car)`*
+- **`get_boat_m_fPropRotation(авто)`** → число — вращение винта лодки.  *Пример: `get_boat_m_fPropRotation(car)`*
+- **`get_boat_m_fPropSpeed(авто)`** → число — скорость винта лодки.  *Пример: `get_boat_m_fPropSpeed(car)`*
+- **`get_car_by_pool_index(число)`** → указ. — авто по индексу в пуле.  *Пример: `get_car_by_pool_index(x)`*
+- **`get_car_created_by(авто)`** → целое — кем создано авто.  *Пример: `get_car_created_by(car)`*
+- **`get_car_door_lock(авто)`** → целое — получить блокировку дверей.  *Пример: `get_car_door_lock(car)`*
+- **`get_car_door_status(авто, число)`** → целое — состояние двери авто.  *Пример: `get_car_door_status(car, x)`*
+- **`get_car_engine_on(авто)`** → флаг — работает ли двигатель авто.  *Пример: `get_car_engine_on(car)`*
+- **`get_car_engine_status(авто)`** → целое — состояние двигателя авто.  *Пример: `get_car_engine_status(car)`*
+- **`get_car_fAIGripMultiplier(авто)`** → целое — fAIGripMultiplier.  *Пример: `get_car_fAIGripMultiplier(car)`*
+- **`get_car_fNegSpeed(авто)`** → целое — fNegSpeed.  *Пример: `get_car_fNegSpeed(car)`*
+- **`get_car_forward_x(авто)`** → число — вектор X.  *Пример: `get_car_forward_x(car)`*
+- **`get_car_forward_y(авто)`** → число — вектор Y.  *Пример: `get_car_forward_y(car)`*
+- **`get_car_fSkidMarkDensity(авто)`** → целое — fSkidMarkDensity.  *Пример: `get_car_fSkidMarkDensity(car)`*
+- **`get_car_fSpecialMoveState(авто)`** → целое — fSpecialMoveState.  *Пример: `get_car_fSpecialMoveState(car)`*
+- **`get_car_fSpecialSteering(авто)`** → целое — fSpecialSteering.  *Пример: `get_car_fSpecialSteering(car)`*
+- **`get_car_fSpecialWepRotH(авто)`** → целое — fSpecialWepRotH.  *Пример: `get_car_fSpecialWepRotH(car)`*
+- **`get_car_fSpecialWepRotV(авто)`** → целое — fSpecialWepRotV.  *Пример: `get_car_fSpecialWepRotV(car)`*
+- **`get_car_handbrake_on(авто)`** → флаг — включен ли ручник авто.  *Пример: `get_car_handbrake_on(car)`*
+- **`get_car_heading(авто)`** → число — получить угол.  *Пример: `get_car_heading(car)`*
+- **`get_car_health(авто)`** → число — получить здоровье.  *Пример: `get_car_health(car)`*
+- **`get_car_in_cord(число, число, число, число)`** → указ. — найти авто в радиусе с координатами.  *Пример: `get_car_in_cord(x, y, z, 3)`*
+- **`get_car_last_damager(авто)`** → указ. — получить последний урон авто.  *Пример: `get_car_last_damager(car)`*
+- **`get_car_light_status(авто, число)`** → целое — состояние фары авто.  *Пример: `get_car_light_status(car, x)`*
+- **`get_car_lights_on(авто)`** → флаг — включены ли фары авто.  *Пример: `get_car_lights_on(car)`*
+- **`get_car_locked(авто)`** → флаг — заблокировано ли авто.  *Пример: `get_car_locked(car)`*
+- **`get_car_m_bHornEnabled(авто)`** → целое — `m_bHornEnabled` (Клаксон включён (флаг)).  *Пример: `get_car_m_bHornEnabled(car)`*
+- **`get_car_m_fAirResistance(авто)`** → число — `m_fAirResistance` (Air Resistance (число)).  *Пример: `get_car_m_fAirResistance(car)`*
+- **`get_car_m_fBoatSteeringLeftRight(авто)`** → число — `m_fBoatSteeringLeftRight` (Лодка рулевого Left Right (число)).  *Пример: `get_car_m_fBoatSteeringLeftRight(car)`*
+- **`get_car_m_fBuoyancyConstant(авто)`** → число — `m_fBuoyancyConstant` (Buoyancy Constant (число)).  *Пример: `get_car_m_fBuoyancyConstant(car)`*
+- **`get_car_m_fBurningTimer(авто)`** → число — `m_fBurningTimer` (Burning таймер (число)).  *Пример: `get_car_m_fBurningTimer(car)`*
+- **`get_car_m_fCollisionPower(авто)`** → число — `m_fCollisionPower` (Столкновение Power (число)).  *Пример: `get_car_m_fCollisionPower(car)`*
+- **`get_car_m_fElasticity(авто)`** → число — `m_fElasticity` (Elasticity (число)).  *Пример: `get_car_m_fElasticity(car)`*
+- **`get_car_m_fForcedZRotation(авто)`** → число — `m_fForcedZRotation` (Принудительный Z Rotation (число)).  *Пример: `get_car_m_fForcedZRotation(car)`*
+- **`get_car_m_fHealth(авто)`** → число — `m_fHealth` (Здоровье (число)).  *Пример: `get_car_m_fHealth(car)`*
+- **`get_car_m_fHeliForcedZ(авто)`** → число — `m_fHeliForcedZ` (Вертолёт принудительный Z (число)).  *Пример: `get_car_m_fHeliForcedZ(car)`*
+- **`get_car_m_fMass(авто)`** → число — `m_fMass` (Масса (число)).  *Пример: `get_car_m_fMass(car)`*
+- **`get_car_m_fPropRotation(авто)`** → число — `m_fPropRotation` (Винт Rotation (число)).  *Пример: `get_car_m_fPropRotation(car)`*
+- **`get_car_m_fPropSpeed(авто)`** → число — `m_fPropSpeed` (Винт скорость (число)).  *Пример: `get_car_m_fPropSpeed(car)`*
+- **`get_car_m_fRotationX(авто)`** → число — `m_fRotationX` (Rotation X (число)).  *Пример: `get_car_m_fRotationX(car)`*
+- **`get_car_m_fRotorAngle(авто)`** → число — `m_fRotorAngle` (Ротор угол (число)).  *Пример: `get_car_m_fRotorAngle(car)`*
+- **`get_car_m_fSearchLightIntensity(авто)`** → число — `m_fSearchLightIntensity` (Прожектор свет яркость (число)).  *Пример: `get_car_m_fSearchLightIntensity(car)`*
+- **`get_car_m_fSearchLightX(авто)`** → число — `m_fSearchLightX` (Прожектор свет X (число)).  *Пример: `get_car_m_fSearchLightX(car)`*
+- **`get_car_m_fSearchLightY(авто)`** → число — `m_fSearchLightY` (Прожектор свет Y (число)).  *Пример: `get_car_m_fSearchLightY(car)`*
+- **`get_car_m_fSteerAngle(авто)`** → число — `m_fSteerAngle` (Руль угол (число)).  *Пример: `get_car_m_fSteerAngle(car)`*
+- **`get_car_m_fSteerRatio(авто)`** → число — `m_fSteerRatio` (Руль Ratio (число)).  *Пример: `get_car_m_fSteerRatio(car)`*
+- **`get_car_m_fTotSpeed(авто)`** → число — `m_fTotSpeed` (Общая скорость (число)).  *Пример: `get_car_m_fTotSpeed(car)`*
+- **`get_car_m_fTurnMass(авто)`** → число — `m_fTurnMass` (Поворот масса (число)).  *Пример: `get_car_m_fTurnMass(car)`*
+- **`get_car_m_fVelocityFrequency(авто)`** → число — `m_fVelocityFrequency` (Скорость Frequency (число)).  *Пример: `get_car_m_fVelocityFrequency(car)`*
+- **`get_car_m_nAmmoInClip(авто)`** → целое — `m_nAmmoInClip` (Патроны In магазин (целое)).  *Пример: `get_car_m_nAmmoInClip(car)`*
+- **`get_car_m_nAudioEntityId(авто)`** → целое — `m_nAudioEntityId` (Звук Entity ID (целое)).  *Пример: `get_car_m_nAudioEntityId(car)`*
+- **`get_car_m_nCollFlags(авто)`** → целое — `m_nCollFlags` (Столкновение флаги (целое)).  *Пример: `get_car_m_nCollFlags(car)`*
+- **`get_car_m_nCreatedBy(авто)`** → целое — `m_nCreatedBy` (Created By (целое)).  *Пример: `get_car_m_nCreatedBy(car)`*
+- **`get_car_m_nCurrentGear(авто)`** → целое — `m_nCurrentGear` (Текущий передача (целое)).  *Пример: `get_car_m_nCurrentGear(car)`*
+- **`get_car_m_nDamageFlags(авто)`** → целое — `m_nDamageFlags` (Урон флаги (целое)).  *Пример: `get_car_m_nDamageFlags(car)`*
+- **`get_car_m_nDamagePoints(авто)`** → целое — `m_nDamagePoints` (Урон Points (целое)).  *Пример: `get_car_m_nDamagePoints(car)`*
+- **`get_car_m_nExplosionTime(авто)`** → целое — `m_nExplosionTime` (Explosion время (целое)).  *Пример: `get_car_m_nExplosionTime(car)`*
+- **`get_car_m_nGettingInFlags(авто)`** → целое — `m_nGettingInFlags` (Посадка In флаги (целое)).  *Пример: `get_car_m_nGettingInFlags(car)`*
+- **`get_car_m_nGettingOutFlags(авто)`** → целое — `m_nGettingOutFlags` (Посадка Out флаги (целое)).  *Пример: `get_car_m_nGettingOutFlags(car)`*
+- **`get_car_m_nLastCollType(авто)`** → целое — `m_nLastCollType` (Последний столкновение Type (целое)).  *Пример: `get_car_m_nLastCollType(car)`*
+- **`get_car_m_nLastWeaponDamage(авто)`** → целое — `m_nLastWeaponDamage` (Последний оружие урон (целое)).  *Пример: `get_car_m_nLastWeaponDamage(car)`*
+- **`get_car_m_nMaxPassengers(авто)`** → целое — `m_nMaxPassengers` (Максимум пассажиры (целое)).  *Пример: `get_car_m_nMaxPassengers(car)`*
+- **`get_car_m_nMoveFlags(авто)`** → целое — `m_nMoveFlags` (Движение флаги (целое)).  *Пример: `get_car_m_nMoveFlags(car)`*
+- **`get_car_m_nNumCollisionRecords(авто)`** → целое — `m_nNumCollisionRecords` (Кол-во столкновение Records (целое)).  *Пример: `get_car_m_nNumCollisionRecords(car)`*
+- **`get_car_m_nNumGettingIn(авто)`** → целое — `m_nNumGettingIn` (Кол-во посадка In (целое)).  *Пример: `get_car_m_nNumGettingIn(car)`*
+- **`get_car_m_nNumPassengers(авто)`** → целое — `m_nNumPassengers` (Кол-во пассажиры (целое)).  *Пример: `get_car_m_nNumPassengers(car)`*
+- **`get_car_m_nNumWaterTrailPoints(авто)`** → целое — `m_nNumWaterTrailPoints` (Кол-во Water Trail Points (целое)).  *Пример: `get_car_m_nNumWaterTrailPoints(car)`*
+- **`get_car_m_nPadNumber(авто)`** → целое — `m_nPadNumber` (Pad число (целое)).  *Пример: `get_car_m_nPadNumber(car)`*
+- **`get_car_m_nPrimaryColor(авто)`** → целое — `m_nPrimaryColor` (Основной цвет (целое)).  *Пример: `get_car_m_nPrimaryColor(car)`*
+- **`get_car_m_nRadioStation(авто)`** → целое — `m_nRadioStation` (Радио Station (целое)).  *Пример: `get_car_m_nRadioStation(car)`*
+- **`get_car_m_nSecondaryColor(авто)`** → целое — `m_nSecondaryColor` (Дополнительный цвет (целое)).  *Пример: `get_car_m_nSecondaryColor(car)`*
+- **`get_car_m_nSirenExtra(авто)`** → целое — `m_nSirenExtra` (Сирена дополнительный (целое)).  *Пример: `get_car_m_nSirenExtra(car)`*
+- **`get_car_m_nSirenOrAlarm(авто)`** → целое — `m_nSirenOrAlarm` (Сирена Or Alarm (целое)).  *Пример: `get_car_m_nSirenOrAlarm(car)`*
+- **`get_car_m_nTimeOfDeath(авто)`** → целое — `m_nTimeOfDeath` (Время Of смерть (целое)).  *Пример: `get_car_m_nTimeOfDeath(car)`*
+- **`get_car_m_nTimeTillWeNeedThisCar(авто)`** → целое — `m_nTimeTillWeNeedThisCar` (Время Till We Need этот авто (целое)).  *Пример: `get_car_m_nTimeTillWeNeedThisCar(car)`*
+- **`get_car_m_nVehicleClass(авто)`** → целое — `m_nVehicleClass` (Транспорт класс (целое)).  *Пример: `get_car_m_nVehicleClass(car)`*
+- **`get_car_m_nZoneLevel(авто)`** → целое — `m_nZoneLevel` (Зона Level (целое)).  *Пример: `get_car_m_nZoneLevel(car)`*
+- **`get_car_m_vecCentreOfMass(авто)`** → число, число, число (X, Y, Z) — `m_vecCentreOfMass` (Centre Of масса (вектор (X, Y, Z))).  *Пример: `get_car_m_vecCentreOfMass(car)`*
+- **`get_car_m_vecCollisionPower(авто)`** → число, число, число (X, Y, Z) — `m_vecCollisionPower` (Столкновение Power (вектор (X, Y, Z))).  *Пример: `get_car_m_vecCollisionPower(car)`*
+- **`get_car_m_vecForce(авто)`** → число, число, число (X, Y, Z) — `m_vecForce` (Сила (вектор (X, Y, Z))).  *Пример: `get_car_m_vecForce(car)`*
+- **`get_car_m_vecFrictionMoveForce(авто)`** → число, число, число (X, Y, Z) — `m_vecFrictionMoveForce` (Трение движение сила (вектор (X, Y, Z))).  *Пример: `get_car_m_vecFrictionMoveForce(car)`*
+- **`get_car_m_vecFrictionTurnForce(авто)`** → число, число, число (X, Y, Z) — `m_vecFrictionTurnForce` (Трение поворот сила (вектор (X, Y, Z))).  *Пример: `get_car_m_vecFrictionTurnForce(car)`*
+- **`get_car_m_vecMoveSpeed(авто)`** → число, число, число (X, Y, Z) — `m_vecMoveSpeed` (Движение скорость (вектор (X, Y, Z))).  *Пример: `get_car_m_vecMoveSpeed(car)`*
+- **`get_car_m_vecTorque(авто)`** → число, число, число (X, Y, Z) — `m_vecTorque` (Крутящий момент (вектор (X, Y, Z))).  *Пример: `get_car_m_vecTorque(car)`*
+- **`get_car_m_vecTurnSpeed(авто)`** → число, число, число (X, Y, Z) — `m_vecTurnSpeed` (Поворот скорость (вектор (X, Y, Z))).  *Пример: `get_car_m_vecTurnSpeed(car)`*
+- **`get_car_m_wBombTimer(авто)`** → целое — `m_wBombTimer` (Bomb таймер (целое)).  *Пример: `get_car_m_wBombTimer(car)`*
+- **`get_car_m_wComponentCol(авто)`** → целое — `m_wComponentCol` (Компонент столкновение (целое)).  *Пример: `get_car_m_wComponentCol(car)`*
+- **`get_car_m_wMissionValue(авто)`** → целое — `m_wMissionValue` (Миссия значение (целое)).  *Пример: `get_car_m_wMissionValue(car)`*
+- **`get_car_m_wWantedStarsOnEnter(авто)`** → целое — `m_wWantedStarsOnEnter` (Розыск звёзды розыска On вход (целое)).  *Пример: `get_car_m_wWantedStarsOnEnter(car)`*
+- **`get_car_nBikeAnimGroup(авто)`** → целое — nBikeAnimGroup.  *Пример: `get_car_nBikeAnimGroup(car)`*
+- **`get_car_panel_status(авто, число)`** → целое — состояние панели авто.  *Пример: `get_car_panel_status(car, x)`*
+- **`get_car_pool_index(авто)`** → целое — индекс авто в пуле.  *Пример: `get_car_pool_index(car)`*
+- **`get_car_radio_station(авто)`** → целое — получить радиостанцию авто.  *Пример: `get_car_radio_station(car)`*
+- **`get_car_speed(авто)`** → число — скалярная скорость авто.  *Пример: `get_car_speed(car)`*
+- **`get_car_steer_angle(авто)`** → число — получить угол руля авто.  *Пример: `get_car_steer_angle(car)`*
+- **`get_car_time_of_death(авто)`** → целое — получить время смерти авто.  *Пример: `get_car_time_of_death(car)`*
+- **`get_car_tires_invulnerable(авто)`** → флаг — шины авто неуязвимы.  *Пример: `get_car_tires_invulnerable(car)`*
+- **`get_car_vehicle_class(авто)`** → целое — получить класс авто.  *Пример: `get_car_vehicle_class(car)`*
+- **`get_car_velocity(авто)`** → число, число, число (X, Y, Z) — скорость авто `m_vecMoveSpeed` (Движение скорость (вектор (X, Y, Z))).  *Пример: `get_car_velocity(car)`*
+- **`get_car_wanted_stars_on_enter(авто)`** → целое — звёзды при входе в авто.  *Пример: `get_car_wanted_stars_on_enter(car)`*
+- **`get_car_weapon_damage(авто)`** → целое — тип оружия последнего урона авто.  *Пример: `get_car_weapon_damage(car)`*
+- **`get_car_wheel_status(авто, число)`** → целое — состояние колеса авто.  *Пример: `get_car_wheel_status(car, x)`*
+- **`get_heli_forced_z(авто)`** → число — принудительная высота вертолёта.  *Пример: `get_heli_forced_z(car)`*
+- **`get_heli_rotor_angle(авто)`** → число — угол вращения винта вертолёта.  *Пример: `get_heli_rotor_angle(car)`*
+- **`get_heli_searchlight_intensity(авто)`** → число — яркость прожектора вертолёта.  *Пример: `get_heli_searchlight_intensity(car)`*
+- **`get_heli_searchlight_x(авто)`** → число — координата X прожектора вертолёта.  *Пример: `get_heli_searchlight_x(car)`*
+- **`get_heli_searchlight_y(авто)`** → число — координата Y прожектора вертолёта.  *Пример: `get_heli_searchlight_y(car)`*
+- **`get_radio_car(авто)`** → целое — получить текущую радиостанцию авто.  *Пример: `get_radio_car(car)`*
+- **`get_vehicle_pool_size()`** → целое — размер пула транспорта.  *Пример: `get_vehicle_pool_size()`*
+- **`getcar_model(указ.)`** → целое — получить модель авто.  *Пример: `getcar_model(entity)`*
+- **`getcar_resistance(авто)`** → число — Получить сопротивления авто трению.  *Пример: `getcar_resistance(car)`*
+- **`getcar_turn_on_x(авто)`** → число — Получить угол поворота авто по оси x.  *Пример: `getcar_turn_on_x(car)`*
+- **`getcar_turn_on_y(авто)`** → число — Получить угол поворота авто по оси y.  *Пример: `getcar_turn_on_y(car)`*
+- **`getcar_turn_on_z(авто)`** → число — Получить угол поворота авто по оси z.  *Пример: `getcar_turn_on_z(car)`*
+- **`getcar_turns_on_axes(авто)`** → число, число, число (X, Y, Z) — получить углы авто поворота по осям.  *Пример: `getcar_turns_on_axes(car)`*
+- **`getcarangle(авто)`** → целое — получить угол авто.  *Пример: `getcarangle(car)`*
+- **`getcarcoordes(авто)`** → число, число, число (X, Y, Z) — получить координаты авто.  *Пример: `getcarcoordes(car)`*
+- **`getcarcoordinates_on_x(авто, число)`** → число, число, число (X, Y, Z) — Получить мировую координату по x для авто.  *Пример: `getcarcoordinates_on_x(car, x)`*
+- **`getcarcoordinates_on_y(авто, число)`** → число, число, число (X, Y, Z) — Получить мировую координату по y для авто.  *Пример: `getcarcoordinates_on_y(car, x)`*
+- **`getcardamage(авто)`** → число — получить кол-во урона авто.  *Пример: `getcardamage(car)`*
+- **`getcardimension(авто)`** → число, число, число (X, Y, Z) — получить размер авто.  *Пример: `getcardimension(car)`*
+- **`getcarfirstcolor(авто)`** → целое — получить первый цвет авто.  *Пример: `getcarfirstcolor(car)`*
+- **`getcarhealth(авто)`** → целое — получить кол-во здоровья авто.  *Пример: `getcarhealth(car)`*
+- **`getcarseconscolor(авто)`** → целое — получить второй цвет авто.  *Пример: `getcarseconscolor(car)`*
+- **`getcarspeed(авто)`** → число — получить скорость авто.  *Пример: `getcarspeed(car)`*
+- **`give_car_alarm(авто)`** → действие — сигнализация.  *Пример: `give_car_alarm(car)`*
+- **`heli_change_height(авто, число, число)`** → действие — изменить высоту вертолета.  *Пример: `heli_change_height(car, x, y)`*
+- **`heli_clear_orientation(авто)`** → действие — транспорт/краны/зоны.  *Пример: `heli_clear_orientation(car)`*
+- **`heli_create_dust_effect(авто)`** → действие — пыль катсценного вертолета.  *Пример: `heli_create_dust_effect(car)`*
+- **`heli_get_num_random()`** → целое — число случайных вертолётов.  *Пример: `heli_get_num_random()`*
+- **`heli_goto_coords(авто, число, число, число)`** → действие — вертолет на координаты.  *Пример: `heli_goto_coords(car, x, y, z)`*
+- **`heli_make_crashing_down(авто)`** → действие — транспорт/краны/зоны.  *Пример: `heli_make_crashing_down(car)`*
+- **`heli_send_down_swat(авто)`** → действие — спецназ спускается с вертолёта на верёвке.  *Пример: `heli_send_down_swat(car)`*
+- **`heli_set_catalina_on(флаг)`** → действие — вкл/выкл вертолёт Катарины.  *Пример: `heli_set_catalina_on(true)`*
+- **`heli_set_num_random(число)`** → действие — уст. число случайных вертолётов.  *Пример: `heli_set_num_random(x)`*
+- **`heli_set_orientation(авто, число)`** → действие — транспорт/краны/зоны.  *Пример: `heli_set_orientation(car, x)`*
+- **`heli_set_stabiliser(авто, число)`** → действие — транспорт/краны/зоны.  *Пример: `heli_set_stabiliser(car, x)`*
+- **`heli_switch(авто)`** → действие — транспорт/краны/зоны.  *Пример: `heli_switch(car)`*
+- **`heli_to_fly(авто, число, число, число, число)`** → действие — вертолет летит на координаты.  *Пример: `heli_to_fly(car, x, y, z, 3)`*
+- **`init_trains()`** → действие — инициализировать поезда.  *Пример: `init_trains()`*
+- **`military_crane_activate()`** → действие — активировать военный кран.  *Пример: `military_crane_activate()`*
+- **`Opendoorcar()`** → действие — Макрос открыть все двери авто.  *Пример: `Opendoorcar()`*
+- **`plane_goto_coords(авто, число, число, число)`** → действие — транспорт/краны/зоны.  *Пример: `plane_goto_coords(car, x, y, z)`*
+- **`pop_car_boot(авто)`** → действие — открыть багажник.  *Пример: `pop_car_boot(car)`*
+- **`pop_car_boot_physics(авто)`** → действие — открыть физикой.  *Пример: `pop_car_boot_physics(car)`*
+- **`randomfindcar(пед, число)`** → флаг, указ. — Найти случайное авто.  *Пример: `randomfindcar(ped, x)`*
+- **`rc_get_remote_controlled_car()`** → целое — транспорт/краны/зоны.  *Пример: `rc_get_remote_controlled_car()`*
+- **`remove_car(авто)`** → действие — удалить авто.  *Пример: `remove_car(car)`*
+- **`reset_car_damage(авто)`** → действие — сбросить повреждения авто.  *Пример: `reset_car_damage(car)`*
+- **`save_car_color(авто, число)`** → действие — авто сохраняет цвет при перекраске.  *Пример: `save_car_color(car, x)`*
+- **`set_bike_damage_flags(авто, число)`** → действие — уст. флаги повреждений мотоцикла.  *Пример: `set_bike_damage_flags(car, x)`*
+- **`set_boat_m_fBoatSteeringLeftRight(авто, число)`** → действие — уст. руль лодки.  *Пример: `set_boat_m_fBoatSteeringLeftRight(car, x)`*
+- **`set_boat_m_fForcedZRotation(авто, число)`** → действие — уст. принудительный поворот лодки по Z.  *Пример: `set_boat_m_fForcedZRotation(car, x)`*
+- **`set_boat_m_fPropRotation(авто, число)`** → действие — уст. вращение винта лодки.  *Пример: `set_boat_m_fPropRotation(car, x)`*
+- **`set_boat_m_fPropSpeed(авто, число)`** → действие — уст. скорость винта лодки.  *Пример: `set_boat_m_fPropSpeed(car, x)`*
+- **`set_brakes_car(флаг)`** → действие — уст тормоза авто игрока.  *Пример: `set_brakes_car(true)`*
+- **`set_camera_on_car(авто, число, число)`** → действие — уст камеру на авто.  *Пример: `set_camera_on_car(car, x, y)`*
+- **`set_car_acceleration(авто, число)`** → действие — установить ускорение авто.  *Пример: `set_car_acceleration(car, 0.2)`*
+- **`set_car_ammo(авто, число, число)`** → действие — боезапас.  *Пример: `set_car_ammo(car, x, y)`*
+- **`set_car_big_wheels(авто, флаг)`** → действие — большие колеса.  *Пример: `set_car_big_wheels(car, true)`*
+- **`set_car_bproof(авто, флаг)`** → действие — пуленепробиваемость.  *Пример: `set_car_bproof(car, true)`*
+- **`set_car_burst_tires(авто, флаг)`** → действие — пробиваемость шин.  *Пример: `set_car_burst_tires(car, true)`*
+- **`set_car_comedy_controls(авто, флаг)`** → действие — шуточное управление авто.  *Пример: `set_car_comedy_controls(car, true)`*
+- **`set_car_density_multiplier(число)`** → действие — 01EB.
+- **`set_car_door_lock(авто, число)`** → действие — установить блокировку дверей.  *Пример: `set_car_door_lock(car, x)`*
+- **`set_car_door_status(авто, число, число)`** → действие — уст. состояние двери авто.  *Пример: `set_car_door_status(car, x, y)`*
+- **`set_car_engine_on(авто, флаг)`** → действие — вкл/выкл двигатель авто.  *Пример: `set_car_engine_on(car, true)`*
+- **`set_car_engine_status(авто, число)`** → действие — уст. состояние двигателя авто.  *Пример: `set_car_engine_status(car, x)`*
+- **`set_car_fAIGripMultiplier(авто, число)`** → действие — уст. fAIGripMultiplier.  *Пример: `set_car_fAIGripMultiplier(car, x)`*
+- **`set_car_fNegSpeed(авто, число)`** → действие — уст. fNegSpeed.  *Пример: `set_car_fNegSpeed(car, x)`*
+- **`set_car_forward_speed(авто, число)`** → действие — скорость вперед.  *Пример: `set_car_forward_speed(car, x)`*
+- **`set_car_fproof(авто, флаг)`** → действие — огнеупорность.  *Пример: `set_car_fproof(car, true)`*
+- **`set_car_fSkidMarkDensity(авто, число)`** → действие — уст. fSkidMarkDensity.  *Пример: `set_car_fSkidMarkDensity(car, x)`*
+- **`set_car_fSpecialMoveState(авто, число)`** → действие — уст. fSpecialMoveState.  *Пример: `set_car_fSpecialMoveState(car, x)`*
+- **`set_car_fSpecialSteering(авто, число)`** → действие — уст. fSpecialSteering.  *Пример: `set_car_fSpecialSteering(car, x)`*
+- **`set_car_fSpecialWepRotH(авто, число)`** → действие — уст. fSpecialWepRotH.  *Пример: `set_car_fSpecialWepRotH(car, x)`*
+- **`set_car_fSpecialWepRotV(авто, число)`** → действие — уст. fSpecialWepRotV.  *Пример: `set_car_fSpecialWepRotV(car, x)`*
+- **`set_car_handbrake_on(авто, флаг)`** → действие — вкл/выкл ручник авто.  *Пример: `set_car_handbrake_on(car, true)`*
+- **`set_car_health(авто, число)`** → действие — здоровье авто.  *Пример: `set_car_health(car, x)`*
+- **`set_car_hide_occupants(авто, флаг)`** → действие — скрыть седоков авто.  *Пример: `set_car_hide_occupants(car, true)`*
+- **`set_car_immunities(авто, число, число, число, число, число)`** → действие — уст иммунитеты авто.  *Пример: `set_car_immunities(car, x, y, z, 3, 4)`*
+- **`set_car_light_status(авто, число, число)`** → действие — уст. состояние фары авто.  *Пример: `set_car_light_status(car, x, y)`*
+- **`set_car_lights_on(авто, флаг)`** → действие — вкл/выкл фары авто.  *Пример: `set_car_lights_on(car, true)`*
+- **`set_car_locked(авто, флаг)`** → действие — заблокировать/разблокировать авто.  *Пример: `set_car_locked(car, true)`*
+- **`set_car_m_bHornEnabled(авто, число)`** → действие — уст. `m_bHornEnabled` (Клаксон включён (флаг)).  *Пример: `set_car_m_bHornEnabled(car, x)`*
+- **`set_car_m_fAirResistance(авто, число)`** → действие — уст. `m_fAirResistance` (Air Resistance (число)).  *Пример: `set_car_m_fAirResistance(car, x)`*
+- **`set_car_m_fBoatSteeringLeftRight(авто, число)`** → действие — уст. `m_fBoatSteeringLeftRight` (Лодка рулевого Left Right (число)).  *Пример: `set_car_m_fBoatSteeringLeftRight(car, x)`*
+- **`set_car_m_fBuoyancyConstant(авто, число)`** → действие — уст. `m_fBuoyancyConstant` (Buoyancy Constant (число)).  *Пример: `set_car_m_fBuoyancyConstant(car, x)`*
+- **`set_car_m_fBurningTimer(авто, число)`** → действие — уст. `m_fBurningTimer` (Burning таймер (число)).  *Пример: `set_car_m_fBurningTimer(car, x)`*
+- **`set_car_m_fCollisionPower(авто, число)`** → действие — уст. `m_fCollisionPower` (Столкновение Power (число)).  *Пример: `set_car_m_fCollisionPower(car, x)`*
+- **`set_car_m_fElasticity(авто, число)`** → действие — уст. `m_fElasticity` (Elasticity (число)).  *Пример: `set_car_m_fElasticity(car, x)`*
+- **`set_car_m_fForcedZRotation(авто, число)`** → действие — уст. `m_fForcedZRotation` (Принудительный Z Rotation (число)).  *Пример: `set_car_m_fForcedZRotation(car, x)`*
+- **`set_car_m_fHealth(авто, число)`** → действие — уст. `m_fHealth` (Здоровье (число)).  *Пример: `set_car_m_fHealth(car, x)`*
+- **`set_car_m_fHeliForcedZ(авто, число)`** → действие — уст. `m_fHeliForcedZ` (Вертолёт принудительный Z (число)).  *Пример: `set_car_m_fHeliForcedZ(car, x)`*
+- **`set_car_m_fMass(авто, число)`** → действие — уст. `m_fMass` (Масса (число)).  *Пример: `set_car_m_fMass(car, x)`*
+- **`set_car_m_fPropRotation(авто, число)`** → действие — уст. `m_fPropRotation` (Винт Rotation (число)).  *Пример: `set_car_m_fPropRotation(car, x)`*
+- **`set_car_m_fPropSpeed(авто, число)`** → действие — уст. `m_fPropSpeed` (Винт скорость (число)).  *Пример: `set_car_m_fPropSpeed(car, x)`*
+- **`set_car_m_fRotationX(авто, число)`** → действие — уст. `m_fRotationX` (Rotation X (число)).  *Пример: `set_car_m_fRotationX(car, x)`*
+- **`set_car_m_fRotorAngle(авто, число)`** → действие — уст. `m_fRotorAngle` (Ротор угол (число)).  *Пример: `set_car_m_fRotorAngle(car, x)`*
+- **`set_car_m_fSearchLightIntensity(авто, число)`** → действие — уст. `m_fSearchLightIntensity` (Прожектор свет яркость (число)).  *Пример: `set_car_m_fSearchLightIntensity(car, x)`*
+- **`set_car_m_fSearchLightX(авто, число)`** → действие — уст. `m_fSearchLightX` (Прожектор свет X (число)).  *Пример: `set_car_m_fSearchLightX(car, x)`*
+- **`set_car_m_fSearchLightY(авто, число)`** → действие — уст. `m_fSearchLightY` (Прожектор свет Y (число)).  *Пример: `set_car_m_fSearchLightY(car, x)`*
+- **`set_car_m_fSteerAngle(авто, число)`** → действие — уст. `m_fSteerAngle` (Руль угол (число)).  *Пример: `set_car_m_fSteerAngle(car, x)`*
+- **`set_car_m_fSteerRatio(авто, число)`** → действие — уст. `m_fSteerRatio` (Руль Ratio (число)).  *Пример: `set_car_m_fSteerRatio(car, x)`*
+- **`set_car_m_fTotSpeed(авто, число)`** → действие — уст. `m_fTotSpeed` (Общая скорость (число)).  *Пример: `set_car_m_fTotSpeed(car, x)`*
+- **`set_car_m_fTurnMass(авто, число)`** → действие — уст. `m_fTurnMass` (Поворот масса (число)).  *Пример: `set_car_m_fTurnMass(car, x)`*
+- **`set_car_m_fVelocityFrequency(авто, число)`** → действие — уст. `m_fVelocityFrequency` (Скорость Frequency (число)).  *Пример: `set_car_m_fVelocityFrequency(car, x)`*
+- **`set_car_m_nAmmoInClip(авто, число)`** → действие — уст. `m_nAmmoInClip` (Патроны In магазин (целое)).  *Пример: `set_car_m_nAmmoInClip(car, x)`*
+- **`set_car_m_nAudioEntityId(авто, число)`** → действие — уст. `m_nAudioEntityId` (Звук Entity ID (целое)).  *Пример: `set_car_m_nAudioEntityId(car, x)`*
+- **`set_car_m_nCollFlags(авто, число)`** → действие — уст. `m_nCollFlags` (Столкновение флаги (целое)).  *Пример: `set_car_m_nCollFlags(car, x)`*
+- **`set_car_m_nCreatedBy(авто, число)`** → действие — уст. `m_nCreatedBy` (Created By (целое)).  *Пример: `set_car_m_nCreatedBy(car, x)`*
+- **`set_car_m_nCurrentGear(авто, число)`** → действие — уст. `m_nCurrentGear` (Текущий передача (целое)).  *Пример: `set_car_m_nCurrentGear(car, x)`*
+- **`set_car_m_nDamageFlags(авто, число)`** → действие — уст. `m_nDamageFlags` (Урон флаги (целое)).  *Пример: `set_car_m_nDamageFlags(car, x)`*
+- **`set_car_m_nDamagePoints(авто, число)`** → действие — уст. `m_nDamagePoints` (Урон Points (целое)).  *Пример: `set_car_m_nDamagePoints(car, x)`*
+- **`set_car_m_nExplosionTime(авто, число)`** → действие — уст. `m_nExplosionTime` (Explosion время (целое)).  *Пример: `set_car_m_nExplosionTime(car, x)`*
+- **`set_car_m_nGettingInFlags(авто, число)`** → действие — уст. `m_nGettingInFlags` (Посадка In флаги (целое)).  *Пример: `set_car_m_nGettingInFlags(car, x)`*
+- **`set_car_m_nGettingOutFlags(авто, число)`** → действие — уст. `m_nGettingOutFlags` (Посадка Out флаги (целое)).  *Пример: `set_car_m_nGettingOutFlags(car, x)`*
+- **`set_car_m_nLastCollType(авто, число)`** → действие — уст. `m_nLastCollType` (Последний столкновение Type (целое)).  *Пример: `set_car_m_nLastCollType(car, x)`*
+- **`set_car_m_nLastWeaponDamage(авто, число)`** → действие — уст. `m_nLastWeaponDamage` (Последний оружие урон (целое)).  *Пример: `set_car_m_nLastWeaponDamage(car, x)`*
+- **`set_car_m_nMaxPassengers(авто, число)`** → действие — уст. `m_nMaxPassengers` (Максимум пассажиры (целое)).  *Пример: `set_car_m_nMaxPassengers(car, x)`*
+- **`set_car_m_nMoveFlags(авто, число)`** → действие — уст. `m_nMoveFlags` (Движение флаги (целое)).  *Пример: `set_car_m_nMoveFlags(car, x)`*
+- **`set_car_m_nNumCollisionRecords(авто, число)`** → действие — уст. `m_nNumCollisionRecords` (Кол-во столкновение Records (целое)).  *Пример: `set_car_m_nNumCollisionRecords(car, x)`*
+- **`set_car_m_nNumGettingIn(авто, число)`** → действие — уст. `m_nNumGettingIn` (Кол-во посадка In (целое)).  *Пример: `set_car_m_nNumGettingIn(car, x)`*
+- **`set_car_m_nNumPassengers(авто, число)`** → действие — уст. `m_nNumPassengers` (Кол-во пассажиры (целое)).  *Пример: `set_car_m_nNumPassengers(car, x)`*
+- **`set_car_m_nNumWaterTrailPoints(авто, число)`** → действие — уст. `m_nNumWaterTrailPoints` (Кол-во Water Trail Points (целое)).  *Пример: `set_car_m_nNumWaterTrailPoints(car, x)`*
+- **`set_car_m_nPadNumber(авто, число)`** → действие — уст. `m_nPadNumber` (Pad число (целое)).  *Пример: `set_car_m_nPadNumber(car, x)`*
+- **`set_car_m_nPrimaryColor(авто, число)`** → действие — уст. `m_nPrimaryColor` (Основной цвет (целое)).  *Пример: `set_car_m_nPrimaryColor(car, x)`*
+- **`set_car_m_nRadioStation(авто, число)`** → действие — уст. `m_nRadioStation` (Радио Station (целое)).  *Пример: `set_car_m_nRadioStation(car, x)`*
+- **`set_car_m_nSecondaryColor(авто, число)`** → действие — уст. `m_nSecondaryColor` (Дополнительный цвет (целое)).  *Пример: `set_car_m_nSecondaryColor(car, x)`*
+- **`set_car_m_nSirenExtra(авто, число)`** → действие — уст. `m_nSirenExtra` (Сирена дополнительный (целое)).  *Пример: `set_car_m_nSirenExtra(car, x)`*
+- **`set_car_m_nSirenOrAlarm(авто, число)`** → действие — уст. `m_nSirenOrAlarm` (Сирена Or Alarm (целое)).  *Пример: `set_car_m_nSirenOrAlarm(car, x)`*
+- **`set_car_m_nTimeOfDeath(авто, число)`** → действие — уст. `m_nTimeOfDeath` (Время Of смерть (целое)).  *Пример: `set_car_m_nTimeOfDeath(car, x)`*
+- **`set_car_m_nTimeTillWeNeedThisCar(авто, число)`** → действие — уст. `m_nTimeTillWeNeedThisCar` (Время Till We Need этот авто (целое)).  *Пример: `set_car_m_nTimeTillWeNeedThisCar(car, x)`*
+- **`set_car_m_nVehicleClass(авто, число)`** → действие — уст. `m_nVehicleClass` (Транспорт класс (целое)).  *Пример: `set_car_m_nVehicleClass(car, x)`*
+- **`set_car_m_nZoneLevel(авто, число)`** → действие — уст. `m_nZoneLevel` (Зона Level (целое)).  *Пример: `set_car_m_nZoneLevel(car, x)`*
+- **`set_car_m_vecCentreOfMass(авто, число, число, число)`** → действие — уст. `m_vecCentreOfMass` (Centre Of масса (вектор (X, Y, Z))).  *Пример: `set_car_m_vecCentreOfMass(car, x, y, z)`*
+- **`set_car_m_vecCollisionPower(авто, число, число, число)`** → действие — уст. `m_vecCollisionPower` (Столкновение Power (вектор (X, Y, Z))).  *Пример: `set_car_m_vecCollisionPower(car, x, y, z)`*
+- **`set_car_m_vecForce(авто, число, число, число)`** → действие — уст. `m_vecForce` (Сила (вектор (X, Y, Z))).  *Пример: `set_car_m_vecForce(car, x, y, z)`*
+- **`set_car_m_vecFrictionMoveForce(авто, число, число, число)`** → действие — уст. `m_vecFrictionMoveForce` (Трение движение сила (вектор (X, Y, Z))).  *Пример: `set_car_m_vecFrictionMoveForce(car, x, y, z)`*
+- **`set_car_m_vecFrictionTurnForce(авто, число, число, число)`** → действие — уст. `m_vecFrictionTurnForce` (Трение поворот сила (вектор (X, Y, Z))).  *Пример: `set_car_m_vecFrictionTurnForce(car, x, y, z)`*
+- **`set_car_m_vecMoveSpeed(авто, число, число, число)`** → действие — уст. `m_vecMoveSpeed` (Движение скорость (вектор (X, Y, Z))).  *Пример: `set_car_m_vecMoveSpeed(car, x, y, z)`*
+- **`set_car_m_vecTorque(авто, число, число, число)`** → действие — уст. `m_vecTorque` (Крутящий момент (вектор (X, Y, Z))).  *Пример: `set_car_m_vecTorque(car, x, y, z)`*
+- **`set_car_m_vecTurnSpeed(авто, число, число, число)`** → действие — уст. `m_vecTurnSpeed` (Поворот скорость (вектор (X, Y, Z))).  *Пример: `set_car_m_vecTurnSpeed(car, x, y, z)`*
+- **`set_car_m_wBombTimer(авто, число)`** → действие — уст. `m_wBombTimer` (Bomb таймер (целое)).  *Пример: `set_car_m_wBombTimer(car, x)`*
+- **`set_car_m_wComponentCol(авто, число)`** → действие — уст. `m_wComponentCol` (Компонент столкновение (целое)).  *Пример: `set_car_m_wComponentCol(car, x)`*
+- **`set_car_m_wMissionValue(авто, число)`** → действие — уст. `m_wMissionValue` (Миссия значение (целое)).  *Пример: `set_car_m_wMissionValue(car, x)`*
+- **`set_car_m_wWantedStarsOnEnter(авто, число)`** → действие — уст. `m_wWantedStarsOnEnter` (Розыск звёзды розыска On вход (целое)).  *Пример: `set_car_m_wWantedStarsOnEnter(car, x)`*
+- **`set_car_mass(авто, число)`** → действие — увеличить массу авто.  *Пример: `set_car_mass(car, 3000)`*
+- **`set_car_max_speed(авто, число)`** → действие — установить макс. скорость авто.  *Пример: `set_car_max_speed(car, 100)`*
+- **`set_car_mission(авто, число)`** → действие — миссия авто.  *Пример: `set_car_mission(car, x)`*
+- **`set_car_nBikeAnimGroup(авто, число)`** → действие — уст. nBikeAnimGroup.  *Пример: `set_car_nBikeAnimGroup(car, x)`*
+- **`set_car_no_collide(авто, флаг)`** → действие — без коллизий.  *Пример: `set_car_no_collide(car, true)`*
+- **`set_car_radio_station(авто, число)`** → действие — установить радиостанцию авто.  *Пример: `set_car_radio_station(car, x)`*
+- **`set_car_range(число)`** → действие — установить множитель диапазона на угрозу для автомобиля.  *Пример: `set_car_range(x)`*
+- **`set_car_rproof(авто, флаг)`** → действие — ракетоупорность.  *Пример: `set_car_rproof(car, true)`*
+- **`set_car_status(авто, число)`** → действие — статус авто.  *Пример: `set_car_status(car, x)`*
+- **`set_car_steer_angle(авто, число)`** → действие — установить угол руля авто.  *Пример: `set_car_steer_angle(car, x)`*
+- **`set_car_tank(авто, число)`** → действие — установить способность танка детонировать авто при контакте.  *Пример: `set_car_tank(car, x)`*
+- **`set_car_tires(авто, число)`** → действие — проколоть шину авто.  *Пример: `set_car_tires(car, x)`*
+- **`set_car_tires_invulnerable(авто, флаг)`** → действие — шины авто неуязвимы вкл/выкл.  *Пример: `set_car_tires_invulnerable(car, true)`*
+- **`set_car_traction(авто, число)`** → действие — установить сцепление авто.  *Пример: `set_car_traction(car, 0.9)`*
+- **`set_car_velocity(авто, число, число, число)`** → действие — уст скорость авто `m_vecMoveSpeed` (Движение скорость (вектор (X, Y, Z))).  *Пример: `set_car_velocity(car, x, y, z)`*
+- **`set_car_wanted_stars_on_enter(авто, число)`** → действие — установить звёзды при входе.  *Пример: `set_car_wanted_stars_on_enter(car, x)`*
+- **`set_car_watertight(авто, флаг)`** → действие — водонепроницаемость.  *Пример: `set_car_watertight(car, true)`*
+- **`set_car_weapon(авто, число)`** → действие — текущее оружие.  *Пример: `set_car_weapon(car, x)`*
+- **`set_car_wheel_status(авто, число, число)`** → действие — уст. состояние колеса авто.  *Пример: `set_car_wheel_status(car, x, y)`*
+- **`set_heli_forced_z(авто, число)`** → действие — уст. принудительная высота вертолёта.  *Пример: `set_heli_forced_z(car, x)`*
+- **`set_heli_rotor_angle(авто, число)`** → действие — уст. угол вращения винта вертолёта.  *Пример: `set_heli_rotor_angle(car, x)`*
+- **`set_heli_searchlight_intensity(авто, число)`** → действие — уст. яркость прожектора вертолёта.  *Пример: `set_heli_searchlight_intensity(car, x)`*
+- **`set_heli_searchlight_x(авто, число)`** → действие — уст. координата X прожектора вертолёта.  *Пример: `set_heli_searchlight_x(car, x)`*
+- **`set_heli_searchlight_y(авто, число)`** → действие — уст. координата Y прожектора вертолёта.  *Пример: `set_heli_searchlight_y(car, x)`*
+- **`set_timer_bomb_car(авто, число)`** → действие — установить таймер на взрыв бомбы в авто.  *Пример: `set_timer_bomb_car(car, x)`*
+- **`set_traffic(число)`** → действие — установить плотность трафика транспорта.  *Пример: `set_traffic(x)`*
+- **`setcar_at_on_x()`** → действие — уст авто по оси x.  *Пример: `setcar_at_on_x()`*
+- **`setcar_at_on_y()`** → действие — уст авто по оси y.  *Пример: `setcar_at_on_y()`*
+- **`setcar_at_on_z()`** → действие — уст авто по оси z.  *Пример: `setcar_at_on_z()`*
+- **`setcar_resistance(авто, число)`** → действие — Уст силу сопротивления авто трению.  *Пример: `setcar_resistance(car, x)`*
+- **`setcaraction(авто, число, число)`** → действие — установить поведение авто.  *Пример: `setcaraction(car, x, y)`*
+- **`setcarangle(авто, число)`** → действие — установить угол авто.  *Пример: `setcarangle(car, x)`*
+- **`setcarcoordes(авто, число, число, число)`** → действие — установить координаты авто.  *Пример: `setcarcoordes(car, x, y, z)`*
+- **`setcardrive(авто, число, число)`** → указ. — установить водителя для авто.  *Пример: `setcardrive(car, x, y)`*
+- **`setcarfirstcolor(авто, число)`** → действие — установить первый цвет авто.  *Пример: `setcarfirstcolor(car, x)`*
+- **`setcarhealth(авто, число)`** → действие — установить здоровье авто.  *Пример: `setcarhealth(car, x)`*
+- **`setcarrotate(авто, число, число, число)`** → действие — уст вращения авто.  *Пример: `setcarrotate(car, x, y, z)`*
+- **`setcarseconscolor(авто, число)`** → действие — установить второй цвет авто.  *Пример: `setcarseconscolor(car, x)`*
+- **`setcarsiren(указ., число)`** → действие — установить сирену для авто.  *Пример: `setcarsiren(entity, x)`*
+- **`setcarspeed(авто, число)`** → действие — установить скорость авто.  *Пример: `setcarspeed(car, x)`*
+- **`setcarstrong(авто, число)`** → действие — сделать авто устойчивым.  *Пример: `setcarstrong(car, x)`*
+- **`setcartask(авто, число)`** → действие — установить задачу авто.  *Пример: `setcartask(car, x)`*
+- **`shutdown_trains()`** → действие — завершить поезда.  *Пример: `shutdown_trains()`*
+- **`switch_car_siren(авто, флаг)`** → действие — сирена.  *Пример: `switch_car_siren(car, true)`*
+- **`switch_car_weapons(авто, флаг)`** → действие — переключить оружие.  *Пример: `switch_car_weapons(car, true)`*
+- **`train_catch_coll_obj(объект, флаг)`** → действие — транспорт/краны/зоны.  *Пример: `train_catch_coll_obj(obj, true)`*
+- **`update_trains()`** → действие — обновить поезда.  *Пример: `update_trains()`*
+- **`world_clear_cars_from_area(число, число, число, число, число, число)`** → действие — удалить авто из области.  *Пример: `world_clear_cars_from_area(x, y, z, 3, 4, 5)`*
+
+## Транспорт / Проверки (авто, лодки, вертолёты, мото)
+
+- **`add_stuck_car_check(авто, число, число)`** → действие — условия для того, чтобы авто считалась застрявшей.  *Пример: `add_stuck_car_check(car, x, y)`*
+- **`car_can_be_deleted(авто)`** → флаг — можно удалить авто.  *Пример: `car_can_be_deleted(car)`*
+- **`car_can_doors_be_damaged(авто)`** → флаг — двери могут быть повреждены.  *Пример: `car_can_doors_be_damaged(car)`*
+- **`car_damaged_by_car(авто, авто)`** → целое — повреждено авто?.  *Пример: `car_damaged_by_car(car, car)`*
+- **`car_drowning(авто)`** → целое — тонет?.  *Пример: `car_drowning(car)`*
+- **`car_extinguish_fire(авто)`** → действие — потушить пожар на авто.  *Пример: `car_extinguish_fire(car)`*
+- **`car_has_bomb(авто, число)`** → целое — тип бомбы?.  *Пример: `car_has_bomb(car, x)`*
+- **`car_has_roof(авто)`** → флаг — у авто есть крыша.  *Пример: `car_has_roof(car)`*
+- **`car_has_weapon(авто, число)`** → целое — оружие на борту?.  *Пример: `car_has_weapon(car, x)`*
+- **`car_health_greater(авто, число)`** → целое — здоровье больше?.  *Пример: `car_health_greater(car, x)`*
+- **`car_in_point_in_radius(авто, число, число, число, число)`** → флаг — проверить находится авто в координатах с радиусом.  *Пример: `car_in_point_in_radius(car, x, y, z, 3)`*
+- **`car_in_water(авто)`** → флаг — проверка авто в воде?.  *Пример: `car_in_water(car)`*
+- **`car_is_clear_to_drive_away(авто)`** → флаг — можно свободно уехать.  *Пример: `car_is_clear_to_drive_away(car)`*
+- **`car_is_door_closed(авто, число)`** → флаг — дверь закрыта.  *Пример: `car_is_door_closed(car, x)`*
+- **`car_is_door_fully_open(авто, число)`** → флаг — дверь полностью открыта.  *Пример: `car_is_door_fully_open(car, x)`*
+- **`car_is_door_missing(авто, число)`** → флаг — дверь отсутствует.  *Пример: `car_is_door_missing(car, x)`*
+- **`car_is_door_ready(авто, число)`** → флаг — дверь готова открыться.  *Пример: `car_is_door_ready(car, x)`*
+- **`car_is_law_enforcement(авто)`** → флаг — авто правопорядка.  *Пример: `car_is_law_enforcement(car)`*
+- **`car_is_on_its_side(авто)`** → флаг — авто на боку.  *Пример: `car_is_on_its_side(car)`*
+- **`car_is_open_top(авто)`** → флаг — авто кабриолет.  *Пример: `car_is_open_top(car)`*
+- **`car_is_tire_burst(авто)`** → целое — шина пробита?.  *Пример: `car_is_tire_burst(car)`*
+- **`car_is_upside_down(авто)`** → флаг — авто перевернуто.  *Пример: `car_is_upside_down(car)`*
+- **`car_is_vehicle_normal(авто)`** → флаг — авто в норме.  *Пример: `car_is_vehicle_normal(car)`*
+- **`car_just_sunk(авто)`** → целое — утонуло?.  *Пример: `car_just_sunk(car)`*
+- **`car_on_trailer(авто)`** → действие — на прицеп.  *Пример: `car_on_trailer(car)`*
+- **`car_open_door(car, door, [ratio])`** → bool — открыть/закрыть дверь: 0 капот, 1 багажник, 2-5 двери; 1.0 открыта / 0.0 закрыта.  *Пример: `car_open_door(car, 2)`*
+- **`car_play_horn(авто)`** → действие — авто сигналит.  *Пример: `car_play_horn(car)`*
+- **`car_shuffle_passengers(авто)`** → флаг — пересадить пассажиров.  *Пример: `car_shuffle_passengers(car)`*
+- **`car_update_passenger_list(авто)`** → действие — обновить список пассажиров.  *Пример: `car_update_passenger_list(car)`*
+- **`car_uses_siren(авто)`** → флаг — есть ли сирена у авто.  *Пример: `car_uses_siren(car)`*
+- **`catalina_heli_has_shot_down()`** → целое — транспорт/краны/зоны.  *Пример: `catalina_heli_has_shot_down()`*
+- **`check_car_resray(число)`** → флаг — проверить авто игрока было перекрашена в гараже.  *Пример: `check_car_resray(x)`*
+- **`crane_is_carrying_car(авто)`** → целое — транспорт/краны/зоны.  *Пример: `crane_is_carrying_car(car)`*
+- **`crane_is_lifting_car(авто)`** → целое — кран поднимает авто.  *Пример: `crane_is_lifting_car(car)`*
+- **`crane_is_targetting_car(авто)`** → целое — транспорт/краны/зоны.  *Пример: `crane_is_targetting_car(car)`*
+- **`createfireoncar(авто)`** → целое — создать огонь на авто.  *Пример: `createfireoncar(car)`*
+- **`does_vehicle_exist(авто)`** → целое — существует?.  *Пример: `does_vehicle_exist(car)`*
+- **`get_car_driver(авто)`** → указ. — получить водителя авто.  *Пример: `get_car_driver(car)`*
+- **`get_car_driver_ref(авто)`** → указ. — водитель.  *Пример: `get_car_driver_ref(car)`*
+- **`get_car_is_big(авто)`** → флаг — авто большая машина.  *Пример: `get_car_is_big(car)`*
+- **`get_car_is_bus(авто)`** → флаг — авто автобус.  *Пример: `get_car_is_bus(car)`*
+- **`get_car_is_van(авто)`** → флаг — авто фургон.  *Пример: `get_car_is_van(car)`*
+- **`get_car_max_passengers(авто)`** → целое — получить макс кол-во пассажиров авто.  *Пример: `get_car_max_passengers(car)`*
+- **`get_car_num_passengers(авто)`** → целое — получить кол-во пассажиров авто.  *Пример: `get_car_num_passengers(car)`*
+- **`get_car_passenger(авто, число)`** → указ. — получить пассажира авто по месту.  *Пример: `get_car_passenger(car, x)`*
+- **`get_population_car_passengers()`** → число — пассажиров в авто.  *Пример: `get_population_car_passengers()`*
+- **`getbomb_in_car(авто)`** → целое — получить тип бомбы в авто.  *Пример: `getbomb_in_car(car)`*
+- **`has_drop_off_plane_shot_down()`** → целое — транспорт/краны/зоны.  *Пример: `has_drop_off_plane_shot_down()`*
+- **`has_drug_plane_shot_down()`** → целое — транспорт/краны/зоны.  *Пример: `has_drug_plane_shot_down()`*
+- **`heli_is_catalina_on()`** → флаг — вертолёт Катарины активен.  *Пример: `heli_is_catalina_on()`*
+- **`is_car_alive(авто)`** → целое — живо?.  *Пример: `is_car_alive(car)`*
+- **`is_car_crushed(авто)`** → целое — прессовано?.  *Пример: `is_car_crushed(car)`*
+- **`is_car_damage_by_car(авто, авто)`** → флаг — Если авто получило урон от другого авто.  *Пример: `is_car_damage_by_car(car, car)`*
+- **`is_car_damaged_weapon(авто, число)`** → флаг — авто получает от определенного вида оружие.  *Пример: `is_car_damaged_weapon(car, x)`*
+- **`is_car_in_air(авто)`** → целое — в воздухе?.  *Пример: `is_car_in_air(car)`*
+- **`is_car_in_air_proper(авто)`** → целое — в воздухе точно?.  *Пример: `is_car_in_air_proper(car)`*
+- **`is_car_in_garage(авто)`** → целое — в гараже?.  *Пример: `is_car_in_garage(car)`*
+- **`is_car_in_water(авто)`** → целое — в воде?.  *Пример: `is_car_in_water(car)`*
+- **`is_car_on_trailer(авто)`** → целое — на прицепе?.  *Пример: `is_car_on_trailer(car)`*
+- **`is_car_passenger_free(авто, число)`** → флаг — Проверяет, свободно ли место пассажира в авто.  *Пример: `is_car_passenger_free(car, x)`*
+- **`is_car_remap(авто)`** → целое — перекрашено?.  *Пример: `is_car_remap(car)`*
+- **`is_car_stuck(авто)`** → флаг — 03CE: car 12@ stuck если машина застряла.  *Пример: `is_car_stuck(car)`*
+- **`is_car_stuck_roof(авто)`** → целое — на крыше?.  *Пример: `is_car_stuck_roof(car)`*
+- **`is_car_upright(авто)`** → флаг — 020D: car 12@ flipped если указанный автомобиль перевернут.  *Пример: `is_car_upright(car)`*
+- **`is_car_upsidedown(авто)`** → флаг — 01F4: car 12@ flipped если машина перевернута.  *Пример: `is_car_upsidedown(car)`*
+- **`is_car_visibly_damaged(авто)`** → целое — видимо повреждено?.  *Пример: `is_car_visibly_damaged(car)`*
+- **`is_vehicle_boat(авто)`** → целое — транспорт/краны/зоны.  *Пример: `is_vehicle_boat(car)`*
+- **`iscardead(авто)`** → флаг — авто уничтожено.  *Пример: `iscardead(car)`*
+- **`iscarfire(авто)`** → флаг — авто горит?.  *Пример: `iscarfire(car)`*
+- **`ishorncar(авто)`** → флаг — проверить гудит ли авто.  *Пример: `ishorncar(car)`*
+- **`isvehicle(авто)`** → флаг — проверка это транспорт?.  *Пример: `isvehicle(car)`*
+- **`opendoorcar()`** → действие — открыть дверь авто.  *Пример: `opendoorcar()`*
+- **`set_car_visible(авто, флаг)`** → действие — видимость.  *Пример: `set_car_visible(car, true)`*
+- **`set_cars_damaged(число)`** → действие — Все авто повреждены.  *Пример: `set_cars_damaged(x)`*
+- **`setbomb_in_car(авто, число)`** → действие — установить бомбу в авто.  *Пример: `setbomb_in_car(car, x)`*
+- **`setcarpassenger(авто, число, число, целое)`** → указ. — установить пассажира для авто.  *Пример: `setcarpassenger(car, x, y, 1)`*
+- **`should_car_stop_for_light(авто, флаг)`** → действие — должна ли машина остановиться на свет.  *Пример: `should_car_stop_for_light(car, true)`*
+- **`traffic_scan_for_lights()`** → действие — сканировать светофоры.  *Пример: `traffic_scan_for_lights()`*
+- **`traffic_should_car_stop_for_bridge()`** → действие — машина должна остановиться у моста.  *Пример: `traffic_should_car_stop_for_bridge()`*
+- **`world_extinguish_all_car_fires_in_area(число, число, число, число)`** → действие — потушить пожары в области.  *Пример: `world_extinguish_all_car_fires_in_area(x, y, z, 3)`*
+
+## Объекты и пикапы / Действия и функции (объекты, пикапы)
+
+- **`check_obj_in_cord(число, число, число, число)`** → флаг — есть ли объект в радиусе с координатами.  *Пример: `check_obj_in_cord(x, y, z, 3)`*
+- **`create_marker_obj(объект)`** → целое — создать маркер над объектом.  *Пример: `create_marker_obj(obj)`*
+- **`create_marker_pickup(число)`** → целое — создать маркер над пикапом.  *Пример: `create_marker_pickup(x)`*
+- **`create_money_pickup(число, число, число, число)`** → целое — создать пачку денег.  *Пример: `create_money_pickup(x, y, z, 3)`*
+- **`create_obj(число, число, число, число)`** → указ. — создать объект: `(id_модели, x, y, z)`. Модель **ДЕРЖИТСЯ**, пока объект жив.  *Пример: `create_obj(1337, x, y, z)`*
+- **`create_pickup(число, число, число, число, число)`** → целое — создать пикап.  *Пример: `create_pickup(x, y, z, 3, 4)`*
+- **`Create_pickup(число, число, число, число, число)`** → целое — макрос создать пикап.  *Пример: `Create_pickup(x, y, z, 3, 4)`*
+- **`create_pickup_clothes(число, число, число, число)`** → целое — создать пикап одежды: `(x, y, z, quantity)`, как в reVC; модель всегда `MI_PICKUP_CLOTHES`. Переполнение пула → `nil`.  *Пример: `create_pickup_clothes(x, y, z, 3)`*
+- **`create_weapon_pickup(число, число, число, число, число, число)`** → целое — создать пикап оружие.  *Пример: `create_weapon_pickup(x, y, z, 3, 4, 5)`*
+- **`Create_weapon_pickup(число, число, число, число, число, число)`** → целое — макрос создать пикап оружие.  *Пример: `Create_weapon_pickup(x, y, z, 3, 4, 5)`*
+- **`Createobj(число, число, число, число)`** → указ. — макрос создать объект: `(id_модели, x, y, z)`. Модель **ДЕРЖИТСЯ**, пока объект жив.  *Пример: `Createobj(1337, x, y, z)`*
+- **`do_pickup_effects(указ.)`** → действие — эффект поднятия пикапа.  *Пример: `do_pickup_effects(entity)`*
+- **`dont_remove_object(объект)`** → действие — 01C7 DONT_REMOVE_OBJECT.
+- **`find_object_by_model(число)`** → указ. — найти объект по модели.  *Пример: `find_object_by_model(x)`*
+- **`findobj_in_cord(число, число, число, число)`** → флаг, указ. — найти объект в радиусе с координатами.  *Пример: `findobj_in_cord(x, y, z, 3)`*
+- **`findobj_nearest_in_cord(число, число, число)`** → флаг, указ. — найти ближайший объект в радиусе с координатами.  *Пример: `findobj_nearest_in_cord(x, y, z)`*
+- **`get_num_cutscene_objs()`** → целое — число объектов катсцены.  *Пример: `get_num_cutscene_objs()`*
+- **`get_obj_attach_force(объект)`** → число — сила прикрепления объекта.  *Пример: `get_obj_attach_force(obj)`*
+- **`get_obj_bonus_value(объект)`** → целое — получить бонус объекта.  *Пример: `get_obj_bonus_value(obj)`*
+- **`get_obj_camera_avoids(объект)`** → флаг — камера обходит объект.  *Пример: `get_obj_camera_avoids(obj)`*
+- **`get_obj_collision_damage_type(объект)`** → целое — тип урона от столкновений.  *Пример: `get_obj_collision_damage_type(obj)`*
+- **`get_obj_cost_value(объект)`** → целое — получить стоимость объекта.  *Пример: `get_obj_cost_value(obj)`*
+- **`get_obj_damage_multiplier(объект)`** → число — получить множитель урона.  *Пример: `get_obj_damage_multiplier(obj)`*
+- **`get_obj_in_cord(число, число, число, число)`** → указ. — получить объект в радиусе с координатам.  *Пример: `get_obj_in_cord(x, y, z, 3)`*
+- **`get_obj_m_bCameraAvoids(объект)`** → флаг — `m_bCameraAvoids` (Camera Avoids (флаг)).  *Пример: `get_obj_m_bCameraAvoids(obj)`*
+- **`get_obj_m_CollisionDamageType(объект)`** → число — тип урона от столкновений.  *Пример: `get_obj_m_CollisionDamageType(obj)`*
+- **`get_obj_m_dwObjectTimer(объект)`** → число — таймер объекта.  *Пример: `get_obj_m_dwObjectTimer(obj)`*
+- **`get_obj_m_fAttachForce(объект)`** → число — сила привязки объекта.  *Пример: `get_obj_m_fAttachForce(obj)`*
+- **`get_obj_m_fDamageMultiplier(объект)`** → число — `m_fDamageMultiplier` (Урон множитель (число)).  *Пример: `get_obj_m_fDamageMultiplier(obj)`*
+- **`get_obj_m_nBonusValue(объект)`** → целое — `m_nBonusValue` (Bonus значение (целое)).  *Пример: `get_obj_m_nBonusValue(obj)`*
+- **`get_obj_m_nBounceScore(объект)`** → число — счёт отскока объекта.  *Пример: `get_obj_m_nBounceScore(obj)`*
+- **`get_obj_m_nObjectType(объект)`** → целое — `m_nObjectType` (Object Type (целое)).  *Пример: `get_obj_m_nObjectType(obj)`*
+- **`get_obj_m_nSpecialCollisionType(объект)`** → число — специальный тип столкновений.  *Пример: `get_obj_m_nSpecialCollisionType(obj)`*
+- **`get_obj_m_wCostValue(объект)`** → целое — `m_wCostValue` (Cost значение (целое)).  *Пример: `get_obj_m_wCostValue(obj)`*
+- **`get_obj_m_wRefModelId(объект)`** → целое — `m_wRefModelId` (Ref модель ID (целое)).  *Пример: `get_obj_m_wRefModelId(obj)`*
+- **`get_obj_ref_model_id(объект)`** → целое — модель на которую ссылается объект.  *Пример: `get_obj_ref_model_id(obj)`*
+- **`get_obj_timer(объект)`** → целое — получить таймер объекта.  *Пример: `get_obj_timer(obj)`*
+- **`get_obj_type(объект)`** → целое — получить тип объекта.  *Пример: `get_obj_type(obj)`*
+- **`get_object_speed(объект)`** → число — скалярная скорость объекта.  *Пример: `get_object_speed(obj)`*
+- **`get_object_velocity(объект)`** → число, число, число (X, Y, Z) — скорость объекта `m_vecMoveSpeed` (Движение скорость (вектор (X, Y, Z))).  *Пример: `get_object_velocity(obj)`*
+- **`get_stat_garbage_pickups()`** → число — собранный мусор.  *Пример: `get_stat_garbage_pickups()`*
+- **`getobjangle(объект)`** → число — получить угол объекта.  *Пример: `getobjangle(obj)`*
+- **`getobjcoordes(объект)`** → число, число, число (X, Y, Z) — получить координаты объекта.  *Пример: `getobjcoordes(obj)`*
+- **`getobjcoordinates_on_x(объект, число)`** → число, число, число (X, Y, Z) — Получить мировую координату по x для объекта.  *Пример: `getobjcoordinates_on_x(obj, x)`*
+- **`getobjcoordinates_on_y(объект, число)`** → число, число, число (X, Y, Z) — Получить мировую координату по y для объекта.  *Пример: `getobjcoordinates_on_y(obj, x)`*
+- **`move_obj(объект, число, число, число, число, число, число, число)`** → действие — двигать объект.  *Пример: `move_obj(obj, x, y, z, 3, 4, 5, 6)`*
+- **`move_obj_to(объект, число, число, число, число)`** → действие — плавно двигать объект в координаты со скоростью ед/сек; движение — в своём потоке, вызов возвращается сразу.  *Пример: `move_obj_to(gate, 304.0, -313.6, 11.0, 3.0)` — ворота со скоростью 3 ед/сек*
+- **`obj_damage(объект, число)`** → действие — нанести урон объекту.  *Пример: `obj_damage(obj, x)`*
+- **`obj_delete_all_mission()`** → действие — удалить миссионные объекты.  *Пример: `obj_delete_all_mission()`*
+- **`obj_delete_all_temp()`** → действие — удалить временные объекты.  *Пример: `obj_delete_all_temp()`*
+- **`population_convert_all_objects_to_dummy()`** → действие — конвертировать объекты в dummy.  *Пример: `population_convert_all_objects_to_dummy()`*
+- **`randomfindobj(пед, число)`** → флаг, указ. — найти случайный объект в радиусе.  *Пример: `randomfindobj(ped, x)`*
+- **`remove_obj(объект)`** → действие — удалить объект.  *Пример: `remove_obj(obj)`*
+- **`remove_pickup(число)`** → действие — удалить пикап.  *Пример: `remove_pickup(x)`*
+- **`set_obj_attach_force(объект, число)`** → действие — установить силу прикрепления.  *Пример: `set_obj_attach_force(obj, x)`*
+- **`set_obj_bonus_value(объект, число)`** → действие — установить бонус объекта.  *Пример: `set_obj_bonus_value(obj, x)`*
+- **`set_obj_camera_avoids(объект, флаг)`** → действие — установить обход камерой.  *Пример: `set_obj_camera_avoids(obj, true)`*
+- **`set_obj_collision_damage_type(объект, число)`** → действие — установить тип урона.  *Пример: `set_obj_collision_damage_type(obj, x)`*
+- **`set_obj_cost_value(объект, число)`** → действие — установить стоимость объекта.  *Пример: `set_obj_cost_value(obj, x)`*
+- **`set_obj_damage_multiplier(объект, число)`** → действие — установить множитель урона.  *Пример: `set_obj_damage_multiplier(obj, x)`*
+- **`set_obj_m_bCameraAvoids(объект, флаг)`** → действие — уст. `m_bCameraAvoids` (Camera Avoids (флаг)).  *Пример: `set_obj_m_bCameraAvoids(obj, true)`*
+- **`set_obj_m_CollisionDamageType(объект, число)`** → действие — уст. тип урона от столкновений.  *Пример: `set_obj_m_CollisionDamageType(obj, x)`*
+- **`set_obj_m_dwObjectTimer(объект, число)`** → действие — уст. таймер объекта.  *Пример: `set_obj_m_dwObjectTimer(obj, x)`*
+- **`set_obj_m_fAttachForce(объект, число)`** → действие — уст. сила привязки объекта.  *Пример: `set_obj_m_fAttachForce(obj, x)`*
+- **`set_obj_m_fDamageMultiplier(объект, число)`** → действие — уст. `m_fDamageMultiplier` (Урон множитель (число)).  *Пример: `set_obj_m_fDamageMultiplier(obj, x)`*
+- **`set_obj_m_nBonusValue(объект, число)`** → действие — уст. `m_nBonusValue` (Bonus значение (целое)).  *Пример: `set_obj_m_nBonusValue(obj, x)`*
+- **`set_obj_m_nBounceScore(объект, число)`** → действие — уст. счёт отскока объекта.  *Пример: `set_obj_m_nBounceScore(obj, x)`*
+- **`set_obj_m_nObjectType(объект, число)`** → действие — уст. `m_nObjectType` (Object Type (целое)).  *Пример: `set_obj_m_nObjectType(obj, x)`*
+- **`set_obj_m_nSpecialCollisionType(объект, число)`** → действие — уст. специальный тип столкновений.  *Пример: `set_obj_m_nSpecialCollisionType(obj, x)`*
+- **`set_obj_m_wCostValue(объект, число)`** → действие — уст. `m_wCostValue` (Cost значение (целое)).  *Пример: `set_obj_m_wCostValue(obj, x)`*
+- **`set_obj_m_wRefModelId(объект, число)`** → действие — уст. `m_wRefModelId` (Ref модель ID (целое)).  *Пример: `set_obj_m_wRefModelId(obj, x)`*
+- **`set_obj_timer(объект, число)`** → действие — установить таймер объекта.  *Пример: `set_obj_timer(obj, x)`*
+- **`set_object_collision(объект, флаг)`** → действие — 0382: столкновение объекта с миром (false — «призрачный»).  *Пример: `set_object_collision(obj, false)`*
+- **`set_object_dynamic(объект, флаг)`** → действие — 0392: сделать объект динамическим/статичным.  *Пример: `set_object_dynamic(obj, true)`*
+- **`set_object_velocity(объект, число, число, число)`** → действие — уст. скорость объекта `m_vecMoveSpeed` (Движение скорость (вектор (X, Y, Z))).  *Пример: `set_object_velocity(obj, x, y, z)`*
+- **`set_visibility_of_closest_object_of_type(x, y, z, радиус, модель, видимость)`** → действие — 0363.
+- **`setobjangle(объект, число)`** → действие — уст угол объекта.  *Пример: `setobjangle(obj, x)`*
+- **`setobjcoordes(объект, число, число, число)`** → действие — установить координаты объекта.  *Пример: `setobjcoordes(obj, x, y, z)`*
+- **`setobjocoordes(объект, число, число, число)`** → действие — историческая опечатка имени `setobjcoordes`; установить координаты объекта. Используйте `setobjcoordes`.  *Пример: `setobjocoordes(obj, x, y, z)`*
+- **`setobjоcoordes()`** → действие — установить координаты для объект.  *Пример: `setobjоcoordes()`*
+
+## Объекты и пикапы / Проверки (объекты, пикапы)
+
+- **`isobject(объект)`** → флаг — проверка это объект?.  *Пример: `isobject(obj)`*
+- **`make_obj_targettable(объект, флаг)`** → действие — 035D: в объект можно целиться/бросать.  *Пример: `make_obj_targettable(obj, true)`*
+- **`obj_can_be_deleted(объект)`** → флаг — можно удалить объект.  *Пример: `obj_can_be_deleted(obj)`*
+- **`obj_delete_all_temp_in_area(число, число, число, число)`** → действие — удалить временные в радиусе.  *Пример: `obj_delete_all_temp_in_area(x, y, z, 3)`*
+- **`obj_target(объект, флаг)`** → действие — в объект можно целиться.  *Пример: `obj_target(obj, true)`*
+
+## Проверки / Общие проверки
+
+- **`add_upside_check(авто)`** → действие — добавить проверку переворота.  *Пример: `add_upside_check(car)`*
+- **`availablemodel(число)`** → флаг — проверка на загруженность модели.  *Пример: `availablemodel(x)`*
+- **`camera_draw_borders_widescreen()`** → действие — границы широкоэкранного.  *Пример: `camera_draw_borders_widescreen()`*
+- **`create_newthread(функция, ...)`** → действие — legacy: создаёт ещё один `lua_State` того же файла в общем планировщике (не OS-поток). Для сторожей и фоновых проверок не использовать.  *Пример: `create_newthread(fn)`*
+- **`createfireoncords(число, число, число)`** → целое — создать огонь на координатах.  *Пример: `createfireoncords(x, y, z)`*
+- **`destroy_projectiles_in_area(число, число, число, число, число, число)`** → действие — уничтожить снаряды в зоне.  *Пример: `destroy_projectiles_in_area(x, y, z, 3, 4, 5)`*
+- **`fire_button_pressed()`** → целое — кнопка огня?.  *Пример: `fire_button_pressed()`*
+- **`fire_find_nearest(число, число, число)`** → указ., число — найти ближайший пожар.  *Пример: `fire_find_nearest(x, y, z)`*
+- **`fire_hunter_gun(авто)`** → действие — выстрел Hunter.  *Пример: `fire_hunter_gun(car)`*
+- **`fire_is_active(указ.)`** → флаг — пожар активен.  *Пример: `fire_is_active(entity)`*
+- **`fire_start_on_point(число, число, число, число, флаг)`** → действие — поджечь точку.  *Пример: `fire_start_on_point(x, y, z, 3, true)`*
+- **`get_bullet_trace_target(число)`** → число, число, число (X, Y, Z) — точка конца следа пули.  *Пример: `get_bullet_trace_target(x)`*
+- **`get_fading_status()`** → флаг — 016B GET_FADING_STATUS (идёт ли fade).
+- **`get_fire_position(указ.)`** → число, число, число (X, Y, Z) — координаты пожара.  *Пример: `get_fire_position(entity)`*
+- **`get_fire_target(указ.)`** → указ. — цель пожара.  *Пример: `get_fire_target(entity)`*
+- **`get_fire_time_to_burn(указ.)`** → целое — время горения пожара.  *Пример: `get_fire_time_to_burn(entity)`*
+- **`get_population_max_in_use()`** → число — макс. число используемых педов.  *Пример: `get_population_max_in_use()`*
+- **`get_stat_shooting_rank()`** → число — ранг стрельбы.  *Пример: `get_stat_shooting_rank()`*
+- **`get_stat_top_shooting_score()`** → число — лучший счет в тире.  *Пример: `get_stat_top_shooting_score()`*
+- **`get_sun_blocked_by_clouds()`** → флаг — солнце за облаками.  *Пример: `get_sun_blocked_by_clouds()`*
+- **`has_mission_audio_finished(слот)`** → флаг — 03D2 HAS_MISSION_AUDIO_FINISHED.
+- **`has_mission_audio_loaded(слот)`** → флаг — 03D0 HAS_MISSION_AUDIO_LOADED.
+- **`is_button_pressed(число)`** → флаг — если спец клавиша нажата.  *Пример: `is_button_pressed(x)`*
+- **`is_cutscene_running()`** → флаг — катсцена идёт.  *Пример: `is_cutscene_running()`*
+- **`is_lightning_burst()`** → флаг — вспышка молнии.  *Пример: `is_lightning_burst()`*
+- **`is_lightning_flash()`** → флаг — вспышка молнии.  *Пример: `is_lightning_flash()`*
+- **`is_projectile_in_area(число, число, число, число, число, число)`** → флаг — снаряд в зоне.  *Пример: `is_projectile_in_area(x, y, z, 3, 4, 5)`*
+- **`is_projectile_in_use(число)`** → флаг — слот снаряда занят.  *Пример: `is_projectile_in_use(x)`*
+- **`is_script_fire_extinguished(index)`** → bool — потушен ли скриптовый огонь с данным индексом.  *Пример: `is_script_fire_extinguished(f)`*
+- **`is_slow_motion_active()`** → флаг — активен ли слоумоушен.  *Пример: `is_slow_motion_active()`*
+- **`is_time_in_range(число, число)`** → флаг — время в диапазоне.  *Пример: `is_time_in_range(x, y)`*
+- **`is_user_pause()`** → флаг — игра на паузе.  *Пример: `is_user_pause()`*
+- **`message_clear_this_big_print(строка)`** → действие — удалить большое сообщение.  *Пример: `message_clear_this_big_print("текст")`*
+- **`message_clear_this_print(строка)`** → действие — удалить маленькое сообщение.  *Пример: `message_clear_this_print("текст")`*
+- **`newthread(LUA_TFUNCTION)`** → действие — legacy yield-обёртка; отдельный поток не создаёт, для фоновых проверок не использовать.  *Пример: `newthread(val)`*
+- **`order_driver_out(пед)`** → действие — выгнать водителя.  *Пример: `order_driver_out(ped)`*
+- **`picked_up(число)`** → флаг — проверка пикап подобран.  *Пример: `picked_up(x)`*
+- **`population_is_female(число)`** → флаг — модель педа женская.  *Пример: `population_is_female(x)`*
+- **`population_is_male(число)`** → флаг — модель педа мужская.  *Пример: `population_is_male(x)`*
+- **`population_is_sunbather(число)`** → флаг — модель педа загорающий.  *Пример: `population_is_sunbather(x)`*
+- **`remove_all_script_fires()`** → bool — удалить все скриптовые огни.  *Пример: `remove_all_script_fires()`*
+- **`remove_fire(число)`** → действие — удалить огонь.  *Пример: `remove_fire(x)`*
+- **`remove_script_fire(index)`** → bool — удалить скриптовый огонь по индексу.  *Пример: `remove_script_fire(f)`*
+- **`remove_stuck_check(авто)`** → действие — убрать проверку застревания.  *Пример: `remove_stuck_check(car)`*
+- **`remove_upside_check(авто)`** → действие — убрать проверку переворота.  *Пример: `remove_upside_check(car)`*
+- **`set_fire_time_to_burn(указ., число)`** → действие — установить время горения.  *Пример: `set_fire_time_to_burn(entity, x)`*
+- **`set_music_does_fade(флаг)`** → действие — затухание музыки.  *Пример: `set_music_does_fade(true)`*
+- **`set_sun_blocked_by_clouds(флаг)`** → действие — уст. солнце закрыто облаками.  *Пример: `set_sun_blocked_by_clouds(true)`*
+- **`set_widescreen(флаг)`** → действие — вкл/выкл широкий экран.  *Пример: `set_widescreen(true)`*
+- **`shuffle_to_driver(пед)`** → действие — пересесть за руль.  *Пример: `shuffle_to_driver(ped)`*
+- **`start_script_fire(x, y, z, [entity])`** → целое — запустить скриптовый огонь, вернёт его индекс; entity — поджечь педа/авто.  *Пример: `f = start_script_fire(x, y, z)`*
+- **`was_ever_police(авто)`** → целое — был полицейским?.  *Пример: `was_ever_police(car)`*
+- **`weapon_has_ammo_to_be_used(пед)`** → флаг — можно использовать оружие.  *Пример: `weapon_has_ammo_to_be_used(ped)`*
+- **`weapon_is_melee(пед)`** → флаг — оружие рукопашное.  *Пример: `weapon_is_melee(ped)`*
+- **`weapon_is_two_handed(пед)`** → флаг — оружие двуручное.  *Пример: `weapon_is_two_handed(ped)`*
+- **`world_clear_scan_codes()`** → действие — сбросить коды сканирования.  *Пример: `world_clear_scan_codes()`*
+- **`world_get_is_line_of_sight_clear(число, число, число, число, число, число)`** → флаг — прямая видимость между точками.  *Пример: `world_get_is_line_of_sight_clear(x, y, z, 3, 4, 5)`*
+
+## Общие функции / Погода, время и окружение
+
+- **`clock_restore()`** → действие — восстановить время.  *Пример: `clock_restore()`*
+- **`clock_store()`** → действие — запомнить время.  *Пример: `clock_store()`*
+- **`force_rain(число)`** → действие — установить силу дождя.  *Пример: `force_rain(x)`*
+- **`force_weather(число)`** → действие — плавно сменить погоду.  *Пример: `force_weather(x)`*
+- **`force_weather_now(число)`** → действие — мгновенно сменить погоду.  *Пример: `force_weather_now(x)`*
+- **`gamelogic_pass_time(число)`** → действие — пропустить время.  *Пример: `gamelogic_pass_time(x)`*
+- **`get_clock_hours()`** → целое — часы игрового таймера.  *Пример: `get_clock_hours()`*
+- **`get_clock_minutes()`** → целое — минуты игрового таймера.  *Пример: `get_clock_minutes()`*
+- **`get_clock_minutes_until(число, число)`** → целое — минут до заданного времени.  *Пример: `get_clock_minutes_until(x, y)`*
+- **`get_clock_seconds()`** → целое — секунды игрового таймера.  *Пример: `get_clock_seconds()`*
+- **`get_clock_stored_hours()`** → целое — сохранённые часы.  *Пример: `get_clock_stored_hours()`*
+- **`get_clock_stored_minutes()`** → целое — сохранённые минуты.  *Пример: `get_clock_stored_minutes()`*
+- **`get_cutscene_time_ms()`** → целое — время катсцены в мс.  *Пример: `get_cutscene_time_ms()`*
+- **`get_forced_weather_type()`** → целое — принудительный тип погоды.  *Пример: `get_forced_weather_type()`*
+- **`get_game_hours()`** → целое — получить часы.  *Пример: `get_game_hours()`*
+- **`get_game_minutes()`** → целое — получить минуты.  *Пример: `get_game_minutes()`*
+- **`get_game_seconds()`** → целое — получить секунды.  *Пример: `get_game_seconds()`*
+- **`get_game_timer()`** → целое — 01BD GET_GAME_TIMER (мс).
+- **`get_hud_m_DisplayScoreFadeTimer()`** → число — таймер затухания счёта.  *Пример: `get_hud_m_DisplayScoreFadeTimer()`*
+- **`get_hud_m_EnergyLostFadeTimer()`** → число — таймер затухания потери энергии.  *Пример: `get_hud_m_EnergyLostFadeTimer()`*
+- **`get_hud_m_WeaponFadeTimer()`** → число — таймер затухания оружия на HUD.  *Пример: `get_hud_m_WeaponFadeTimer()`*
+- **`get_milliseconds_per_game_minute()`** → целое — получить скорость времени.  *Пример: `get_milliseconds_per_game_minute()`*
+- **`get_new_weather_type()`** → целое — получить текущую погоду.  *Пример: `get_new_weather_type()`*
+- **`get_old_weather_type()`** → целое — получить прошлую погоду.  *Пример: `get_old_weather_type()`*
+- **`get_previous_time_ms()`** → целое — предыдущее время в мс.  *Пример: `get_previous_time_ms()`*
+- **`get_stat_bloodring_time()`** → целое — время на Bloodring.  *Пример: `get_stat_bloodring_time()`*
+- **`get_stat_flight_time()`** → целое — время полетов.  *Пример: `get_stat_flight_time()`*
+- **`get_stat_longest_wheelie_time()`** → целое — время вилли.  *Пример: `get_stat_longest_wheelie_time()`*
+- **`get_stat_times_drowned()`** → целое — кол-во утоплений.  *Пример: `get_stat_times_drowned()`*
+- **`get_time_step()`** → число — шаг времени кадра.  *Пример: `get_time_step()`*
+- **`get_time_until(число, число)`** → целое — минуты до указанного времени.  *Пример: `get_time_until(x, y)`*
+- **`get_timer_ms()`** → целое — игровое время в мс.  *Пример: `get_timer_ms()`*
+- **`get_timer_ms_pause_mode()`** → целое — время с учетом паузы.  *Пример: `get_timer_ms_pause_mode()`*
+- **`release_weather()`** → действие — отпустить погоду.  *Пример: `release_weather()`*
+- **`restore_clock()`** → действие — восстановить сохранённое время.  *Пример: `restore_clock()`*
+- **`set_game_hours(число)`** → действие — установить часы.  *Пример: `set_game_hours(x)`*
+- **`set_hud_m_DisplayScoreFadeTimer(число)`** → действие — таймер затухания счёта.  *Пример: `set_hud_m_DisplayScoreFadeTimer(x)`*
+- **`set_hud_m_EnergyLostFadeTimer(число)`** → действие — таймер затухания потери энергии.  *Пример: `set_hud_m_EnergyLostFadeTimer(x)`*
+- **`set_hud_m_WeaponFadeTimer(число)`** → действие — таймер затухания оружия на HUD.  *Пример: `set_hud_m_WeaponFadeTimer(x)`*
+- **`set_milliseconds_per_game_minute(число)`** → действие — скорость хода времени.  *Пример: `set_milliseconds_per_game_minute(x)`*
+- **`set_time_scale(число)`** → действие — установить ход времени в игре.  *Пример: `set_time_scale(x)`*
+- **`set_weather_type(число)`** → действие — установить тип погоды.  *Пример: `set_weather_type(x)`*
+- **`setclock(число, число, число, число)`** → действие — задать время.  *Пример: `setclock(x, y, z, 3)`*
+- **`star_timer()`** → действие — включить таймер.  *Пример: `star_timer()`*
+- **`stop_timer(строка)`** → действие — остановить таймер.  *Пример: `stop_timer("текст")`*
+- **`timer_donw(число, строка, число)`** → действие — таймер на уменьшение.  *Пример: `timer_donw(x, "текст", y)`*
+- **`weather_add_rain()`** → действие — добавить дождь.  *Пример: `weather_add_rain()`*
+- **`weather_add_stream_after_rain()`** → действие — пар после дождя.  *Пример: `weather_add_stream_after_rain()`*
+- **`weather_render_rain_streaks()`** → действие — отрисовать полосы дождя.  *Пример: `weather_render_rain_streaks()`*
+
+## Общие функции / Розыск и полиция
+
+- **`police_radio_message(число)`** → действие — полицейское радио.  *Пример: `police_radio_message(x)`*
+
+## Общие функции / Вода, уровень и физика мира
+
+- **`extinguish_point_with_water(x, y, z, range)`** → bool — потушить пожар водой.  *Пример: `extinguish_point_with_water(x, y, z, 3)`*
+- **`getgravity()`** → число — получить значения гравитации.  *Пример: `getgravity()`*
+- **`gravity_default()`** → действие — вернуть значения по умолчанию гравитации.  *Пример: `gravity_default()`*
+- **`setgravity(число)`** → действие — установить значения гравитации.  *Пример: `setgravity(x)`*
+
+## Общие функции / Мир, зоны, стриминг и трафик
+
+- **`crane_activate(авто)`** → действие — транспорт/краны/зоны.  *Пример: `crane_activate(car)`*
+- **`crane_deactivate(авто)`** → действие — деактивировать кран.  *Пример: `crane_deactivate(car)`*
+- **`crane_military_collected_all()`** → целое — военный кран собрал все авто.  *Пример: `crane_military_collected_all()`*
+- **`find_information_zone(число, число, число)`** → целое — индекс информационной зоны.  *Пример: `find_information_zone(x, y, z)`*
+- **`get_navigation_zone(число)`** → целое — навигационная зона по индексу.  *Пример: `get_navigation_zone(x)`*
+- **`get_population_all_random_type()`** → целое — тип всех случайных педов.  *Пример: `get_population_all_random_type()`*
+- **`get_population_civ_female()`** → число — женщин-мирных.  *Пример: `get_population_civ_female()`*
+- **`get_population_civ_male()`** → число — мужчин-мирных.  *Пример: `get_population_civ_male()`*
+- **`get_population_countdown()`** → число — обратный отсчёт до спавна педов.  *Пример: `get_population_countdown()`*
+- **`get_streaming_buffer_size()`** → число — размер буфера стриминга.  *Пример: `get_streaming_buffer_size()`*
+- **`get_streaming_channel_error()`** → число — ошибка канала стриминга.  *Пример: `get_streaming_channel_error()`*
+- **`get_streaming_disabled()`** → флаг — стриминг отключён.  *Пример: `get_streaming_disabled()`*
+- **`get_streaming_image_size()`** → число — размер образа стриминга.  *Пример: `get_streaming_image_size()`*
+- **`get_streaming_last_image_read()`** → число — последний прочитанный образ.  *Пример: `get_streaming_last_image_read()`*
+- **`get_streaming_loading_big_model()`** → число — загружается большая модель.  *Пример: `get_streaming_loading_big_model()`*
+- **`get_streaming_models_requested()`** → число — запрошено моделей.  *Пример: `get_streaming_models_requested()`*
+- **`get_streaming_old_sector_x()`** → число — старый сектор X.  *Пример: `get_streaming_old_sector_x()`*
+- **`get_streaming_old_sector_y()`** → число — старый сектор Y.  *Пример: `get_streaming_old_sector_y()`*
+- **`get_streaming_priority_requests()`** → число — приоритетных запросов.  *Пример: `get_streaming_priority_requests()`*
+- **`get_zone_level(число, число, число)`** → целое — остров по координатам.  *Пример: `get_zone_level(x, y, z)`*
+- **`init_zones()`** → действие — инициализировать зоны.  *Пример: `init_zones()`*
+- **`load_scene(число, число, число)`** → действие — загрузить модели на координатах заранее.  *Пример: `load_scene(x, y, z)`*
+- **`population_manage()`** → действие — обработать популяцию.  *Пример: `population_manage()`*
+- **`request_collision(x, y)`** → действие — 04E4 REQUEST_COLLISION.
+- **`select_interiour(число)`** → действие — уcтановить интерьер.  *Пример: `select_interiour(x)`*
+- **`set_population_all_random_type(число)`** → действие — уст. тип всех случайных педов.  *Пример: `set_population_all_random_type(x)`*
+- **`set_streaming_disabled(флаг)`** → действие — отключить стриминг моделей.  *Пример: `set_streaming_disabled(true)`*
+- **`switch_rubbish(флаг)`** → действие — 03AD SWITCH_RUBBISH.
+- **`switch_streaming(флаг)`** → действие — 03AF SWITCH_STREAMING.
+- **`world_add_entity(указ.)`** → действие — добавить сущность в мир.  *Пример: `world_add_entity(entity)`*
+- **`world_call_off_chase_for_area(число, число, число, число)`** → действие — отменить погоню в области.  *Пример: `world_call_off_chase_for_area(x, y, z, 3)`*
+- **`world_clear_exciting_stuff_from_area(число, число, число, число)`** → действие — очистить область от эффектов.  *Пример: `world_clear_exciting_stuff_from_area(x, y, z, 3)`*
+- **`world_find_ground_z_for_3d_coord(число, число, число)`** → число, флаг — высота земли под 3d точкой.  *Пример: `world_find_ground_z_for_3d_coord(x, y, z)`*
+- **`world_find_ground_z_for_coord(число, число)`** → число — высота земли под точкой.  *Пример: `world_find_ground_z_for_coord(x, y)`*
+- **`world_find_roof_z_for_3d_coord(число, число, число)`** → число, флаг — высота крыши под точкой.  *Пример: `world_find_roof_z_for_3d_coord(x, y, z)`*
+- **`worldcoord(указ., число, число)`** → число, число (X, Y) — Перевод в мировые координаты.  *Пример: `worldcoord(entity, x, y)`*
+- **`zone_find_index(строка)`** → целое — транспорт/краны/зоны.  *Пример: `zone_find_index("текст")`*
+- **`zone_get_level_from_position(число, число, число)`** → целое — транспорт/краны/зоны.  *Пример: `zone_get_level_from_position(x, y, z)`*
+
+## Общие функции / Камера, экран и эффекты отображения
+
+- **`camera_at_point(число, число, число, целое)`** → действие — переместить камеру в координатах.  *Пример: `camera_at_point(x, y, z, 1)`*
+- **`camera_calculate_derived_values()`** → действие — пересчитать камеру.  *Пример: `camera_calculate_derived_values()`*
+- **`camera_dont_process_obbe_cinema()`** → действие — отключить кино-камеру.  *Пример: `camera_dont_process_obbe_cinema()`*
+- **`camera_shake(число, число, число, число)`** → действие — тряхнуть камеру.  *Пример: `camera_shake(x, y, z, 3)`*
+- **`fade(число, число)`** → действие — затенение, просветления.  *Пример: `fade(x, y)`*
+- **`get_fov()`** → число — получить угол обзора.  *Пример: `get_fov()`*
+- **`Getcameracoordes()`** → число, число, число (X, Y, Z) — получить координаты камеры.  *Пример: `Getcameracoordes()`*
+- **`restore_camera()`** → действие — восстановить камеру.  *Пример: `restore_camera()`*
+- **`set_camera_and_point(число, число, число, число, число, число)`** → действие — установить и переместить камеру в координатах.  *Пример: `set_camera_and_point(x, y, z, 3, 4, 5)`*
+- **`set_camera_near_clip(число)`** → действие — установить обрезку камеры.  *Пример: `set_camera_near_clip(x)`*
+- **`set_camera_position(число, число, число, число, число, число)`** → действие — установить камеру в координатах.  *Пример: `set_camera_position(x, y, z, 3, 4, 5)`*
+- **`set_fade_jumpcut_after_rc_explosion(флаг)`** → действие — транспорт/краны/зоны.  *Пример: `set_fade_jumpcut_after_rc_explosion(true)`*
+- **`set_fov(число)`** → действие — установить угол обзора.  *Пример: `set_fov(x)`*
+
+## Общие функции / Звук и радио
+
+- **`clear_mission_audio(слот)`** → действие — 040D CLEAR_MISSION_AUDIO.
+- **`create_explosion_no_sound(число, число, число, число)`** → действие — взрыв без звука.  *Пример: `create_explosion_no_sound(x, y, z, 3)`*
+- **`get_radio_channel()`** → целое — текущая радиостанция.  *Пример: `get_radio_channel()`*
+- **`load_mission_audio(слот, имя)`** → действие — 03CF LOAD_MISSION_AUDIO:
+- **`play_continuous_sound(число, число, число, число)`** → целое — непрерывный звук.  *Пример: `play_continuous_sound(x, y, z, 3)`*
+- **`play_mission_audio(слот)`** → действие — 03D1 PLAY_MISSION_AUDIO.
+- **`play_one_off_sound(число, число, число, число)`** → действие — одноразовый звук.  *Пример: `play_one_off_sound(x, y, z, 3)`*
+- **`play_sound(число)`** → действие — проиграть мелодию.  *Пример: `play_sound(x)`*
+- **`play_voice(строка)`** → действие — Проиграть голос(реплику): блокирующая
+- **`remove_sound_by_id(число)`** → действие — удалить звук.  *Пример: `remove_sound_by_id(x)`*
+- **`set_radio(число, число)`** → действие — установить радио.  *Пример: `set_radio(x, y)`*
+- **`set_radio_channel(число)`** → действие — радиостанция игроку.  *Пример: `set_radio_channel(x)`*
+- **`sound_coordinate(число, число, число, число)`** → действие — Проиграть звук в координатах.  *Пример: `sound_coordinate(x, y, z, 3)`*
+
+## Общие функции / Текст, HUD и сообщения
+
+- **`flash_hud(число)`** → действие — Мигание элементов HUD.  *Пример: `flash_hud(x)`*
+- **`font_set_alpha_fade(число)`** → действие — прозрачность шрифта.  *Пример: `font_set_alpha_fade(x)`*
+- **`font_set_background_off()`** → действие — фон шрифта выкл.  *Пример: `font_set_background_off()`*
+- **`font_set_background_on()`** → действие — фон шрифта вкл.  *Пример: `font_set_background_on()`*
+- **`font_set_centre_size(число)`** → действие — размер центр. текста.  *Пример: `font_set_centre_size(x)`*
+- **`font_set_drop_shadow(число)`** → действие — тень шрифта.  *Пример: `font_set_drop_shadow(x)`*
+- **`font_set_prop_off()`** → действие — пропорц. шрифт выкл.  *Пример: `font_set_prop_off()`*
+- **`font_set_prop_on()`** → действие — пропорц. шрифт вкл.  *Пример: `font_set_prop_on()`*
+- **`font_set_right_justify_off()`** → действие — выравнивание вправо выкл.  *Пример: `font_set_right_justify_off()`*
+- **`font_set_right_justify_on()`** → действие — выравнивание вправо вкл.  *Пример: `font_set_right_justify_on()`*
+- **`font_set_style(число)`** → действие — стиль шрифта.  *Пример: `font_set_style(x)`*
+- **`font_set_wrapx(число)`** → действие — ширина переноса шрифта.  *Пример: `font_set_wrapx(x)`*
+- **`get_hud_help_message_state()`** → целое — состояние подсказки на HUD.  *Пример: `get_hud_help_message_state()`*
+- **`message_add(строка, число, число)`** → действие — маленькое сообщение.  *Пример: `message_add("текст", x, y)`*
+- **`message_add_big(строка, число, число)`** → действие — большое сообщение.  *Пример: `message_add_big("текст", x, y)`*
+- **`message_add_big_queue(строка, число, число)`** → действие — большое сообщение в очередь.  *Пример: `message_add_big_queue("текст", x, y)`*
+- **`message_add_jump_queue(строка, число, число)`** → действие — сообщение вне очереди.  *Пример: `message_add_jump_queue("текст", x, y)`*
+- **`message_add_with_number(строка, число, число, число)`** → действие — сообщение с числом.  *Пример: `message_add_with_number("текст", x, y, z)`*
+- **`message_clear_all()`** → действие — очистить все сообщения.  *Пример: `message_clear_all()`*
+- **`message_clear_small_only()`** → действие — очистить маленькие сообщения.  *Пример: `message_clear_small_only()`*
+- **`print_front()`** → действие — вывести особенный игровой текст.  *Пример: `print_front()`*
+- **`printmessage(строка, число, число)`** → действие — вывести сообщение на экран.  *Пример: `printmessage("текст", x, y)`*
+- **`remove_textbox()`** → действие — удалить сообщение на textbox.  *Пример: `remove_textbox()`*
+- **`set_help_message(text, [quick], [permanent])`** → bool — показать сообщение помощи (внизу экрана).  *Пример: `set_help_message("Нажми G")`*
+- **`show_text_gtx(строка, число, число)`** → действие — вывести игровой текст.  *Пример: `show_text_gtx("текст", x, y)`*
+- **`show_text_gtx_table(строка, строка, число, число)`** → действие — вывести текст из таблицы.  *Пример: `show_text_gtx_table("текст", "текст", x, y)`*
+- **`show_text_styled(строка, число, число)`** → действие — вывести игровой текст.  *Пример: `show_text_styled("текст", x, y)`*
+- **`showtext(строка, число, число)`** → действие — Вывод особого текста на экран.  *Пример: `showtext("текст", x, y)`*
+- **`textbox(строка)`** → действие — вывести сообщение в textbox.  *Пример: `textbox("текст")`*
+
+## Общие функции / Радар, маркеры и блипы
+
+- **`create_marker_actor(пед)`** → целое — создать маркер над педа.  *Пример: `create_marker_actor(ped)`*
+- **`createblip(число, число, число, число)`** → целое — создать метку на карте.  *Пример: `createblip(x, y, z, 3)`*
+- **`createmarker(число, число, число, число, число)`** → целое — создать маркер на карте.  *Пример: `createmarker(x, y, z, 3, 4)`*
+- **`draw_corona()`** → действие — создать корону(гоночный чекпойнт).  *Пример: `draw_corona()`*
+- **`get_num_active_3d_markers()`** → целое — число активных 3D-маркеров.  *Пример: `get_num_active_3d_markers()`*
+- **`get_radar_range()`** → число — дальность радара.  *Пример: `get_radar_range()`*
+- **`place_3d_marker(число, число, число, число, число, число, число, число, число, число, число, число, число)`** → действие — 3D-маркер.  *Пример: `place_3d_marker(x, y, z, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)`*
+- **`place_3d_marker_set(число, число, число, число, число, число, число, число, число, число, число, число, число)`** → действие — набор 3D-маркеров.  *Пример: `place_3d_marker_set(x, y, z, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)`*
+- **`radar_add_blip_for_coord(число, число, число)`** → целое — 018A: обычный координатный блайп, возвращает id.  *Пример: `radar_add_blip_for_coord(x, y, z)`*
+- **`radar_add_sprite_blip_for_coord(число, число, число, число)`** → целое — 02A8: спрайт-блайп на координатах, возвращает id.  *Пример: `radar_add_sprite_blip_for_coord(x, y, z, sprite)`*
+- **`radar_change_blip_brightness(число, число)`** → действие — яркость метки.  *Пример: `radar_change_blip_brightness(x, y)`*
+- **`radar_change_blip_colour(число, число)`** → действие — цвет метки.  *Пример: `radar_change_blip_colour(x, y)`*
+- **`radar_change_blip_display(число, число)`** → действие — показ метки.  *Пример: `radar_change_blip_display(x, y)`*
+- **`radar_change_blip_scale(число, число)`** → действие — размер метки.  *Пример: `radar_change_blip_scale(x, y)`*
+- **`radar_clear_blip(число)`** → действие — удалить метку.  *Пример: `radar_clear_blip(x)`*
+- **`radar_clear_blip_for_entity(число, пед)`** → действие — удалить метку сущности.  *Пример: `radar_clear_blip_for_entity(x, ped)`*
+- **`radar_draw_radar_sprite(число, число, число, число)`** → действие — отрисовать спрайт радара.  *Пример: `radar_draw_radar_sprite(x, y, z, 3)`*
+- **`radar_get_radar_range()`** → число — дальность радара.  *Пример: `radar_get_radar_range()`*
+- **`radar_set_blip_sprite(число, число)`** → действие — иконка метки.  *Пример: `radar_set_blip_sprite(x, y)`*
+- **`radar_set_coord_blip(число, число, число, число, число, число)`** → целое — создать метку на карте.  *Пример: `radar_set_coord_blip(x, y, z, 3, 4, 5)`*
+- **`radar_set_entity_blip(число, пед, число, число)`** → действие — метка на сущности.  *Пример: `radar_set_entity_blip(x, ped, y, z)`*
+- **`radar_set_radar_range(число)`** → действие — установить дальность радара.  *Пример: `radar_set_radar_range(x)`*
+- **`radar_set_short_range_blip(число, число, число, число, число, число)`** → целое — короткая метка.  *Пример: `radar_set_short_range_blip(x, y, z, 3, 4, 5)`*
+- **`radar_show_marker(число, число, число, число, число)`** → действие — показать маркер в мире.  *Пример: `radar_show_marker(x, y, z, 3, 4)`*
+- **`remove_blip(число)`** → действие — удалить метку с карты.  *Пример: `remove_blip(x)`*
+- **`removemarker(число)`** → действие — удалить маркер.  *Пример: `removemarker(x)`*
+- **`set_display_radar(число)`** → действие — показать скрывать радар.  *Пример: `set_display_radar(x)`*
+- **`set_radar_range(число)`** → действие — уст. дальность радара.  *Пример: `set_radar_range(x)`*
+- **`setcolourmarker(число, число)`** → действие — установить цвет маркера.  *Пример: `setcolourmarker(x, y)`*
+- **`setmarker_brightness(число, флаг)`** → действие — уст яркость маркера.  *Пример: `setmarker_brightness(x, true)`*
+- **`setsizemarker(число, число)`** → действие — установить размер отображение маркера на карте.  *Пример: `setsizemarker(x, y)`*
+- **`star_mission_marker(id, x, y, z)`** → true|false — маркер миссии для подъезда НА АВТО. С 25.10 (ночь) состояние маркера — ПЕР СКРИПТ под мьютексом: раньше static point/create делились всеми скриптами, REMOVE_BLIP снимал чужую/несуществующую метку (id 0 при первом вызове пешком) и портил список радара → AV 0x4CA523. Теперь метка снимается только если реально создана этим скриптом.  *Пример: `star_mission_marker(t, x, y, z)`*
+- **`update_corona_coors(число, число, число, число, число, число)`** → действие — обновить координаты короны.  *Пример: `update_corona_coors(x, y, z, 3, 4, 5)`*
+
+## Общие функции / Оружие, боеприпасы и снаряды
+
+- **`add_bullet_trace_radius(число, число, число, число, число, число, число, число, число)`** → действие — след пули: от точки к точке.  *Пример: `add_bullet_trace_radius(x, y, z, 3, 4, 5, 6, 7, 8)`*
+- **`add_bullet_trace_weapon(число, число, число, число, число, число, число, указ.)`** → действие — след пули: оружием и сущностью.  *Пример: `add_bullet_trace_weapon(x, y, z, 3, 4, 5, 6, entity)`*
+- **`add_projectile(указ., число, число, число, число, число)`** → флаг — создать снаряд.  *Пример: `add_projectile(entity, x, y, z, 3, 4)`*
+- **`clear_bullet_traces()`** → действие — удалить все следы пуль.  *Пример: `clear_bullet_traces()`*
+- **`do_doom_aiming(указ., число, число, число, число, число, число)`** → действие — аим-траверс для оружия.  *Пример: `do_doom_aiming(entity, x, y, z, 3, 4, 5)`*
+- **`do_mine_effects(указ.)`** → действие — эффект мины.  *Пример: `do_mine_effects(entity)`*
+- **`get_bullet_trace_count()`** → целое — число активных следов пуль.  *Пример: `get_bullet_trace_count()`*
+- **`get_bullet_trace_origin(число)`** → число, число, число (X, Y, Z) — точка начала следа пули.  *Пример: `get_bullet_trace_origin(x)`*
+- **`get_damage_current_weapon(пед)`** → целое — получить уровень урона текущего оружие.  *Пример: `get_damage_current_weapon(ped)`*
+- **`get_far_clip()`** → число — получить дальность прорисовки.  *Пример: `get_far_clip()`*
+- **`get_near_clip()`** → число — получить ближнюю границу.  *Пример: `get_near_clip()`*
+- **`get_projectile_count()`** → целое — число активных снарядов.  *Пример: `get_projectile_count()`*
+- **`get_projectile_pos(число)`** → число, число, число (X, Y, Z) — позиция снаряда x,y,z.  *Пример: `get_projectile_pos(x)`*
+- **`get_projectile_source(число)`** → указ. — источник снаряда.  *Пример: `get_projectile_source(x)`*
+- **`get_projectile_weapon(число)`** → целое — тип оружия снаряда.  *Пример: `get_projectile_weapon(x)`*
+- **`get_weapon_firing_rate(пед)`** → целое — получить скорость стрельбы.  *Пример: `get_weapon_firing_rate(ped)`*
+- **`get_weapon_lifespan(пед)`** → число — получить время жизни снаряда.  *Пример: `get_weapon_lifespan(ped)`*
+- **`get_weapon_radius(пед)`** → число — получить радиус поражения.  *Пример: `get_weapon_radius(ped)`*
+- **`get_weapon_range(пед)`** → число — получить дальность оружия.  *Пример: `get_weapon_range(ped)`*
+- **`get_weapon_slot_info(пед)`** → целое — получить слот оружия.  *Пример: `get_weapon_slot_info(ped)`*
+- **`get_weapon_speed(пед)`** → число — получить скорость пули.  *Пример: `get_weapon_speed(ped)`*
+- **`get_weapon_spread(пед)`** → число — получить разброс оружия.  *Пример: `get_weapon_spread(ped)`*
+- **`Getweaponslot(пед, число)`** → целое — получить номер слота по типу оружия.  *Пример: `Getweaponslot(ped, x)`*
+- **`initialise_weapons()`** → действие — инициализировать оружие.  *Пример: `initialise_weapons()`*
+- **`remove_all_projectiles()`** → действие — удалить все снаряды.  *Пример: `remove_all_projectiles()`*
+- **`Remove_weapon_model(пед, число)`** → действие — удалить оружие у педа.  *Пример: `Remove_weapon_model(ped, x)`*
+- **`set_clip_current_weapon(пед, число)`** → действие — установить объём обоймы текущего оружие педа.  *Пример: `set_clip_current_weapon(ped, x)`*
+- **`set_damage_current_weapon(пед, число)`** → действие — установить уровень урона текущего оружие педа.  *Пример: `set_damage_current_weapon(ped, x)`*
+- **`set_far_clip(число)`** → действие — установить дальность прорисовки.  *Пример: `set_far_clip(x)`*
+- **`set_near_clip(число)`** → действие — установить ближнюю границу.  *Пример: `set_near_clip(x)`*
+- **`set_projectile_pos(число, число, число, число)`** → действие — уст позицию снаряда.  *Пример: `set_projectile_pos(x, y, z, 3)`*
+- **`set_weapon_firing_rate(пед, число)`** → действие — установить скорость стрельбы.  *Пример: `set_weapon_firing_rate(ped, x)`*
+- **`set_weapon_lifespan(пед, число)`** → действие — установить время жизни снаряда.  *Пример: `set_weapon_lifespan(ped, x)`*
+- **`set_weapon_radius(пед, число)`** → действие — установить радиус поражения.  *Пример: `set_weapon_radius(ped, x)`*
+- **`set_weapon_range(пед, число)`** → действие — установить дальность оружия.  *Пример: `set_weapon_range(ped, x)`*
+- **`set_weapon_speed(пед, число)`** → действие — установить скорость пули.  *Пример: `set_weapon_speed(ped, x)`*
+- **`set_weapon_spread(пед, число)`** → действие — установить разброс оружия.  *Пример: `set_weapon_spread(ped, x)`*
+- **`shot_add_tracer(creator, weapon, x1, y1, z1, x2, y2, z2)`** → bool — пулевой трассер.  *Пример: `shot_add_tracer(ped, 22, x, y, z, x2, y2, z2)`*
+- **`shutdown_weapons()`** → действие — завершить работу оружия.  *Пример: `shutdown_weapons()`*
+- **`update_weapons()`** → действие — обновить оружие.  *Пример: `update_weapons()`*
+
+## Общие функции / Огонь и взрывы
+
+- **`add_jet_explosion(x, y, z, power, size)`** → bool — взрыв-струя (реактивные самолёты).  *Пример: `add_jet_explosion(x, y, z, 4, 3)`*
+- **`create_explosion()`** → действие — Создать взрыв на координатах.  *Пример: `create_explosion()`*
+- **`extinguish_point(x, y, z, range)`** → bool — потушить огонь в точке.  *Пример: `extinguish_point(x, y, z, 5)`*
+
+## Общие функции / Деньги, статистика и прогресс
+
+- **`add_AutoPaintingBudget(число)`** → действие — бюджет на покраску авто.  *Пример: `add_AutoPaintingBudget(x)`*
+- **`add_BloodRingKills(число)`** → действие — убийства в Bloodring.  *Пример: `add_BloodRingKills(x)`*
+- **`add_FashionBudget(число)`** → действие — бюджет на одежду.  *Пример: `add_FashionBudget(x)`*
+- **`add_PropertyBudget(число)`** → действие — бюджет на недвижимость.  *Пример: `add_PropertyBudget(x)`*
+- **`add_WeaponBudget(число)`** → действие — бюджет на оружие.  *Пример: `add_WeaponBudget(x)`*
+- **`create_some_money(число, число, число, число)`** → действие — создать деньги на координатах.  *Пример: `create_some_money(x, y, z, 3)`*
+- **`do_money_effects(указ.)`** → действие — эффект денег.  *Пример: `do_money_effects(entity)`*
+- **`get_stat_assassinations()`** → число — заказные убийства.  *Пример: `get_stat_assassinations()`*
+- **`get_stat_auto_painting_budget()`** → число — бюджет на покраску.  *Пример: `get_stat_auto_painting_budget()`*
+- **`get_stat_bloodring_kills()`** → целое — убийства на Bloodring.  *Пример: `get_stat_bloodring_kills()`*
+- **`get_stat_fashion_budget()`** → число — бюджет на одежду.  *Пример: `get_stat_fashion_budget()`*
+- **`get_stat_frenzies_passed()`** → целое — пройденные безумия.  *Пример: `get_stat_frenzies_passed()`*
+- **`get_stat_frenzies_total()`** → целое — общее число безумий.  *Пример: `get_stat_frenzies_total()`*
+- **`get_stat_ice_cream_sold()`** → число — проданное мороженое.  *Пример: `get_stat_ice_cream_sold()`*
+- **`get_stat_loan_sharks()`** → число — сделки с ростовщиками.  *Пример: `get_stat_loan_sharks()`*
+- **`get_stat_longest_2wheel_dist()`** → число — дистанция на двух колесах.  *Пример: `get_stat_longest_2wheel_dist()`*
+- **`get_stat_longest_stoppie_dist()`** → число — дистанция стоппи.  *Пример: `get_stat_longest_stoppie_dist()`*
+- **`get_stat_longest_wheelie_dist()`** → число — дистанция вилли.  *Пример: `get_stat_longest_wheelie_dist()`*
+- **`get_stat_missions_total()`** → целое — общее число миссий.  *Пример: `get_stat_missions_total()`*
+- **`get_stat_movie_stunts()`** → число — кинотрюки.  *Пример: `get_stat_movie_stunts()`*
+- **`get_stat_num_property_owned()`** → целое — кол-во собственности.  *Пример: `get_stat_num_property_owned()`*
+- **`get_stat_pizzas_delivered()`** → число — доставленные пиццы.  *Пример: `get_stat_pizzas_delivered()`*
+- **`get_stat_property_budget()`** → число — бюджет на собственность.  *Пример: `get_stat_property_budget()`*
+- **`get_stat_property_destroyed()`** → целое — разрушенное имущество.  *Пример: `get_stat_property_destroyed()`*
+- **`get_stat_seagulls_killed()`** → целое — убитые чайки.  *Пример: `get_stat_seagulls_killed()`*
+- **`get_stat_stores_knocked_off()`** → число — ограбленные магазины.  *Пример: `get_stat_stores_knocked_off()`*
+- **`get_stat_weapon_budget()`** → число — бюджет на оружие.  *Пример: `get_stat_weapon_budget()`*
+- **`get_weapon_state(пед)`** → целое — получить состояние оружия.  *Пример: `get_weapon_state(ped)`*
+- **`get_wheel_status(авто, число)`** → 1 значения — получить состояния шины авто.  *Пример: `get_wheel_status(car, x)`*
+- **`lockstatus(авто, число)`** → действие — статус двери авто.  *Пример: `lockstatus(car, x)`*
+- **`radar_set_marker_state(число, число)`** → действие — состояние маркера миссии.  *Пример: `radar_set_marker_state(x, y)`*
+- **`set_status_engine(авто, число)`** → действие — установить состояние двигателя авто.  *Пример: `set_status_engine(car, x)`*
+- **`set_wheel_status(авто, число, число)`** → действие — установить состояния шин авто.  *Пример: `set_wheel_status(car, x, y)`*
+
+## Общие функции / Загрузка, создание и удаление
+
+- **`create_rope_on_cords(число, число, число)`** → 1 значения — создать веревку на координатах.  *Пример: `create_rope_on_cords(x, y, z)`*
+- **`create_rope_on_cords_with_swat(число, число, число)`** → действие — создать веревку на координатах с бойцом спецназа.  *Пример: `create_rope_on_cords_with_swat(x, y, z)`*
+- **`create_sphere(число, число, число, число)`** → целое — создать сферу.  *Пример: `create_sphere(x, y, z, 3)`*
+- **`delete_entity(указ.)`** → действие — удалить сущность сразу.  *Пример: `delete_entity(entity)`*
+- **`destroy()`** → действие — удаления объектов из памяти при перезагрузки скрипта.  *Пример: `destroy()`*
+- **`load_requested_models()`** → действие — загрузить модель вне очереди.  *Пример: `load_requested_models()`*
+- **`loadmodel(число)`** → действие — загрузить модель.  *Пример: `loadmodel(x)`*
+- **`releasemodel(число)`** → действие — **явно** снять держание/бронь модели. Вызывать только когда сущность, для которой грузили модель, **уже удалена** (или модель не привязана к сущности): `destroy()` делает это сам ПОСЛЕ удаления. Сразу после `Createcar`/`Createped`/`Createobj` не вызывать — модель выгрузится, пока сущность жива.  *Пример: `releasemodel(x)`*
+- **`remove_sphere(число)`** → действие — удалить сферу.  *Пример: `remove_sphere(x)`*
+
+## Общие функции / Математика и утилиты
+
+- **`general_angle_between_points(число, число, число, число)`** → число — угол между точками.  *Пример: `general_angle_between_points(x, y, z, 3)`*
+- **`general_atan_of_xy(число, число)`** → число — арктангенс от x,y.  *Пример: `general_atan_of_xy(x, y)`*
+- **`general_limit_angle(число)`** → число — нормализовать угол.  *Пример: `general_limit_angle(x)`*
+- **`general_limit_radian_angle(число)`** → число — нормализовать угол в радианах.  *Пример: `general_limit_radian_angle(x)`*
+- **`general_node_heading_from_vector(число, число)`** → целое — направление из вектора.  *Пример: `general_node_heading_from_vector(x, y)`*
+- **`general_radian_angle_between_points(число, число, число, число)`** → число — угол между точками в радианах.  *Пример: `general_radian_angle_between_points(x, y, z, 3)`*
+
+## Общие функции / Скрипты, миссии и система
+
+- **`cheat()`** → действие — чит код введен.  *Пример: `cheat()`*
+- **`gamelogic_after_death_arrest_shortcut()`** → действие — такси-шорткат после смерти.  *Пример: `gamelogic_after_death_arrest_shortcut()`*
+- **`gamelogic_update()`** → действие — обновить логику.  *Пример: `gamelogic_update()`*
+- **`get_current_name_luascript()`** → указ. — получить имя текущего lua файла.  *Пример: `get_current_name_luascript()`*
+- **`getmodelindex(указ.)`** → целое — получить id модели.  *Пример: `getmodelindex(entity)`*
+- **`read_memory(число, число)`** → целое — читать адрес памяти.  *Пример: `read_memory(x, y)`*
+- **`wait([мс])`** → действие — пауза СВОЕГО ПОТОКА (2021-модель, 04.11.2026: каждый .lua — свой OS-поток, `wait` спит поток; ma_sched удалён). Без аргумента/`nil` — 1 мс; число нормализуется (0/отрицательное/NaN → 1 мс); строка/флаг/таблица — ошибка Lua.  *Пример: `wait()` / `wait(300)`*
+- **`write_memory(число, число, число)`** → действие — записать адрес памяти.  *Пример: `write_memory(x, y, z)`*
+- **`yield()`** → действие — приостановить выполнение скрипта.  *Пример: `yield()`*
+
+## Общие функции / Прочее
+
+- **`activetbomb(авто)`** → действие — активировать бомбу в авто.  *Пример: `activetbomb(car)`*
+- **`add_Assassinations(число)`** → действие — заказные убийства.  *Пример: `add_Assassinations(x)`*
+- **`add_gun_flash_big(число, число, число, число, число, число)`** → действие — вспышка выстрела крупного оружия.  *Пример: `add_gun_flash_big(x, y, z, 3, 4, 5)`*
+- **`add_LoanSharks(число)`** → действие — визиты к ростовщикам.  *Пример: `add_LoanSharks(x)`*
+- **`add_MovieStunts(число)`** → действие — киноскунты.  *Пример: `add_MovieStunts(x)`*
+- **`add_particle(type, x, y, z, dx, dy, dz, [entity], [size])`** → указ. — создать частицу, вернёт указатель; типы PARTICLE_*: 0 искра, 13 пламя, 17 дым от выстрела, 27 огонь авто и т.д.  *Пример: `add_particle(17, x, y, z, 0, 0, 1)`*
+- **`add_PizzasDelivered(число)`** → действие — доставленные пиццы.  *Пример: `add_PizzasDelivered(x)`*
+- **`clean_leader(пед)`** → действие — перестать следовать за лидером.  *Пример: `clean_leader(ped)`*
+- **`cleanarea(число, число, число, число, число)`** → действие — очистить арену.  *Пример: `cleanarea(x, y, z, 3, 4)`*
+- **`close_all_doors(авто)`** → действие — закрыть все двери.  *Пример: `close_all_doors(car)`*
+- **`generate_emergency_services()`** → действие — вызвать экстренные службы.  *Пример: `generate_emergency_services()`*
+- **`get_chance_on_roadblock()`** → целое — получить шанс блокпоста.  *Пример: `get_chance_on_roadblock()`*
+- **`get_cycles_per_millisecond()`** → целое — циклы на миллисекунду.  *Пример: `get_cycles_per_millisecond()`*
+- **`get_fade_color()`** → целое — получить цвет затемнения.  *Пример: `get_fade_color()`*
+- **`get_frame_counter()`** → целое — номер кадра.  *Пример: `get_frame_counter()`*
+- **`get_lod_distance()`** → число — получить дистанцию LOD.  *Пример: `get_lod_distance()`*
+- **`get_mouse_accel_horizontal()`** → число — горизонтальное ускорение мыши.  *Пример: `get_mouse_accel_horizontal()`*
+- **`get_mouse_accel_vertical()`** → число — вертикальное ускорение мыши.  *Пример: `get_mouse_accel_vertical()`*
+- **`get_num_bright_lights()`** → целое — число ярких огней.  *Пример: `get_num_bright_lights()`*
+- **`get_use_mouse_3rd_person()`** → флаг — мышь в третьем лице.  *Пример: `get_use_mouse_3rd_person()`*
+- **`go_to_route(указ., таблица, ...)`** → действие — установить маршрут авто.  *Пример: `go_to_route(entity, val, ...)`*
+- **`lock_doors(авто, флаг)`** → действие — запереть двери.  *Пример: `lock_doors(car, true)`*
+- **`move_rotate(объект, число, число, целое)`** → действие — вращать объект.  *Пример: `move_rotate(obj, x, y, 1)`*
+- **`pad_shake(duration, [frequency])`** → bool — тряска геймпада игрока; duration в миллисекундах.  *Пример: `pad_shake(2000, 64)`*
+- **`point_light_add(type, x, y, z, dx, dy, dz, range, r, g, b, [fog], [extraShadow])`** → bool — точечный источник света; type: 0 свет-точка, 1 направленный, 2 тоннель, 3 низкое затухание; r,g,b 0-255.  *Пример: `point_light_add(0, x, y, z, 0, 0, 0, 10, 255, 0, 0)`*
+- **`rc_buggy_blow_up(авто)`** → действие — транспорт/краны/зоны.  *Пример: `rc_buggy_blow_up(car)`*
+- **`rc_buggy_remove(авто)`** → действие — транспорт/краны/зоны.  *Пример: `rc_buggy_remove(car)`*
+- **`rc_detonate_enable(авто, флаг)`** → действие — транспорт/краны/зоны.  *Пример: `rc_detonate_enable(car, true)`*
+- **`rc_detonate_on_contact_enable(авто, флаг)`** → действие — транспорт/краны/зоны.  *Пример: `rc_detonate_on_contact_enable(car, true)`*
+- **`register_motion_streak(число, число, число, число, число, число, число, число, число, число)`** → действие — размытие-полоса.  *Пример: `register_motion_streak(x, y, z, 3, 4, 5, 6, 7, 8, 9)`*
+- **`set_chance_on_roadblock(число)`** → действие — установить шанс блокпоста.  *Пример: `set_chance_on_roadblock(x)`*
+- **`set_driving_style_op(авто, число)`** → действие — стиль вождения.  *Пример: `set_driving_style_op(car, x)`*
+- **`set_fade_color(число, число, число)`** → действие — установить цвет затемнения.  *Пример: `set_fade_color(x, y, z)`*
+- **`set_lod_distance(число)`** → действие — установить дистанцию LOD.  *Пример: `set_lod_distance(x)`*
+- **`set_mouse_accel_horizontal(число)`** → действие — установить ускорение мыши.  *Пример: `set_mouse_accel_horizontal(x)`*
+- **`set_mouse_accel_vertical(число)`** → действие — установить ускорение мыши.  *Пример: `set_mouse_accel_vertical(x)`*
+- **`set_riot_intensity(число)`** → действие — уст уровень шума беспорядков.  *Пример: `set_riot_intensity(x)`*
+- **`set_tank_detonate(авто, флаг)`** → действие — танк взрывает авто.  *Пример: `set_tank_detonate(car, true)`*
+- **`setdrivingstyle(авто, число)`** → действие — установить стиль езды авто.  *Пример: `setdrivingstyle(car, x)`*
+- **`show_save_menu()`** → действие — показать меню сохранения.  *Пример: `show_save_menu()`*
+- **`stay_when_jacked(пед, флаг)`** → действие — не покидать при угоне.  *Пример: `stay_when_jacked(ped, true)`*
+- **`stop_pad_shaking()`** → bool — прекратить тряску геймпадов.  *Пример: `stop_pad_shaking()`*
+- **`unlock_doors_area(авто)`** → действие — открыть двери.  *Пример: `unlock_doors_area(car)`*
+
+## Примечания
+
+- Исторические номера в исходном справочнике сохранены там, где они были; в данном документе функции сгруппированы по назначению для удобной навигации.
+- Функции-варианты и исторические псевдонимы/опечатки (например, `setobjocoordes`, `setobjоcoordes`, дубли регистраций) включены отдельными записями, если зарегистрированы в API.

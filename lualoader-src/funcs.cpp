@@ -71,12 +71,15 @@ int wait(lua_State* L) {
 	// осталась закомментированной, а закрывающая `}` — активной: тело спало
 	// ОДИН раз, компиляция падала ("expected unqualified-id"). Цикл восстановлен.
 	while (time > 0) {
-	// 	if (teardown_active.load()) {
-	// 		return luaL_error(L, "SCRIPT_STOPPED_BY_CPP");// разборка: выйти из скрипта.
-	// 	}
+		if (teardown_active.load()) {
+			return luaL_error(L, "SCRIPT_STOPPED_BY_CPP");// разборка: выйти из скрипта.
+		}
 		int chunk = (time > 10) ? 10 : time;
 		this_thread::sleep_for(chrono::milliseconds(chunk));
 		time -= chunk;
+	}
+	if (teardown_active.load()) {
+		return luaL_error(L, "SCRIPT_STOPPED_BY_CPP");
 	}
 	return 0;
 };
@@ -86,6 +89,7 @@ bool load_model_before_avalible(int model) {
 		Command<COMMAND_REQUEST_MODEL>(model);
 		Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
 		while (!Command<COMMAND_HAS_MODEL_LOADED>(model)) {
+			if (teardown_active.load()) return false;
 			this_thread::sleep_for(chrono::milliseconds(1));// задержка
 			Command<COMMAND_REQUEST_MODEL>(model);
 		}
@@ -2872,7 +2876,7 @@ int remove_obj(lua_State* L) {// удалить объект.
 	return 0;
 };
 
-int car_in_water(lua_State* L) {// проверка авто в воде.
+int iscar_in_water(lua_State* L) {// проверка авто в воде.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
@@ -2885,7 +2889,7 @@ int car_in_water(lua_State* L) {// проверка авто в воде.
 			lua_pushboolean(L, check_in_wanter);
 			return 1;
 		}
-		else { throw "bad argument in function car_in_water"; }
+		else { throw "bad argument in function iscar_in_water"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
@@ -28843,3 +28847,611 @@ int player_made_progress(lua_State* L) {// 030C: PLAYER_MADE_PROGRESS — доб
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
 };
+
+// ==================== (доп.) Обёртки по значениям: стиль вождения, поведение/задачи авто ====================
+// Старые функции (setdrivingstyle, setcaraction, setcartask, set_car_mission, set_driving_style_op) НЕ удалены.
+
+int set_car_driving_style_stop_for_cars(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+			const void* p = lua_topointer(L, 1); CVehicle* car = findcarinpool(p);
+			if (car == NULL) { return 0; }
+			car->m_autoPilot.m_nDrivingStyle = DRIVINGSTYLE_STOP_FOR_CARS; return 0;
+		} else { throw "bad argument in function set_car_driving_style_stop_for_cars"; }
+	} catch (const char* x) { writelog(x); } return 0;
+}
+int set_car_driving_style_slow_down_for_cars(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+			const void* p = lua_topointer(L, 1); CVehicle* car = findcarinpool(p);
+			if (car == NULL) { return 0; }
+			car->m_autoPilot.m_nDrivingStyle = DRIVINGSTYLE_SLOW_DOWN_FOR_CARS; return 0;
+		} else { throw "bad argument in function set_car_driving_style_slow_down_for_cars"; }
+	} catch (const char* x) { writelog(x); } return 0;
+}
+int set_car_driving_style_avoid_cars(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+			const void* p = lua_topointer(L, 1); CVehicle* car = findcarinpool(p);
+			if (car == NULL) { return 0; }
+			car->m_autoPilot.m_nDrivingStyle = DRIVINGSTYLE_AVOID_CARS; return 0;
+		} else { throw "bad argument in function set_car_driving_style_avoid_cars"; }
+	} catch (const char* x) { writelog(x); } return 0;
+}
+int set_car_driving_style_plough_through(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+			const void* p = lua_topointer(L, 1); CVehicle* car = findcarinpool(p);
+			if (car == NULL) { return 0; }
+			car->m_autoPilot.m_nDrivingStyle = DRIVINGSTYLE_PLOUGH_THROUGH; return 0;
+		} else { throw "bad argument in function set_car_driving_style_plough_through"; }
+	} catch (const char* x) { writelog(x); } return 0;
+}
+int set_car_driving_style_stop_for_cars_ignore_lights(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+			const void* p = lua_topointer(L, 1); CVehicle* car = findcarinpool(p);
+			if (car == NULL) { return 0; }
+			car->m_autoPilot.m_nDrivingStyle = DRIVINGSTYLE_STOP_FOR_CARS_IGNORE_LIGHTS; return 0;
+		} else { throw "bad argument in function set_car_driving_style_stop_for_cars_ignore_lights"; }
+	} catch (const char* x) { writelog(x); } return 0;
+}
+
+// Временные действия авто (setcaraction: действие, время). Время в секундах (как в setcaraction).
+static int _car_temp_action(lua_State* L, int action, const char* fname) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {
+			const void* p = lua_topointer(L, 1); CVehicle* car = findcarinpool(p);
+			if (car == NULL) { return 0; }
+			unsigned int t = (unsigned int)lua_tointeger(L, 2); unsigned int time = t * 10;
+			Command<COMMAND_SET_CAR_TEMP_ACTION>(CPools::GetVehicleRef(car), action, time); return 0;
+		} else { throw fname; }
+	} catch (const char* x) { writelog(x); } return 0;
+}
+int car_temp_action_none(lua_State* L) { return _car_temp_action(L, TEMPACT_NONE, "bad argument in function car_temp_action_none"); }
+int car_temp_action_wait(lua_State* L) { return _car_temp_action(L, TEMPACT_WAIT, "bad argument in function car_temp_action_wait"); }
+int car_temp_action_reverse(lua_State* L) { return _car_temp_action(L, TEMPACT_REVERSE, "bad argument in function car_temp_action_reverse"); }
+int car_temp_action_handbrake_turn_left(lua_State* L) { return _car_temp_action(L, TEMPACT_HANDBRAKETURNLEFT, "bad argument in function car_temp_action_handbrake_turn_left"); }
+int car_temp_action_handbrake_turn_right(lua_State* L) { return _car_temp_action(L, TEMPACT_HANDBRAKETURNRIGHT, "bad argument in function car_temp_action_handbrake_turn_right"); }
+int car_temp_action_handbrake_straight(lua_State* L) { return _car_temp_action(L, TEMPACT_HANDBRAKESTRAIGHT, "bad argument in function car_temp_action_handbrake_straight"); }
+int car_temp_action_turn_left(lua_State* L) { return _car_temp_action(L, TEMPACT_TURNLEFT, "bad argument in function car_temp_action_turn_left"); }
+int car_temp_action_turn_right(lua_State* L) { return _car_temp_action(L, TEMPACT_TURNRIGHT, "bad argument in function car_temp_action_turn_right"); }
+int car_temp_action_go_forward(lua_State* L) { return _car_temp_action(L, TEMPACT_GOFORWARD, "bad argument in function car_temp_action_go_forward"); }
+int car_temp_action_swerve_left(lua_State* L) { return _car_temp_action(L, TEMPACT_SWERVELEFT, "bad argument in function car_temp_action_swerve_left"); }
+int car_temp_action_swerve_right(lua_State* L) { return _car_temp_action(L, TEMPACT_SWERVERIGHT, "bad argument in function car_temp_action_swerve_right"); }
+
+// Миссии/задачи авто (setcartask, m_nCarMission). Отдельная функция на каждое поведение.
+static int _car_mission_set(lua_State* L, int mission, const char* fname) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+			const void* p = lua_topointer(L, 1); CVehicle* car = findcarinpool(p);
+			if (car == NULL) { return 0; }
+			car->m_autoPilot.m_nCarMission = (eCarMission)mission; return 0;
+		} else { throw fname; }
+	} catch (const char* x) { writelog(x); } return 0;
+}
+int car_mission_none(lua_State* L) { return _car_mission_set(L, MISSION_NONE, "bad argument in function car_mission_none"); }
+int car_mission_cruise(lua_State* L) { return _car_mission_set(L, MISSION_CRUISE, "bad argument in function car_mission_cruise"); }
+int car_mission_ram_player_faraway(lua_State* L) { return _car_mission_set(L, MISSION_RAMPLAYER_FARAWAY, "bad argument in function car_mission_ram_player_faraway"); }
+int car_mission_ram_player_close(lua_State* L) { return _car_mission_set(L, MISSION_RAMPLAYER_CLOSE, "bad argument in function car_mission_ram_player_close"); }
+int car_mission_block_player_faraway(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_FARAWAY, "bad argument in function car_mission_block_player_faraway"); }
+int car_mission_block_player_close(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_CLOSE, "bad argument in function car_mission_block_player_close"); }
+int car_mission_block_player_handbrake_stop(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_HANDBRAKESTOP, "bad argument in function car_mission_block_player_handbrake_stop"); }
+int car_mission_wait_for_deletion(lua_State* L) { return _car_mission_set(L, MISSION_WAITFORDELETION, "bad argument in function car_mission_wait_for_deletion"); }
+int car_mission_goto_coords(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS, "bad argument in function car_mission_goto_coords"); }
+int car_mission_goto_coords_straight(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS_STRAIGHT, "bad argument in function car_mission_goto_coords_straight"); }
+int car_mission_emergency_vehicle_stop(lua_State* L) { return _car_mission_set(L, MISSION_EMERGENCYVEHICLE_STOP, "bad argument in function car_mission_emergency_vehicle_stop"); }
+int car_mission_stop_forever(lua_State* L) { return _car_mission_set(L, MISSION_STOP_FOREVER, "bad argument in function car_mission_stop_forever"); }
+int car_mission_goto_coords_accurate(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS_ACCURATE, "bad argument in function car_mission_goto_coords_accurate"); }
+int car_mission_goto_coords_straight_accurate(lua_State* L) { return _car_mission_set(L, MISSION_GOTO_COORDS_STRAIGHT_ACCURATE, "bad argument in function car_mission_goto_coords_straight_accurate"); }
+int car_mission_goto_coords_as_the_crow_swims(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS_ASTHECROWSWIMS, "bad argument in function car_mission_goto_coords_as_the_crow_swims"); }
+int car_mission_ram_car_faraway(lua_State* L) { return _car_mission_set(L, MISSION_RAMCAR_FARAWAY, "bad argument in function car_mission_ram_car_faraway"); }
+int car_mission_ram_car_close(lua_State* L) { return _car_mission_set(L, MISSION_RAMCAR_CLOSE, "bad argument in function car_mission_ram_car_close"); }
+int car_mission_block_car_faraway(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKCAR_FARAWAY, "bad argument in function car_mission_block_car_faraway"); }
+int car_mission_block_car_close(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKCAR_CLOSE, "bad argument in function car_mission_block_car_close"); }
+int car_mission_block_car_handbrake_stop(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKCAR_HANDBRAKESTOP, "bad argument in function car_mission_block_car_handbrake_stop"); }
+int car_mission_heli_fly_to_coords(lua_State* L) { return _car_mission_set(L, MISSION_HELI_FLYTOCOORS, "bad argument in function car_mission_heli_fly_to_coords"); }
+int car_mission_attack_player(lua_State* L) { return _car_mission_set(L, MISSION_ATTACKPLAYER, "bad argument in function car_mission_attack_player"); }
+int car_mission_plane_fly_to_coords(lua_State* L) { return _car_mission_set(L, MISSION_PLANE_FLYTOCOORS, "bad argument in function car_mission_plane_fly_to_coords"); }
+int car_mission_heli_land(lua_State* L) { return _car_mission_set(L, MISSION_HELI_LAND, "bad argument in function car_mission_heli_land"); }
+int car_mission_slowly_drive_towards_player_1(lua_State* L) { return _car_mission_set(L, MISSION_SLOWLY_DRIVE_TOWARDS_PLAYER_1, "bad argument in function car_mission_slowly_drive_towards_player_1"); }
+int car_mission_slowly_drive_towards_player_2(lua_State* L) { return _car_mission_set(L, MISSION_SLOWLY_DRIVE_TOWARDS_PLAYER_2, "bad argument in function car_mission_slowly_drive_towards_player_2"); }
+int car_mission_block_player_forward_and_back(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_FORWARDANDBACK, "bad argument in function car_mission_block_player_forward_and_back"); }
+
+// (доп.) Обёртки скорости передвижения педа (ped_set_move_state)
+int ped_move_state_none(lua_State* L){
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)0); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_none";} }catch(const char* x){writelog(x);} return 0;
+}
+int ped_move_state_still(lua_State* L){
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)1); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_still";} }catch(const char* x){writelog(x);} return 0;
+}
+int ped_move_state_walk(lua_State* L){
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)2); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_walk";} }catch(const char* x){writelog(x);} return 0;
+}
+int ped_move_state_run(lua_State* L){
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)4); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_run";} }catch(const char* x){writelog(x);} return 0;
+}
+int ped_move_state_sprint(lua_State* L){
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)5); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_sprint";} }catch(const char* x){writelog(x);} return 0;
+}
+
+// (доп.) Обёртки поведения педа по pedstat (set_ped_stats_to). Старые функции сохранены.
+int set_ped_stat_player(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 0);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_player"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_cop(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 1);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_cop"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_medic(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 2);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_medic"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_fire(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 3);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_fire"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_gang1(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 4);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_gang1"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_gang2(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 5);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_gang2"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_gang3(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 6);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_gang3"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_gang4(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 7);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_gang4"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_gang5(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 8);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_gang5"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_gang6(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 9);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_gang6"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_gang7(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 10);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_gang7"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_street_guy(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 11);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_street_guy"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_suit_guy(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 12);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_suit_guy"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_sensible_guy(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 13);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_sensible_guy"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_geek_guy(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 14);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_geek_guy"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_old_guy(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 15);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_old_guy"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_tough_guy(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 16);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_tough_guy"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_street_girl(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 17);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_street_girl"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_suit_girl(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 18);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_suit_girl"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_sensible_girl(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 19);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_sensible_girl"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_geek_girl(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 20);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_geek_girl"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_old_girl(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 21);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_old_girl"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_tough_girl(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 22);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_tough_girl"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_tramp_male(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 23);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_tramp_male"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_tramp_female(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 24);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_tramp_female"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_tourist(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 25);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_tourist"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_prostitute(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 26);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_prostitute"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_criminal(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 27);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_criminal"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_busker(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 28);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_busker"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_taxidriver(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 29);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_taxidriver"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_psycho(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 30);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_psycho"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_steward(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 31);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_steward"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_sportsfan(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 32);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_sportsfan"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_shopper(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 33);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_shopper"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_oldshopper(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 34);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_oldshopper"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_beach_guy(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 35);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_beach_guy"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_beach_girl(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 36);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_beach_girl"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_skater(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 37);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_skater"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_std_mission(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 38);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_std_mission"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int set_ped_stat_coward(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+            const void* p = lua_topointer(L, 1); CPed* ped = findpedinpool(p);
+            if (ped == NULL) { return 0; }
+            Command<COMMAND_SET_CHAR_PERSONALITY>(CPools::GetPedRef(ped), 39);
+            return 0;
+        } else { throw "bad argument in function set_ped_stat_coward"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+
+// (доп.) Обёртки для работы с бандами (управление агрессией/поведением). Старые функции сохранены.
+int gang_enable_attack_player_with_cops(lua_State* L) { // pedtype: разрешить банде/типу педа атаковать игрока вместе с копами
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER == lua_type(L, 1)) {
+            int pedtype = lua_tointeger(L, 1);
+            CGangs::SetWillAttackPlayerWithCops((ePedType)pedtype, true);
+            return 0;
+        } else { throw "bad argument in function gang_enable_attack_player_with_cops"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int gang_disable_attack_player_with_cops(lua_State* L) { // pedtype: запретить атаковать игрока вместе с копами (сброс агрессии в этом аспекте)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER == lua_type(L, 1)) {
+            int pedtype = lua_tointeger(L, 1);
+            CGangs::SetWillAttackPlayerWithCops((ePedType)pedtype, false);
+            return 0;
+        } else { throw "bad argument in function gang_disable_attack_player_with_cops"; }
+    } catch (const char* x) { writelog(x); } return 0;
+}
+int reset_gangs(lua_State* L) { // сброс/реинициализация данных банд к стандартным
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    CGangs::Initialise();
+    return 0;
+}

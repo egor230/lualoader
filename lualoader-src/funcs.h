@@ -356,7 +356,7 @@ int remove_sphere(lua_State* L); // удалить сферу.
 int remove_ped(lua_State* L); // удалить педа.
 int remove_car(lua_State* L); // удалить авто.
 
-int car_in_water(lua_State* L); // проверка авто в воде?.
+int iscar_in_water(lua_State* L); // проверка авто в воде.
 int set_wanted(lua_State* L); // уcтановить уровень розыска.
 int clear_wanted(lua_State* L);// убрать уровень розыска.
 int set_police_ignore_player(lua_State* L);// копы игнорируют игрока (01F7: SET_POLICE_IGNORE_PLAYER).
@@ -2047,3 +2047,98 @@ int locate_player_any_means_char_3d(lua_State* L); // 00FB: игрок рядо�
 int is_player_in_area_3d(lua_State* L); // 0057: игрок в 3D-зоне ПО ДВУМ УГЛАМ (вариация ped_in_point_in_radius).
 int is_char_in_area_3d(lua_State* L); // 0154: пед в 3D-зоне по двум углам.
 int player_made_progress(lua_State* L); // 030C: процент прохождения игры (CStats::ProgressMade).
+
+// (доп.) Обёртки по значениям: стиль вождения, временные действия и миссии авто
+int set_car_driving_style_stop_for_cars(lua_State* L);
+int set_car_driving_style_slow_down_for_cars(lua_State* L);
+int set_car_driving_style_avoid_cars(lua_State* L);
+int set_car_driving_style_plough_through(lua_State* L);
+int set_car_driving_style_stop_for_cars_ignore_lights(lua_State* L);
+int car_temp_action_none(lua_State* L);
+int car_temp_action_wait(lua_State* L);
+int car_temp_action_reverse(lua_State* L);
+int car_temp_action_handbrake_turn_left(lua_State* L);
+int car_temp_action_handbrake_turn_right(lua_State* L);
+int car_temp_action_handbrake_straight(lua_State* L);
+int car_temp_action_turn_left(lua_State* L);
+int car_temp_action_turn_right(lua_State* L);
+int car_temp_action_go_forward(lua_State* L);
+int car_temp_action_swerve_left(lua_State* L);
+int car_temp_action_swerve_right(lua_State* L);
+int car_mission_none(lua_State* L);
+int car_mission_cruise(lua_State* L);
+int car_mission_ram_player_faraway(lua_State* L);
+int car_mission_ram_player_close(lua_State* L);
+int car_mission_block_player_faraway(lua_State* L);
+int car_mission_block_player_close(lua_State* L);
+int car_mission_block_player_handbrake_stop(lua_State* L);
+int car_mission_wait_for_deletion(lua_State* L);
+int car_mission_goto_coords(lua_State* L);
+int car_mission_goto_coords_straight(lua_State* L);
+int car_mission_emergency_vehicle_stop(lua_State* L);
+int car_mission_stop_forever(lua_State* L);
+int car_mission_goto_coords_accurate(lua_State* L);
+int car_mission_goto_coords_straight_accurate(lua_State* L);
+int car_mission_goto_coords_as_the_crow_swims(lua_State* L);
+int car_mission_ram_car_faraway(lua_State* L);
+int car_mission_ram_car_close(lua_State* L);
+int car_mission_block_car_faraway(lua_State* L);
+int car_mission_block_car_close(lua_State* L);
+int car_mission_block_car_handbrake_stop(lua_State* L);
+int car_mission_heli_fly_to_coords(lua_State* L);
+int car_mission_attack_player(lua_State* L);
+int car_mission_plane_fly_to_coords(lua_State* L);
+int car_mission_heli_land(lua_State* L);
+int car_mission_slowly_drive_towards_player_1(lua_State* L);
+int car_mission_slowly_drive_towards_player_2(lua_State* L);
+int car_mission_block_player_forward_and_back(lua_State* L);
+
+// (доп.) Обёртки: скорость передвижения педа, pedstat, банды
+int ped_move_state_none(lua_State* L);
+int ped_move_state_still(lua_State* L);
+int ped_move_state_walk(lua_State* L);
+int ped_move_state_run(lua_State* L);
+int ped_move_state_sprint(lua_State* L);
+int set_ped_stat_player(lua_State* L);
+int set_ped_stat_cop(lua_State* L);
+int set_ped_stat_medic(lua_State* L);
+int set_ped_stat_fire(lua_State* L);
+int set_ped_stat_gang1(lua_State* L);
+int set_ped_stat_gang2(lua_State* L);
+int set_ped_stat_gang3(lua_State* L);
+int set_ped_stat_gang4(lua_State* L);
+int set_ped_stat_gang5(lua_State* L);
+int set_ped_stat_gang6(lua_State* L);
+int set_ped_stat_gang7(lua_State* L);
+int set_ped_stat_street_guy(lua_State* L);
+int set_ped_stat_suit_guy(lua_State* L);
+int set_ped_stat_sensible_guy(lua_State* L);
+int set_ped_stat_geek_guy(lua_State* L);
+int set_ped_stat_old_guy(lua_State* L);
+int set_ped_stat_tough_guy(lua_State* L);
+int set_ped_stat_street_girl(lua_State* L);
+int set_ped_stat_suit_girl(lua_State* L);
+int set_ped_stat_sensible_girl(lua_State* L);
+int set_ped_stat_geek_girl(lua_State* L);
+int set_ped_stat_old_girl(lua_State* L);
+int set_ped_stat_tough_girl(lua_State* L);
+int set_ped_stat_tramp_male(lua_State* L);
+int set_ped_stat_tramp_female(lua_State* L);
+int set_ped_stat_tourist(lua_State* L);
+int set_ped_stat_prostitute(lua_State* L);
+int set_ped_stat_criminal(lua_State* L);
+int set_ped_stat_busker(lua_State* L);
+int set_ped_stat_taxidriver(lua_State* L);
+int set_ped_stat_psycho(lua_State* L);
+int set_ped_stat_steward(lua_State* L);
+int set_ped_stat_sportsfan(lua_State* L);
+int set_ped_stat_shopper(lua_State* L);
+int set_ped_stat_oldshopper(lua_State* L);
+int set_ped_stat_beach_guy(lua_State* L);
+int set_ped_stat_beach_girl(lua_State* L);
+int set_ped_stat_skater(lua_State* L);
+int set_ped_stat_std_mission(lua_State* L);
+int set_ped_stat_coward(lua_State* L);
+int gang_enable_attack_player_with_cops(lua_State* L);
+int gang_disable_attack_player_with_cops(lua_State* L);
+int reset_gangs(lua_State* L);

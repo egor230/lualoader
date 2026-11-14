@@ -260,7 +260,7 @@ int remove_sphere(lua_State* L); // удалить сферу.
 int remove_ped(lua_State* L); // удалить педа.
 int remove_car(lua_State* L); // удалить авто.
 
-int car_in_water(lua_State* L); // проверка авто в воде?.
+int iscar_in_water(lua_State* L); // проверка авто в воде.
 int set_wanted(lua_State* L); // уcтановить уровень розыска.
 int clear_wanted(lua_State* L);// убрать уровень розыска.
 int kill_ped(lua_State* L); // убить педа.
@@ -2000,7 +2000,7 @@ int remove_obj(lua_State* L) {// удалить объект.
 	return 0;
 };
 
-int car_in_water(lua_State* L) {// проверка авто в воде.
+int iscar_in_water(lua_State* L) {// проверка авто в воде.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {// указатель на авто.
 
@@ -2011,7 +2011,7 @@ int car_in_water(lua_State* L) {// проверка авто в воде.
 			lua_pushboolean(L, check_in_wanter);
 			return 1;
 		}
-		else { throw "bad argument in function car_in_water"; }
+		else { throw "bad argument in function iscar_in_water"; }
 	}
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
