@@ -2370,5 +2370,30 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_m_barracks_ol", get_m_barracks_ol); // 0x426A0A Barracks Ol
 	lua_register(L, "set_m_barracks_ol", set_m_barracks_ol);
 
+
+	// === ENGINE / LUA INTROSPECTION (21.11) ===
+	lua_register(L, "get_lua_version", get_lua_version); // 21.11: из папки «движок»
+	lua_register(L, "lua_memory_used", lua_memory_used); // 21.11: из папки «движок»
+	lua_register(L, "lua_gc_collect", lua_gc_collect); // 21.11: из папки «движок»
+	lua_register(L, "lua_gc_stop", lua_gc_stop); // 21.11: из папки «движок»
+	lua_register(L, "lua_gc_restart", lua_gc_restart); // 21.11: из папки «движок»
+	lua_register(L, "lua_gc_step", lua_gc_step); // 21.11: из папки «движок»
+	lua_register(L, "lua_is_yieldable", lua_is_yieldable); // 21.11: из папки «движок»
+	lua_register(L, "lua_stack_top", lua_stack_top); // 21.11: из папки «движок»
+	lua_register(L, "get_current_script_name", get_current_script_name); // 21.11: из папки «движок»
+	lua_register(L, "get_game_speed", get_game_speed); // 21.11: из папки «движок»
+	lua_register(L, "set_gamespeed", set_gamespeed); // 21.11: из папки «движок»
+	lua_register(L, "get_actor_health", get_actor_health); // 21.11: из папки «движок»
+	lua_register(L, "set_actor_health", set_actor_health); // 21.11: из папки «движок»
+
+	// === LOG LINE (21.11) ===
+	lua_register(L, "log_line", log_line); // 21.11: строка в lualoader/log.txt
+
+	// === AIRSHIP FLIGHT FLAG (21.11) ===
+	lua_register(L, "set_airship_cheat", set_airship_cheat); // 21.11: 0xA10B11 флаг полёта AIRSHIP
+	lua_register(L, "is_airship_cheat", is_airship_cheat); // 21.11: 0xA10B11 флаг полёта AIRSHIP
+
+	// === CAR GAS PEDAL (21.11) ===
+	lua_register(L, "set_car_gas", set_car_gas); // 21.11: m_fGasPedal +0x1F0 (тяга полёта)
 return 0;
 };

@@ -2776,3 +2776,32 @@ int set_m_fbi_rancher(lua_State* L);
 int get_m_barracks_ol(lua_State* L);
 int set_m_barracks_ol(lua_State* L);
 // === COMMUNITY ADDRESSES + HEADLIGHTS (20.11) ===
+
+// === ENGINE / LUA INTROSPECTION (21.11) ===
+int get_lua_version(lua_State* L);
+int lua_memory_used(lua_State* L);
+int lua_gc_collect(lua_State* L);
+int lua_gc_stop(lua_State* L);
+int lua_gc_restart(lua_State* L);
+int lua_gc_step(lua_State* L);
+int lua_is_yieldable(lua_State* L);
+int lua_stack_top(lua_State* L);
+int get_current_script_name(lua_State* L);
+int get_game_speed(lua_State* L);
+int set_gamespeed(lua_State* L);
+int get_actor_health(lua_State* L);
+int set_actor_health(lua_State* L);
+// === ENGINE / LUA INTROSPECTION (21.11) ===
+
+// === LOG LINE (21.11) ===
+int log_line(lua_State* L);
+// === LOG LINE (21.11) ===
+
+// === AIRSHIP FLIGHT FLAG (21.11) ===
+int set_airship_cheat(lua_State* L);
+int is_airship_cheat(lua_State* L);
+// === AIRSHIP FLIGHT FLAG (21.11) ===
+
+// === CAR GAS PEDAL (21.11) ===
+int set_car_gas(lua_State* L);
+// === CAR GAS PEDAL (21.11) ===

@@ -8,7 +8,7 @@
 
 > ## 🟢 ДОПОЛНЕНО 20.11.2026 (база reVC/IDA)
 >
-> **Счётчик API: 2327 вызовов `lua_register`, 2326 уникальных имён** (дубль `setarmour`). Добавлено **402 функции**: 394 обёртки над опкодами SCM из `tools/opcode_gap.py` (все `safe`+`risky`) и 8 реализаций из `funcs.cpp`, которые не регистрировались. Проверены параметры 550 вызовов `Command<>` по reVC; исправлены `police_radio_message`, `plane_goto_coords`, `heli_create_dust_effect`, `ensure_drive_by`, `clear_area_of_cars/chars`, `cleanarea`, `car_face_coord`, GXT-метки PRINT_*, таймеры. BUILD-GATE OK (30/0x24). Дополнительно: **224 функции для 110 адресов** из GTAMods Wiki / GTAForums (часть V справочника), включая фары: `patch_headlights`, `set_headlights_on/off`, `is_headlights_on`.
+> **Счётчик API: 2340 вызовов `lua_register`, 2339 уникальных имён** (дубль `setarmour`). Добавлено **402 функции**: 394 обёртки над опкодами SCM из `tools/opcode_gap.py` (все `safe`+`risky`) и 8 реализаций из `funcs.cpp`, которые не регистрировались. Проверены параметры 550 вызовов `Command<>` по reVC; исправлены `police_radio_message`, `plane_goto_coords`, `heli_create_dust_effect`, `ensure_drive_by`, `clear_area_of_cars/chars`, `cleanarea`, `car_face_coord`, GXT-метки PRINT_*, таймеры. BUILD-GATE OK (30/0x24). Дополнительно: **224 функции для 110 адресов** из GTAMods Wiki / GTAForums (часть V справочника), включая фары: `patch_headlights`, `set_headlights_on/off`, `is_headlights_on`.
 
 ## Оглавление полного издания
 
@@ -25,9 +25,9 @@
 
 > **АКТУАЛЬНО С 04.11.2026: 2021-поточная модель, `ma_sched` удалён** (один OS-поток на `.lua`, `wait(ms)` спит своим потоком кусками по 10 мс, `create_newthread` — ещё один OS-поток). Упомянутые в карточках «парковки корутины» — ИСТОРИЯ/УСТАРЕЛО. Краевые `wait_key(name, timeout)` и `keypress(name, timeout)` отключены (`g_key_edge_enabled = false`) и всегда возвращают `false`.
 >
-> Счётчик API (на 20.11.2026): **2327 вызовов `lua_register`, 2326 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11. Нижеприведённое число — срез на момент генерации справочника.
+> Счётчик API (на 20.11.2026): **2340 вызовов `lua_register`, 2339 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11. Нижеприведённое число — срез на момент генерации справочника.
 
-Всего уникальных зарегистрированных функций: **2326** (счётчик на 20.11.2026; в снимке генерации было 1699).
+Всего уникальных зарегистрированных функций: **2339** (счётчик на 20.11.2026; в снимке генерации было 1699).
 
 ## Как читать справочник
 
@@ -40368,9 +40368,9 @@
 
 > **АКТУАЛЬНО С 04.11.2026: 2021-поточная модель, `ma_sched` удалён** (один OS-поток на `.lua`, `wait(ms)` спит своим потоком кусками по 10 мс, `create_newthread` — ещё один OS-поток). Упомянутые «парковки корутины» — ИСТОРИЯ/УСТАРЕЛО. Краевые `wait_key(name, timeout)` и `keypress(name, timeout)` отключены (`g_key_edge_enabled = false`) и всегда возвращают `false`.
 >
-> Счётчик API (на 20.11.2026): **2327 вызовов `lua_register`, 2326 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11.
+> Счётчик API (на 20.11.2026): **2340 вызовов `lua_register`, 2339 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11.
 
-- Всего зарегистрированных функций (уникальных имён): **2326** (счётчик на 20.11.2026; в снимке генерации было 1608)
+- Всего зарегистрированных функций (уникальных имён): **2339** (счётчик на 20.11.2026; в снимке генерации было 1608)
 - Источник: `register.cpp` + описания из `04_СПРАВОЧНИК_LUA_API_ПОЛНЫЙ.md` (включая дополнения).
 - В документ включены все зарегистрированные функции; для функций с вариантами имён/опечаток сохранены отдельные записи.
 
@@ -42080,8 +42080,8 @@
 > ## 🟢 АКТУАЛЬНО С 04.11.2026: 2021-поточная модель, ma_sched удалён
 >
 > Один OS-поток (`std::thread` detach) на каждый `.lua`; `wait(ms)` спит СВОИМ потоком кусками по 10 мс; `create_newthread` поднимает ещё один OS-поток. `ma_sched` удалён из сборки; вызова `ma_sched_frame()` в `plugin.cpp` НЕТ — работают `ma_task_start_keyboard()`, `ma_tasks_frame()`, `lifecycle_tick()`. Упомянутые ниже парковки корутин (`ma_sched_park`/`lua_yield`) — **ИСТОРИЯ/УСТАРЕЛО**.
-> **Счётчик на 20.11.2026: 2327 вызовов `lua_register`, 2326 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11 (последние — `car_temp_action_*`, `car_mission_*`, `ped_move_state_*`, `set_ped_stat_*`, `gang_enable_attack_player_with_cops`, `gang_disable_attack_player_with_cops`, `reset_gangs`). Числа 1592/1591/1587/1586 ниже — исторические срезы; счётчики категорий — снимок 22.09, а не сумма.
-> **🟢 ДОПОЛНЕНО 20.11.2026 (база reVC/IDA):** +394 Lua-обёртки над опкодами SCM из каталога `tools/opcode_gap.py` (все `safe` + `risky`; 27 уже существующих и 4 языковых опкода пропущены); итого **2327 вызовов / 2326 уникальных имён**. Проверены параметры 550 вызовов `Command<>`: исправлены `police_radio_message` (3 float), `plane_goto_coords` (5-й арг. speed), `heli_create_dust_effect` (obj, radius, count), `ensure_drive_by` (player+ammo), `clear_area_of_cars/chars` (6 float), `cleanarea` (порядок x,y,z,r,flag), `car_face_coord` (3 арг.), печать GXT-меток PRINT_BIG/PRINT_NOW через 8 сырых байт, таймеры — прямым SDK-вызовом. BUILD-GATE OK (30/0x24).
+> **Счётчик на 20.11.2026: 2340 вызовов `lua_register`, 2339 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11 (последние — `car_temp_action_*`, `car_mission_*`, `ped_move_state_*`, `set_ped_stat_*`, `gang_enable_attack_player_with_cops`, `gang_disable_attack_player_with_cops`, `reset_gangs`). Числа 1592/1591/1587/1586 ниже — исторические срезы; счётчики категорий — снимок 22.09, а не сумма.
+> **🟢 ДОПОЛНЕНО 20.11.2026 (база reVC/IDA):** +394 Lua-обёртки над опкодами SCM из каталога `tools/opcode_gap.py` (все `safe` + `risky`; 27 уже существующих и 4 языковых опкода пропущены); итого **2340 вызовов / 2339 уникальных имён**. Проверены параметры 550 вызовов `Command<>`: исправлены `police_radio_message` (3 float), `plane_goto_coords` (5-й арг. speed), `heli_create_dust_effect` (obj, radius, count), `ensure_drive_by` (player+ammo), `clear_area_of_cars/chars` (6 float), `cleanarea` (порядок x,y,z,r,flag), `car_face_coord` (3 арг.), печать GXT-меток PRINT_BIG/PRINT_NOW через 8 сырых байт, таймеры — прямым SDK-вызовом. BUILD-GATE OK (30/0x24).
 > `wait([мс])` — сон СВОЕГО потока (не парковка корутины!): нечисло → `luaL_argerror`, по умолчанию 1 мс, при teardown → `luaL_error("SCRIPT_STOPPED_BY_CPP")`. Краевые `wait_key(name, timeout)` / `keypress(name, timeout)` отключены (`g_key_edge_enabled = false`) и всегда возвращают `false`; работает лёгкая `keypress(name)` через `ma_keys_poll()`.
 
 > **Документ 04** — справочник Lua-API. Набор: 00 (индекс/вылеты), 02 (проект),
@@ -42128,7 +42128,7 @@
 > - Регистраций `lua_register` — **1592** (**1591 уникальное имя**: `setarmour`
 >   дважды) — это срез 28.10; 27.10 было 1587, 28.10 добавлено 5 (миссионная
 >   бухгалтерия и объекты — см. блок 28.10 выше). ⚠️ **Счётчик на 20.11.2026:
->   2327 вызовов / 2326 уникальных имён** (93 новые функции добавлены после 07.11).
+>   2340 вызовов / 2339 уникальных имён** (93 новые функции добавлены после 07.11).
 >   Сигнатуры остальных функций не менялись.
 >
 > **ПРЕДЫДУЩЕЕ СОСТОЯНИЕ (26.10.2026, история; см. блок 27.10 выше).**
@@ -42171,7 +42171,7 @@
 > НИКОГДА. Скрипты, которые сами звали `loadmodel`/`availablemodel` перед этими
 > функциями, продолжают работать — просто теперь это дублирование, а не обязанность.
 
-**2327 регистрация / 2326 уникальных имён (счётчик на 20.11.2026; 93 новые функции после 07.11).** Для каждой: параметры по порядку, что возвращает,
+**2340 регистрация / 2339 уникальных имён (счётчик на 20.11.2026; 93 новые функции после 07.11).** Для каждой: параметры по порядку, что возвращает,
 короткое объяснение и пример вызова. Указатели на пед/авто/объект/игрока получаются
 функциями поиска: `findplayer()`, `findped...`, `findcar...`, `createped`, `createcar` и т.п.
 
@@ -44112,7 +44112,7 @@ per-lua_State: повторный вызов — no-op. `destroy()` стал т�
 - **Новые функции (22.09.2026)** — 20
 
 Всего в каталоге **1563 карточки** (номера 1–1580 с пропусками). В текущем
-`register.cpp` — **2327 вызовов / 2326 уникальных имён** (счётчик на 20.11.2026;
+`register.cpp` — **2340 вызовов / 2339 уникальных имён** (счётчик на 20.11.2026;
 93 новые функции добавлены после 07.11, новые регистрации — `car_temp_action_*`,
 `car_mission_*`, `ped_move_state_*`, `set_ped_stat_*`,
 `gang_enable_attack_player_with_cops`, `gang_disable_attack_player_with_cops`,
@@ -44730,3 +44730,90 @@ per-lua_State: повторный вызов — no-op. `destroy()` стал т�
 | `get_m_addr_426909` / `set_m_addr_426909` | 0x426909 | u8 | Vicechee 4 |
 | `get_m_fbi_rancher` / `set_m_fbi_rancher` | 0x4269BA | u8 | FBI Rancher |
 | `get_m_barracks_ol` / `set_m_barracks_ol` | 0x426A0A | u8 | Barracks Ol |
+
+---
+
+## Часть VI. Функции из папки «движок» (21.11.2026)
+
+Источник: `/mnt/807EB5FA7EB5E954/games/движок/` — книги по Lua 5.x (GC/VM), исходник Vice Lua (`vice_lua.txt` → `vice_lua.cpp`, события `OnDrawGame/OnUpdateGame/...`, `SCM_Enable`), CLEO-скрипты (`airbreak.txt`, `memory_functions.lua`).
+
+| Функция | Назначение |
+|---|---|
+| `get_lua_version()` | версия встроенного Lua |
+| `lua_memory_used()` | память Lua в КБ (`lua_gc(LUA_GCCOUNT)`) |
+| `lua_gc_collect()` | полный GC, возвращает освобождённые КБ |
+| `lua_gc_stop()` / `lua_gc_restart()` | останов/возобновление GC |
+| `lua_gc_step()` | шаг инкрементального GC |
+| `lua_is_yieldable()` | можно ли `yield` в текущем контексте |
+| `lua_stack_top()` | число значений на стеке Lua |
+| `get_current_script_name()` | имя своего `.lua` из реестра состояния |
+| `get_game_speed()` / `set_gamespeed(v)` | чтение/запись `CTimer::ms_fTimeScale` (CLEO 015D) |
+| `get_actor_health(ped)` / `set_actor_health(ped,v)` | алиасы `getpedhealth`/`setpedhealth` (CLEO 0225/0223) |
+
+Все функции зарегистрированы, сборка проходит с BUILD-GATE OK (30/0x24).
+
+---
+
+## Часть VII. Функции полёта и бомбардировки в `lualoader/mod.lua` (21.11.2026)
+
+Вспомогательная библиотека `mod.lua` дополнена двумя отдельными функциями. Они доступны любому скрипту, который делает `require("lualoader/mod")`.
+
+### Константы (в начале блока, меняются в одном месте)
+
+| Имя | Значение | Смысл |
+|---|---|---|
+| `PLANE_BOMB_ALTITUDE` | 20.0 | цель по Z = координаты Томми + 20 |
+| `PLANE_BOMB_SPAWN` | ALTITUDE + 30.0 | старт самолёта на 30 м выше цели (запас для разгона) |
+| `PLANE_BOMB_RADIUS` | 40.0 | радиус окружности вокруг игрока |
+| `PLANE_BOMB_SPEED` | 70 | стартовая скорость автопилота |
+| `PLANE_BOMB_LAPS` | 7 | число кругов |
+| `PLANE_BOMB_MODEL` | 564 | `#RCBOMB`, объект из `data/maps/generic.ide` / `models/gta3.img` |
+| `PLANE_BOMB_FUSE` | 3600 | таймер взрыва, мс |
+| `PLANE_BOMB_STALL` | 400 | когда начинать проверять «Z перестал меняться» |
+| `PLANE_BOMB_AHEAD` | 330.0 | цель полёта впереди самолёта (как `0,330,100` в старом CLEO) |
+
+### `PlaneBombDrop(plane, label)`
+
+Отдельная функция-поток для **одной бомбы**. Запускается через `create_newthread`, поэтому работа бомбы не останавливает полёт.
+
+Порядок работы:
+1. берутся координаты самолёта (`getcarcoordes`);
+2. создаётся объект `564` (`create_obj` — внутри него уже есть `REQUEST_MODEL → LOAD_ALL → HAS_MODEL_LOADED → CREATE_OBJECT`);
+3. `place_object_relative_to_car(bomb, plane, 0.0, 0.9, -2.70)` — бомба под брюхом;
+4. `set_object_rotation(bomb, -90, 0, 0)` — носом строго вниз;
+5. `set_object_collision`, `set_object_records_collisions`, `set_object_dynamic(true)` — включение физики падения;
+6. в цикле с `wait(50)` проверяются четыре условия взрыва: таймер 3,6 с, вода (`is_object_in_water`), земля (`getobjcoordes` против `world_find_ground_z_for_coord`) и «Z не меняется более 6 тактов после 400 мс»;
+7. при взрыве — `create_explosion(6, x, y, z)` и `delete_entity(bomb)`, в `log.txt` пишется `BOMB <label>: BOOM`.
+
+### `PlaneBombRun(player, laps)`
+
+Основная функция полёта. Создаёт SKIMMER, держит его вокруг игрока и сбрасывает бомбы в 4 вершинах.
+
+1. `getpedcoordes(player)` — координаты Томми; они остаются **центром окружности** и читаются каждый такт;
+2. `set_airship_cheat(true)` — C++-функция ставит флаг `0xA10B11` (AIRSHIP / «flying fish»): SKIMMER получает полётный контроль без водителя;
+3. самолёт создаётся в `px, py, pz + PLANE_BOMB_SPAWN`; иммунитеты игрока и самолёта включаются на время полёта;
+4. стартовая тяга: `setcarspeed(90)`, `carmovespeed(0, 2.5, 1.5)`, `set_car_gas(1.0)`; камера — `set_camera_on_car(plane, 15, 2)`;
+5. замыкание `flight_target`-логики прямо в цикле: угол вершины `0/90/180/270°`, цель `x + dirX*330`, `y + dirY*330`, `z = tomZ + 20`;
+6. `setcarangle` разворачивает нос к вершине, `plane_goto_coords(..., speed)` шлёт команду 0x04D2. **Сама C++-обёртка `plane_goto_coords` дополнительно выставляет AIRSHIP-флаг, педаль газа и вертикальную скорость к целевой Z**, поэтому дубли в Lua безвредны;
+7. при `d < 20` по X/Y считается, что вершина достигнута: `create_newthread(PlaneBombDrop, ...)`, переход к следующей точке; после 4-й — `lap + 1`;
+8. `VK_N` — досрочный выход; в конце снимаются иммунитеты и AIRSHIP-флаг, камера восстанавливается, самолёт удаляется;
+9. каждые 20 тактов в `log.txt` пишется телеметрия: `FLY t=... lap=... x/y/z самолёта | x/y/z Томми | cmd=... real=...`.
+
+### Вызов из скрипта
+
+```lua
+require("lualoader/mod")
+function main()
+  while true do
+    wait(10)
+    local p = findplayer()
+    if p ~= nil and Keypress("VK_G") then
+      Giveweaponped(p, 600, "uzi")
+      PlaneBombRun(p, PLANE_BOMB_LAPS)
+    end
+  end
+end
+```
+
+Каждая строка кода обеих функций в `mod.lua` снабжена комментарием; при изменении поведения править следует именно этот блок, а не копии в отдельных скриптах.
+

@@ -3,7 +3,10 @@
 #include <mutex>
 #include <vector>
 #include "compat/diag.h"// ma_diag::model_event — состояние модели в журнале сторожа (compat/diag.cpp)
-#include "compat/ma_tasks.h"// (23.10) кооперативный планировщик: задачи на игровом потоке, НЕ detached-потоки
+#include "compat/ma_tasks.h"
+
+// (21.11) определена ниже (COMMUNITY ADDRESSES) — объявление для plane_goto_coords.
+static void ma_w8(unsigned int a, unsigned char v);// (23.10) кооперативный планировщик: задачи на игровом потоке, НЕ detached-потоки
 // .cpp-исходники SDK подключаются ЗДЕСЬ (а не в funcs.h): их статические члены
 // должны определяться ровно в одной единице трансляции. Раньше, когда весь код
 // был одним TU, инклуд висел в funcs.h; при разделении на 3 файла это давало
@@ -15583,9 +15586,20 @@ int plane_goto_coords(lua_State* L) {// plane_goto_coords(car, x, y, z[, speed])
 			if (car == NULL) { return 0; }
 			float x = (float)lua_tonumber(L, 2), y = (float)lua_tonumber(L, 3), z = (float)lua_tonumber(L, 4);
 			int speed = (!lua_isnoneornil(L, 5) && LUA_TNUMBER == lua_type(L, 5)) ? lua_tointeger(L, 5) : 0;
-			if (car->m_nVehicleClass == VEHICLE_PLANE) {
-				Command<COMMAND_PLANE_GOTO_COORDS>(CPools::GetVehicleRef(car), x, y, z, speed);
-			}
+			// === ПОЛНЫЙ РЕЖИМ ПОЛЁТА (21.11) ===
+			// 1) AIRSHIP / «flying fish» — 0xA10B11: даёт SKIMMER полётный контроль без водителя.
+			ma_w8(0xA10B11, 1);
+			// 2) педаль газа (CVehicle::m_fGasPedal +0x1F0 и CBoat::m_fBoatGasPedal +0x314).
+			car->m_fGasPedal = 1.0f;
+			*reinterpret_cast<float*>(reinterpret_cast<char*>(car) + 0x314) = 1.0f;
+			// 3) удержание высоты: разница между целью и текущей Z идёт в ВЕРТИКАЛЬНУЮ
+			//    скорость. Команда шлётся каждый такт — значит самолёт не успеет просесть.
+			float dz = z - car->GetPosition().z;
+			float vz = dz * 0.12f;
+			if (vz < -1.0f) vz = -1.0f;
+			if (vz >  2.0f) vz =  2.0f;
+			car->m_vecMoveSpeed.z = vz;
+			Command<COMMAND_PLANE_GOTO_COORDS>(CPools::GetVehicleRef(car), x, y, z, speed);
 			return 0;
 		}
 		else { throw "bad argument in function plane_goto_coords(car,x,y,z[,speed])"; }
@@ -34397,3 +34411,117 @@ int set_m_fbi_rancher(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_
 int get_m_barracks_ol(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x426A0A)); return 1; }
 int set_m_barracks_ol(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x426A0A, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
 // === COMMUNITY ADDRESSES + HEADLIGHTS (20.11) ===
+
+// === ENGINE / LUA INTROSPECTION (21.11) ===
+// === ENGINE / LUA INTROSPECTION (21.11) ===
+// Функции, навеянные литературой и CLEO-скриптами из папки «движок»:
+// Lua 5.x books (GC/VM introspection), Vice Lua (SCM_Enable/events),
+// CLEO airbreak (015D set_gamespeed), memory_functions.lua.
+int get_lua_version(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_pushstring(L, LUA_VERSION " (" LUA_RELEASE ")"); return 1;
+}
+int lua_memory_used(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_pushinteger(L, lua_gc(L, LUA_GCCOUNT, 0)); return 1;
+}
+int lua_gc_collect(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    int before = lua_gc(L, LUA_GCCOUNT, 0);
+    lua_gc(L, LUA_GCCOLLECT, 0);
+    lua_pushinteger(L, before - lua_gc(L, LUA_GCCOUNT, 0)); return 1;
+}
+int lua_gc_stop(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_gc(L, LUA_GCSTOP, 0); return 0;
+}
+int lua_gc_restart(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_gc(L, LUA_GCRESTART, 0); return 0;
+}
+int lua_gc_step(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_pushboolean(L, lua_gc(L, LUA_GCSTEP, 0) != 0 ? 1 : 0); return 1;
+}
+int lua_is_yieldable(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_pushboolean(L, lua_isyieldable(L) ? 1 : 0); return 1;
+}
+int lua_stack_top(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_pushinteger(L, lua_gettop(L)); return 1;
+}
+int get_current_script_name(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    const char* name = wait_script_name(L);
+    lua_pushstring(L, name ? name : ""); return 1;
+}
+int get_game_speed(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_pushnumber(L, CTimer::ms_fTimeScale); return 1;
+}
+int set_gamespeed(lua_State* L) { // CLEO 015D: set_gamespeed — псевдоним с DIRECT записью
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; }
+    CTimer::ms_fTimeScale = (float)lua_tonumber(L,1);
+    lua_pushboolean(L,true); return 1;
+}
+int get_actor_health(lua_State* L) { // алиас getpedhealth (CLEO 0225)
+    return getpedhealth(L);
+}
+int set_actor_health(lua_State* L) { // алиас setpedhealth (CLEO 0223)
+    return setpedhealth(L);
+}
+
+// === ENGINE / LUA INTROSPECTION (21.11) ===
+
+// === LOG LINE (21.11) ===
+// === LOG LINE (21.11) ===
+// Пишет строку в единый журнал lualoader/log.txt (для телеметрии скриптов).
+int log_line(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    const char* s = (LUA_TSTRING == lua_type(L, 1)) ? lua_tostring(L, 1) : nullptr;
+    if (s) writelog(s);
+    return 0;
+}
+// === LOG LINE (21.11) ===
+
+// === AIRSHIP FLIGHT FLAG (21.11) ===
+// === AIRSHIP FLIGHT FLAG (21.11) ===
+// 0xA10B11 — флаг чита AIRSHIP / «flying fish» (CVehicle::bCheat8 в реверсе).
+// Именно он заставляет SKIMMER вызывать FlyingControl даже без игрока за рулём.
+int set_airship_cheat(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    bool on = true;
+    if (!lua_isnoneornil(L, 1)) {
+        if (LUA_TBOOLEAN != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
+        on = lua_toboolean(L, 1) != 0;
+    }
+    ma_w8(0xA10B11, on ? 1 : 0);
+    lua_pushboolean(L, true); return 1;
+}
+int is_airship_cheat(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_pushboolean(L, ma_r8(0xA10B11) != 0 ? 1 : 0); return 1;
+}
+// === AIRSHIP FLIGHT FLAG (21.11) ===
+
+// === CAR GAS PEDAL (21.11) ===
+// === CAR GAS PEDAL (21.11) ===
+// CVehicle::m_fGasPedal, смещение 0x1F0 (SDK VALIDATE_OFFSET).
+// Полётный режим SKIMMER/TellPlaneToGoToCoors берёт тягу из этой педали —
+// без неё самолёт без водителя теряет скорость и плавно опускается.
+int set_car_gas(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    if (LUA_TLIGHTUSERDATA != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) {
+        lua_pushboolean(L, false); return 1;
+    }
+    CVehicle* car = findcarinpool(lua_topointer(L, 1));
+    if (!car) { lua_pushboolean(L, false); return 1; }
+    float v = (float)lua_tonumber(L, 2);
+    if (v < 0.0f) v = 0.0f;
+    if (v > 1.0f) v = 1.0f;
+    ma_wf((unsigned int)car + 0x1F0, v);
+    lua_pushboolean(L, true); return 1;
+}
+// === CAR GAS PEDAL (21.11) ===
