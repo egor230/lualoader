@@ -2,42 +2,27 @@
 
 
 -- ============================================================================
--- БОМБАРДИРОВКА: самолёт кружит по 4 точкам окружности вокруг игрока и
--- сбрасывает бомбу раз в круг; всего 7 кругов. Добавлено 20.11.2026.
--- Правила проекта: только local-переменные, wait() в каждом цикле, сущности
--- удаляются вручную (remove_car / delete_entity), модель 564 = rcbomb из gta3.img.
+-- БОМБАРДИРОВКА (20.11.2026): SKIMMER (190) РЕАЛЬНО ЛЕТИТ по окружности вокруг
+-- игрока. Никаких телепортов: каждый такт задаём КУРС (setcarangle) и ВЕКТОР
+-- СКОРОСТИ (carmovespeed → CVehicle::m_vecMoveSpeed), а движок сам интегрирует
+-- движение, гравитацию и flying handling Skimmerа (HANDLING_SEAPLANE).
+-- Это тот же принцип, что у чита «летающие авто»: не перенос, а физика полёта.
+-- 4 точки окружности r=30 м, высота +20 м, 7 кругов, бомба за круг (объект 564).
 -- ============================================================================
-local function circle_point(cx, cy, r, deg)
-  local a = math.rad(deg)
-  return cx + r * math.cos(a), cy + r * math.sin(a)
-end
-
-local function heading_to(x1, y1, x2, y2)
-  -- В SCM курс 0 = +Y (север), 90 = +X => atan2(dx, dy).
-  local h = math.deg(math.atan2(x2 - x1, y2 - y1))
-  if h < 0 then h = h + 360 end
-  return h
-end
-
-local function drop_bomb(plane)
-  local bx, by, bz = getcarcoordes(plane)
-  -- 564 = rcbomb (models/gta3.img), смоделирован носом вниз — «брюхо» самолёта.
-  local bomb = create_obj(564, bx, by, bz - 1.5)
-  if bomb == nil then return end
-  set_object_rotation(bomb, 0, 0, 0) -- вертикально вниз (штатная ориентация rcbomb)
-  set_object_dynamic(bomb, true)    -- 0392: объект падает под гравитацией
-  set_object_collision(bomb, true)
-  local guard = 0
-  while isobject(bomb) and guard < 200 do
-    wait(50)
-    local ox, oy, oz = getobjcoordes(bomb)
-    local gz = world_find_ground_z_for_coord(ox, oy)
-    if oz <= gz + 0.8 then           -- коснулся земли
-      create_explosion(6, ox, oy, oz) -- 6 = большой взрыв
-      delete_entity(bomb)             -- модель уничтожена
-      break
+local function update_bombs(bombs)
+  for i = #bombs, 1, -1 do
+    local bomb = bombs[i]
+    if not isobject(bomb) then
+      table.remove(bombs, i)
+    else
+      local ox, oy, oz = getobjcoordes(bomb)
+      local gz = world_find_ground_z_for_coord(ox, oy)
+      if oz <= gz + 0.8 then              -- коснулся земли
+        create_explosion(6, ox, oy, oz)   -- 6 = большой взрыв
+        delete_entity(bomb)               -- модель уничтожена
+        table.remove(bombs, i)
+      end
     end
-    guard = guard + 1
   end
 end
 
@@ -45,30 +30,69 @@ local function bombing_run(player)
   local px, py, pz = getpedcoordes(player)
   local altitude = pz + 20.0
   local radius = 30.0
-  local plane = Createcar("MODEL_CUBAN", px, py, altitude)
+  local plane = Createcar("MODEL_SKIMMER", px + radius, py, altitude)
   if plane == nil or not isvehicle(plane) then return end
+  setcarspeed(plane, 60)   -- круизная скорость (двигатель работает)
 
-  -- 4 точки на окружности с равным угловым шагом 90°.
-  local pts = {}
-  for k = 0, 3 do
-    local x, y = circle_point(px, py, radius, k * 90)
-    pts[#pts + 1] = { x = x, y = y }
-  end
+  local bombs = {}
+  local SPEED = 1.0        -- m_vecMoveSpeed: ~1 юнит/такт ≈ 180 км/ч
+  local last = nil
+  local travelled = 0.0    -- накопленный угол полёта
+  local lap = 0
 
-  for round = 1, 7 do               -- всё действие повторяется 7 раз
-    for k = 1, 4 do
-      local a = pts[k]
-      local b = pts[(k % 4) + 1]
-      local h = heading_to(a.x, a.y, b.x, b.y)
-      -- плавно ведём самолёт от точки a к точке b (25 шагов по 100 мс ≈ 2,5 с)
-      for step = 1, 25 do
-        local t = step / 25
-        setcarcoordes(plane, a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, altitude)
-        setcarangle(plane, h)
-        wait(3000)
+  while lap < 7 do
+    local x, y, z = getcarcoordes(plane)
+
+    -- текущий угол на окружности
+    local deg = math.deg(math.atan2(y - py, x - px)) % 360
+    if last ~= nil then
+      local d = deg - last
+      if d < -180 then d = d + 360 end
+      if d > 180 then d = d - 360 end
+      travelled = travelled + d
+    end
+    last = deg
+
+    -- полный оборот → сброс бомбы
+    if travelled >= 360 * (lap + 1) then
+      lap = lap + 1
+      local bx, by, bz = getcarcoordes(plane)
+      local bomb = create_obj(564, bx, by, bz - 1.5)
+      if bomb ~= nil then
+        set_object_rotation(bomb, 0, 0, 0)
+        set_object_dynamic(bomb, true)
+        set_object_collision(bomb, true)
+        bombs[#bombs + 1] = bomb
       end
     end
-    drop_bomb(plane)                -- один сброс за полный круг (~10 секунд)
+
+    -- цель — точка на окружности на 12° вперёд; летим into неё, а не телепортируемся
+    local a = math.rad(deg + 12)
+    local tx = px + radius * math.cos(a)
+    local ty = py + radius * math.sin(a)
+    local dx = tx - x
+    local dy = ty - y
+    local len = math.sqrt(dx * dx + dy * dy)
+    if len < 0.001 then len = 0.001 end
+    local heading = math.deg(math.atan2(dx, dy)) % 360
+    setcarangle(plane, heading)
+
+    -- удержание высоты: маленькая вертикальная скорость вместо телепорта
+    local vz = 0.0
+    if z < altitude - 0.5 then vz = 0.15
+    elseif z > altitude + 0.5 then vz = -0.15 end
+    carmovespeed(plane, dx / len * SPEED, dy / len * SPEED, vz)
+
+    update_bombs(bombs)      -- бомбы падают параллельно, полёт не останавливается
+    wait(100)
+  end
+
+  -- хвост бомб уже без самолёта
+  local guard = 0
+  while #bombs > 0 and guard < 200 do
+    update_bombs(bombs)
+    guard = guard + 1
+    wait(50)
   end
   remove_car(plane)
 end
@@ -77,7 +101,7 @@ while true do wait(10)-- задержка.
   player = findplayer()-- получить игрока.
  if Keypress("VK_G") -- если клавиша G.
   then   Giveweaponped(player,600,"uzi")-- дать педу оружие.
-         bombing_run(player)             -- 7 кругов, 4 точки окружности, сброс бомбы
+         bombing_run(player)             -- 7 кругов реальным полётом, сброс бомбы раз в круг
  end
  --mod_autoaim("m4", "on")  printmessage("~r~on autoaim", 3400,1 )
  --

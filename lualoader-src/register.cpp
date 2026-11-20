@@ -2143,5 +2143,232 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_player_in_shortcut_taxi", is_player_in_shortcut_taxi); // 0x0596 COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI (reVC Script8.cpp:336)
 	lua_register(L, "register_fire_level", register_fire_level); // 0x0599 COMMAND_REGISTER_FIRE_LEVEL (reVC Script8.cpp:370)
 
+
+	// === COMMUNITY ADDRESSES + HEADLIGHTS (20.11) ===
+	lua_register(L, "patch_headlights", patch_headlights); // GTAForums 0x58CD4E
+	lua_register(L, "set_headlights_on", set_headlights_on);
+	lua_register(L, "set_headlights_off", set_headlights_off);
+	lua_register(L, "is_headlights_on", is_headlights_on);
+	lua_register(L, "get_m_timepassingmeby_faster_time", get_m_timepassingmeby_faster_time); // 0xA10B87 TIMEPASSINGMEBY faster time
+	lua_register(L, "set_m_timepassingmeby_faster_time", set_m_timepassingmeby_faster_time);
+	lua_register(L, "get_m_youwonttakemealive_wanted_level", get_m_youwonttakemealive_wanted_level); // 0x4ABF4C YOUWONTTAKEMEALIVE set wanted level
+	lua_register(L, "set_m_youwonttakemealive_wanted_level", set_m_youwonttakemealive_wanted_level);
+	lua_register(L, "get_m_leavemealone_wanted_level", get_m_leavemealone_wanted_level); // 0x4ABFC4 LEAVEMEALONE set wanted level
+	lua_register(L, "set_m_leavemealone_wanted_level", set_m_leavemealone_wanted_level);
+	lua_register(L, "get_m_apleasantday_weather", get_m_apleasantday_weather); // 0x4AC009 APLEASANTDAY set weather
+	lua_register(L, "set_m_apleasantday_weather", set_m_apleasantday_weather);
+	lua_register(L, "get_m_alovelyday_weather", get_m_alovelyday_weather); // 0x4AC04E ALOVELYDAY set weather
+	lua_register(L, "set_m_alovelyday_weather", set_m_alovelyday_weather);
+	lua_register(L, "get_m_abitdrieg_weather", get_m_abitdrieg_weather); // 0x4AC099 ABITDRIEG set weather
+	lua_register(L, "set_m_abitdrieg_weather", set_m_abitdrieg_weather);
+	lua_register(L, "get_m_catsanddogs_weather", get_m_catsanddogs_weather); // 0x4AC0DE CATSANDDOGS set weather
+	lua_register(L, "set_m_catsanddogs_weather", set_m_catsanddogs_weather);
+	lua_register(L, "get_m_cantseeathing_weather", get_m_cantseeathing_weather); // 0x4AC129 CANTSEEATHING set weather
+	lua_register(L, "set_m_cantseeathing_weather", set_m_cantseeathing_weather);
+	lua_register(L, "get_m_panzer_rhino_model", get_m_panzer_rhino_model); // 0x4AC14B PANZER Rhino model
+	lua_register(L, "set_m_panzer_rhino_model", set_m_panzer_rhino_model);
+	lua_register(L, "get_m_travelinstyle_bloodring_a_model", get_m_travelinstyle_bloodring_a_model); // 0x4AC946 TRAVELINSTYLE Bloodring A model
+	lua_register(L, "set_m_travelinstyle_bloodring_a_model", set_m_travelinstyle_bloodring_a_model);
+	lua_register(L, "get_m_thelastride_romero_hearse_model", get_m_thelastride_romero_hearse_model); // 0x4AC976 THELASTRIDE Romero's Hearse model
+	lua_register(L, "set_m_thelastride_romero_hearse_model", set_m_thelastride_romero_hearse_model);
+	lua_register(L, "get_m_rockandrollcar_love_fist_model", get_m_rockandrollcar_love_fist_model); // 0x4AC9A6 ROCKANDROLLCAR Love Fist model
+	lua_register(L, "set_m_rockandrollcar_love_fist_model", set_m_rockandrollcar_love_fist_model);
+	lua_register(L, "get_m_rubbishcar_trashmaster_model", get_m_rubbishcar_trashmaster_model); // 0x4AC9D6 RUBBISHCAR Trashmaster model
+	lua_register(L, "set_m_rubbishcar_trashmaster_model", set_m_rubbishcar_trashmaster_model);
+	lua_register(L, "get_m_gettherefast_sabre_turbo_model", get_m_gettherefast_sabre_turbo_model); // 0x4ACA06 GETTHEREFAST Sabre Turbo model
+	lua_register(L, "set_m_gettherefast_sabre_turbo_model", set_m_gettherefast_sabre_turbo_model);
+	lua_register(L, "get_m_betterthanwalking_caddy_model", get_m_betterthanwalking_caddy_model); // 0x4ACA36 BETTERTHANWALKING Caddy model
+	lua_register(L, "set_m_betterthanwalking_caddy_model", set_m_betterthanwalking_caddy_model);
+	lua_register(L, "get_m_gettherequickly_bloodring_b_model", get_m_gettherequickly_bloodring_b_model); // 0x4ACDD6 GETTHEREQUICKLY Bloodring B model
+	lua_register(L, "set_m_gettherequickly_bloodring_b_model", set_m_gettherequickly_bloodring_b_model);
+	lua_register(L, "get_m_getthereveryfastindeed_hotring_a_model", get_m_getthereveryfastindeed_hotring_a_model); // 0x4ACE06 GETTHEREVERYFASTINDEED Hotring A model
+	lua_register(L, "set_m_getthereveryfastindeed_hotring_a_model", set_m_getthereveryfastindeed_hotring_a_model);
+	lua_register(L, "get_m_getthereamazinglyfast_hotring_b_model", get_m_getthereamazinglyfast_hotring_b_model); // 0x4ACE36 GETTHEREAMAZINGLYFAST Hotring B model
+	lua_register(L, "set_m_getthereamazinglyfast_hotring_b_model", set_m_getthereamazinglyfast_hotring_b_model);
+	lua_register(L, "get_m_nuttertools_chainsaw_model", get_m_nuttertools_chainsaw_model); // 0x4AEAEF NUTTERTOOLS Chainsaw model
+	lua_register(L, "set_m_nuttertools_chainsaw_model", set_m_nuttertools_chainsaw_model);
+	lua_register(L, "get_m_nuttertools_chainsaw_weapon_note", get_m_nuttertools_chainsaw_weapon_note); // 0x4AEB77 NUTTERTOOLS Chainsaw weapon number (NOTE: Model needs to be 
+	lua_register(L, "set_m_nuttertools_chainsaw_weapon_note", set_m_nuttertools_chainsaw_weapon_note);
+	lua_register(L, "get_m_nuttertools_m4_weapon_note", get_m_nuttertools_m4_weapon_note); // 0x4AEBD4 NUTTERTOOLS M4 weapon number (NOTE: Model needs to be loaded
+	lua_register(L, "set_m_nuttertools_m4_weapon_note", set_m_nuttertools_m4_weapon_note);
+	lua_register(L, "get_m_nuttertools_sniper_weapon_note", get_m_nuttertools_sniper_weapon_note); // 0x4AEBE6 NUTTERTOOLS .308 Sniper weapon number (NOTE: Model needs to 
+	lua_register(L, "set_m_nuttertools_sniper_weapon_note", set_m_nuttertools_sniper_weapon_note);
+	lua_register(L, "get_m_nuttertools_minigun_weapon_note", get_m_nuttertools_minigun_weapon_note); // 0x4AEBFB NUTTERTOOLS Minigun weapon number (NOTE: Model needs to be l
+	lua_register(L, "set_m_nuttertools_minigun_weapon_note", set_m_nuttertools_minigun_weapon_note);
+	lua_register(L, "get_m_professionaltools_katana_model", get_m_professionaltools_katana_model); // 0x4AEC8F PROFESSIONALTOOLS Katana model
+	lua_register(L, "set_m_professionaltools_katana_model", set_m_professionaltools_katana_model);
+	lua_register(L, "get_m_professionaltools_katana_weapon_note", get_m_professionaltools_katana_weapon_note); // 0x4AED17 PROFESSIONALTOOLS Katana weapon number (NOTE: Model needs to
+	lua_register(L, "set_m_professionaltools_katana_weapon_note", set_m_professionaltools_katana_weapon_note);
+	lua_register(L, "get_m_professionaltools_m4_weapon_note", get_m_professionaltools_m4_weapon_note); // 0x4AED74 PROFESSIONALTOOLS M4 weapon number (NOTE: Model needs to be 
+	lua_register(L, "set_m_professionaltools_m4_weapon_note", set_m_professionaltools_m4_weapon_note);
+	lua_register(L, "get_m_professionaltools_sniper_weapon_note", get_m_professionaltools_sniper_weapon_note); // 0x4AED86 PROFESSIONALTOOLS .308 Sniper weapon number (NOTE: Model nee
+	lua_register(L, "set_m_professionaltools_sniper_weapon_note", set_m_professionaltools_sniper_weapon_note);
+	lua_register(L, "get_m_professionaltools_rocket_launcher_weapon", get_m_professionaltools_rocket_launcher_weapon); // 0x4AED98 PROFESSIONALTOOLS Rocket Launcher weapon number (NOTE: Model
+	lua_register(L, "set_m_professionaltools_rocket_launcher_weapon", set_m_professionaltools_rocket_launcher_weapon);
+	lua_register(L, "get_m_thugstools_brass_knuckles_model", get_m_thugstools_brass_knuckles_model); // 0x4AEE1F THUGSTOOLS Brass Knuckles model
+	lua_register(L, "set_m_thugstools_brass_knuckles_model", set_m_thugstools_brass_knuckles_model);
+	lua_register(L, "get_m_thugstools_brass_knuckles_weapon", get_m_thugstools_brass_knuckles_weapon); // 0x4AEEA7 THUGSTOOLS Brass Knuckles weapon number (NOTE: Model needs t
+	lua_register(L, "set_m_thugstools_brass_knuckles_weapon", set_m_thugstools_brass_knuckles_weapon);
+	lua_register(L, "get_m_thugstools_tec_weapon_note", get_m_thugstools_tec_weapon_note); // 0x4AEF04 THUGSTOOLS Tec 9 weapon number (NOTE: Model needs to be load
+	lua_register(L, "set_m_thugstools_tec_weapon_note", set_m_thugstools_tec_weapon_note);
+	lua_register(L, "get_m_thugstools_kruger_weapon_note", get_m_thugstools_kruger_weapon_note); // 0x4AEF16 THUGSTOOLS Kruger weapon number (NOTE: Model needs to be loa
+	lua_register(L, "set_m_thugstools_kruger_weapon_note", set_m_thugstools_kruger_weapon_note);
+	lua_register(L, "get_m_thugstools_sniper_rifle_weapon", get_m_thugstools_sniper_rifle_weapon); // 0x4AEF28 THUGSTOOLS Sniper Rifle weapon number (NOTE: Model needs to 
+	lua_register(L, "set_m_thugstools_sniper_rifle_weapon", set_m_thugstools_sniper_rifle_weapon);
+	lua_register(L, "get_m_thugstools_flame_thrower_weapon", get_m_thugstools_flame_thrower_weapon); // 0x4AEF38 THUGSTOOLS Flame Thrower weapon number (NOTE: Model needs to
+	lua_register(L, "set_m_thugstools_flame_thrower_weapon", set_m_thugstools_flame_thrower_weapon);
+	lua_register(L, "get_m_deepfriedmarsbars_programmer_tommy_body", get_m_deepfriedmarsbars_programmer_tommy_body); // 0x68E058 DEEPFRIEDMARSBARS/PROGRAMMER Tommy's body width
+	lua_register(L, "set_m_deepfriedmarsbars_programmer_tommy_body", set_m_deepfriedmarsbars_programmer_tommy_body);
+	lua_register(L, "get_m_onspeed_game_speed", get_m_onspeed_game_speed); // 0x68F1F0 ONSPEED set game speed
+	lua_register(L, "set_m_onspeed_game_speed", set_m_onspeed_game_speed);
+	lua_register(L, "get_m_onspeed_game_speed_multiplier", get_m_onspeed_game_speed_multiplier); // 0x68F1F4 ONSPEED game speed multiplier
+	lua_register(L, "set_m_onspeed_game_speed_multiplier", set_m_onspeed_game_speed_multiplier);
+	lua_register(L, "get_m_booooooring_game_speed", get_m_booooooring_game_speed); // 0x68F1F8 BOOOOOORING set game speed
+	lua_register(L, "set_m_booooooring_game_speed", set_m_booooooring_game_speed);
+	lua_register(L, "get_m_booooooring_game_speed_multiplier", get_m_booooooring_game_speed_multiplier); // 0x68F1FC BOOOOOORING game speed multiplier
+	lua_register(L, "set_m_booooooring_game_speed_multiplier", set_m_booooooring_game_speed_multiplier);
+	lua_register(L, "get_m_chasestat", get_m_chasestat); // 0x97F2C4 CHASESTAT cheat switch
+	lua_register(L, "set_m_chasestat", set_m_chasestat);
+	lua_register(L, "get_m_ourgodgivenrighttobeararms", get_m_ourgodgivenrighttobeararms); // 0xA10AB3 OURGODGIVENRIGHTTOBEARARMS cheat switch
+	lua_register(L, "set_m_ourgodgivenrighttobeararms", set_m_ourgodgivenrighttobeararms);
+	lua_register(L, "get_m_greenlight", get_m_greenlight); // 0xA10ADC GREENLIGHT cheat switch
+	lua_register(L, "set_m_greenlight", set_m_greenlight);
+	lua_register(L, "get_m_gripiseverything", get_m_gripiseverything); // 0xA10B0F GRIPISEVERYTHING cheat switch
+	lua_register(L, "set_m_gripiseverything", set_m_gripiseverything);
+	lua_register(L, "get_m_airship", get_m_airship); // 0xA10B11 AIRSHIP cheat switch
+	lua_register(L, "set_m_airship", set_m_airship);
+	lua_register(L, "get_m_certaindeath", get_m_certaindeath); // 0xA10B23 CERTAINDEATH cheat switch
+	lua_register(L, "set_m_certaindeath", set_m_certaindeath);
+	lua_register(L, "get_m_ahairdresserscar", get_m_ahairdresserscar); // 0xA10B26 AHAIRDRESSERSCAR cheat switch
+	lua_register(L, "set_m_ahairdresserscar", set_m_ahairdresserscar);
+	lua_register(L, "get_m_comeflywithme", get_m_comeflywithme); // 0xA10B28 COMEFLYWITHME cheat switch
+	lua_register(L, "set_m_comeflywithme", set_m_comeflywithme);
+	lua_register(L, "get_m_used_flag", get_m_used_flag); // 0xA10B2E Cheat is used flag
+	lua_register(L, "set_m_used_flag", set_m_used_flag);
+	lua_register(L, "get_m_wheelsareallineed", get_m_wheelsareallineed); // 0xA10B30 WHEELSAREALLINEED cheat switch
+	lua_register(L, "set_m_wheelsareallineed", set_m_wheelsareallineed);
+	lua_register(L, "get_m_miamitraffic", get_m_miamitraffic); // 0xA10B47 MIAMITRAFFIC cheat switch
+	lua_register(L, "set_m_miamitraffic", set_m_miamitraffic);
+	lua_register(L, "get_m_fannymagnet", get_m_fannymagnet); // 0xA10B5F FANNYMAGNET cheat switch
+	lua_register(L, "set_m_fannymagnet", set_m_fannymagnet);
+	lua_register(L, "get_m_seaways", get_m_seaways); // 0xA10B81 SEAWAYS cheat switch
+	lua_register(L, "set_m_seaways", set_m_seaways);
+	lua_register(L, "get_m_iwantitpaintedblack", get_m_iwantitpaintedblack); // 0xA10B82 IWANTITPAINTEDBLACK cheat switch
+	lua_register(L, "set_m_iwantitpaintedblack", set_m_iwantitpaintedblack);
+	lua_register(L, "get_m_lifeispassingmeby", get_m_lifeispassingmeby); // 0xA10B87 LIFEISPASSINGMEBY cheat
+	lua_register(L, "set_m_lifeispassingmeby", set_m_lifeispassingmeby);
+	lua_register(L, "get_m_opcode_de_check_if", get_m_opcode_de_check_if); // 0x456046 Opcode 02DE check if player is in a Taxi
+	lua_register(L, "set_m_opcode_de_check_if", set_m_opcode_de_check_if);
+	lua_register(L, "get_m_cash_when_entering_a", get_m_cash_when_entering_a); // 0x5B8AB6 Cash when entering a taxi (set to 12 by default)
+	lua_register(L, "set_m_cash_when_entering_a", set_m_cash_when_entering_a);
+	lua_register(L, "get_m_kaufman_cabs_radio_flag", get_m_kaufman_cabs_radio_flag); // 0xA10B7F Kaufman Cabs' radio flag
+	lua_register(L, "set_m_kaufman_cabs_radio_flag", set_m_kaufman_cabs_radio_flag);
+	lua_register(L, "get_m_kaufman_cabs_spawn_note", get_m_kaufman_cabs_spawn_note); // 0x42AEAC Kaufman Cabs spawn (NOTE: Model needs to be loaded through 0
+	lua_register(L, "set_m_kaufman_cabs_spawn_note", set_m_kaufman_cabs_spawn_note);
+	lua_register(L, "get_m_kaufman_cabs_model_load", get_m_kaufman_cabs_model_load); // 0x42AFB3 Kaufman Cabs model load
+	lua_register(L, "set_m_kaufman_cabs_model_load", set_m_kaufman_cabs_model_load);
+	lua_register(L, "get_m_blue_fade_in_color", get_m_blue_fade_in_color); // 0x42B219 Blue fade in color
+	lua_register(L, "set_m_blue_fade_in_color", set_m_blue_fade_in_color);
+	lua_register(L, "get_m_taxi_text_duration", get_m_taxi_text_duration); // 0x42B24E TAXI text duration
+	lua_register(L, "set_m_taxi_text_duration", set_m_taxi_text_duration);
+	lua_register(L, "get_m_x_coord_taxi_destination", get_m_x_coord_taxi_destination); // 0x94DD94 X-coord taxi destination (updated by opcode 058E)
+	lua_register(L, "set_m_x_coord_taxi_destination", set_m_x_coord_taxi_destination);
+	lua_register(L, "get_m_taxi_spawn", get_m_taxi_spawn); // 0x94EEB8 Set taxi to spawn
+	lua_register(L, "set_m_taxi_spawn", set_m_taxi_spawn);
+	lua_register(L, "get_m_angle_taxi_destination", get_m_angle_taxi_destination); // 0xA0D378 Angle taxi destination
+	lua_register(L, "set_m_angle_taxi_destination", set_m_angle_taxi_destination);
+	lua_register(L, "get_m_activate_mission_restart_taxi", get_m_activate_mission_restart_taxi); // 0xA10B6D Activate mission restart taxi
+	lua_register(L, "set_m_activate_mission_restart_taxi", set_m_activate_mission_restart_taxi);
+	lua_register(L, "get_m_camera_move_when_entering", get_m_camera_move_when_entering); // 0x46B389 camera move when entering/exiting car
+	lua_register(L, "set_m_camera_move_when_entering", set_m_camera_move_when_entering);
+	lua_register(L, "get_m_same", get_m_same); // 0x46B58F same [5]
+	lua_register(L, "set_m_same", set_m_same);
+	lua_register(L, "get_m_camera_distance_from_only", get_m_camera_distance_from_only); // 0x68AE2E camera distance from player (set only lower, higher bugs the
+	lua_register(L, "set_m_camera_distance_from_only", set_m_camera_distance_from_only);
+	lua_register(L, "get_m_cinema_top_border_height", get_m_cinema_top_border_height); // 0x68AEE0 cinema top border height
+	lua_register(L, "set_m_cinema_top_border_height", set_m_cinema_top_border_height);
+	lua_register(L, "get_m_cinema_bottom_border_height", get_m_cinema_bottom_border_height); // 0x68AEE4 cinema bottom border height
+	lua_register(L, "set_m_cinema_bottom_border_height", set_m_cinema_bottom_border_height);
+	lua_register(L, "get_m_controls_radar_map", get_m_controls_radar_map); // 0x68FD02 controls radar map [6]
+	lua_register(L, "set_m_controls_radar_map", set_m_controls_radar_map);
+	lua_register(L, "get_m_radar_width", get_m_radar_width); // 0x68FD16 radar width
+	lua_register(L, "set_m_radar_width", set_m_radar_width);
+	lua_register(L, "get_m_only_radar_ring_visible", get_m_only_radar_ring_visible); // 0x68FD17 only radar ring visible [6]
+	lua_register(L, "set_m_only_radar_ring_visible", set_m_only_radar_ring_visible);
+	lua_register(L, "get_m_radar_size_xy", get_m_radar_size_xy); // 0x68FD28 Radar Size (XY)
+	lua_register(L, "set_m_radar_size_xy", set_m_radar_size_xy);
+	lua_register(L, "get_m_radar_x_position", get_m_radar_x_position); // 0x68FD2C Radar X Position
+	lua_register(L, "set_m_radar_x_position", set_m_radar_x_position);
+	lua_register(L, "get_m_radar_y_position", get_m_radar_y_position); // 0x68FD34 Radar Y Position
+	lua_register(L, "set_m_radar_y_position", set_m_radar_y_position);
+	lua_register(L, "get_m_radar_shape", get_m_radar_shape); // 0x68FD38 Radar Shape
+	lua_register(L, "set_m_radar_shape", set_m_radar_shape);
+	lua_register(L, "get_m_addr_68FD3C", get_m_addr_68FD3C); // 0x68FD3C Radar Shape
+	lua_register(L, "set_m_addr_68FD3C", set_m_addr_68FD3C);
+	lua_register(L, "get_m_ambient_lighting", get_m_ambient_lighting); // 0x698A8C ambient lighting
+	lua_register(L, "set_m_ambient_lighting", set_m_ambient_lighting);
+	lua_register(L, "get_m_camera_x_position", get_m_camera_x_position); // 0x7E46B8 camera X position
+	lua_register(L, "set_m_camera_x_position", set_m_camera_x_position);
+	lua_register(L, "get_m_camera_y_position", get_m_camera_y_position); // 0x7E46BC camera Y position
+	lua_register(L, "set_m_camera_y_position", set_m_camera_y_position);
+	lua_register(L, "get_m_camera_z_position", get_m_camera_z_position); // 0x7E46C0 camera Z position
+	lua_register(L, "set_m_camera_z_position", set_m_camera_z_position);
+	lua_register(L, "get_m_wide_screen_borders", get_m_wide_screen_borders); // 0x7E46F5 wide screen borders
+	lua_register(L, "set_m_wide_screen_borders", set_m_wide_screen_borders);
+	lua_register(L, "get_m_car_camera", get_m_car_camera); // 0x7E4764 car camera
+	lua_register(L, "set_m_car_camera", set_m_car_camera);
+	lua_register(L, "get_m_camera", get_m_camera); // 0x7E47EC player camera
+	lua_register(L, "set_m_camera", set_m_camera);
+	lua_register(L, "get_m_frame_limiter", get_m_frame_limiter); // 0x869655 frame limiter
+	lua_register(L, "set_m_frame_limiter", set_m_frame_limiter);
+	lua_register(L, "get_m_subtitles", get_m_subtitles); // 0x869650 subtitles
+	lua_register(L, "set_m_subtitles", set_m_subtitles);
+	lua_register(L, "get_m_widescreen", get_m_widescreen); // 0x869652 widescreen
+	lua_register(L, "set_m_widescreen", set_m_widescreen);
+	lua_register(L, "get_m_hud_display", get_m_hud_display); // 0x86963A hud display
+	lua_register(L, "set_m_hud_display", set_m_hud_display);
+	lua_register(L, "get_m_replay_display", get_m_replay_display); // 0xA10AF6 replay display on/off
+	lua_register(L, "set_m_replay_display", set_m_replay_display);
+	lua_register(L, "get_m_white_scanlines", get_m_white_scanlines); // 0xA10B68 white scanlines
+	lua_register(L, "set_m_white_scanlines", set_m_white_scanlines);
+	lua_register(L, "get_m_green_scanlines", get_m_green_scanlines); // 0xA10B69 green scanlines
+	lua_register(L, "set_m_green_scanlines", set_m_green_scanlines);
+	lua_register(L, "get_m_resolution_width", get_m_resolution_width); // 0xA0FD04 resolution Width
+	lua_register(L, "set_m_resolution_width", set_m_resolution_width);
+	lua_register(L, "get_m_resolution_height", get_m_resolution_height); // 0xA0FD08 resolution height
+	lua_register(L, "set_m_resolution_height", set_m_resolution_height);
+	lua_register(L, "get_m_color_bit", get_m_color_bit); // 0xA0FD00 Color bit.
+	lua_register(L, "set_m_color_bit", set_m_color_bit);
+	lua_register(L, "get_m_mouse_x_movement", get_m_mouse_x_movement); // 0x936910 Mouse X movement
+	lua_register(L, "set_m_mouse_x_movement", set_m_mouse_x_movement);
+	lua_register(L, "get_m_mouse_y_movement", get_m_mouse_y_movement); // 0x936914 Mouse Y movement
+	lua_register(L, "set_m_mouse_y_movement", set_m_mouse_y_movement);
+	lua_register(L, "get_m_total_stores_knock", get_m_total_stores_knock); // 0x4CC102 Total number of stores to knock off (default is 15)
+	lua_register(L, "set_m_total_stores_knock", set_m_total_stores_knock);
+	lua_register(L, "get_m_total_assassination_contracts_complete", get_m_total_assassination_contracts_complete); // 0x4CC1CD Total number of assassination contracts to complete (default
+	lua_register(L, "set_m_total_assassination_contracts_complete", set_m_total_assassination_contracts_complete);
+	lua_register(L, "get_m_police_helicopter_state", get_m_police_helicopter_state); // 0xA10ADB Police helicopter state
+	lua_register(L, "set_m_police_helicopter_state", set_m_police_helicopter_state);
+	lua_register(L, "get_m_size_police_em_lights", get_m_size_police_em_lights); // 0x69A633 size of Police EM lights
+	lua_register(L, "set_m_size_police_em_lights", set_m_size_police_em_lights);
+	lua_register(L, "get_m_first_police_car", get_m_first_police_car); // 0x426A21 first police car
+	lua_register(L, "set_m_first_police_car", set_m_first_police_car);
+	lua_register(L, "get_m_second_police_car", get_m_second_police_car); // 0x426987 second police car
+	lua_register(L, "set_m_second_police_car", set_m_second_police_car);
+	lua_register(L, "get_m_enforcer", get_m_enforcer); // 0x42697E Enforcer
+	lua_register(L, "set_m_enforcer", set_m_enforcer);
+	lua_register(L, "get_m_vicechee", get_m_vicechee); // 0x4268B8 Vicechee 1
+	lua_register(L, "set_m_vicechee", set_m_vicechee);
+	lua_register(L, "get_m_addr_4268D3", get_m_addr_4268D3); // 0x4268D3 Vicechee 2
+	lua_register(L, "set_m_addr_4268D3", set_m_addr_4268D3);
+	lua_register(L, "get_m_addr_4268EE", get_m_addr_4268EE); // 0x4268EE Vicechee 3
+	lua_register(L, "set_m_addr_4268EE", set_m_addr_4268EE);
+	lua_register(L, "get_m_addr_426909", get_m_addr_426909); // 0x426909 Vicechee 4
+	lua_register(L, "set_m_addr_426909", set_m_addr_426909);
+	lua_register(L, "get_m_fbi_rancher", get_m_fbi_rancher); // 0x4269BA FBI Rancher
+	lua_register(L, "set_m_fbi_rancher", set_m_fbi_rancher);
+	lua_register(L, "get_m_barracks_ol", get_m_barracks_ol); // 0x426A0A Barracks Ol
+	lua_register(L, "set_m_barracks_ol", set_m_barracks_ol);
+
 return 0;
 };

@@ -8,7 +8,7 @@
 
 > ## 🟢 ДОПОЛНЕНО 20.11.2026 (база reVC/IDA)
 >
-> **Счётчик API: 2103 вызова `lua_register`, 2102 уникальных имён** (дубль `setarmour`). Добавлено **402 функции**: 394 обёртки над опкодами SCM из `tools/opcode_gap.py` (все `safe`+`risky`) и 8 реализаций из `funcs.cpp`, которые не регистрировались. Проверены параметры 550 вызовов `Command<>` по reVC; исправлены `police_radio_message`, `plane_goto_coords`, `heli_create_dust_effect`, `ensure_drive_by`, `clear_area_of_cars/chars`, `cleanarea`, `car_face_coord`, GXT-метки PRINT_*, таймеры. BUILD-GATE OK (30/0x24).
+> **Счётчик API: 2327 вызовов `lua_register`, 2326 уникальных имён** (дубль `setarmour`). Добавлено **402 функции**: 394 обёртки над опкодами SCM из `tools/opcode_gap.py` (все `safe`+`risky`) и 8 реализаций из `funcs.cpp`, которые не регистрировались. Проверены параметры 550 вызовов `Command<>` по reVC; исправлены `police_radio_message`, `plane_goto_coords`, `heli_create_dust_effect`, `ensure_drive_by`, `clear_area_of_cars/chars`, `cleanarea`, `car_face_coord`, GXT-метки PRINT_*, таймеры. BUILD-GATE OK (30/0x24). Дополнительно: **224 функции для 110 адресов** из GTAMods Wiki / GTAForums (часть V справочника), включая фары: `patch_headlights`, `set_headlights_on/off`, `is_headlights_on`.
 
 ## Оглавление полного издания
 
@@ -25,9 +25,9 @@
 
 > **АКТУАЛЬНО С 04.11.2026: 2021-поточная модель, `ma_sched` удалён** (один OS-поток на `.lua`, `wait(ms)` спит своим потоком кусками по 10 мс, `create_newthread` — ещё один OS-поток). Упомянутые в карточках «парковки корутины» — ИСТОРИЯ/УСТАРЕЛО. Краевые `wait_key(name, timeout)` и `keypress(name, timeout)` отключены (`g_key_edge_enabled = false`) и всегда возвращают `false`.
 >
-> Счётчик API (на 20.11.2026): **2103 вызова `lua_register`, 2102 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11. Нижеприведённое число — срез на момент генерации справочника.
+> Счётчик API (на 20.11.2026): **2327 вызовов `lua_register`, 2326 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11. Нижеприведённое число — срез на момент генерации справочника.
 
-Всего уникальных зарегистрированных функций: **2102** (счётчик на 20.11.2026; в снимке генерации было 1699).
+Всего уникальных зарегистрированных функций: **2326** (счётчик на 20.11.2026; в снимке генерации было 1699).
 
 ## Как читать справочник
 
@@ -40368,9 +40368,9 @@
 
 > **АКТУАЛЬНО С 04.11.2026: 2021-поточная модель, `ma_sched` удалён** (один OS-поток на `.lua`, `wait(ms)` спит своим потоком кусками по 10 мс, `create_newthread` — ещё один OS-поток). Упомянутые «парковки корутины» — ИСТОРИЯ/УСТАРЕЛО. Краевые `wait_key(name, timeout)` и `keypress(name, timeout)` отключены (`g_key_edge_enabled = false`) и всегда возвращают `false`.
 >
-> Счётчик API (на 20.11.2026): **2103 вызова `lua_register`, 2102 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11.
+> Счётчик API (на 20.11.2026): **2327 вызовов `lua_register`, 2326 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11.
 
-- Всего зарегистрированных функций (уникальных имён): **2102** (счётчик на 20.11.2026; в снимке генерации было 1608)
+- Всего зарегистрированных функций (уникальных имён): **2326** (счётчик на 20.11.2026; в снимке генерации было 1608)
 - Источник: `register.cpp` + описания из `04_СПРАВОЧНИК_LUA_API_ПОЛНЫЙ.md` (включая дополнения).
 - В документ включены все зарегистрированные функции; для функций с вариантами имён/опечаток сохранены отдельные записи.
 
@@ -42080,8 +42080,8 @@
 > ## 🟢 АКТУАЛЬНО С 04.11.2026: 2021-поточная модель, ma_sched удалён
 >
 > Один OS-поток (`std::thread` detach) на каждый `.lua`; `wait(ms)` спит СВОИМ потоком кусками по 10 мс; `create_newthread` поднимает ещё один OS-поток. `ma_sched` удалён из сборки; вызова `ma_sched_frame()` в `plugin.cpp` НЕТ — работают `ma_task_start_keyboard()`, `ma_tasks_frame()`, `lifecycle_tick()`. Упомянутые ниже парковки корутин (`ma_sched_park`/`lua_yield`) — **ИСТОРИЯ/УСТАРЕЛО**.
-> **Счётчик на 20.11.2026: 2103 вызова `lua_register`, 2102 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11 (последние — `car_temp_action_*`, `car_mission_*`, `ped_move_state_*`, `set_ped_stat_*`, `gang_enable_attack_player_with_cops`, `gang_disable_attack_player_with_cops`, `reset_gangs`). Числа 1592/1591/1587/1586 ниже — исторические срезы; счётчики категорий — снимок 22.09, а не сумма.
-> **🟢 ДОПОЛНЕНО 20.11.2026 (база reVC/IDA):** +394 Lua-обёртки над опкодами SCM из каталога `tools/opcode_gap.py` (все `safe` + `risky`; 27 уже существующих и 4 языковых опкода пропущены); итого **2103 вызова / 2102 уникальных имён**. Проверены параметры 550 вызовов `Command<>`: исправлены `police_radio_message` (3 float), `plane_goto_coords` (5-й арг. speed), `heli_create_dust_effect` (obj, radius, count), `ensure_drive_by` (player+ammo), `clear_area_of_cars/chars` (6 float), `cleanarea` (порядок x,y,z,r,flag), `car_face_coord` (3 арг.), печать GXT-меток PRINT_BIG/PRINT_NOW через 8 сырых байт, таймеры — прямым SDK-вызовом. BUILD-GATE OK (30/0x24).
+> **Счётчик на 20.11.2026: 2327 вызовов `lua_register`, 2326 уникальных имён** (дубль `setarmour`); 93 новые функции добавлены после 07.11 (последние — `car_temp_action_*`, `car_mission_*`, `ped_move_state_*`, `set_ped_stat_*`, `gang_enable_attack_player_with_cops`, `gang_disable_attack_player_with_cops`, `reset_gangs`). Числа 1592/1591/1587/1586 ниже — исторические срезы; счётчики категорий — снимок 22.09, а не сумма.
+> **🟢 ДОПОЛНЕНО 20.11.2026 (база reVC/IDA):** +394 Lua-обёртки над опкодами SCM из каталога `tools/opcode_gap.py` (все `safe` + `risky`; 27 уже существующих и 4 языковых опкода пропущены); итого **2327 вызовов / 2326 уникальных имён**. Проверены параметры 550 вызовов `Command<>`: исправлены `police_radio_message` (3 float), `plane_goto_coords` (5-й арг. speed), `heli_create_dust_effect` (obj, radius, count), `ensure_drive_by` (player+ammo), `clear_area_of_cars/chars` (6 float), `cleanarea` (порядок x,y,z,r,flag), `car_face_coord` (3 арг.), печать GXT-меток PRINT_BIG/PRINT_NOW через 8 сырых байт, таймеры — прямым SDK-вызовом. BUILD-GATE OK (30/0x24).
 > `wait([мс])` — сон СВОЕГО потока (не парковка корутины!): нечисло → `luaL_argerror`, по умолчанию 1 мс, при teardown → `luaL_error("SCRIPT_STOPPED_BY_CPP")`. Краевые `wait_key(name, timeout)` / `keypress(name, timeout)` отключены (`g_key_edge_enabled = false`) и всегда возвращают `false`; работает лёгкая `keypress(name)` через `ma_keys_poll()`.
 
 > **Документ 04** — справочник Lua-API. Набор: 00 (индекс/вылеты), 02 (проект),
@@ -42128,7 +42128,7 @@
 > - Регистраций `lua_register` — **1592** (**1591 уникальное имя**: `setarmour`
 >   дважды) — это срез 28.10; 27.10 было 1587, 28.10 добавлено 5 (миссионная
 >   бухгалтерия и объекты — см. блок 28.10 выше). ⚠️ **Счётчик на 20.11.2026:
->   2103 вызова / 2102 уникальных имён** (93 новые функции добавлены после 07.11).
+>   2327 вызовов / 2326 уникальных имён** (93 новые функции добавлены после 07.11).
 >   Сигнатуры остальных функций не менялись.
 >
 > **ПРЕДЫДУЩЕЕ СОСТОЯНИЕ (26.10.2026, история; см. блок 27.10 выше).**
@@ -42171,7 +42171,7 @@
 > НИКОГДА. Скрипты, которые сами звали `loadmodel`/`availablemodel` перед этими
 > функциями, продолжают работать — просто теперь это дублирование, а не обязанность.
 
-**2103 регистрация / 2102 уникальных имён (счётчик на 20.11.2026; 93 новые функции после 07.11).** Для каждой: параметры по порядку, что возвращает,
+**2327 регистрация / 2326 уникальных имён (счётчик на 20.11.2026; 93 новые функции после 07.11).** Для каждой: параметры по порядку, что возвращает,
 короткое объяснение и пример вызова. Указатели на пед/авто/объект/игрока получаются
 функциями поиска: `findplayer()`, `findped...`, `findcar...`, `createped`, `createcar` и т.п.
 
@@ -44112,7 +44112,7 @@ per-lua_State: повторный вызов — no-op. `destroy()` стал т�
 - **Новые функции (22.09.2026)** — 20
 
 Всего в каталоге **1563 карточки** (номера 1–1580 с пропусками). В текущем
-`register.cpp` — **2103 вызова / 2102 уникальных имён** (счётчик на 20.11.2026;
+`register.cpp` — **2327 вызовов / 2326 уникальных имён** (счётчик на 20.11.2026;
 93 новые функции добавлены после 07.11, новые регистрации — `car_temp_action_*`,
 `car_mission_*`, `ped_move_state_*`, `set_ped_stat_*`,
 `gang_enable_attack_player_with_cops`, `gang_disable_attack_player_with_cops`,
@@ -44601,3 +44601,132 @@ per-lua_State: повторный вызов — no-op. `destroy()` стал т�
 
 `./build.sh` → EXIT=0, BUILD-GATE OK (`_GLOBAL__sub_I=30`, `.tls=0x24`), `lualoader.asi` 7,9 МБ.
 
+---
+
+## Часть V. Адреса из GTAMods Wiki / GTAForums (20.11.2026)
+
+Добавлено **224 функции** для **110 адресов** из открытых списков сообщества (GTAMods Wiki «Memory Addresses (VC)», GTAForums «Documenting GTA3/VC memory addresses»). Адреса проверены по диапазону образов установленного `gta-vc.exe`; чтение/запись идут через `VirtualQuery`/`VirtualProtect` с проверкой `MEM_COMMIT`.
+
+### Фары (чит-механика из GTAForums)
+
+| Функция | Что делает |
+|---|---|
+| `patch_headlights()` | NOP 6 байт `mov [ebp+0x1F9],al` по `0x58CD4E` (байты `88 85 F9 01 00 00` сверены с установленным exe) — отключает автоматическую запись состояния фар |
+| `set_headlights_on()` | `0x50` в `[0x7E49C0]+0x1F9` (указатель на авто игрока) |
+| `set_headlights_off()` | `0x10` туда же |
+| `is_headlights_on()` | проверить состояние |
+
+### Адресные геттеры/сеттеры
+
+| Имя (get_/set_) | Адрес | Тип | Описание из источника |
+|---|---|---|---|
+| `get_m_timepassingmeby_faster_time` / `set_m_timepassingmeby_faster_time` | 0xA10B87 | u8 | TIMEPASSINGMEBY faster time |
+| `get_m_youwonttakemealive_wanted_level` / `set_m_youwonttakemealive_wanted_level` | 0x4ABF4C | u8 | YOUWONTTAKEMEALIVE set wanted level |
+| `get_m_leavemealone_wanted_level` / `set_m_leavemealone_wanted_level` | 0x4ABFC4 | u8 | LEAVEMEALONE set wanted level |
+| `get_m_apleasantday_weather` / `set_m_apleasantday_weather` | 0x4AC009 | u8 | APLEASANTDAY set weather |
+| `get_m_alovelyday_weather` / `set_m_alovelyday_weather` | 0x4AC04E | u8 | ALOVELYDAY set weather |
+| `get_m_abitdrieg_weather` / `set_m_abitdrieg_weather` | 0x4AC099 | u8 | ABITDRIEG set weather |
+| `get_m_catsanddogs_weather` / `set_m_catsanddogs_weather` | 0x4AC0DE | u8 | CATSANDDOGS set weather |
+| `get_m_cantseeathing_weather` / `set_m_cantseeathing_weather` | 0x4AC129 | u8 | CANTSEEATHING set weather |
+| `get_m_panzer_rhino_model` / `set_m_panzer_rhino_model` | 0x4AC14B | u32 | PANZER Rhino model |
+| `get_m_travelinstyle_bloodring_a_model` / `set_m_travelinstyle_bloodring_a_model` | 0x4AC946 | u32 | TRAVELINSTYLE Bloodring A model |
+| `get_m_thelastride_romero_hearse_model` / `set_m_thelastride_romero_hearse_model` | 0x4AC976 | u32 | THELASTRIDE Romero's Hearse model |
+| `get_m_rockandrollcar_love_fist_model` / `set_m_rockandrollcar_love_fist_model` | 0x4AC9A6 | u32 | ROCKANDROLLCAR Love Fist model |
+| `get_m_rubbishcar_trashmaster_model` / `set_m_rubbishcar_trashmaster_model` | 0x4AC9D6 | u32 | RUBBISHCAR Trashmaster model |
+| `get_m_gettherefast_sabre_turbo_model` / `set_m_gettherefast_sabre_turbo_model` | 0x4ACA06 | u32 | GETTHEREFAST Sabre Turbo model |
+| `get_m_betterthanwalking_caddy_model` / `set_m_betterthanwalking_caddy_model` | 0x4ACA36 | u32 | BETTERTHANWALKING Caddy model |
+| `get_m_gettherequickly_bloodring_b_model` / `set_m_gettherequickly_bloodring_b_model` | 0x4ACDD6 | u32 | GETTHEREQUICKLY Bloodring B model |
+| `get_m_getthereveryfastindeed_hotring_a_model` / `set_m_getthereveryfastindeed_hotring_a_model` | 0x4ACE06 | u32 | GETTHEREVERYFASTINDEED Hotring A model |
+| `get_m_getthereamazinglyfast_hotring_b_model` / `set_m_getthereamazinglyfast_hotring_b_model` | 0x4ACE36 | u32 | GETTHEREAMAZINGLYFAST Hotring B model |
+| `get_m_nuttertools_chainsaw_model` / `set_m_nuttertools_chainsaw_model` | 0x4AEAEF | u32 | NUTTERTOOLS Chainsaw model |
+| `get_m_nuttertools_chainsaw_weapon_note` / `set_m_nuttertools_chainsaw_weapon_note` | 0x4AEB77 | u8 | NUTTERTOOLS Chainsaw weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_nuttertools_m4_weapon_note` / `set_m_nuttertools_m4_weapon_note` | 0x4AEBD4 | u8 | NUTTERTOOLS M4 weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_nuttertools_sniper_weapon_note` / `set_m_nuttertools_sniper_weapon_note` | 0x4AEBE6 | u8 | NUTTERTOOLS .308 Sniper weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_nuttertools_minigun_weapon_note` / `set_m_nuttertools_minigun_weapon_note` | 0x4AEBFB | u8 | NUTTERTOOLS Minigun weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_professionaltools_katana_model` / `set_m_professionaltools_katana_model` | 0x4AEC8F | u32 | PROFESSIONALTOOLS Katana model |
+| `get_m_professionaltools_katana_weapon_note` / `set_m_professionaltools_katana_weapon_note` | 0x4AED17 | u8 | PROFESSIONALTOOLS Katana weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_professionaltools_m4_weapon_note` / `set_m_professionaltools_m4_weapon_note` | 0x4AED74 | u8 | PROFESSIONALTOOLS M4 weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_professionaltools_sniper_weapon_note` / `set_m_professionaltools_sniper_weapon_note` | 0x4AED86 | u8 | PROFESSIONALTOOLS .308 Sniper weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_professionaltools_rocket_launcher_weapon` / `set_m_professionaltools_rocket_launcher_weapon` | 0x4AED98 | u8 | PROFESSIONALTOOLS Rocket Launcher weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_thugstools_brass_knuckles_model` / `set_m_thugstools_brass_knuckles_model` | 0x4AEE1F | u32 | THUGSTOOLS Brass Knuckles model |
+| `get_m_thugstools_brass_knuckles_weapon` / `set_m_thugstools_brass_knuckles_weapon` | 0x4AEEA7 | u8 | THUGSTOOLS Brass Knuckles weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_thugstools_tec_weapon_note` / `set_m_thugstools_tec_weapon_note` | 0x4AEF04 | u8 | THUGSTOOLS Tec 9 weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_thugstools_kruger_weapon_note` / `set_m_thugstools_kruger_weapon_note` | 0x4AEF16 | u8 | THUGSTOOLS Kruger weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_thugstools_sniper_rifle_weapon` / `set_m_thugstools_sniper_rifle_weapon` | 0x4AEF28 | u8 | THUGSTOOLS Sniper Rifle weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_thugstools_flame_thrower_weapon` / `set_m_thugstools_flame_thrower_weapon` | 0x4AEF38 | u8 | THUGSTOOLS Flame Thrower weapon number (NOTE: Model needs to be loaded first) |
+| `get_m_deepfriedmarsbars_programmer_tommy_body` / `set_m_deepfriedmarsbars_programmer_tommy_body` | 0x68E058 | f32 | DEEPFRIEDMARSBARS/PROGRAMMER Tommy's body width |
+| `get_m_onspeed_game_speed` / `set_m_onspeed_game_speed` | 0x68F1F0 | f32 | ONSPEED set game speed |
+| `get_m_onspeed_game_speed_multiplier` / `set_m_onspeed_game_speed_multiplier` | 0x68F1F4 | f32 | ONSPEED game speed multiplier |
+| `get_m_booooooring_game_speed` / `set_m_booooooring_game_speed` | 0x68F1F8 | f32 | BOOOOOORING set game speed |
+| `get_m_booooooring_game_speed_multiplier` / `set_m_booooooring_game_speed_multiplier` | 0x68F1FC | f32 | BOOOOOORING game speed multiplier |
+| `get_m_chasestat` / `set_m_chasestat` | 0x97F2C4 | u8 | CHASESTAT cheat switch |
+| `get_m_ourgodgivenrighttobeararms` / `set_m_ourgodgivenrighttobeararms` | 0xA10AB3 | u8 | OURGODGIVENRIGHTTOBEARARMS cheat switch |
+| `get_m_greenlight` / `set_m_greenlight` | 0xA10ADC | u8 | GREENLIGHT cheat switch |
+| `get_m_gripiseverything` / `set_m_gripiseverything` | 0xA10B0F | u8 | GRIPISEVERYTHING cheat switch |
+| `get_m_airship` / `set_m_airship` | 0xA10B11 | u8 | AIRSHIP cheat switch |
+| `get_m_certaindeath` / `set_m_certaindeath` | 0xA10B23 | u8 | CERTAINDEATH cheat switch |
+| `get_m_ahairdresserscar` / `set_m_ahairdresserscar` | 0xA10B26 | u8 | AHAIRDRESSERSCAR cheat switch |
+| `get_m_comeflywithme` / `set_m_comeflywithme` | 0xA10B28 | u8 | COMEFLYWITHME cheat switch |
+| `get_m_used_flag` / `set_m_used_flag` | 0xA10B2E | u8 | Cheat is used flag |
+| `get_m_wheelsareallineed` / `set_m_wheelsareallineed` | 0xA10B30 | u8 | WHEELSAREALLINEED cheat switch |
+| `get_m_miamitraffic` / `set_m_miamitraffic` | 0xA10B47 | u8 | MIAMITRAFFIC cheat switch |
+| `get_m_fannymagnet` / `set_m_fannymagnet` | 0xA10B5F | u8 | FANNYMAGNET cheat switch |
+| `get_m_seaways` / `set_m_seaways` | 0xA10B81 | u8 | SEAWAYS cheat switch |
+| `get_m_iwantitpaintedblack` / `set_m_iwantitpaintedblack` | 0xA10B82 | u8 | IWANTITPAINTEDBLACK cheat switch |
+| `get_m_lifeispassingmeby` / `set_m_lifeispassingmeby` | 0xA10B87 | u8 | LIFEISPASSINGMEBY cheat |
+| `get_m_opcode_de_check_if` / `set_m_opcode_de_check_if` | 0x456046 | u32 | Opcode 02DE check if player is in a Taxi |
+| `get_m_cash_when_entering_a` / `set_m_cash_when_entering_a` | 0x5B8AB6 | u8 | Cash when entering a taxi (set to 12 by default) |
+| `get_m_kaufman_cabs_radio_flag` / `set_m_kaufman_cabs_radio_flag` | 0xA10B7F | u8 | Kaufman Cabs' radio flag |
+| `get_m_kaufman_cabs_spawn_note` / `set_m_kaufman_cabs_spawn_note` | 0x42AEAC | u32 | Kaufman Cabs spawn (NOTE: Model needs to be loaded through 0x42AFB3 and set to spawn throu |
+| `get_m_kaufman_cabs_model_load` / `set_m_kaufman_cabs_model_load` | 0x42AFB3 | u32 | Kaufman Cabs model load |
+| `get_m_blue_fade_in_color` / `set_m_blue_fade_in_color` | 0x42B219 | u8 | Blue fade in color |
+| `get_m_taxi_text_duration` / `set_m_taxi_text_duration` | 0x42B24E | u32 | TAXI text duration |
+| `get_m_x_coord_taxi_destination` / `set_m_x_coord_taxi_destination` | 0x94DD94 | f32 | X-coord taxi destination (updated by opcode 058E) |
+| `get_m_taxi_spawn` / `set_m_taxi_spawn` | 0x94EEB8 | u8 | Set taxi to spawn |
+| `get_m_angle_taxi_destination` / `set_m_angle_taxi_destination` | 0xA0D378 | f32 | Angle taxi destination |
+| `get_m_activate_mission_restart_taxi` / `set_m_activate_mission_restart_taxi` | 0xA10B6D | u8 | Activate mission restart taxi |
+| `get_m_camera_move_when_entering` / `set_m_camera_move_when_entering` | 0x46B389 | u8 | camera move when entering/exiting car |
+| `get_m_same` / `set_m_same` | 0x46B58F | u8 | same [5] |
+| `get_m_camera_distance_from_only` / `set_m_camera_distance_from_only` | 0x68AE2E | u16 | camera distance from player (set only lower, higher bugs the camera) |
+| `get_m_cinema_top_border_height` / `set_m_cinema_top_border_height` | 0x68AEE0 | f32 | cinema top border height |
+| `get_m_cinema_bottom_border_height` / `set_m_cinema_bottom_border_height` | 0x68AEE4 | f32 | cinema bottom border height |
+| `get_m_controls_radar_map` / `set_m_controls_radar_map` | 0x68FD02 | u8 | controls radar map [6] |
+| `get_m_radar_width` / `set_m_radar_width` | 0x68FD16 | u8 | radar width |
+| `get_m_only_radar_ring_visible` / `set_m_only_radar_ring_visible` | 0x68FD17 | u8 | only radar ring visible [6] |
+| `get_m_radar_size_xy` / `set_m_radar_size_xy` | 0x68FD28 | f32 | Radar Size (XY) |
+| `get_m_radar_x_position` / `set_m_radar_x_position` | 0x68FD2C | f32 | Radar X Position |
+| `get_m_radar_y_position` / `set_m_radar_y_position` | 0x68FD34 | f32 | Radar Y Position |
+| `get_m_radar_shape` / `set_m_radar_shape` | 0x68FD38 | f32 | Radar Shape |
+| `get_m_addr_68FD3C` / `set_m_addr_68FD3C` | 0x68FD3C | f32 | Radar Shape |
+| `get_m_ambient_lighting` / `set_m_ambient_lighting` | 0x698A8C | f32 | ambient lighting |
+| `get_m_camera_x_position` / `set_m_camera_x_position` | 0x7E46B8 | f32 | camera X position |
+| `get_m_camera_y_position` / `set_m_camera_y_position` | 0x7E46BC | f32 | camera Y position |
+| `get_m_camera_z_position` / `set_m_camera_z_position` | 0x7E46C0 | f32 | camera Z position |
+| `get_m_wide_screen_borders` / `set_m_wide_screen_borders` | 0x7E46F5 | u8 | wide screen borders |
+| `get_m_car_camera` / `set_m_car_camera` | 0x7E4764 | u8 | car camera |
+| `get_m_camera` / `set_m_camera` | 0x7E47EC | u8 | player camera |
+| `get_m_frame_limiter` / `set_m_frame_limiter` | 0x869655 | u8 | frame limiter |
+| `get_m_subtitles` / `set_m_subtitles` | 0x869650 | u8 | subtitles |
+| `get_m_widescreen` / `set_m_widescreen` | 0x869652 | u8 | widescreen |
+| `get_m_hud_display` / `set_m_hud_display` | 0x86963A | u8 | hud display |
+| `get_m_replay_display` / `set_m_replay_display` | 0xA10AF6 | u8 | replay display on/off |
+| `get_m_white_scanlines` / `set_m_white_scanlines` | 0xA10B68 | u8 | white scanlines |
+| `get_m_green_scanlines` / `set_m_green_scanlines` | 0xA10B69 | u8 | green scanlines |
+| `get_m_resolution_width` / `set_m_resolution_width` | 0xA0FD04 | u32 | resolution Width |
+| `get_m_resolution_height` / `set_m_resolution_height` | 0xA0FD08 | u32 | resolution height |
+| `get_m_color_bit` / `set_m_color_bit` | 0xA0FD00 | u32 | Color bit. |
+| `get_m_mouse_x_movement` / `set_m_mouse_x_movement` | 0x936910 | f32 | Mouse X movement |
+| `get_m_mouse_y_movement` / `set_m_mouse_y_movement` | 0x936914 | f32 | Mouse Y movement |
+| `get_m_total_stores_knock` / `set_m_total_stores_knock` | 0x4CC102 | u32 | Total number of stores to knock off (default is 15) |
+| `get_m_total_assassination_contracts_complete` / `set_m_total_assassination_contracts_complete` | 0x4CC1CD | u32 | Total number of assassination contracts to complete (default 5) |
+| `get_m_police_helicopter_state` / `set_m_police_helicopter_state` | 0xA10ADB | u8 | Police helicopter state |
+| `get_m_size_police_em_lights` / `set_m_size_police_em_lights` | 0x69A633 | u8 | size of Police EM lights |
+| `get_m_first_police_car` / `set_m_first_police_car` | 0x426A21 | u8 | first police car |
+| `get_m_second_police_car` / `set_m_second_police_car` | 0x426987 | u8 | second police car |
+| `get_m_enforcer` / `set_m_enforcer` | 0x42697E | u8 | Enforcer |
+| `get_m_vicechee` / `set_m_vicechee` | 0x4268B8 | u8 | Vicechee 1 |
+| `get_m_addr_4268D3` / `set_m_addr_4268D3` | 0x4268D3 | u8 | Vicechee 2 |
+| `get_m_addr_4268EE` / `set_m_addr_4268EE` | 0x4268EE | u8 | Vicechee 3 |
+| `get_m_addr_426909` / `set_m_addr_426909` | 0x426909 | u8 | Vicechee 4 |
+| `get_m_fbi_rancher` / `set_m_fbi_rancher` | 0x4269BA | u8 | FBI Rancher |
+| `get_m_barracks_ol` / `set_m_barracks_ol` | 0x426A0A | u8 | Barracks Ol |
