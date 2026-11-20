@@ -2624,6 +2624,73 @@ static bool ma_run_label_command(unsigned int commandId, bool hasIntParam, int i
 	return script.m_bCondResult ? true : false;
 }
 
+// (20.11) Расширение для PRINT_BIG/PRINT_NOW: метка 8 сырых байт + ДВА INT (time, style).
+// Собираем поток SCM руками по образцу ma_run_label_command; вызывать только на игровом потоке.
+static bool ma_run_label_command2(unsigned int commandId, int p1, int p2, const char* label) {
+	static CRunningScript script;
+	memset(&script, 0, sizeof(CRunningScript));
+	script.m_bWastedBustedCheck = true;
+	strcpy_s(script.m_szName, "plg-sdk");
+	script.m_bIsMission = false;
+	script.m_bUseMissionCleanup = false;
+	script.m_bNotFlag = (commandId >> 15) & 1;
+	unsigned char buf[2 + 2 * 5 + 8];
+	buf[0] = (unsigned char)(commandId & 0xFF);
+	buf[1] = (unsigned char)((commandId >> 8) & 0xFF);
+	int n = 2;
+	int vals[2] = { p1, p2 };
+	for (int v : vals) {
+		buf[n++] = 0x01;
+		for (int b = 0; b < 4; b++) buf[n++] = (unsigned char)(((unsigned int)v >> (8 * b)) & 0xFF);
+	}
+	char key[8];
+	memset(key, 0, sizeof(key));
+	for (int k = 0; k < 7 && label[k] != '\0'; k++) {
+		char c = label[k];
+		if (c >= 'A' && c <= 'Z') c = (char)(c - 'A' + 'a');
+		key[k] = c;
+	}
+	memcpy(buf + n, key, 8);
+	n += 8;
+	script.m_nIp = (int)buf - (int)CRunningScript::GetScriptSpaceBase();
+	script.ProcessOneCommand();
+	return script.m_bCondResult ? true : false;
+}
+
+// (20.11) Универсальный помощник для команд с GXT-меткой в любой позиции и любым числом
+// int/float-параметров: [id uint16][type+value ...][8 сырых байт метки] в SCM-порядке.
+struct MaRawParam { int isFloat; int i; float f; };
+static bool ma_run_label_ex(unsigned int commandId, const MaRawParam* p, int n, int labelPos, const char* label) {
+	static CRunningScript script;
+	memset(&script, 0, sizeof(CRunningScript));
+	script.m_bWastedBustedCheck = true;
+	strcpy_s(script.m_szName, "plg-sdk");
+	script.m_bIsMission = false;
+	script.m_bUseMissionCleanup = false;
+	script.m_bNotFlag = (commandId >> 15) & 1;
+	unsigned char buf[2 + 16 * 5 + 8];
+	buf[0] = (unsigned char)(commandId & 0xFF);
+	buf[1] = (unsigned char)((commandId >> 8) & 0xFF);
+	int m = 2;
+	for (int k = 0; k < n; k++) {
+		if (k == labelPos) {
+			char key[8]; memset(key, 0, sizeof(key));
+			for (int j = 0; j < 7 && label[j]; j++) {
+				char c = label[j]; if (c >= 'A' && c <= 'Z') c = (char)(c - 'A' + 'a'); key[j] = c;
+			}
+			memcpy(buf + m, key, 8); m += 8;
+		}
+		else {
+			buf[m++] = p[k].isFloat ? 6 : 1; // SCRIPTPARAM_STATIC_FLOAT / INT_32BITS
+			unsigned int v = p[k].isFloat ? *(unsigned int*)&p[k].f : (unsigned int)p[k].i;
+			for (int b = 0; b < 4; b++) buf[m++] = (unsigned char)((v >> (8 * b)) & 0xFF);
+		}
+	}
+	script.m_nIp = (int)buf - (int)CRunningScript::GetScriptSpaceBase();
+	script.ProcessOneCommand();
+	return script.m_bCondResult ? true : false;
+}
+
 int request_animation(lua_State* L) {// запросить анимацию по имени (04ED: REQUEST_ANIMATION).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
@@ -3914,7 +3981,11 @@ int show_text_styled(lua_State* L) {// вывести игровой текст.
 			&& LUA_TNUMBER == lua_type(L, 3)) {// значение число.
 			const char* text = lua_tostring(L, 1);// текст.
 			int time = lua_tointeger(L, 2);	int type = ma_clamp_big_style(lua_tointeger(L, 3));
-			Command<COMMAND_PRINT_BIG>(text, time, type);// числа для старта гонки.
+			// (20.11) GXT-метка = 8 сырых байт (reVC Script.cpp:4128), не Pascal-string.
+			std::string key(text);
+			ma_cmdq_defer([time, type, key]() -> bool {
+				return ma_run_label_command2((unsigned int)COMMAND_PRINT_BIG - 0x10000, time, type, key.c_str());
+			});
 			lua_settop(L, 0);// очистить стек.
 			return 0;
 		}
@@ -3933,7 +4004,10 @@ int show_text_gtx(lua_State* L) {// вывести игровой текст.
 			const char* text = lua_tostring(L, 1);// текст.
 			int time = lua_tointeger(L, 2);	int type = ma_clamp_big_style(lua_tointeger(L, 3));
 			Command<COMMAND_LOAD_MISSION_TEXT>("GENERA1");
-			Command<COMMAND_PRINT_NOW>(text, time, type);// числа для старта гонки.
+			std::string key(text);
+			ma_cmdq_defer([time, type, key]() -> bool {
+				return ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
+			});
 			lua_settop(L, 0);// очистить стек.
 			return 0;
 		}
@@ -4463,35 +4537,33 @@ int checkcheat(lua_State* L) {//чит код введен?.
 }
 
 
-int star_timer(lua_State* L) {
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int star_timer(lua_State* L) {// ([ключ, флаг]) — reVC Script4.cpp:1786: global var + INT + 8-байт GXT-метка.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TSTRING == lua_type(L, 1)) {// если число
-			const char* str = lua_tostring(L, 1);// строка.
-			Command<COMMAND_DISPLAY_ONSCREEN_TIMER_WITH_STRING>(str);
-			lua_pushstring(L, str);
-			return 1;
+		const char* str = (LUA_TSTRING == lua_type(L, 1)) ? lua_tostring(L, 1) : "";
+		bool flag = (!lua_isnoneornil(L, 2) && LUA_TBOOLEAN == lua_type(L, 2)) ? (lua_toboolean(L, 2) != 0) : false;
+		char key[8] = {};
+		for (int k = 0; k < 7 && str[k]; k++) {
+			char c = str[k]; if (c >= 'A' && c <= 'Z') c = (char)(c - 'A' + 'a'); key[k] = c;
 		}
-		else { throw "bad argument in function  star_timer"; }
+		// 0x8247A8 (var_$3402) - ScriptSpace 0x821280 = 13608 — смещение глобальной переменной.
+		// Прямой SDK-вызов: опкод читает global var из потока SCM, а не через CollectParameters.
+		CUserDisplay::OnscnTimer.AddClock(13608, key, flag);
+		lua_pushstring(L, str);
+		return 1;
 	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	catch (const char* x) { writelog(x); }
 	return 0;
 };
 
-int stop_timer(lua_State* L) {// остановить таймер.
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int stop_timer(lua_State* L) {// остановить таймер (аргумент-ключ исторически игнорируется).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TSTRING == lua_type(L, 1)) {// если число
-			const char* str = lua_tostring(L, 1);// строка.
-			static int timer = 13608;
-			CUserDisplay::OnscnTimer.ClearClock(timer); //014F: stop_timer $3402
-			Command<COMMAND_CLEAR_ONSCREEN_TIMER>(str);
-			var_$3402 = 0;
-			return 0;
-		}
-		else { throw "bad argument in function stop_timer"; }
+		CUserDisplay::OnscnTimer.ClearClock(13608); // 014F: stop_timer $3402 (reVC Script2.cpp:178)
+		var_$3402 = 0;
+		return 0;
 	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	catch (const char* x) { writelog(x); }
 	return 0;
 };
 
@@ -8641,7 +8713,8 @@ int cleanarea(lua_State* L) {//очистить арену.
 			float r = lua_tonumber(L, 4);
 			int s = lua_tointeger(L, 5);
 			CVector pos = { x, y, z };
-			Command<COMMAND_CLEAR_AREA>(s, r, pos.x, pos.y, pos.z);
+			// (20.11) reVC Script4.cpp:1404 — порядок (x, y, z, radius, flag); раньше s,r были ПЕРВЫМИ.
+			Command<COMMAND_CLEAR_AREA>(pos.x, pos.y, pos.z, r, s);
 			return 0;
 		}
 		else { throw "bad argument in function cleanarea"; }
@@ -9471,7 +9544,10 @@ int show_text_gtx_table(lua_State* L) {// вывести текст из таб�
 			const char* text = lua_tostring(L, 2);// текст.
 			int time = lua_tointeger(L, 3);	int type = ma_clamp_big_style(lua_tointeger(L, 4));
 			Command<COMMAND_LOAD_MISSION_TEXT>(table);
-			Command<COMMAND_PRINT_NOW>(text, time, type);// .
+			std::string key(text);
+			ma_cmdq_defer([time, type, key]() -> bool {
+				return ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
+			});
 			lua_settop(L, 0);// очистить стек.
 			return 0;
 		}
@@ -14430,17 +14506,17 @@ int set_music_does_fade(lua_State* L) {// set_music_does_fade(true/false) - му
 	return 0;
 };
 
-int police_radio_message(lua_State* L) {// police_radio_message(type) - передать сообщение в полицейское радио (0-пехота,1-авто).
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int police_radio_message(lua_State* L) {// police_radio_message(x, y, z) — координаты последнего видеющего (reVC Script4.cpp:1571, 3 FLOAT).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TNUMBER == lua_type(L, 1)) {// число.
-			int type = lua_tointeger(L, 1);// тип сообщения.
-			Command<COMMAND_POLICE_RADIO_MESSAGE>(type);// передать сообщение.
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {
+			float x = (float)lua_tonumber(L, 1), y = (float)lua_tonumber(L, 2), z = (float)lua_tonumber(L, 3);
+			Command<COMMAND_POLICE_RADIO_MESSAGE>(x, y, z);
 			return 0;
 		}
-		else { throw "bad argument in function police_radio_message"; }
+		else { throw "bad argument in function police_radio_message(x,y,z)"; }
 	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	catch (const char* x) { writelog(x); }
 	return 0;
 };
 
@@ -15497,23 +15573,24 @@ int catalina_heli_has_shot_down(lua_State* L) {// Catalina сбит?.
 	return 0;
 };
 
-int plane_goto_coords(lua_State* L) {// plane_goto_coords(car, x, y, z) - самолет летит на координаты.
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int plane_goto_coords(lua_State* L) {// plane_goto_coords(car, x, y, z[, speed]) — reVC Script7.cpp:283: 5-й параметр speed (uint8).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
+			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
 			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);// получить указатель на авто.
-			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3); float z = lua_tonumber(L, 4);
-			if (car && car->m_nVehicleClass == VEHICLE_PLANE) {
-				CVector pos = { x, y, z };
-				Command<COMMAND_PLANE_GOTO_COORDS>(CPools::GetVehicleRef(car), pos.x, pos.y, pos.z);// лететь.
+			CVehicle* car = findcarinpool(p);
+			if (car == NULL) { return 0; }
+			float x = (float)lua_tonumber(L, 2), y = (float)lua_tonumber(L, 3), z = (float)lua_tonumber(L, 4);
+			int speed = (!lua_isnoneornil(L, 5) && LUA_TNUMBER == lua_type(L, 5)) ? lua_tointeger(L, 5) : 0;
+			if (car->m_nVehicleClass == VEHICLE_PLANE) {
+				Command<COMMAND_PLANE_GOTO_COORDS>(CPools::GetVehicleRef(car), x, y, z, speed);
 			}
 			return 0;
 		}
-		else { throw "bad argument in function plane_goto_coords"; }
+		else { throw "bad argument in function plane_goto_coords(car,x,y,z[,speed])"; }
 	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+	catch (const char* x) { writelog(x); }
 	return 0;
 };
 
@@ -16159,17 +16236,18 @@ int heli_goto_coords(lua_State* L) {// (car, x, y, z) вертолет на ко
 	return 0;
 };
 
-int heli_create_dust_effect(lua_State* L) {// (car) пыль катсценного вертолета.
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int heli_create_dust_effect(lua_State* L) {// (obj, radius, count) — reVC Script8.cpp:352: объект из object pool, НЕ vehicle.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
-			const void* p = lua_topointer(L, 1);
-			CVehicle* car = findcarinpool(p);
-			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			Command<COMMAND_CREATE_DUST_EFFECT_FOR_CUTSCENE_HELI>(car);
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {
+			CObject* obj = findobjinpool(lua_topointer(L, 1));
+			if (obj == NULL) { return 0; }
+			float radius = (float)lua_tonumber(L, 2);
+			int count = lua_tointeger(L, 3);
+			Command<COMMAND_CREATE_DUST_EFFECT_FOR_CUTSCENE_HELI>(CPools::GetObjectRef(obj), radius, count);
 			return 0;
 		}
-		else { throw "bad argument in function heli_create_dust_effect"; }
+		else { throw "bad argument in function heli_create_dust_effect(obj,radius,count)"; }
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;
@@ -16228,17 +16306,17 @@ int car_wander_randomly(lua_State* L) {// (car) авто едет случайн
 	return 0;
 };
 
-int car_face_coord(lua_State* L) {// (car, x, y, z) повернуть к координатам.
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int car_face_coord(lua_State* L) {// (car, x, y) повернуть к координатам (4-й z исторически игнорируется движком).
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			float x = lua_tonumber(L, 2);
-			float y = lua_tonumber(L, 3);
-			float z = lua_tonumber(L, 4);
-			Command<COMMAND_TURN_CAR_TO_FACE_COORD>(car, x, y, z);
+			float x = (float)lua_tonumber(L, 2);
+			float y = (float)lua_tonumber(L, 3);
+			// (20.11) reVC Script4.cpp:1493 — reVC - 3 параметра (car, x, y); z не читается.
+			Command<COMMAND_TURN_CAR_TO_FACE_COORD>(CPools::GetVehicleRef(car), x, y);
 			return 0;
 		}
 		else { throw "bad argument in function car_face_coord"; }
@@ -17842,10 +17920,11 @@ int set_tank_detonate(lua_State* L) {// (car, bool) танк взрывает а
 	return 0;
 };
 
-int ensure_drive_by(lua_State* L) {// () дать drive-by.
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int ensure_drive_by(lua_State* L) {// ([ammo]) — reVC Script7.cpp:1247: (player, ammo);玩家 не передаётся в Lua.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		Command<COMMAND_ENSURE_PLAYER_HAS_DRIVE_BY_WEAPON>();
+		int ammo = (!lua_isnoneornil(L, 1) && LUA_TNUMBER == lua_type(L, 1)) ? lua_tointeger(L, 1) : 0;
+		Command<COMMAND_ENSURE_PLAYER_HAS_DRIVE_BY_WEAPON>(CWorld::PlayerInFocus, ammo);
 		return 0;
 	}
 	catch (const char* x) { writelog(x); }
@@ -19999,29 +20078,29 @@ int add_ammo_to_player(lua_State* L) { // добавить патронов иг
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int clear_area_of_cars(lua_State* L) { // очистить зону от машин
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int clear_area_of_cars(lua_State* L) { // (x1,y1,z1,x2,y2,z2) — reVC Script4.cpp:1697: 6 FLOAT.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
-			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			float x1 = (float)lua_tonumber(L, 1), y1 = (float)lua_tonumber(L, 2);
-			float x2 = (float)lua_tonumber(L, 3), y2 = (float)lua_tonumber(L, 4);
-			Command<COMMAND_CLEAR_AREA_OF_CARS>(x1, y1, x2, y2);
+		bool ok = true;
+		for (int i = 1; i <= 6; i++) if (LUA_TNUMBER != lua_type(L, i)) ok = false;
+		if (ok) {
+			Command<COMMAND_CLEAR_AREA_OF_CARS>((float)lua_tonumber(L,1), (float)lua_tonumber(L,2), (float)lua_tonumber(L,3),
+				(float)lua_tonumber(L,4), (float)lua_tonumber(L,5), (float)lua_tonumber(L,6));
 		}
-		else { throw "bad argument in function clear_area_of_cars"; }
+		else { throw "bad argument in function clear_area_of_cars(x1,y1,z1,x2,y2,z2)"; }
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int clear_area_of_chars(lua_State* L) { // очистить зону от педов
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int clear_area_of_chars(lua_State* L) { // (x1,y1,z1,x2,y2,z2) — reVC Script6.cpp:602: 6 FLOAT.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
-			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
-			float x1 = (float)lua_tonumber(L, 1), y1 = (float)lua_tonumber(L, 2);
-			float x2 = (float)lua_tonumber(L, 3), y2 = (float)lua_tonumber(L, 4);
-			Command<COMMAND_CLEAR_AREA_OF_CHARS>(x1, y1, x2, y2);
+		bool ok = true;
+		for (int i = 1; i <= 6; i++) if (LUA_TNUMBER != lua_type(L, i)) ok = false;
+		if (ok) {
+			Command<COMMAND_CLEAR_AREA_OF_CHARS>((float)lua_tonumber(L,1), (float)lua_tonumber(L,2), (float)lua_tonumber(L,3),
+				(float)lua_tonumber(L,4), (float)lua_tonumber(L,5), (float)lua_tonumber(L,6));
 		}
-		else { throw "bad argument in function clear_area_of_chars"; }
+		else { throw "bad argument in function clear_area_of_chars(x1,y1,z1,x2,y2,z2)"; }
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
@@ -29455,3 +29534,4592 @@ int reset_gangs(lua_State* L) { // сброс/реинициализация д�
     CGangs::Initialise();
     return 0;
 }
+
+// === AUTO-ADDED OPCODE WRAPPERS (20.11) ===
+int print_with_number_big(lua_State* L) { // 0x01E3 COMMAND_PRINT_WITH_NUMBER_BIG (reVC Script2.cpp:1389)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_number_big"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print_with_number_big"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_with_number_big"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function print_with_number_big"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_WITH_NUMBER_BIG - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_score(lua_State* L) { // 0x0109 COMMAND_ADD_SCORE (reVC Script.cpp:4512)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_score"; }
+        Command<COMMAND_ADD_SCORE>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_deatharrest_been_executed(lua_State* L) { // 0x0112 COMMAND_HAS_DEATHARREST_BEEN_EXECUTED (reVC Script.cpp:4556)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_HAS_DEATHARREST_BEEN_EXECUTED>();
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_prints(lua_State* L) { // 0x00BE COMMAND_CLEAR_PRINTS (reVC Script.cpp:4162)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_CLEAR_PRINTS>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_fading_colour(lua_State* L) { // 0x0169 COMMAND_SET_FADING_COLOUR (reVC Script2.cpp:384)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_fading_colour"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_fading_colour"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_fading_colour"; }
+        Command<COMMAND_SET_FADING_COLOUR>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), (int)lua_tointeger(L, 3)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int load_special_character(lua_State* L) { // 0x023C COMMAND_LOAD_SPECIAL_CHARACTER (reVC Script3.cpp:662)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function load_special_character"; }
+        if (LUA_TSTRING != lua_type(L, 2)) { throw "bad argument in function load_special_character"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 1)); p.f = 0.0f; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 2));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_LOAD_SPECIAL_CHARACTER - 0x10000, prm.data(), (int)prm.size(), 1, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_special_character_loaded(lua_State* L) { // 0x023D COMMAND_HAS_SPECIAL_CHARACTER_LOADED (reVC Script3.cpp:673)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function has_special_character_loaded"; }
+        bool res = Command<COMMAND_HAS_SPECIAL_CHARACTER_LOADED>((int)lua_tointeger(L, 1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_cutscene_offset(lua_State* L) { // 0x0244 COMMAND_SET_CUTSCENE_OFFSET (reVC Script3.cpp:729)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_cutscene_offset"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_cutscene_offset"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_cutscene_offset"; }
+        Command<COMMAND_SET_CUTSCENE_OFFSET>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int load_cutscene(lua_State* L) { // 0x02E4 COMMAND_LOAD_CUTSCENE (reVC Script3.cpp:1950)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function load_cutscene"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_LOAD_CUTSCENE - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_cutscene_object(lua_State* L) { // 0x02E5 COMMAND_CREATE_CUTSCENE_OBJECT (reVC Script3.cpp:1958)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_cutscene_object"; }
+        int out0 = 0;
+        Command<COMMAND_CREATE_CUTSCENE_OBJECT>((int)lua_tointeger(L, 1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_cutscene_anim(lua_State* L) { // 0x02E6 COMMAND_SET_CUTSCENE_ANIM (reVC Script3.cpp:1966)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_cutscene_anim"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TSTRING != lua_type(L, 2)) { throw "bad argument in function set_cutscene_anim"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 0; p.i = (int)(CPools::GetObjectRef(e_1)); p.f = 0.0f; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 2));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_SET_CUTSCENE_ANIM - 0x10000, prm.data(), (int)prm.size(), 1, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int start_cutscene(lua_State* L) { // 0x02E7 COMMAND_START_CUTSCENE (reVC Script3.cpp:1977)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_START_CUTSCENE>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_cutscene_time(lua_State* L) { // 0x02E8 COMMAND_GET_CUTSCENE_TIME (reVC Script3.cpp:1980)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_GET_CUTSCENE_TIME>(&out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_cutscene(lua_State* L) { // 0x02EA COMMAND_CLEAR_CUTSCENE (reVC Script3.cpp:1987)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_CLEAR_CUTSCENE>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_shortcut_dropoff_point_for_mission(lua_State* L) { // 0x058E COMMAND_SET_SHORTCUT_DROPOFF_POINT_FOR_MISSION (reVC Script8.cpp:234)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_shortcut_dropoff_point_for_mission"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_shortcut_dropoff_point_for_mission"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_shortcut_dropoff_point_for_mission"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_shortcut_dropoff_point_for_mission"; }
+        Command<COMMAND_SET_SHORTCUT_DROPOFF_POINT_FOR_MISSION>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_this_print(lua_State* L) { // 0x03D5 COMMAND_CLEAR_THIS_PRINT (reVC Script4.cpp:2079)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function clear_this_print"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_CLEAR_THIS_PRINT - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_any_car(lua_State* L) { // 0x00E0 COMMAND_IS_PLAYER_IN_ANY_CAR (reVC Script.cpp:4400)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_IS_PLAYER_IN_ANY_CAR>(CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_car(lua_State* L) { // 0x00DC COMMAND_IS_PLAYER_IN_CAR (reVC Script.cpp:4370)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_player_in_car"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_PLAYER_IN_CAR>(CWorld::PlayerInFocus, CPools::GetVehicleRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_player_coordinates(lua_State* L) { // 0x0054 COMMAND_GET_PLAYER_COORDINATES (reVC Script.cpp:3183)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        float out0 = 0;
+        float out1 = 0;
+        float out2 = 0;
+        Command<COMMAND_GET_PLAYER_COORDINATES>(CWorld::PlayerInFocus, &out0, &out1, &out2);
+        lua_pushnumber(L, out0);
+        lua_pushnumber(L, out1);
+        lua_pushnumber(L, out2);
+        return 3;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int load_special_model(lua_State* L) { // 0x02F3 COMMAND_LOAD_SPECIAL_MODEL (reVC Script3.cpp:2086)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function load_special_model"; }
+        if (LUA_TSTRING != lua_type(L, 2)) { throw "bad argument in function load_special_model"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 1)); p.f = 0.0f; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 2));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_LOAD_SPECIAL_MODEL - 0x10000, prm.data(), (int)prm.size(), 1, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_in_car(lua_State* L) { // 0x00DB COMMAND_IS_CHAR_IN_CAR (reVC Script.cpp:4361)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_car"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function is_char_in_car"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_IN_CAR>(CPools::GetPedRef(e_1), CPools::GetVehicleRef(e_2));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_in_any_car(lua_State* L) { // 0x00DF COMMAND_IS_CHAR_IN_ANY_CAR (reVC Script.cpp:4393)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_any_car"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_IN_ANY_CAR>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_any_means_3d(lua_State* L) { // 0x00F5 COMMAND_LOCATE_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4448)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_player_any_means_3d"; }
+        Command<COMMAND_LOCATE_PLAYER_ANY_MEANS_3D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (int)lua_tointeger(L, 7)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_car_coordinates(lua_State* L) { // 0x00AA COMMAND_GET_CAR_COORDINATES (reVC Script.cpp:3982)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_car_coordinates"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        float out0 = 0;
+        float out1 = 0;
+        float out2 = 0;
+        Command<COMMAND_GET_CAR_COORDINATES>(CPools::GetVehicleRef(e_1), &out0, &out1, &out2);
+        lua_pushnumber(L, out0);
+        lua_pushnumber(L, out1);
+        lua_pushnumber(L, out2);
+        return 3;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int store_car_player_is_in(lua_State* L) { // 0x00DA COMMAND_STORE_CAR_PLAYER_IS_IN (reVC Script.cpp:4310)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_STORE_CAR_PLAYER_IS_IN>(CWorld::PlayerInFocus, &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_onscreen_counter(lua_State* L) { // 0x0151 COMMAND_CLEAR_ONSCREEN_COUNTER (reVC Script2.cpp:194)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function clear_onscreen_counter"; }
+        Command<COMMAND_CLEAR_ONSCREEN_COUNTER>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_extra_colours(lua_State* L) { // 0x04FA COMMAND_CLEAR_EXTRA_COLOURS (reVC Script7.cpp:567)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function clear_extra_colours"; }
+        Command<COMMAND_CLEAR_EXTRA_COLOURS>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_oddjob_mission_passed(lua_State* L) { // 0x0595 COMMAND_REGISTER_ODDJOB_MISSION_PASSED (reVC Script8.cpp:330)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_REGISTER_ODDJOB_MISSION_PASSED>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_on_foot_2d(lua_State* L) { // 0x00ED COMMAND_LOCATE_CHAR_ON_FOOT_2D (reVC Script.cpp:4436)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_char_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_char_on_foot_2d"; }
+        Command<COMMAND_LOCATE_CHAR_ON_FOOT_2D>(CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_car_2d(lua_State* L) { // 0x01AD COMMAND_LOCATE_CAR_2D (reVC Script2.cpp:881)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_car_2d"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_car_2d"; }
+        Command<COMMAND_LOCATE_CAR_2D>(CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int display_onscreen_counter_with_string(lua_State* L) { // 0x03C4 COMMAND_DISPLAY_ONSCREEN_COUNTER_WITH_STRING (reVC Script4.cpp:1797)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_onscreen_counter_with_string"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function display_onscreen_counter_with_string"; }
+        if (LUA_TSTRING != lua_type(L, 3)) { throw "bad argument in function display_onscreen_counter_with_string"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 1)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 3));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_DISPLAY_ONSCREEN_COUNTER_WITH_STRING - 0x10000, prm.data(), (int)prm.size(), 2, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_extra_colours(lua_State* L) { // 0x04F9 COMMAND_SET_EXTRA_COLOURS (reVC Script7.cpp:561)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_extra_colours"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_extra_colours"; }
+        Command<COMMAND_SET_EXTRA_COLOURS>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_obj_enter_car_as_driver(lua_State* L) { // 0x01D5 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_DRIVER (reVC Script2.cpp:1285)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_obj_enter_car_as_driver"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function set_char_obj_enter_car_as_driver"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        Command<COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_DRIVER>(CPools::GetPedRef(e_1), CPools::GetVehicleRef(e_2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_object_no_offset(lua_State* L) { // 0x029B COMMAND_CREATE_OBJECT_NO_OFFSET (reVC Script3.cpp:1260)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_object_no_offset"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_object_no_offset"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_object_no_offset"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function create_object_no_offset"; }
+        float out0 = 0;
+        Command<COMMAND_CREATE_OBJECT_NO_OFFSET>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), &out0);
+        lua_pushnumber(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int change_blip_display(lua_State* L) { // 0x018B COMMAND_CHANGE_BLIP_DISPLAY (reVC Script2.cpp:683)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function change_blip_display"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function change_blip_display"; }
+        Command<COMMAND_CHANGE_BLIP_DISPLAY>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_health(lua_State* L) { // 0x0223 COMMAND_SET_CHAR_HEALTH (reVC Script3.cpp:393)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_health"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_char_health"; }
+        Command<COMMAND_SET_CHAR_HEALTH>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_on_foot_3d(lua_State* L) { // 0x00F6 COMMAND_LOCATE_PLAYER_ON_FOOT_3D (reVC Script.cpp:4449)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_player_on_foot_3d"; }
+        Command<COMMAND_LOCATE_PLAYER_ON_FOOT_3D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (int)lua_tointeger(L, 7)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_char_coordinates(lua_State* L) { // 0x00A0 COMMAND_GET_CHAR_COORDINATES (reVC Script.cpp:3759)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_char_coordinates"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        float out0 = 0;
+        float out1 = 0;
+        float out2 = 0;
+        Command<COMMAND_GET_CHAR_COORDINATES>(CPools::GetPedRef(e_1), &out0, &out1, &out2);
+        lua_pushnumber(L, out0);
+        lua_pushnumber(L, out1);
+        lua_pushnumber(L, out2);
+        return 3;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_fastest_time(lua_State* L) { // 0x042E COMMAND_REGISTER_FASTEST_TIME (reVC Script6.cpp:635)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_fastest_time"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function register_fastest_time"; }
+        Command<COMMAND_REGISTER_FASTEST_TIME>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print(lua_State* L) { // 0x00BB COMMAND_PRINT (reVC Script.cpp:4139)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int display_onscreen_timer(lua_State* L) { // 0x014E COMMAND_DISPLAY_ONSCREEN_TIMER (reVC Script2.cpp:169)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_onscreen_timer"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function display_onscreen_timer"; }
+        Command<COMMAND_DISPLAY_ONSCREEN_TIMER>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_in_car_3d(lua_State* L) { // 0x00F7 COMMAND_LOCATE_PLAYER_IN_CAR_3D (reVC Script.cpp:4450)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_3d"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_player_in_car_3d"; }
+        Command<COMMAND_LOCATE_PLAYER_IN_CAR_3D>(CWorld::PlayerInFocus, CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (int)lua_tointeger(L, 7)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_any_means_car_2d(lua_State* L) { // 0x01FC COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_2D (reVC Script3.cpp:108)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_any_means_car_2d"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_any_means_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_any_means_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_any_means_car_2d"; }
+        Command<COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_2D>(CWorld::PlayerInFocus, CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (int)lua_tointeger(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_with_2_numbers_now(lua_State* L) { // 0x02FD COMMAND_PRINT_WITH_2_NUMBERS_NOW (reVC Script3.cpp:2161)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_2_numbers_now"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print_with_2_numbers_now"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_with_2_numbers_now"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function print_with_2_numbers_now"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function print_with_2_numbers_now"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_WITH_2_NUMBERS_NOW - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_small_prints(lua_State* L) { // 0x03EB COMMAND_CLEAR_SMALL_PRINTS (reVC Script6.cpp:99)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_CLEAR_SMALL_PRINTS>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_model(lua_State* L) { // 0x00DE COMMAND_IS_PLAYER_IN_MODEL (reVC Script.cpp:4386)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_model"; }
+        bool res = Command<COMMAND_IS_PLAYER_IN_MODEL>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int switch_car_generator(lua_State* L) { // 0x014C COMMAND_SWITCH_CAR_GENERATOR (reVC Script2.cpp:146)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function switch_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function switch_car_generator"; }
+        Command<COMMAND_SWITCH_CAR_GENERATOR>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int turn_char_to_face_char(lua_State* L) { // 0x020E COMMAND_TURN_CHAR_TO_FACE_CHAR (reVC Script3.cpp:163)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function turn_char_to_face_char"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function turn_char_to_face_char"; }
+        CPed* e_2 = findpedinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        Command<COMMAND_TURN_CHAR_TO_FACE_CHAR>(CPools::GetPedRef(e_1), CPools::GetPedRef(e_2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_playing(lua_State* L) { // 0x0256 COMMAND_IS_PLAYER_PLAYING (reVC Script3.cpp:854)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_IS_PLAYER_PLAYING>(CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_point_obscured_by_a_mission_entity(lua_State* L) { // 0x038A COMMAND_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY (reVC Script4.cpp:1262)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_point_obscured_by_a_mission_entity"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_point_obscured_by_a_mission_entity"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_point_obscured_by_a_mission_entity"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_point_obscured_by_a_mission_entity"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_point_obscured_by_a_mission_entity"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_point_obscured_by_a_mission_entity"; }
+        bool res = Command<COMMAND_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int sqrt(lua_State* L) { // 0x01FB COMMAND_SQRT (reVC Script3.cpp:101)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function sqrt"; }
+        int out0 = 0;
+        Command<COMMAND_SQRT>((float)lua_tonumber(L, 1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_camera_in_front_of_player(lua_State* L) { // 0x03C8 COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER (reVC Script4.cpp:1983)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_on_foot_3d(lua_State* L) { // 0x00FF COMMAND_LOCATE_CHAR_ON_FOOT_3D (reVC Script.cpp:4462)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_3d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function locate_char_on_foot_3d"; }
+        Command<COMMAND_LOCATE_CHAR_ON_FOOT_3D>(CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_with_number_now(lua_State* L) { // 0x01E5 COMMAND_PRINT_WITH_NUMBER_NOW (reVC Script2.cpp:1403)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_number_now"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print_with_number_now"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_with_number_now"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function print_with_number_now"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_WITH_NUMBER_NOW - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int was_cutscene_skipped(lua_State* L) { // 0x056A COMMAND_WAS_CUTSCENE_SKIPPED (reVC Script7.cpp:1305)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_WAS_CUTSCENE_SKIPPED>();
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_zone_ped_info(lua_State* L) { // 0x015C COMMAND_SET_ZONE_PED_INFO (reVC Script2.cpp:275)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 10)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 11)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 12)) { throw "bad argument in function set_zone_ped_info"; }
+        if (LUA_TNUMBER != lua_type(L, 13)) { throw "bad argument in function set_zone_ped_info"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 6)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 7)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 8)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 9)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 10)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 11)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 12)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 13)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_SET_ZONE_PED_INFO - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_money_spent_on_property(lua_State* L) { // 0x0529 COMMAND_ADD_MONEY_SPENT_ON_PROPERTY (reVC Script7.cpp:878)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_money_spent_on_property"; }
+        Command<COMMAND_ADD_MONEY_SPENT_ON_PROPERTY>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_property_as_owned(lua_State* L) { // 0x0542 COMMAND_SET_PROPERTY_AS_OWNED (reVC Script7.cpp:1003)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_property_as_owned"; }
+        Command<COMMAND_SET_PROPERTY_AS_OWNED>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_object_coordinates(lua_State* L) { // 0x01BB COMMAND_GET_OBJECT_COORDINATES (reVC Script2.cpp:951)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_object_coordinates"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        float out0 = 0;
+        float out1 = 0;
+        float out2 = 0;
+        Command<COMMAND_GET_OBJECT_COORDINATES>(CPools::GetObjectRef(e_1), &out0, &out1, &out2);
+        lua_pushnumber(L, out0);
+        lua_pushnumber(L, out1);
+        lua_pushnumber(L, out2);
+        return 3;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int generate_random_int_in_range(lua_State* L) { // 0x0209 COMMAND_GENERATE_RANDOM_INT_IN_RANGE (reVC Script3.cpp:129)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function generate_random_int_in_range"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function generate_random_int_in_range"; }
+        int out0 = 0;
+        Command<COMMAND_GENERATE_RANDOM_INT_IN_RANGE>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_cant_be_dragged_out(lua_State* L) { // 0x039E COMMAND_SET_CHAR_CANT_BE_DRAGGED_OUT (reVC Script4.cpp:1485)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_cant_be_dragged_out"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_char_cant_be_dragged_out"; }
+        Command<COMMAND_SET_CHAR_CANT_BE_DRAGGED_OUT>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_cutscene_anim_to_loop(lua_State* L) { // 0x04BC COMMAND_SET_CUTSCENE_ANIM_TO_LOOP (reVC Script7.cpp:139)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_cutscene_anim_to_loop"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_SET_CUTSCENE_ANIM_TO_LOOP - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_area_2d(lua_State* L) { // 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D (reVC Script.cpp:3248)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_player_in_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_player_in_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_player_in_area_2d"; }
+        if (LUA_TBOOLEAN != lua_type(L, 5)) { throw "bad argument in function is_player_in_area_2d"; }
+        bool res = Command<COMMAND_IS_PLAYER_IN_AREA_2D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (lua_toboolean(L, 5) != 0));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_time_of_day(lua_State* L) { // 0x00C0 COMMAND_SET_TIME_OF_DAY (reVC Script.cpp:4170)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_time_of_day"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_time_of_day"; }
+        Command<COMMAND_SET_TIME_OF_DAY>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_stopped_player_in_car_3d(lua_State* L) { // 0x00FA COMMAND_LOCATE_STOPPED_PLAYER_IN_CAR_3D (reVC Script.cpp:4453)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_stopped_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_stopped_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_stopped_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_stopped_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_stopped_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_stopped_player_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function locate_stopped_player_in_car_3d"; }
+        Command<COMMAND_LOCATE_STOPPED_PLAYER_IN_CAR_3D>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_obj_enter_car_as_passenger(lua_State* L) { // 0x01D4 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_PASSENGER (reVC Script2.cpp:1275)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_obj_enter_car_as_passenger"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function set_char_obj_enter_car_as_passenger"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        Command<COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_PASSENGER>(CPools::GetPedRef(e_1), CPools::GetVehicleRef(e_2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_suffers_critical_hits(lua_State* L) { // 0x0446 COMMAND_SET_CHAR_SUFFERS_CRITICAL_HITS (reVC Script6.cpp:801)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_suffers_critical_hits"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_char_suffers_critical_hits"; }
+        Command<COMMAND_SET_CHAR_SUFFERS_CRITICAL_HITS>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int store_car_char_is_in(lua_State* L) { // 0x00D9 COMMAND_STORE_CAR_CHAR_IS_IN (reVC Script.cpp:4258)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function store_car_char_is_in"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        Command<COMMAND_STORE_CAR_CHAR_IS_IN>(CPools::GetPedRef(e_1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_any_means_2d(lua_State* L) { // 0x00E3 COMMAND_LOCATE_PLAYER_ANY_MEANS_2D (reVC Script.cpp:4422)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_any_means_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_any_means_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_any_means_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_any_means_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_any_means_2d"; }
+        Command<COMMAND_LOCATE_PLAYER_ANY_MEANS_2D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_stopped_player_on_foot_3d(lua_State* L) { // 0x00F9 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_3D (reVC Script.cpp:4452)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_stopped_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_stopped_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_stopped_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_stopped_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_stopped_player_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_stopped_player_on_foot_3d"; }
+        Command<COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_3D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (int)lua_tointeger(L, 7)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_player_as_leader(lua_State* L) { // 0x01DF COMMAND_SET_PLAYER_AS_LEADER (reVC Script2.cpp:1357)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_player_as_leader"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_SET_PLAYER_AS_LEADER>(CPools::GetPedRef(e_1), CWorld::PlayerInFocus); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_short_range_sprite_blip_for_coord(lua_State* L) { // 0x04CE COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_COORD (reVC Script7.cpp:244)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_short_range_sprite_blip_for_coord"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_short_range_sprite_blip_for_coord"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_short_range_sprite_blip_for_coord"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function add_short_range_sprite_blip_for_coord"; }
+        float out0 = 0;
+        Command<COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_COORD>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (int)lua_tointeger(L, 4), &out0);
+        lua_pushnumber(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int stop_char_looking(lua_State* L) { // 0x022F COMMAND_STOP_CHAR_LOOKING (reVC Script3.cpp:548)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function stop_char_looking"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_STOP_CHAR_LOOKING>(CPools::GetPedRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_cutscene_finished(lua_State* L) { // 0x02E9 COMMAND_HAS_CUTSCENE_FINISHED (reVC Script3.cpp:1984)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_HAS_CUTSCENE_FINISHED>();
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int shut_player_up(lua_State* L) { // 0x04E2 COMMAND_SHUT_PLAYER_UP (reVC Script7.cpp:390)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function shut_player_up"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function shut_player_up"; }
+        Command<COMMAND_SHUT_PLAYER_UP>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_health_greater(lua_State* L) { // 0x0184 COMMAND_IS_CHAR_HEALTH_GREATER (reVC Script2.cpp:605)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_health_greater"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_char_health_greater"; }
+        bool res = Command<COMMAND_IS_CHAR_HEALTH_GREATER>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int store_wanted_level(lua_State* L) { // 0x01C0 COMMAND_STORE_WANTED_LEVEL (reVC Script2.cpp:1028)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_STORE_WANTED_LEVEL>(CWorld::PlayerInFocus, &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_in_players_group(lua_State* L) { // 0x0320 COMMAND_IS_CHAR_IN_PLAYERS_GROUP (reVC Script4.cpp:65)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_players_group"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_IN_PLAYERS_GROUP>(CPools::GetPedRef(e_1), CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int make_player_safe_for_cutscene(lua_State* L) { // 0x03EF COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE (reVC Script6.cpp:125)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE>(CWorld::PlayerInFocus); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_protection_pickup(lua_State* L) { // 0x04A6 COMMAND_CREATE_PROTECTION_PICKUP (reVC Script6.cpp:1719)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_protection_pickup"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_protection_pickup"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_protection_pickup"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function create_protection_pickup"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function create_protection_pickup"; }
+        int out0 = 0;
+        Command<COMMAND_CREATE_PROTECTION_PICKUP>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (int)lua_tointeger(L, 4), (int)lua_tointeger(L, 5), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_stopped_player_any_means_3d(lua_State* L) { // 0x00F8 COMMAND_LOCATE_STOPPED_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4451)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_stopped_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_stopped_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_stopped_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_stopped_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_stopped_player_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_stopped_player_any_means_3d"; }
+        Command<COMMAND_LOCATE_STOPPED_PLAYER_ANY_MEANS_3D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (int)lua_tointeger(L, 7)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int char_look_at_player_always(lua_State* L) { // 0x022D COMMAND_CHAR_LOOK_AT_PLAYER_ALWAYS (reVC Script3.cpp:526)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function char_look_at_player_always"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_CHAR_LOOK_AT_PLAYER_ALWAYS>(CPools::GetPedRef(e_1), CWorld::PlayerInFocus); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int stop_player_looking(lua_State* L) { // 0x0230 COMMAND_STOP_PLAYER_LOOKING (reVC Script3.cpp:559)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_STOP_PLAYER_LOOKING>(CWorld::PlayerInFocus); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int store_car_player_is_in_no_save(lua_State* L) { // 0x03C1 COMMAND_STORE_CAR_PLAYER_IS_IN_NO_SAVE (reVC Script4.cpp:1770)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_STORE_CAR_PLAYER_IS_IN_NO_SAVE>(CWorld::PlayerInFocus, &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_offset_from_car_in_world_coords(lua_State* L) { // 0x0407 COMMAND_GET_OFFSET_FROM_CAR_IN_WORLD_COORDS (reVC Script6.cpp:286)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_offset_from_car_in_world_coords"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_offset_from_car_in_world_coords"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_offset_from_car_in_world_coords"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_offset_from_car_in_world_coords"; }
+        float out0 = 0;
+        float out1 = 0;
+        float out2 = 0;
+        Command<COMMAND_GET_OFFSET_FROM_CAR_IN_WORLD_COORDS>(CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), &out0, &out1, &out2);
+        lua_pushnumber(L, out0);
+        lua_pushnumber(L, out1);
+        lua_pushnumber(L, out2);
+        return 3;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int shut_char_up(lua_State* L) { // 0x0489 COMMAND_SHUT_CHAR_UP (reVC Script6.cpp:1524)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function shut_char_up"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function shut_char_up"; }
+        Command<COMMAND_SHUT_CHAR_UP>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int draw_weaponshop_corona(lua_State* L) { // 0x04D5 COMMAND_DRAW_WEAPONSHOP_CORONA (reVC Script7.cpp:302)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function draw_weaponshop_corona"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function draw_weaponshop_corona"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function draw_weaponshop_corona"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function draw_weaponshop_corona"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function draw_weaponshop_corona"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function draw_weaponshop_corona"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function draw_weaponshop_corona"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function draw_weaponshop_corona"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function draw_weaponshop_corona"; }
+        Command<COMMAND_DRAW_WEAPONSHOP_CORONA>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5), (int)lua_tointeger(L, 6), (int)lua_tointeger(L, 7), (int)lua_tointeger(L, 8), (int)lua_tointeger(L, 9)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int does_char_exist(lua_State* L) { // 0x056D COMMAND_DOES_CHAR_EXIST (reVC Script7.cpp:1328)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function does_char_exist"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_DOES_CHAR_EXIST>(CPools::GetPedRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int point_camera_at_player(lua_State* L) { // 0x0157 COMMAND_POINT_CAMERA_AT_PLAYER (reVC Script2.cpp:244)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function point_camera_at_player"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function point_camera_at_player"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function point_camera_at_player"; }
+        Command<COMMAND_POINT_CAMERA_AT_PLAYER>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), (int)lua_tointeger(L, 3)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int mark_object_as_no_longer_needed(lua_State* L) { // 0x01C4 COMMAND_MARK_OBJECT_AS_NO_LONGER_NEEDED (reVC Script2.cpp:1063)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function mark_object_as_no_longer_needed"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_MARK_OBJECT_AS_NO_LONGER_NEEDED>(CPools::GetObjectRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_player_char(lua_State* L) { // 0x01F5 COMMAND_GET_PLAYER_CHAR (reVC Script3.cpp:50)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_GET_PLAYER_CHAR>(CWorld::PlayerInFocus, &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_ground_z_for_3d_coord(lua_State* L) { // 0x02CE COMMAND_GET_GROUND_Z_FOR_3D_COORD (reVC Script3.cpp:1654)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_ground_z_for_3d_coord"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_ground_z_for_3d_coord"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_ground_z_for_3d_coord"; }
+        float out0 = 0;
+        Command<COMMAND_GET_GROUND_Z_FOR_3D_COORD>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), &out0);
+        lua_pushnumber(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int place_object_relative_to_car(lua_State* L) { // 0x035C COMMAND_PLACE_OBJECT_RELATIVE_TO_CAR (reVC Script4.cpp:726)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function place_object_relative_to_car"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function place_object_relative_to_car"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function place_object_relative_to_car"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function place_object_relative_to_car"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function place_object_relative_to_car"; }
+        Command<COMMAND_PLACE_OBJECT_RELATIVE_TO_CAR>(CPools::GetObjectRef(e_1), CPools::GetVehicleRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_moving_particle_effect(lua_State* L) { // 0x039D COMMAND_ADD_MOVING_PARTICLE_EFFECT (reVC Script4.cpp:1464)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 10)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 11)) { throw "bad argument in function add_moving_particle_effect"; }
+        if (LUA_TNUMBER != lua_type(L, 12)) { throw "bad argument in function add_moving_particle_effect"; }
+        Command<COMMAND_ADD_MOVING_PARTICLE_EFFECT>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (float)lua_tonumber(L, 8), (int)lua_tointeger(L, 9), (int)lua_tointeger(L, 10), (int)lua_tointeger(L, 11), (int)lua_tointeger(L, 12)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int change_garage_type(lua_State* L) { // 0x02FA COMMAND_CHANGE_GARAGE_TYPE (reVC Script3.cpp:2127)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function change_garage_type"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function change_garage_type"; }
+        Command<COMMAND_CHANGE_GARAGE_TYPE>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_object_been_damaged(lua_State* L) { // 0x0366 COMMAND_HAS_OBJECT_BEEN_DAMAGED (reVC Script4.cpp:899)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_object_been_damaged"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_HAS_OBJECT_BEEN_DAMAGED>(CPools::GetObjectRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_sitting_in_car(lua_State* L) { // 0x0442 COMMAND_IS_PLAYER_SITTING_IN_CAR (reVC Script6.cpp:775)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_player_sitting_in_car"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_PLAYER_SITTING_IN_CAR>(CWorld::PlayerInFocus, CPools::GetVehicleRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_on_foot(lua_State* L) { // 0x044B COMMAND_IS_CHAR_ON_FOOT (reVC Script6.cpp:846)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_on_foot"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_ON_FOOT>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_car_in_area_2d(lua_State* L) { // 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC Script.cpp:4084)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_car_in_area_2d"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_car_in_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_car_in_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_car_in_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_car_in_area_2d"; }
+        if (LUA_TBOOLEAN != lua_type(L, 6)) { throw "bad argument in function is_car_in_area_2d"; }
+        bool res = Command<COMMAND_IS_CAR_IN_AREA_2D>(CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (lua_toboolean(L, 6) != 0));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_on_foot_2d(lua_State* L) { // 0x00E4 COMMAND_LOCATE_PLAYER_ON_FOOT_2D (reVC Script.cpp:4423)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_on_foot_2d"; }
+        Command<COMMAND_LOCATE_PLAYER_ON_FOOT_2D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_stopped_char_any_means_3d(lua_State* L) { // 0x0101 COMMAND_LOCATE_STOPPED_CHAR_ANY_MEANS_3D (reVC Script.cpp:4464)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_stopped_char_any_means_3d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_stopped_char_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_stopped_char_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_stopped_char_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_stopped_char_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_stopped_char_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_stopped_char_any_means_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function locate_stopped_char_any_means_3d"; }
+        Command<COMMAND_LOCATE_STOPPED_CHAR_ANY_MEANS_3D>(CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_as_leader(lua_State* L) { // 0x01DE COMMAND_SET_CHAR_AS_LEADER (reVC Script2.cpp:1348)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_as_leader"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function set_char_as_leader"; }
+        CPed* e_2 = findpedinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        Command<COMMAND_SET_CHAR_AS_LEADER>(CPools::GetPedRef(e_1), CPools::GetPedRef(e_2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_any_means_car_2d(lua_State* L) { // 0x0202 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_2D (reVC Script3.cpp:116)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_car_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_any_means_car_2d"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_any_means_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_any_means_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_any_means_car_2d"; }
+        Command<COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_2D>(CPools::GetPedRef(e_1), CPools::GetVehicleRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int generate_random_float_in_range(lua_State* L) { // 0x0208 COMMAND_GENERATE_RANDOM_FLOAT_IN_RANGE (reVC Script3.cpp:124)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function generate_random_float_in_range"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function generate_random_float_in_range"; }
+        float out0 = 0;
+        Command<COMMAND_GENERATE_RANDOM_FLOAT_IN_RANGE>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), &out0);
+        lua_pushnumber(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_char_health(lua_State* L) { // 0x0226 COMMAND_GET_CHAR_HEALTH (reVC Script3.cpp:428)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_char_health"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        float out0 = 0;
+        Command<COMMAND_GET_CHAR_HEALTH>(CPools::GetPedRef(e_1), &out0);
+        lua_pushnumber(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int char_look_at_char_always(lua_State* L) { // 0x022C COMMAND_CHAR_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:515)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function char_look_at_char_always"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function char_look_at_char_always"; }
+        CPed* e_2 = findpedinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        Command<COMMAND_CHAR_LOOK_AT_CHAR_ALWAYS>(CPools::GetPedRef(e_1), CPools::GetPedRef(e_2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int player_look_at_char_always(lua_State* L) { // 0x022E COMMAND_PLAYER_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:537)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function player_look_at_char_always"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_PLAYER_LOOK_AT_CHAR_ALWAYS>(CWorld::PlayerInFocus, CPools::GetPedRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_angled_area_3d(lua_State* L) { // 0x02B3 COMMAND_IS_PLAYER_IN_ANGLED_AREA_3D (reVC Script3.cpp:1494)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_angled_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_player_in_angled_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_player_in_angled_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_player_in_angled_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_player_in_angled_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_player_in_angled_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function is_player_in_angled_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function is_player_in_angled_area_3d"; }
+        bool res = Command<COMMAND_IS_PLAYER_IN_ANGLED_AREA_3D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_closest_char_node(lua_State* L) { // 0x02C0 COMMAND_GET_CLOSEST_CHAR_NODE (reVC Script3.cpp:1547)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_closest_char_node"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_closest_char_node"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_closest_char_node"; }
+        int out0 = 0;
+        int out1 = 0;
+        int out2 = 0;
+        Command<COMMAND_GET_CLOSEST_CHAR_NODE>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), &out0, &out1, &out2);
+        lua_pushinteger(L, out0);
+        lua_pushinteger(L, out1);
+        lua_pushinteger(L, out2);
+        return 3;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_to_object_velocity(lua_State* L) { // 0x038C COMMAND_ADD_TO_OBJECT_VELOCITY (reVC Script4.cpp:1304)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function add_to_object_velocity"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_to_object_velocity"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_to_object_velocity"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function add_to_object_velocity"; }
+        Command<COMMAND_ADD_TO_OBJECT_VELOCITY>(CPools::GetObjectRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_sitting_in_any_car(lua_State* L) { // 0x0443 COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR (reVC Script6.cpp:784)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR>(CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_sitting_in_any_car(lua_State* L) { // 0x0449 COMMAND_IS_CHAR_SITTING_IN_ANY_CAR (reVC Script6.cpp:829)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_sitting_in_any_car"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_SITTING_IN_ANY_CAR>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int disable_cutscene_shadows(lua_State* L) { // 0x0522 COMMAND_DISABLE_CUTSCENE_SHADOWS (reVC Script7.cpp:830)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_DISABLE_CUTSCENE_SHADOWS>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_number_of_assassinations(lua_State* L) { // 0x0533 COMMAND_ADD_NUMBER_OF_ASSASSINATIONS (reVC Script7.cpp:912)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_number_of_assassinations"; }
+        Command<COMMAND_ADD_NUMBER_OF_ASSASSINATIONS>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int load_uncompressed_anim(lua_State* L) { // 0x0569 COMMAND_LOAD_UNCOMPRESSED_ANIM (reVC Script7.cpp:1297)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function load_uncompressed_anim"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_LOAD_UNCOMPRESSED_ANIM - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_stopped_char_on_foot_2d(lua_State* L) { // 0x00F0 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_2D (reVC Script.cpp:4439)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_stopped_char_on_foot_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_stopped_char_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_stopped_char_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_stopped_char_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_stopped_char_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_stopped_char_on_foot_2d"; }
+        Command<COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_2D>(CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_any_means_char_2d(lua_State* L) { // 0x00F2 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_2D (reVC Script.cpp:4443)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_char_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_any_means_char_2d"; }
+        CPed* e_2 = findpedinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_any_means_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_any_means_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_any_means_char_2d"; }
+        Command<COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_2D>(CPools::GetPedRef(e_1), CPools::GetPedRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_dead(lua_State* L) { // 0x0117 COMMAND_IS_PLAYER_DEAD (reVC Script.cpp:4577)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_IS_PLAYER_DEAD>(CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_obj_wait_on_foot(lua_State* L) { // 0x0192 COMMAND_SET_CHAR_OBJ_WAIT_ON_FOOT (reVC Script2.cpp:786)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_obj_wait_on_foot"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_SET_CHAR_OBJ_WAIT_ON_FOOT>(CPools::GetPedRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_route_point(lua_State* L) { // 0x01E2 COMMAND_ADD_ROUTE_POINT (reVC Script2.cpp:1383)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_route_point"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_route_point"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_route_point"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function add_route_point"; }
+        Command<COMMAND_ADD_ROUTE_POINT>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_maximum_number_of_passengers(lua_State* L) { // 0x01EA COMMAND_GET_MAXIMUM_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1468)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_maximum_number_of_passengers"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        Command<COMMAND_GET_MAXIMUM_NUMBER_OF_PASSENGERS>(CPools::GetVehicleRef(e_1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_random_car_of_type_in_area(lua_State* L) { // 0x0327 COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA (reVC Script4.cpp:134)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_random_car_of_type_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_random_car_of_type_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_random_car_of_type_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_random_car_of_type_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function get_random_car_of_type_in_area"; }
+        int out0 = 0;
+        Command<COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int remove_route(lua_State* L) { // 0x03AC COMMAND_REMOVE_ROUTE (reVC Script4.cpp:1583)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function remove_route"; }
+        Command<COMMAND_REMOVE_ROUTE>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_interpolation_parameters(lua_State* L) { // 0x0460 COMMAND_SET_INTERPOLATION_PARAMETERS (reVC Script6.cpp:1149)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_interpolation_parameters"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_interpolation_parameters"; }
+        Command<COMMAND_SET_INTERPOLATION_PARAMETERS>((float)lua_tonumber(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_animation_loaded(lua_State* L) { // 0x04EE COMMAND_HAS_ANIMATION_LOADED (reVC Script7.cpp:476)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function has_animation_loaded"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_HAS_ANIMATION_LOADED - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int display_nth_onscreen_counter_with_string(lua_State* L) { // 0x04F7 COMMAND_DISPLAY_NTH_ONSCREEN_COUNTER_WITH_STRING (reVC Script7.cpp:540)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_nth_onscreen_counter_with_string"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function display_nth_onscreen_counter_with_string"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function display_nth_onscreen_counter_with_string"; }
+        if (LUA_TSTRING != lua_type(L, 4)) { throw "bad argument in function display_nth_onscreen_counter_with_string"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 1)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 4));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_DISPLAY_NTH_ONSCREEN_COUNTER_WITH_STRING - 0x10000, prm.data(), (int)prm.size(), 3, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_obj_no_obj(lua_State* L) { // 0x04FF COMMAND_IS_CHAR_OBJ_NO_OBJ (reVC Script7.cpp:610)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_obj_no_obj"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_OBJ_NO_OBJ>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_distance_between_coords_2d(lua_State* L) { // 0x0509 COMMAND_GET_DISTANCE_BETWEEN_COORDS_2D (reVC Script7.cpp:679)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_distance_between_coords_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_distance_between_coords_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_distance_between_coords_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_distance_between_coords_2d"; }
+        float out0 = 0;
+        Command<COMMAND_GET_DISTANCE_BETWEEN_COORDS_2D>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), &out0);
+        lua_pushnumber(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int shake_cam(lua_State* L) { // 0x0003 COMMAND_SHAKE_CAM (reVC Script.cpp:2629)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function shake_cam"; }
+        Command<COMMAND_SHAKE_CAM>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_in_area_2d(lua_State* L) { // 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reVC Script.cpp:3821)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_area_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_char_in_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_char_in_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_char_in_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_char_in_area_2d"; }
+        if (LUA_TBOOLEAN != lua_type(L, 6)) { throw "bad argument in function is_char_in_area_2d"; }
+        bool res = Command<COMMAND_IS_CHAR_IN_AREA_2D>(CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (lua_toboolean(L, 6) != 0));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_zone_car_info(lua_State* L) { // 0x0152 COMMAND_SET_ZONE_CAR_INFO (reVC Script2.cpp:201)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 10)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 11)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 12)) { throw "bad argument in function set_zone_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 13)) { throw "bad argument in function set_zone_car_info"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 6)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 7)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 8)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 9)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 10)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 11)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 12)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 13)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_SET_ZONE_CAR_INFO - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_blip_for_car_old(lua_State* L) { // 0x0161 COMMAND_ADD_BLIP_FOR_CAR_OLD (reVC Script2.cpp:325)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function add_blip_for_car_old"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_blip_for_car_old"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_blip_for_car_old"; }
+        int out0 = 0;
+        Command<COMMAND_ADD_BLIP_FOR_CAR_OLD>(CPools::GetVehicleRef(e_1), (int)lua_tointeger(L, 2), (int)lua_tointeger(L, 3), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_blip_for_char_old(lua_State* L) { // 0x0162 COMMAND_ADD_BLIP_FOR_CHAR_OLD (reVC Script2.cpp:335)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function add_blip_for_char_old"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_blip_for_char_old"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_blip_for_char_old"; }
+        int out0 = 0;
+        Command<COMMAND_ADD_BLIP_FOR_CHAR_OLD>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2), (int)lua_tointeger(L, 3), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_obj_flee_on_foot_till_safe(lua_State* L) { // 0x0193 COMMAND_SET_CHAR_OBJ_FLEE_ON_FOOT_TILL_SAFE (reVC Script2.cpp:795)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_obj_flee_on_foot_till_safe"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_SET_CHAR_OBJ_FLEE_ON_FOOT_TILL_SAFE>(CPools::GetPedRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_stopped_car_3d(lua_State* L) { // 0x01B0 COMMAND_LOCATE_STOPPED_CAR_3D (reVC Script2.cpp:884)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_stopped_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_stopped_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_stopped_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_stopped_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_stopped_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_stopped_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function locate_stopped_car_3d"; }
+        Command<COMMAND_LOCATE_STOPPED_CAR_3D>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_with_number(lua_State* L) { // 0x01E4 COMMAND_PRINT_WITH_NUMBER (reVC Script2.cpp:1396)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_number"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print_with_number"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_with_number"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function print_with_number"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_WITH_NUMBER - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_number_of_passengers(lua_State* L) { // 0x01E9 COMMAND_GET_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1459)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_number_of_passengers"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        Command<COMMAND_GET_NUMBER_OF_PASSENGERS>(CPools::GetVehicleRef(e_1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_player_health(lua_State* L) { // 0x0222 COMMAND_SET_PLAYER_HEALTH (reVC Script3.cpp:385)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_health"; }
+        Command<COMMAND_SET_PLAYER_HEALTH>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_player_health(lua_State* L) { // 0x0225 COMMAND_GET_PLAYER_HEALTH (reVC Script3.cpp:419)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        float out0 = 0;
+        Command<COMMAND_GET_PLAYER_HEALTH>(CWorld::PlayerInFocus, &out0);
+        lua_pushnumber(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int sin(lua_State* L) { // 0x02F6 COMMAND_SIN (reVC Script3.cpp:2099)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function sin"; }
+        int out0 = 0;
+        Command<COMMAND_SIN>((float)lua_tonumber(L, 1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int cos(lua_State* L) { // 0x02F7 COMMAND_COS (reVC Script3.cpp:2104)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function cos"; }
+        int out0 = 0;
+        Command<COMMAND_COS>((float)lua_tonumber(L, 1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int explode_player_head(lua_State* L) { // 0x0322 COMMAND_EXPLODE_PLAYER_HEAD (reVC Script4.cpp:83)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_EXPLODE_PLAYER_HEAD>(CWorld::PlayerInFocus); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_area_occupied(lua_State* L) { // 0x0339 COMMAND_IS_AREA_OCCUPIED (reVC Script4.cpp:340)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 10)) { throw "bad argument in function is_area_occupied"; }
+        if (LUA_TNUMBER != lua_type(L, 11)) { throw "bad argument in function is_area_occupied"; }
+        bool res = Command<COMMAND_IS_AREA_OCCUPIED>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (int)lua_tointeger(L, 7), (int)lua_tointeger(L, 8), (int)lua_tointeger(L, 9), (int)lua_tointeger(L, 10), (int)lua_tointeger(L, 11));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int swap_nearest_building_model(lua_State* L) { // 0x03B6 COMMAND_SWAP_NEAREST_BUILDING_MODEL (reVC Script4.cpp:1642)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function swap_nearest_building_model"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function swap_nearest_building_model"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function swap_nearest_building_model"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function swap_nearest_building_model"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function swap_nearest_building_model"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function swap_nearest_building_model"; }
+        Command<COMMAND_SWAP_NEAREST_BUILDING_MODEL>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5), (int)lua_tointeger(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int store_car_char_is_in_no_save(lua_State* L) { // 0x03C0 COMMAND_STORE_CAR_CHAR_IS_IN_NO_SAVE (reVC Script4.cpp:1760)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function store_car_char_is_in_no_save"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        Command<COMMAND_STORE_CAR_CHAR_IS_IN_NO_SAVE>(CPools::GetPedRef(e_1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_closest_car_node_with_heading(lua_State* L) { // 0x03D3 COMMAND_GET_CLOSEST_CAR_NODE_WITH_HEADING (reVC Script4.cpp:2061)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_closest_car_node_with_heading"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_closest_car_node_with_heading"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_closest_car_node_with_heading"; }
+        float out0 = 0;
+        float out1 = 0;
+        float out2 = 0;
+        float out3 = 0;
+        Command<COMMAND_GET_CLOSEST_CAR_NODE_WITH_HEADING>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), &out0, &out1, &out2, &out3);
+        lua_pushnumber(L, out0);
+        lua_pushnumber(L, out1);
+        lua_pushnumber(L, out2);
+        lua_pushnumber(L, out3);
+        return 4;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_mission_audio_position(lua_State* L) { // 0x03D7 COMMAND_SET_MISSION_AUDIO_POSITION (reVC Script4.cpp:2091)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_mission_audio_position"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_mission_audio_position"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_mission_audio_position"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_mission_audio_position"; }
+        Command<COMMAND_SET_MISSION_AUDIO_POSITION>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_ammo_in_player_weapon(lua_State* L) { // 0x0419 COMMAND_GET_AMMO_IN_PLAYER_WEAPON (reVC Script6.cpp:413)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_ammo_in_player_weapon"; }
+        int out0 = 0;
+        Command<COMMAND_GET_AMMO_IN_PLAYER_WEAPON>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int freeze_char_position(lua_State* L) { // 0x04D7 COMMAND_FREEZE_CHAR_POSITION (reVC Script7.cpp:318)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function freeze_char_position"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function freeze_char_position"; }
+        Command<COMMAND_FREEZE_CHAR_POSITION>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_big_gun_flash(lua_State* L) { // 0x058A COMMAND_ADD_BIG_GUN_FLASH (reVC Script8.cpp:210)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_big_gun_flash"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_big_gun_flash"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_big_gun_flash"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function add_big_gun_flash"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function add_big_gun_flash"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function add_big_gun_flash"; }
+        Command<COMMAND_ADD_BIG_GUN_FLASH>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_pressing_horn(lua_State* L) { // 0x0122 COMMAND_IS_PLAYER_PRESSING_HORN (reVC Script.cpp:4631)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_IS_PLAYER_PRESSING_HORN>(CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int point_camera_at_char(lua_State* L) { // 0x0159 COMMAND_POINT_CAMERA_AT_CHAR (reVC Script2.cpp:259)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function point_camera_at_char"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function point_camera_at_char"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function point_camera_at_char"; }
+        Command<COMMAND_POINT_CAMERA_AT_CHAR>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2), (int)lua_tointeger(L, 3)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_player_ammo(lua_State* L) { // 0x017A COMMAND_SET_PLAYER_AMMO (reVC Script2.cpp:573)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_ammo"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_player_ammo"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_player_ammo"; }
+        Command<COMMAND_SET_PLAYER_AMMO>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), (int)lua_tointeger(L, 3)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_health_greater(lua_State* L) { // 0x0183 COMMAND_IS_PLAYER_HEALTH_GREATER (reVC Script2.cpp:598)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_health_greater"; }
+        bool res = Command<COMMAND_IS_PLAYER_HEALTH_GREATER>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_any_means_car_3d(lua_State* L) { // 0x01FF COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_3D (reVC Script3.cpp:111)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_any_means_car_3d"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_any_means_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_any_means_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_any_means_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_any_means_car_3d"; }
+        Command<COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_3D>(CWorld::PlayerInFocus, CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_gang_weapons(lua_State* L) { // 0x0237 COMMAND_SET_GANG_WEAPONS (reVC Script3.cpp:587)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_gang_weapons"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_gang_weapons"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_gang_weapons"; }
+        Command<COMMAND_SET_GANG_WEAPONS>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), (int)lua_tointeger(L, 3)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_stopped(lua_State* L) { // 0x029F COMMAND_IS_PLAYER_STOPPED (reVC Script3.cpp:1345)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_IS_PLAYER_STOPPED>(CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_in_chars_group(lua_State* L) { // 0x031F COMMAND_IS_CHAR_IN_CHARS_GROUP (reVC Script3.cpp:2398)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_chars_group"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function is_char_in_chars_group"; }
+        CPed* e_2 = findpedinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_IN_CHARS_GROUP>(CPools::GetPedRef(e_1), CPools::GetPedRef(e_2));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_camera_zoom(lua_State* L) { // 0x032A COMMAND_SET_CAMERA_ZOOM (reVC Script4.cpp:208)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_camera_zoom"; }
+        Command<COMMAND_SET_CAMERA_ZOOM>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_text_scale(lua_State* L) { // 0x033F COMMAND_SET_TEXT_SCALE (reVC Script4.cpp:396)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_scale"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_text_scale"; }
+        Command<COMMAND_SET_TEXT_SCALE>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_text_colour(lua_State* L) { // 0x0340 COMMAND_SET_TEXT_COLOUR (reVC Script4.cpp:403)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_colour"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_text_colour"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_text_colour"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_text_colour"; }
+        Command<COMMAND_SET_TEXT_COLOUR>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), (int)lua_tointeger(L, 3), (int)lua_tointeger(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_text_justify(lua_State* L) { // 0x0341 COMMAND_SET_TEXT_JUSTIFY (reVC Script4.cpp:410)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_justify"; }
+        Command<COMMAND_SET_TEXT_JUSTIFY>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_text_centre(lua_State* L) { // 0x0342 COMMAND_SET_TEXT_CENTRE (reVC Script4.cpp:416)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_centre"; }
+        Command<COMMAND_SET_TEXT_CENTRE>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_text_wrapx(lua_State* L) { // 0x0343 COMMAND_SET_TEXT_WRAPX (reVC Script4.cpp:422)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_wrapx"; }
+        Command<COMMAND_SET_TEXT_WRAPX>((float)lua_tonumber(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_text_background(lua_State* L) { // 0x0345 COMMAND_SET_TEXT_BACKGROUND (reVC Script4.cpp:436)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_background"; }
+        Command<COMMAND_SET_TEXT_BACKGROUND>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_text_proportional(lua_State* L) { // 0x0348 COMMAND_SET_TEXT_PROPORTIONAL (reVC Script4.cpp:457)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_proportional"; }
+        Command<COMMAND_SET_TEXT_PROPORTIONAL>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int freeze_onscreen_timer(lua_State* L) { // 0x0396 COMMAND_FREEZE_ONSCREEN_TIMER (reVC Script4.cpp:1413)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function freeze_onscreen_timer"; }
+        Command<COMMAND_FREEZE_ONSCREEN_TIMER>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int draw_sphere(lua_State* L) { // 0x03A1 COMMAND_DRAW_SPHERE (reVC Script4.cpp:1514)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function draw_sphere"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function draw_sphere"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function draw_sphere"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function draw_sphere"; }
+        Command<COMMAND_DRAW_SPHERE>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_text_right_justify(lua_State* L) { // 0x03E4 COMMAND_SET_TEXT_RIGHT_JUSTIFY (reVC Script4.cpp:2179)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_right_justify"; }
+        Command<COMMAND_SET_TEXT_RIGHT_JUSTIFY>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_generate_cars_around_camera(lua_State* L) { // 0x03EA COMMAND_SET_GENERATE_CARS_AROUND_CAMERA (reVC Script6.cpp:95)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_generate_cars_around_camera"; }
+        Command<COMMAND_SET_GENERATE_CARS_AROUND_CAMERA>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int use_text_commands(lua_State* L) { // 0x03F0 COMMAND_USE_TEXT_COMMANDS (reVC Script6.cpp:138)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function use_text_commands"; }
+        Command<COMMAND_USE_TEXT_COMMANDS>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_car_can_be_damaged(lua_State* L) { // 0x03F5 COMMAND_SET_CAR_CAN_BE_DAMAGED (reVC Script6.cpp:166)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_car_can_be_damaged"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_car_can_be_damaged"; }
+        Command<COMMAND_SET_CAR_CAN_BE_DAMAGED>(CPools::GetVehicleRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_offset_from_object_in_world_coords(lua_State* L) { // 0x0400 COMMAND_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS (reVC Script6.cpp:253)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_offset_from_object_in_world_coords"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_offset_from_object_in_world_coords"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_offset_from_object_in_world_coords"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_offset_from_object_in_world_coords"; }
+        float out0 = 0;
+        float out1 = 0;
+        float out2 = 0;
+        Command<COMMAND_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS>(CPools::GetObjectRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), &out0, &out1, &out2);
+        lua_pushnumber(L, out0);
+        lua_pushnumber(L, out1);
+        lua_pushnumber(L, out2);
+        return 3;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_highest_score(lua_State* L) { // 0x042F COMMAND_REGISTER_HIGHEST_SCORE (reVC Script6.cpp:639)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_highest_score"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function register_highest_score"; }
+        Command<COMMAND_REGISTER_HIGHEST_SCORE>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_single_particle(lua_State* L) { // 0x0437 COMMAND_CREATE_SINGLE_PARTICLE (reVC Script6.cpp:682)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_single_particle"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_single_particle"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_single_particle"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function create_single_particle"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function create_single_particle"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function create_single_particle"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function create_single_particle"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function create_single_particle"; }
+        Command<COMMAND_CREATE_SINGLE_PARTICLE>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (float)lua_tonumber(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_on_foot(lua_State* L) { // 0x044A COMMAND_IS_PLAYER_ON_FOOT (reVC Script6.cpp:837)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_IS_PLAYER_ON_FOOT>(CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_object_rotation(lua_State* L) { // 0x0453 COMMAND_SET_OBJECT_ROTATION (reVC Script6.cpp:951)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_object_rotation"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_object_rotation"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_object_rotation"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_object_rotation"; }
+        Command<COMMAND_SET_OBJECT_ROTATION>(CPools::GetObjectRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int display_text_with_number(lua_State* L) { // 0x045A COMMAND_DISPLAY_TEXT_WITH_NUMBER (reVC Script6.cpp:1054)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_text_with_number"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function display_text_with_number"; }
+        if (LUA_TSTRING != lua_type(L, 3)) { throw "bad argument in function display_text_with_number"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function display_text_with_number"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 1); p.i = 0; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 2); p.i = 0; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 3));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_DISPLAY_TEXT_WITH_NUMBER - 0x10000, prm.data(), (int)prm.size(), 2, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_random_cop_in_area(lua_State* L) { // 0x0469 COMMAND_GET_RANDOM_COP_IN_AREA (reVC Script6.cpp:1233)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_random_cop_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_random_cop_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_random_cop_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_random_cop_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function get_random_cop_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function get_random_cop_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function get_random_cop_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function get_random_cop_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function get_random_cop_in_area"; }
+        int out0 = 0;
+        Command<COMMAND_GET_RANDOM_COP_IN_AREA>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5), (int)lua_tointeger(L, 6), (int)lua_tointeger(L, 7), (int)lua_tointeger(L, 8), (int)lua_tointeger(L, 9), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_offset_from_char_in_world_coords(lua_State* L) { // 0x04C4 COMMAND_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS (reVC Script7.cpp:191)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_offset_from_char_in_world_coords"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_offset_from_char_in_world_coords"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_offset_from_char_in_world_coords"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_offset_from_char_in_world_coords"; }
+        float out0 = 0;
+        float out1 = 0;
+        float out2 = 0;
+        Command<COMMAND_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS>(CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), &out0, &out1, &out2);
+        lua_pushnumber(L, out0);
+        lua_pushnumber(L, out1);
+        lua_pushnumber(L, out2);
+        return 3;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int switch_security_camera(lua_State* L) { // 0x04C7 COMMAND_SWITCH_SECURITY_CAMERA (reVC Script7.cpp:225)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function switch_security_camera"; }
+        Command<COMMAND_SWITCH_SECURITY_CAMERA>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_zone_civilian_car_info(lua_State* L) { // 0x04EC COMMAND_SET_ZONE_CIVILIAN_CAR_INFO (reVC Script7.cpp:443)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 10)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 11)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 12)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        if (LUA_TNUMBER != lua_type(L, 13)) { throw "bad argument in function set_zone_civilian_car_info"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 6)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 7)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 8)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 9)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 10)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 11)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 12)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 13)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_SET_ZONE_CIVILIAN_CAR_INFO - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_waiting_for_world_collision(lua_State* L) { // 0x04F0 COMMAND_IS_CHAR_WAITING_FOR_WORLD_COLLISION (reVC Script7.cpp:492)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_waiting_for_world_collision"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_WAITING_FOR_WORLD_COLLISION>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int attach_char_to_object(lua_State* L) { // 0x04F4 COMMAND_ATTACH_CHAR_TO_OBJECT (reVC Script7.cpp:523)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function attach_char_to_object"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function attach_char_to_object"; }
+        CObject* e_2 = findobjinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function attach_char_to_object"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function attach_char_to_object"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function attach_char_to_object"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function attach_char_to_object"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function attach_char_to_object"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function attach_char_to_object"; }
+        Command<COMMAND_ATTACH_CHAR_TO_OBJECT>(CPools::GetPedRef(e_1), CPools::GetObjectRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_wearing(lua_State* L) { // 0x0500 COMMAND_IS_PLAYER_WEARING (reVC Script7.cpp:618)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function is_player_wearing"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 0; p.i = (int)(CWorld::PlayerInFocus); p.f = 0.0f; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_IS_PLAYER_WEARING - 0x10000, prm.data(), (int)prm.size(), 1, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int attach_cutscene_object_to_bone(lua_State* L) { // 0x0524 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_BONE (reVC Script7.cpp:846)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function attach_cutscene_object_to_bone"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function attach_cutscene_object_to_bone"; }
+        CObject* e_2 = findobjinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function attach_cutscene_object_to_bone"; }
+        Command<COMMAND_ATTACH_CUTSCENE_OBJECT_TO_BONE>(CPools::GetObjectRef(e_1), CPools::GetObjectRef(e_2), (int)lua_tointeger(L, 3)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_player_is_in_stadium(lua_State* L) { // 0x057E COMMAND_SET_PLAYER_IS_IN_STADIUM (reVC Script8.cpp:83)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_is_in_stadium"; }
+        Command<COMMAND_SET_PLAYER_IS_IN_STADIUM>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int char_wander_dir(lua_State* L) { // 0x009C COMMAND_CHAR_WANDER_DIR (reVC Script.cpp:3709)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function char_wander_dir"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function char_wander_dir"; }
+        Command<COMMAND_CHAR_WANDER_DIR>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_time_of_day(lua_State* L) { // 0x00BF COMMAND_GET_TIME_OF_DAY (reVC Script.cpp:4165)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        int out1 = 0;
+        Command<COMMAND_GET_TIME_OF_DAY>(&out0, &out1);
+        lua_pushinteger(L, out0);
+        lua_pushinteger(L, out1);
+        return 2;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_in_car_2d(lua_State* L) { // 0x00E5 COMMAND_LOCATE_PLAYER_IN_CAR_2D (reVC Script.cpp:4424)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_2d"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_in_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_in_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_in_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_in_car_2d"; }
+        Command<COMMAND_LOCATE_PLAYER_IN_CAR_2D>(CWorld::PlayerInFocus, CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_stopped_player_on_foot_2d(lua_State* L) { // 0x00E7 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_2D (reVC Script.cpp:4426)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_player_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_stopped_player_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_stopped_player_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_stopped_player_on_foot_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_stopped_player_on_foot_2d"; }
+        Command<COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_2D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_on_foot_char_2d(lua_State* L) { // 0x00EA COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_2D (reVC Script.cpp:4431)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_on_foot_char_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_on_foot_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_on_foot_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_on_foot_char_2d"; }
+        Command<COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_2D>(CWorld::PlayerInFocus, CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (int)lua_tointeger(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_in_car_char_2d(lua_State* L) { // 0x00EB COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_2D (reVC Script.cpp:4432)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_in_car_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_in_car_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_in_car_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_in_car_char_2d"; }
+        Command<COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_2D>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_in_car_2d(lua_State* L) { // 0x00EE COMMAND_LOCATE_CHAR_IN_CAR_2D (reVC Script.cpp:4437)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_in_car_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_in_car_2d"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_in_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_in_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_in_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_char_in_car_2d"; }
+        Command<COMMAND_LOCATE_CHAR_IN_CAR_2D>(CPools::GetPedRef(e_1), CPools::GetVehicleRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_on_foot_char_3d(lua_State* L) { // 0x00FC COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_3D (reVC Script.cpp:4457)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_on_foot_char_3d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_on_foot_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_on_foot_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_on_foot_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_on_foot_char_3d"; }
+        Command<COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_3D>(CWorld::PlayerInFocus, CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_in_car_char_3d(lua_State* L) { // 0x00FD COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_3D (reVC Script.cpp:4458)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_in_car_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_in_car_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_in_car_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_player_in_car_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_player_in_car_char_3d"; }
+        Command<COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_3D>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_score_greater(lua_State* L) { // 0x010A COMMAND_IS_SCORE_GREATER (reVC Script.cpp:4518)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_score_greater"; }
+        bool res = Command<COMMAND_IS_SCORE_GREATER>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int store_score(lua_State* L) { // 0x010B COMMAND_STORE_SCORE (reVC Script.cpp:4522)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_STORE_SCORE>(CWorld::PlayerInFocus, &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_deatharrest_state(lua_State* L) { // 0x0111 COMMAND_SET_DEATHARREST_STATE (reVC Script.cpp:4552)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_deatharrest_state"; }
+        Command<COMMAND_SET_DEATHARREST_STATE>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_car_generator(lua_State* L) { // 0x014B COMMAND_CREATE_CAR_GENERATOR (reVC Script2.cpp:133)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 10)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 11)) { throw "bad argument in function create_car_generator"; }
+        if (LUA_TNUMBER != lua_type(L, 12)) { throw "bad argument in function create_car_generator"; }
+        int out0 = 0;
+        Command<COMMAND_CREATE_CAR_GENERATOR>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5), (int)lua_tointeger(L, 6), (int)lua_tointeger(L, 7), (int)lua_tointeger(L, 8), (int)lua_tointeger(L, 9), (int)lua_tointeger(L, 10), (int)lua_tointeger(L, 11), (int)lua_tointeger(L, 12), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_hospital_restart(lua_State* L) { // 0x016C COMMAND_ADD_HOSPITAL_RESTART (reVC Script2.cpp:395)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_hospital_restart"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_hospital_restart"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_hospital_restart"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function add_hospital_restart"; }
+        Command<COMMAND_ADD_HOSPITAL_RESTART>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_police_restart(lua_State* L) { // 0x016D COMMAND_ADD_POLICE_RESTART (reVC Script2.cpp:405)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_police_restart"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_police_restart"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_police_restart"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function add_police_restart"; }
+        Command<COMMAND_ADD_POLICE_RESTART>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_blip_for_contact_point(lua_State* L) { // 0x0189 COMMAND_ADD_BLIP_FOR_CONTACT_POINT (reVC Script2.cpp:657)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_blip_for_contact_point"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_blip_for_contact_point"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_blip_for_contact_point"; }
+        int out0 = 0;
+        Command<COMMAND_ADD_BLIP_FOR_CONTACT_POINT>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_player_in_car_car_2d(lua_State* L) { // 0x01FE COMMAND_LOCATE_PLAYER_IN_CAR_CAR_2D (reVC Script3.cpp:110)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_car_2d"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_player_in_car_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_player_in_car_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_player_in_car_car_2d"; }
+        Command<COMMAND_LOCATE_PLAYER_IN_CAR_CAR_2D>(CWorld::PlayerInFocus, CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (int)lua_tointeger(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_on_foot_car_2d(lua_State* L) { // 0x0203 COMMAND_LOCATE_CHAR_ON_FOOT_CAR_2D (reVC Script3.cpp:117)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_car_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_on_foot_car_2d"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_on_foot_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_on_foot_car_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_on_foot_car_2d"; }
+        Command<COMMAND_LOCATE_CHAR_ON_FOOT_CAR_2D>(CPools::GetPedRef(e_1), CPools::GetVehicleRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_any_means_car_3d(lua_State* L) { // 0x0205 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_3D (reVC Script3.cpp:119)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_car_3d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_any_means_car_3d"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_any_means_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_any_means_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_any_means_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_char_any_means_car_3d"; }
+        Command<COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_3D>(CPools::GetPedRef(e_1), CPools::GetVehicleRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_gang_ped_models(lua_State* L) { // 0x0235 COMMAND_SET_GANG_PED_MODELS (reVC Script3.cpp:579)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_gang_ped_models"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_gang_ped_models"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_gang_ped_models"; }
+        Command<COMMAND_SET_GANG_PED_MODELS>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), (int)lua_tointeger(L, 3)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_angled_area_2d(lua_State* L) { // 0x02AD COMMAND_IS_PLAYER_IN_ANGLED_AREA_2D (reVC Script3.cpp:1488)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_angled_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_player_in_angled_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_player_in_angled_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_player_in_angled_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_player_in_angled_area_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_player_in_angled_area_2d"; }
+        bool res = Command<COMMAND_IS_PLAYER_IN_ANGLED_AREA_2D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_zone_group(lua_State* L) { // 0x0324 COMMAND_SET_ZONE_GROUP (reVC Script4.cpp:99)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_zone_group"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_zone_group"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_zone_group"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_SET_ZONE_GROUP - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int display_text(lua_State* L) { // 0x033E COMMAND_DISPLAY_TEXT (reVC Script4.cpp:382)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_text"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function display_text"; }
+        if (LUA_TSTRING != lua_type(L, 3)) { throw "bad argument in function display_text"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 1); p.i = 0; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 2); p.i = 0; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 3));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_DISPLAY_TEXT - 0x10000, prm.data(), (int)prm.size(), 2, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int open_garage(lua_State* L) { // 0x0360 COMMAND_OPEN_GARAGE (reVC Script4.cpp:763)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function open_garage"; }
+        Command<COMMAND_OPEN_GARAGE>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_sniper_bullet_in_area(lua_State* L) { // 0x037E COMMAND_IS_SNIPER_BULLET_IN_AREA (reVC Script4.cpp:1131)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_sniper_bullet_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_sniper_bullet_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_sniper_bullet_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_sniper_bullet_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_sniper_bullet_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_sniper_bullet_in_area"; }
+        bool res = Command<COMMAND_IS_SNIPER_BULLET_IN_AREA>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_string_in_string_now(lua_State* L) { // 0x0384 COMMAND_PRINT_STRING_IN_STRING_NOW (reVC Script4.cpp:1205)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_string_in_string_now"; }
+        if (LUA_TSTRING != lua_type(L, 2)) { throw "bad argument in function print_string_in_string_now"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_string_in_string_now"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function print_string_in_string_now"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_STRING_IN_STRING_NOW - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int remove_particle_effects_in_area(lua_State* L) { // 0x03AE COMMAND_REMOVE_PARTICLE_EFFECTS_IN_AREA (reVC Script4.cpp:1591)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function remove_particle_effects_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function remove_particle_effects_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function remove_particle_effects_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function remove_particle_effects_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function remove_particle_effects_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function remove_particle_effects_in_area"; }
+        Command<COMMAND_REMOVE_PARTICLE_EFFECTS_IN_AREA>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_garage_closed(lua_State* L) { // 0x03B1 COMMAND_IS_GARAGE_CLOSED (reVC Script4.cpp:1624)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_garage_closed"; }
+        bool res = Command<COMMAND_IS_GARAGE_CLOSED>((int)lua_tointeger(L, 1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int does_object_exist(lua_State* L) { // 0x03CA COMMAND_DOES_OBJECT_EXIST (reVC Script4.cpp:1996)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function does_object_exist"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_DOES_OBJECT_EXIST>(CPools::GetObjectRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_this_big_print(lua_State* L) { // 0x03D6 COMMAND_CLEAR_THIS_BIG_PRINT (reVC Script4.cpp:2085)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function clear_this_big_print"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_CLEAR_THIS_BIG_PRINT - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int no_special_camera_for_this_garage(lua_State* L) { // 0x03DA COMMAND_NO_SPECIAL_CAMERA_FOR_THIS_GARAGE (reVC Script4.cpp:2109)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function no_special_camera_for_this_garage"; }
+        Command<COMMAND_NO_SPECIAL_CAMERA_FOR_THIS_GARAGE>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_car_avoid_level_transitions(lua_State* L) { // 0x0428 COMMAND_SET_CAR_AVOID_LEVEL_TRANSITIONS (reVC Script6.cpp:580)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_car_avoid_level_transitions"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_car_avoid_level_transitions"; }
+        Command<COMMAND_SET_CAR_AVOID_LEVEL_TRANSITIONS>(CPools::GetVehicleRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_car_model(lua_State* L) { // 0x0441 COMMAND_GET_CAR_MODEL (reVC Script6.cpp:766)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_car_model"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        Command<COMMAND_GET_CAR_MODEL>(CPools::GetVehicleRef(e_1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int display_text_with_2_numbers(lua_State* L) { // 0x045B COMMAND_DISPLAY_TEXT_WITH_2_NUMBERS (reVC Script6.cpp:1065)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_text_with_2_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function display_text_with_2_numbers"; }
+        if (LUA_TSTRING != lua_type(L, 3)) { throw "bad argument in function display_text_with_2_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function display_text_with_2_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function display_text_with_2_numbers"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 1); p.i = 0; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 2); p.i = 0; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 3));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_DISPLAY_TEXT_WITH_2_NUMBERS - 0x10000, prm.data(), (int)prm.size(), 2, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_number_of_followers(lua_State* L) { // 0x046D COMMAND_GET_NUMBER_OF_FOLLOWERS (reVC Script6.cpp:1354)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_number_of_followers"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        Command<COMMAND_GET_NUMBER_OF_FOLLOWERS>(CPools::GetPedRef(e_1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_current_char_weapon(lua_State* L) { // 0x0470 COMMAND_GET_CURRENT_CHAR_WEAPON (reVC Script6.cpp:1390)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_current_char_weapon"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        Command<COMMAND_GET_CURRENT_CHAR_WEAPON>(CPools::GetPedRef(e_1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int remove_all_char_weapons(lua_State* L) { // 0x048F COMMAND_REMOVE_ALL_CHAR_WEAPONS (reVC Script6.cpp:1549)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function remove_all_char_weapons"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_REMOVE_ALL_CHAR_WEAPONS>(CPools::GetPedRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_player_got_weapon(lua_State* L) { // 0x0490 COMMAND_HAS_PLAYER_GOT_WEAPON (reVC Script6.cpp:1557)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function has_player_got_weapon"; }
+        bool res = Command<COMMAND_HAS_PLAYER_GOT_WEAPON>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_position_of_analogue_sticks(lua_State* L) { // 0x0494 COMMAND_GET_POSITION_OF_ANALOGUE_STICKS (reVC Script6.cpp:1582)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_position_of_analogue_sticks"; }
+        int out0 = 0;
+        int out1 = 0;
+        int out2 = 0;
+        int out3 = 0;
+        Command<COMMAND_GET_POSITION_OF_ANALOGUE_STICKS>((int)lua_tointeger(L, 1), &out0, &out1, &out2, &out3);
+        lua_pushinteger(L, out0);
+        lua_pushinteger(L, out1);
+        lua_pushinteger(L, out2);
+        lua_pushinteger(L, out3);
+        return 4;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_object_path_speed(lua_State* L) { // 0x049E COMMAND_SET_OBJECT_PATH_SPEED (reVC Script6.cpp:1668)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_object_path_speed"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_object_path_speed"; }
+        Command<COMMAND_SET_OBJECT_PATH_SPEED>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_closest_straight_road(lua_State* L) { // 0x04B9 COMMAND_GET_CLOSEST_STRAIGHT_ROAD (reVC Script7.cpp:104)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_closest_straight_road"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_closest_straight_road"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_closest_straight_road"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_closest_straight_road"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function get_closest_straight_road"; }
+        int out0 = 0;
+        int out1 = 0;
+        int out2 = 0;
+        int out3 = 0;
+        int out4 = 0;
+        int out5 = 0;
+        int out6 = 0;
+        Command<COMMAND_GET_CLOSEST_STRAIGHT_ROAD>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), &out0, &out1, &out2, &out3, &out4, &out5, &out6);
+        lua_pushinteger(L, out0);
+        lua_pushinteger(L, out1);
+        lua_pushinteger(L, out2);
+        lua_pushinteger(L, out3);
+        lua_pushinteger(L, out4);
+        lua_pushinteger(L, out5);
+        lua_pushinteger(L, out6);
+        return 7;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_nth_closest_car_node(lua_State* L) { // 0x04D3 COMMAND_GET_NTH_CLOSEST_CAR_NODE (reVC Script7.cpp:291)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_nth_closest_car_node"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_nth_closest_car_node"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_nth_closest_car_node"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_nth_closest_car_node"; }
+        int out0 = 0;
+        int out1 = 0;
+        int out2 = 0;
+        Command<COMMAND_GET_NTH_CLOSEST_CAR_NODE>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (int)lua_tointeger(L, 4), &out0, &out1, &out2);
+        lua_pushinteger(L, out0);
+        lua_pushinteger(L, out1);
+        lua_pushinteger(L, out2);
+        return 3;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_object_records_collisions(lua_State* L) { // 0x04D9 COMMAND_SET_OBJECT_RECORDS_COLLISIONS (reVC Script7.cpp:334)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_object_records_collisions"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_object_records_collisions"; }
+        Command<COMMAND_SET_OBJECT_RECORDS_COLLISIONS>(CPools::GetObjectRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_object_collided_with_anything(lua_State* L) { // 0x04DA COMMAND_HAS_OBJECT_COLLIDED_WITH_ANYTHING (reVC Script7.cpp:342)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_object_collided_with_anything"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_HAS_OBJECT_COLLIDED_WITH_ANYTHING>(CPools::GetObjectRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_heli_stabiliser(lua_State* L) { // 0x04DF COMMAND_SET_HELI_STABILISER (reVC Script7.cpp:366)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_heli_stabiliser"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_heli_stabiliser"; }
+        Command<COMMAND_SET_HELI_STABILISER>(CPools::GetVehicleRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_object_in_water(lua_State* L) { // 0x04E7 COMMAND_IS_OBJECT_IN_WATER (reVC Script7.cpp:415)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_object_in_water"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_OBJECT_IN_WATER>(CPools::GetObjectRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_player_can_do_drive_by(lua_State* L) { // 0x0501 COMMAND_SET_PLAYER_CAN_DO_DRIVE_BY (reVC Script7.cpp:631)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_can_do_drive_by"; }
+        Command<COMMAND_SET_PLAYER_CAN_DO_DRIVE_BY>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int sort_out_object_collision_with_car(lua_State* L) { // 0x050E COMMAND_SORT_OUT_OBJECT_COLLISION_WITH_CAR (reVC Script7.cpp:710)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function sort_out_object_collision_with_car"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function sort_out_object_collision_with_car"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        Command<COMMAND_SORT_OUT_OBJECT_COLLISION_WITH_CAR>(CPools::GetObjectRef(e_1), CPools::GetVehicleRef(e_2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_help_forever(lua_State* L) { // 0x0512 COMMAND_PRINT_HELP_FOREVER (reVC Script7.cpp:728)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_help_forever"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_HELP_FOREVER - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_forsale_property_pickup(lua_State* L) { // 0x0518 COMMAND_CREATE_FORSALE_PROPERTY_PICKUP (reVC Script7.cpp:775)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_forsale_property_pickup"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_forsale_property_pickup"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_forsale_property_pickup"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function create_forsale_property_pickup"; }
+        if (LUA_TSTRING != lua_type(L, 5)) { throw "bad argument in function create_forsale_property_pickup"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 1); p.i = 0; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 2); p.i = 0; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 3); p.i = 0; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 5));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_CREATE_FORSALE_PROPERTY_PICKUP - 0x10000, prm.data(), (int)prm.size(), 4, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int increase_player_max_health(lua_State* L) { // 0x055E COMMAND_INCREASE_PLAYER_MAX_HEALTH (reVC Script7.cpp:1162)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function increase_player_max_health"; }
+        Command<COMMAND_INCREASE_PLAYER_MAX_HEALTH>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int increase_player_max_armour(lua_State* L) { // 0x055F COMMAND_INCREASE_PLAYER_MAX_ARMOUR (reVC Script7.cpp:1170)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function increase_player_max_armour"; }
+        Command<COMMAND_INCREASE_PLAYER_MAX_ARMOUR>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_random_char_as_passenger(lua_State* L) { // 0x0561 COMMAND_CREATE_RANDOM_CHAR_AS_PASSENGER (reVC Script7.cpp:1209)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function create_random_char_as_passenger"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_random_char_as_passenger"; }
+        int out0 = 0;
+        Command<COMMAND_CREATE_RANDOM_CHAR_AS_PASSENGER>(CPools::GetVehicleRef(e_1), (int)lua_tointeger(L, 2), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_object_area_visible(lua_State* L) { // 0x0566 COMMAND_SET_OBJECT_AREA_VISIBLE (reVC Script7.cpp:1280)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_object_area_visible"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_object_area_visible"; }
+        Command<COMMAND_SET_OBJECT_AREA_VISIBLE>(CPools::GetObjectRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_crouch_when_threatened(lua_State* L) { // 0x056B COMMAND_SET_CHAR_CROUCH_WHEN_THREATENED (reVC Script7.cpp:1310)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_crouch_when_threatened"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_char_crouch_when_threatened"; }
+        Command<COMMAND_SET_CHAR_CROUCH_WHEN_THREATENED>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_allow_hurricanes(lua_State* L) { // 0x057C COMMAND_SET_ALLOW_HURRICANES (reVC Script8.cpp:73)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_allow_hurricanes"; }
+        Command<COMMAND_SET_ALLOW_HURRICANES>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int play_announcement(lua_State* L) { // 0x057D COMMAND_PLAY_ANNOUNCEMENT (reVC Script8.cpp:77)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function play_announcement"; }
+        Command<COMMAND_PLAY_ANNOUNCEMENT>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_player(lua_State* L) { // 0x0053 COMMAND_CREATE_PLAYER (reVC Script.cpp:3159)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_player"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_player"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_player"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function create_player"; }
+        int out0 = 0;
+        Command<COMMAND_CREATE_PLAYER>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int generate_random_int(lua_State* L) { // 0x0099 COMMAND_GENERATE_RANDOM_INT (reVC Script.cpp:3637)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_GENERATE_RANDOM_INT>(&out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_car_in_area_3d(lua_State* L) { // 0x00B1 COMMAND_IS_CAR_IN_AREA_3D (reVC Script.cpp:4100)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_car_in_area_3d"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_car_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_car_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_car_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_car_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_car_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function is_car_in_area_3d"; }
+        if (LUA_TBOOLEAN != lua_type(L, 8)) { throw "bad argument in function is_car_in_area_3d"; }
+        bool res = Command<COMMAND_IS_CAR_IN_AREA_3D>(CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (lua_toboolean(L, 8) != 0));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_minutes_to_time_of_day(lua_State* L) { // 0x00C1 COMMAND_GET_MINUTES_TO_TIME_OF_DAY (reVC Script.cpp:4174)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_minutes_to_time_of_day"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_minutes_to_time_of_day"; }
+        int out0 = 0;
+        Command<COMMAND_GET_MINUTES_TO_TIME_OF_DAY>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_in_model(lua_State* L) { // 0x00DD COMMAND_IS_CHAR_IN_MODEL (reVC Script.cpp:4378)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_model"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_char_in_model"; }
+        bool res = Command<COMMAND_IS_CHAR_IN_MODEL>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_on_foot_char_2d(lua_State* L) { // 0x00F3 COMMAND_LOCATE_CHAR_ON_FOOT_CHAR_2D (reVC Script.cpp:4444)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_char_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_on_foot_char_2d"; }
+        CPed* e_2 = findpedinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_on_foot_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_on_foot_char_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_on_foot_char_2d"; }
+        Command<COMMAND_LOCATE_CHAR_ON_FOOT_CHAR_2D>(CPools::GetPedRef(e_1), CPools::GetPedRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_in_car_3d(lua_State* L) { // 0x0100 COMMAND_LOCATE_CHAR_IN_CAR_3D (reVC Script.cpp:4463)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_in_car_3d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_in_car_3d"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_char_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_char_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function locate_char_in_car_3d"; }
+        Command<COMMAND_LOCATE_CHAR_IN_CAR_3D>(CPools::GetPedRef(e_1), CPools::GetVehicleRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_stopped_char_on_foot_3d(lua_State* L) { // 0x0102 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_3D (reVC Script.cpp:4465)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_stopped_char_on_foot_3d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_stopped_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_stopped_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_stopped_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_stopped_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_stopped_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_stopped_char_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function locate_stopped_char_on_foot_3d"; }
+        Command<COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_3D>(CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_any_means_char_3d(lua_State* L) { // 0x0104 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_3D (reVC Script.cpp:4469)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_char_3d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_any_means_char_3d"; }
+        CPed* e_2 = findpedinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_any_means_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_any_means_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_any_means_char_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_char_any_means_char_3d"; }
+        Command<COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_3D>(CPools::GetPedRef(e_1), CPools::GetPedRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int override_next_restart(lua_State* L) { // 0x016E COMMAND_OVERRIDE_NEXT_RESTART (reVC Script2.cpp:415)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function override_next_restart"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function override_next_restart"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function override_next_restart"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function override_next_restart"; }
+        Command<COMMAND_OVERRIDE_NEXT_RESTART>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int declare_mission_flag(lua_State* L) { // 0x0180 COMMAND_DECLARE_MISSION_FLAG (reVC Script2.cpp:592)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function declare_mission_flag"; }
+        Command<COMMAND_DECLARE_MISSION_FLAG>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int dont_remove_char(lua_State* L) { // 0x01C5 COMMAND_DONT_REMOVE_CHAR (reVC Script2.cpp:1072)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function dont_remove_char"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_DONT_REMOVE_CHAR>(CPools::GetPedRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int cancel_override_restart(lua_State* L) { // 0x01F6 COMMAND_CANCEL_OVERRIDE_RESTART (reVC Script3.cpp:59)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_CANCEL_OVERRIDE_RESTART>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int start_kill_frenzy(lua_State* L) { // 0x01F9 COMMAND_START_KILL_FRENZY (reVC Script3.cpp:86)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function start_kill_frenzy"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function start_kill_frenzy"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function start_kill_frenzy"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function start_kill_frenzy"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function start_kill_frenzy"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function start_kill_frenzy"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function start_kill_frenzy"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function start_kill_frenzy"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function start_kill_frenzy"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 6)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 7)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 8)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 9)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_START_KILL_FRENZY - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int read_kill_frenzy_status(lua_State* L) { // 0x01FA COMMAND_READ_KILL_FRENZY_STATUS (reVC Script3.cpp:95)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_READ_KILL_FRENZY_STATUS>(&out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_taxi_lights(lua_State* L) { // 0x0216 COMMAND_SET_TAXI_LIGHTS (reVC Script3.cpp:253)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_taxi_lights"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_taxi_lights"; }
+        Command<COMMAND_SET_TAXI_LIGHTS>(CPools::GetVehicleRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_big_q(lua_State* L) { // 0x0217 COMMAND_PRINT_BIG_Q (reVC Script3.cpp:262)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_big_q"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print_big_q"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_big_q"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_BIG_Q - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_garage(lua_State* L) { // 0x0219 COMMAND_SET_GARAGE (reVC Script3.cpp:279)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_garage"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_garage"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_garage"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_garage"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function set_garage"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function set_garage"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function set_garage"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function set_garage"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function set_garage"; }
+        int out0 = 0;
+        Command<COMMAND_SET_GARAGE>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (float)lua_tonumber(L, 8), (int)lua_tointeger(L, 9), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_target_car_for_mission_garage(lua_State* L) { // 0x021B COMMAND_SET_TARGET_CAR_FOR_MISSION_GARAGE (reVC Script3.cpp:311)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_target_car_for_mission_garage"; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function set_target_car_for_mission_garage"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        Command<COMMAND_SET_TARGET_CAR_FOR_MISSION_GARAGE>((int)lua_tointeger(L, 1), CPools::GetVehicleRef(e_2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_gang_car_model(lua_State* L) { // 0x0236 COMMAND_SET_GANG_CAR_MODEL (reVC Script3.cpp:583)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_gang_car_model"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_gang_car_model"; }
+        Command<COMMAND_SET_GANG_CAR_MODEL>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int store_clock(lua_State* L) { // 0x0253 COMMAND_STORE_CLOCK (reVC Script3.cpp:834)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_STORE_CLOCK>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int reset_num_of_models_killed_by_player(lua_State* L) { // 0x0297 COMMAND_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1235)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_num_of_models_killed_by_player(lua_State* L) { // 0x0298 COMMAND_GET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1238)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_num_of_models_killed_by_player"; }
+        int out0 = 0;
+        Command<COMMAND_GET_NUM_OF_MODELS_KILLED_BY_PLAYER>((int)lua_tointeger(L, 1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_angled_area_on_foot_3d(lua_State* L) { // 0x02B4 COMMAND_IS_PLAYER_IN_ANGLED_AREA_ON_FOOT_3D (reVC Script3.cpp:1495)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_angled_area_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_player_in_angled_area_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_player_in_angled_area_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_player_in_angled_area_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_player_in_angled_area_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_player_in_angled_area_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function is_player_in_angled_area_on_foot_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function is_player_in_angled_area_on_foot_3d"; }
+        bool res = Command<COMMAND_IS_PLAYER_IN_ANGLED_AREA_ON_FOOT_3D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_angled_area_in_car_3d(lua_State* L) { // 0x02B5 COMMAND_IS_PLAYER_IN_ANGLED_AREA_IN_CAR_3D (reVC Script3.cpp:1496)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_player_in_angled_area_in_car_3d"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_player_in_angled_area_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_player_in_angled_area_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_player_in_angled_area_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_player_in_angled_area_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_player_in_angled_area_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function is_player_in_angled_area_in_car_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function is_player_in_angled_area_in_car_3d"; }
+        bool res = Command<COMMAND_IS_PLAYER_IN_ANGLED_AREA_IN_CAR_3D>(CWorld::PlayerInFocus, CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_shooting_in_area(lua_State* L) { // 0x02D5 COMMAND_IS_PLAYER_SHOOTING_IN_AREA (reVC Script3.cpp:1722)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_shooting_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_player_shooting_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_player_shooting_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_player_shooting_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_player_shooting_in_area"; }
+        bool res = Command<COMMAND_IS_PLAYER_SHOOTING_IN_AREA>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_random_char_in_zone(lua_State* L) { // 0x02DD COMMAND_GET_RANDOM_CHAR_IN_ZONE (reVC Script3.cpp:1844)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function get_random_char_in_zone"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_random_char_in_zone"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_random_char_in_zone"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_random_char_in_zone"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_GET_RANDOM_CHAR_IN_ZONE - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_taxi(lua_State* L) { // 0x02DE COMMAND_IS_PLAYER_IN_TAXI (reVC Script3.cpp:1898)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_IS_PLAYER_IN_TAXI>(CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_collectable1(lua_State* L) { // 0x02EC COMMAND_CREATE_COLLECTABLE1 (reVC Script3.cpp:1993)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_collectable1"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_collectable1"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_collectable1"; }
+        Command<COMMAND_CREATE_COLLECTABLE1>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_collectable1_total(lua_State* L) { // 0x02ED COMMAND_SET_COLLECTABLE1_TOTAL (reVC Script3.cpp:2002)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_collectable1_total"; }
+        Command<COMMAND_SET_COLLECTABLE1_TOTAL>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_model(lua_State* L) { // 0x02F2 COMMAND_IS_CHAR_MODEL (reVC Script3.cpp:2078)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_model"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_char_model"; }
+        bool res = Command<COMMAND_IS_CHAR_MODEL>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_with_3_numbers(lua_State* L) { // 0x02FF COMMAND_PRINT_WITH_3_NUMBERS (reVC Script3.cpp:2177)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_3_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print_with_3_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_with_3_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function print_with_3_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function print_with_3_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function print_with_3_numbers"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 6)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_WITH_3_NUMBERS - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_with_4_numbers(lua_State* L) { // 0x0302 COMMAND_PRINT_WITH_4_NUMBERS (reVC Script3.cpp:2200)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_4_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print_with_4_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_with_4_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function print_with_4_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function print_with_4_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function print_with_4_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function print_with_4_numbers"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 6)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 7)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_WITH_4_NUMBERS - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_with_6_numbers(lua_State* L) { // 0x0308 COMMAND_PRINT_WITH_6_NUMBERS (reVC Script3.cpp:2244)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_6_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print_with_6_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_with_6_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function print_with_6_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function print_with_6_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function print_with_6_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function print_with_6_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function print_with_6_numbers"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function print_with_6_numbers"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 6)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 7)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 8)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 9)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_WITH_6_NUMBERS - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_progress_total(lua_State* L) { // 0x030D COMMAND_SET_PROGRESS_TOTAL (reVC Script3.cpp:2282)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_progress_total"; }
+        Command<COMMAND_SET_PROGRESS_TOTAL>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_jump_distance(lua_State* L) { // 0x030E COMMAND_REGISTER_JUMP_DISTANCE (reVC Script3.cpp:2288)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_distance"; }
+        Command<COMMAND_REGISTER_JUMP_DISTANCE>((float)lua_tonumber(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_jump_height(lua_State* L) { // 0x030F COMMAND_REGISTER_JUMP_HEIGHT (reVC Script3.cpp:2292)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_height"; }
+        Command<COMMAND_REGISTER_JUMP_HEIGHT>((float)lua_tonumber(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_jump_flips(lua_State* L) { // 0x0310 COMMAND_REGISTER_JUMP_FLIPS (reVC Script3.cpp:2296)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_flips"; }
+        Command<COMMAND_REGISTER_JUMP_FLIPS>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_jump_spins(lua_State* L) { // 0x0311 COMMAND_REGISTER_JUMP_SPINS (reVC Script3.cpp:2300)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_spins"; }
+        Command<COMMAND_REGISTER_JUMP_SPINS>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_jump_stunt(lua_State* L) { // 0x0312 COMMAND_REGISTER_JUMP_STUNT (reVC Script3.cpp:2304)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_stunt"; }
+        Command<COMMAND_REGISTER_JUMP_STUNT>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_unique_jump_found(lua_State* L) { // 0x0313 COMMAND_REGISTER_UNIQUE_JUMP_FOUND (reVC Script3.cpp:2308)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_REGISTER_UNIQUE_JUMP_FOUND>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_unique_jumps_total(lua_State* L) { // 0x0314 COMMAND_SET_UNIQUE_JUMPS_TOTAL (reVC Script3.cpp:2311)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_unique_jumps_total"; }
+        Command<COMMAND_SET_UNIQUE_JUMPS_TOTAL>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_passenger_dropped_off_taxi(lua_State* L) { // 0x0315 COMMAND_REGISTER_PASSENGER_DROPPED_OFF_TAXI (reVC Script3.cpp:2315)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_REGISTER_PASSENGER_DROPPED_OFF_TAXI>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_money_made_taxi(lua_State* L) { // 0x0316 COMMAND_REGISTER_MONEY_MADE_TAXI (reVC Script3.cpp:2318)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_money_made_taxi"; }
+        Command<COMMAND_REGISTER_MONEY_MADE_TAXI>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_player_never_gets_tired(lua_State* L) { // 0x0330 COMMAND_SET_PLAYER_NEVER_GETS_TIRED (reVC Script4.cpp:268)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_never_gets_tired"; }
+        Command<COMMAND_SET_PLAYER_NEVER_GETS_TIRED>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int close_garage(lua_State* L) { // 0x0361 COMMAND_CLOSE_GARAGE (reVC Script4.cpp:769)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function close_garage"; }
+        Command<COMMAND_CLOSE_GARAGE>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int print_with_2_numbers_big(lua_State* L) { // 0x036D COMMAND_PRINT_WITH_2_NUMBERS_BIG (reVC Script4.cpp:963)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_2_numbers_big"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function print_with_2_numbers_big"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function print_with_2_numbers_big"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function print_with_2_numbers_big"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function print_with_2_numbers_big"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 2)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 3)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 4)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)((int)lua_tointeger(L, 5)); p.f = 0.0f; prm.push_back(p); }
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_PRINT_WITH_2_NUMBERS_BIG - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_icecream_jingle_on(lua_State* L) { // 0x0383 COMMAND_IS_ICECREAM_JINGLE_ON (reVC Script4.cpp:1182)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_icecream_jingle_on"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_ICECREAM_JINGLE_ON>(CPools::GetVehicleRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_male(lua_State* L) { // 0x03A3 COMMAND_IS_CHAR_MALE (reVC Script4.cpp:1533)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_male"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_MALE>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_garage_open(lua_State* L) { // 0x03B0 COMMAND_IS_GARAGE_OPEN (reVC Script4.cpp:1620)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_garage_open"; }
+        bool res = Command<COMMAND_IS_GARAGE_OPEN>((int)lua_tointeger(L, 1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int switch_world_processing(lua_State* L) { // 0x03B7 COMMAND_SWITCH_WORLD_PROCESSING (reVC Script4.cpp:1676)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function switch_world_processing"; }
+        Command<COMMAND_SWITCH_WORLD_PROCESSING>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int remove_all_player_weapons(lua_State* L) { // 0x03B8 COMMAND_REMOVE_ALL_PLAYER_WEAPONS (reVC Script4.cpp:1680)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_REMOVE_ALL_PLAYER_WEAPONS>(CWorld::PlayerInFocus); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_rotating_garage_door(lua_State* L) { // 0x03BB COMMAND_SET_ROTATING_GARAGE_DOOR (reVC Script4.cpp:1721)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_rotating_garage_door"; }
+        Command<COMMAND_SET_ROTATING_GARAGE_DOOR>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_random_car_for_car_park(lua_State* L) { // 0x03C5 COMMAND_CREATE_RANDOM_CAR_FOR_CAR_PARK (reVC Script4.cpp:1808)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_random_car_for_car_park"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_random_car_for_car_park"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_random_car_for_car_park"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function create_random_car_for_car_park"; }
+        Command<COMMAND_CREATE_RANDOM_CAR_FOR_CAR_PARK>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_import_garage_slot_been_filled(lua_State* L) { // 0x03D4 COMMAND_HAS_IMPORT_GARAGE_SLOT_BEEN_FILLED (reVC Script4.cpp:2073)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function has_import_garage_slot_been_filled"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function has_import_garage_slot_been_filled"; }
+        bool res = Command<COMMAND_HAS_IMPORT_GARAGE_SLOT_BEEN_FILLED>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_save_game_finished(lua_State* L) { // 0x03D9 COMMAND_HAS_SAVE_GAME_FINISHED (reVC Script4.cpp:2106)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_HAS_SAVE_GAME_FINISHED>();
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int force_random_ped_type(lua_State* L) { // 0x03DF COMMAND_FORCE_RANDOM_PED_TYPE (reVC Script4.cpp:2152)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function force_random_ped_type"; }
+        Command<COMMAND_FORCE_RANDOM_PED_TYPE>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_collectable1s_collected(lua_State* L) { // 0x03E1 COMMAND_GET_COLLECTABLE1S_COLLECTED (reVC Script4.cpp:2162)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_GET_COLLECTABLE1S_COLLECTED>(&out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_car_colours(lua_State* L) { // 0x03F3 COMMAND_GET_CAR_COLOURS (reVC Script6.cpp:150)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_car_colours"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        int out1 = 0;
+        Command<COMMAND_GET_CAR_COLOURS>(CPools::GetVehicleRef(e_1), &out0, &out1);
+        lua_pushinteger(L, out0);
+        lua_pushinteger(L, out1);
+        return 2;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_drunk_input_delay(lua_State* L) { // 0x03FD COMMAND_SET_DRUNK_INPUT_DELAY (reVC Script6.cpp:236)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_drunk_input_delay"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_drunk_input_delay"; }
+        Command<COMMAND_SET_DRUNK_INPUT_DELAY>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_life_saved(lua_State* L) { // 0x0401 COMMAND_REGISTER_LIFE_SAVED (reVC Script6.cpp:263)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_REGISTER_LIFE_SAVED>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_criminal_caught(lua_State* L) { // 0x0402 COMMAND_REGISTER_CRIMINAL_CAUGHT (reVC Script6.cpp:266)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_REGISTER_CRIMINAL_CAUGHT>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_ambulance_level(lua_State* L) { // 0x0403 COMMAND_REGISTER_AMBULANCE_LEVEL (reVC Script6.cpp:269)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_ambulance_level"; }
+        Command<COMMAND_REGISTER_AMBULANCE_LEVEL>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_fire_extinguished(lua_State* L) { // 0x0404 COMMAND_REGISTER_FIRE_EXTINGUISHED (reVC Script6.cpp:273)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_REGISTER_FIRE_EXTINGUISHED>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_total_number_of_kill_frenzies(lua_State* L) { // 0x0408 COMMAND_SET_TOTAL_NUMBER_OF_KILL_FRENZIES (reVC Script6.cpp:296)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_total_number_of_kill_frenzies"; }
+        Command<COMMAND_SET_TOTAL_NUMBER_OF_KILL_FRENZIES>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_free_health_care(lua_State* L) { // 0x0414 COMMAND_SET_FREE_HEALTH_CARE (reVC Script6.cpp:357)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_free_health_care"; }
+        Command<COMMAND_SET_FREE_HEALTH_CARE>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int load_and_launch_mission_internal(lua_State* L) { // 0x0417 COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL (reVC Script6.cpp:373)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function load_and_launch_mission_internal"; }
+        Command<COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_object_draw_last(lua_State* L) { // 0x0418 COMMAND_SET_OBJECT_DRAW_LAST (reVC Script6.cpp:405)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_object_draw_last"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_object_draw_last"; }
+        Command<COMMAND_SET_OBJECT_DRAW_LAST>(CPools::GetObjectRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int convert_metres_to_feet(lua_State* L) { // 0x0425 COMMAND_CONVERT_METRES_TO_FEET (reVC Script6.cpp:521)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function convert_metres_to_feet"; }
+        int out0 = 0;
+        Command<COMMAND_CONVERT_METRES_TO_FEET>((float)lua_tonumber(L, 1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_total_number_of_missions(lua_State* L) { // 0x042C COMMAND_SET_TOTAL_NUMBER_OF_MISSIONS (reVC Script6.cpp:626)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_total_number_of_missions"; }
+        Command<COMMAND_SET_TOTAL_NUMBER_OF_MISSIONS>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int convert_metres_to_feet_int(lua_State* L) { // 0x042D COMMAND_CONVERT_METRES_TO_FEET_INT (reVC Script6.cpp:630)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function convert_metres_to_feet_int"; }
+        int out0 = 0;
+        Command<COMMAND_CONVERT_METRES_TO_FEET_INT>((int)lua_tointeger(L, 1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_is_chris_criminal(lua_State* L) { // 0x0433 COMMAND_SET_CHAR_IS_CHRIS_CRIMINAL (reVC Script6.cpp:665)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_is_chris_criminal"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_char_is_chris_criminal"; }
+        Command<COMMAND_SET_CHAR_IS_CHRIS_CRIMINAL>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int start_credits(lua_State* L) { // 0x0434 COMMAND_START_CREDITS (reVC Script6.cpp:673)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_START_CREDITS>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int stop_credits(lua_State* L) { // 0x0435 COMMAND_STOP_CREDITS (reVC Script6.cpp:676)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_STOP_CREDITS>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int are_credits_finished(lua_State* L) { // 0x0436 COMMAND_ARE_CREDITS_FINISHED (reVC Script6.cpp:679)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_ARE_CREDITS_FINISHED>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int play_end_of_game_tune(lua_State* L) { // 0x043F COMMAND_PLAY_END_OF_GAME_TUNE (reVC Script6.cpp:759)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_PLAY_END_OF_GAME_TUNE>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int stop_end_of_game_tune(lua_State* L) { // 0x0440 COMMAND_STOP_END_OF_GAME_TUNE (reVC Script6.cpp:762)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_STOP_END_OF_GAME_TUNE>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int are_any_car_cheats_activated(lua_State* L) { // 0x0445 COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED (reVC Script6.cpp:798)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int load_splash_screen(lua_State* L) { // 0x044D COMMAND_LOAD_SPLASH_SCREEN (reVC Script6.cpp:902)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function load_splash_screen"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_LOAD_SPLASH_SCREEN - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int load_end_of_game_tune(lua_State* L) { // 0x0451 COMMAND_LOAD_END_OF_GAME_TUNE (reVC Script6.cpp:940)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_LOAD_END_OF_GAME_TUNE>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int terminate_all_scripts_with_this_name(lua_State* L) { // 0x0459 COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME (reVC Script6.cpp:1037)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function terminate_all_scripts_with_this_name"; }
+        std::vector<MaRawParam> prm;
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME - 0x10000, prm.data(), (int)prm.size(), 0, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_current_player_weapon(lua_State* L) { // 0x046F COMMAND_GET_CURRENT_PLAYER_WEAPON (reVC Script6.cpp:1381)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_GET_CURRENT_PLAYER_WEAPON>(CWorld::PlayerInFocus, &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_any_means_object_2d(lua_State* L) { // 0x0471 COMMAND_LOCATE_CHAR_ANY_MEANS_OBJECT_2D (reVC Script6.cpp:1399)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_object_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_any_means_object_2d"; }
+        CObject* e_2 = findobjinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_any_means_object_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_any_means_object_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_any_means_object_2d"; }
+        Command<COMMAND_LOCATE_CHAR_ANY_MEANS_OBJECT_2D>(CPools::GetPedRef(e_1), CPools::GetObjectRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_char_on_foot_object_2d(lua_State* L) { // 0x0472 COMMAND_LOCATE_CHAR_ON_FOOT_OBJECT_2D (reVC Script6.cpp:1400)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_object_2d"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function locate_char_on_foot_object_2d"; }
+        CObject* e_2 = findobjinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_char_on_foot_object_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_char_on_foot_object_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_char_on_foot_object_2d"; }
+        Command<COMMAND_LOCATE_CHAR_ON_FOOT_OBJECT_2D>(CPools::GetPedRef(e_1), CPools::GetObjectRef(e_2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int can_char_see_dead_char(lua_State* L) { // 0x0480 COMMAND_CAN_CHAR_SEE_DEAD_CHAR (reVC Script6.cpp:1473)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function can_char_see_dead_char"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function can_char_see_dead_char"; }
+        bool res = Command<COMMAND_CAN_CHAR_SEE_DEAD_CHAR>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_any_pickup_at_coords(lua_State* L) { // 0x048C COMMAND_IS_ANY_PICKUP_AT_COORDS (reVC Script6.cpp:1540)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_any_pickup_at_coords"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_any_pickup_at_coords"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_any_pickup_at_coords"; }
+        bool res = Command<COMMAND_IS_ANY_PICKUP_AT_COORDS>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int initialise_object_path(lua_State* L) { // 0x049C COMMAND_INITIALISE_OBJECT_PATH (reVC Script6.cpp:1649)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function initialise_object_path"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function initialise_object_path"; }
+        int out0 = 0;
+        Command<COMMAND_INITIALISE_OBJECT_PATH>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int start_object_on_path(lua_State* L) { // 0x049D COMMAND_START_OBJECT_ON_PATH (reVC Script6.cpp:1660)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function start_object_on_path"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function start_object_on_path"; }
+        Command<COMMAND_START_OBJECT_ON_PATH>(CPools::GetObjectRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_object_path_position(lua_State* L) { // 0x049F COMMAND_SET_OBJECT_PATH_POSITION (reVC Script6.cpp:1674)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_object_path_position"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_object_path_position"; }
+        Command<COMMAND_SET_OBJECT_PATH_POSITION>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_object_path(lua_State* L) { // 0x04A1 COMMAND_CLEAR_OBJECT_PATH (reVC Script6.cpp:1681)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function clear_object_path"; }
+        Command<COMMAND_CLEAR_OBJECT_PATH>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int reset_havoc_caused_by_player(lua_State* L) { // 0x04BE COMMAND_RESET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:155)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_RESET_HAVOC_CAUSED_BY_PLAYER>(CWorld::PlayerInFocus); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_havoc_caused_by_player(lua_State* L) { // 0x04BF COMMAND_GET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:161)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_GET_HAVOC_CAUSED_BY_PLAYER>(CWorld::PlayerInFocus, &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_script_roadblock(lua_State* L) { // 0x04C0 COMMAND_CREATE_SCRIPT_ROADBLOCK (reVC Script7.cpp:168)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_script_roadblock"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_script_roadblock"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_script_roadblock"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function create_script_roadblock"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function create_script_roadblock"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function create_script_roadblock"; }
+        Command<COMMAND_CREATE_SCRIPT_ROADBLOCK>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_all_script_roadblocks(lua_State* L) { // 0x04C1 COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS (reVC Script7.cpp:174)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_char_been_photographed(lua_State* L) { // 0x04C5 COMMAND_HAS_CHAR_BEEN_PHOTOGRAPHED (reVC Script7.cpp:201)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_char_been_photographed"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_HAS_CHAR_BEEN_PHOTOGRAPHED>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_money_spent_on_clothes(lua_State* L) { // 0x04CF COMMAND_ADD_MONEY_SPENT_ON_CLOTHES (reVC Script7.cpp:257)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_money_spent_on_clothes"; }
+        Command<COMMAND_ADD_MONEY_SPENT_ON_CLOTHES>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_heli_orientation(lua_State* L) { // 0x04D0 COMMAND_SET_HELI_ORIENTATION (reVC Script7.cpp:262)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_heli_orientation"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_heli_orientation"; }
+        Command<COMMAND_SET_HELI_ORIENTATION>(CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_heli_orientation(lua_State* L) { // 0x04D1 COMMAND_CLEAR_HELI_ORIENTATION (reVC Script7.cpp:275)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function clear_heli_orientation"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_CLEAR_HELI_ORIENTATION>(CPools::GetVehicleRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_drowns_in_water(lua_State* L) { // 0x04D8 COMMAND_SET_CHAR_DROWNS_IN_WATER (reVC Script7.cpp:326)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_drowns_in_water"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_char_drowns_in_water"; }
+        Command<COMMAND_SET_CHAR_DROWNS_IN_WATER>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_char_armour(lua_State* L) { // 0x04DD COMMAND_GET_CHAR_ARMOUR (reVC Script7.cpp:356)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_char_armour"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        Command<COMMAND_GET_CHAR_ARMOUR>(CPools::GetPedRef(e_1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_object_2d(lua_State* L) { // 0x04E5 COMMAND_LOCATE_OBJECT_2D (reVC Script7.cpp:411)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_object_2d"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_object_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_object_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_object_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_object_2d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_object_2d"; }
+        Command<COMMAND_LOCATE_OBJECT_2D>(CPools::GetObjectRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (int)lua_tointeger(L, 6)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int locate_object_3d(lua_State* L) { // 0x04E6 COMMAND_LOCATE_OBJECT_3D (reVC Script5.cpp:740)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_object_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function locate_object_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function locate_object_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function locate_object_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function locate_object_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function locate_object_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function locate_object_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function locate_object_3d"; }
+        Command<COMMAND_LOCATE_OBJECT_3D>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_object_in_area_3d(lua_State* L) { // 0x04EA COMMAND_IS_OBJECT_IN_AREA_3D (reVC Script5.cpp:1295)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_object_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_object_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_object_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_object_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_object_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_object_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function is_object_in_area_3d"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function is_object_in_area_3d"; }
+        bool res = Command<COMMAND_IS_OBJECT_IN_AREA_3D>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (int)lua_tointeger(L, 8));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_set_piece(lua_State* L) { // 0x04F8 COMMAND_ADD_SET_PIECE (reVC Script7.cpp:552)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 9)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 10)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 11)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 12)) { throw "bad argument in function add_set_piece"; }
+        if (LUA_TNUMBER != lua_type(L, 13)) { throw "bad argument in function add_set_piece"; }
+        Command<COMMAND_ADD_SET_PIECE>((int)lua_tointeger(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (float)lua_tonumber(L, 8), (float)lua_tonumber(L, 9), (float)lua_tonumber(L, 10), (float)lua_tonumber(L, 11), (float)lua_tonumber(L, 12), (float)lua_tonumber(L, 13)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_wheelie_stats(lua_State* L) { // 0x04FC COMMAND_GET_WHEELIE_STATS (reVC Script7.cpp:574)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        int out1 = 0;
+        int out2 = 0;
+        int out3 = 0;
+        int out4 = 0;
+        int out5 = 0;
+        Command<COMMAND_GET_WHEELIE_STATS>(CWorld::PlayerInFocus, &out0, &out1, &out2, &out3, &out4, &out5);
+        lua_pushinteger(L, out0);
+        lua_pushinteger(L, out1);
+        lua_pushinteger(L, out2);
+        lua_pushinteger(L, out3);
+        lua_pushinteger(L, out4);
+        lua_pushinteger(L, out5);
+        return 6;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int switch_lift_camera(lua_State* L) { // 0x0507 COMMAND_SWITCH_LIFT_CAMERA (reVC Script7.cpp:665)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function switch_lift_camera"; }
+        Command<COMMAND_SWITCH_LIFT_CAMERA>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_locked_property_pickup(lua_State* L) { // 0x0517 COMMAND_CREATE_LOCKED_PROPERTY_PICKUP (reVC Script7.cpp:760)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_locked_property_pickup"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function create_locked_property_pickup"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function create_locked_property_pickup"; }
+        if (LUA_TSTRING != lua_type(L, 4)) { throw "bad argument in function create_locked_property_pickup"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 1); p.i = 0; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 2); p.i = 0; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 1; p.f = (float)lua_tonumber(L, 3); p.i = 0; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 4));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_CREATE_LOCKED_PROPERTY_PICKUP - 0x10000, prm.data(), (int)prm.size(), 3, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_glass_been_shattered_nearby(lua_State* L) { // 0x0523 COMMAND_HAS_GLASS_BEEN_SHATTERED_NEARBY (reVC Script7.cpp:835)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function has_glass_been_shattered_nearby"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function has_glass_been_shattered_nearby"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function has_glass_been_shattered_nearby"; }
+        bool res = Command<COMMAND_HAS_GLASS_BEEN_SHATTERED_NEARBY>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int attach_cutscene_object_to_component(lua_State* L) { // 0x0525 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_COMPONENT (reVC Script7.cpp:852)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function attach_cutscene_object_to_component"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function attach_cutscene_object_to_component"; }
+        CObject* e_2 = findobjinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        if (LUA_TSTRING != lua_type(L, 3)) { throw "bad argument in function attach_cutscene_object_to_component"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 0; p.i = (int)(CPools::GetObjectRef(e_1)); p.f = 0.0f; prm.push_back(p); }
+        { MaRawParam p; p.isFloat = 0; p.i = (int)(CPools::GetObjectRef(e_2)); p.f = 0.0f; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 3));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_ATTACH_CUTSCENE_OBJECT_TO_COMPONENT - 0x10000, prm.data(), (int)prm.size(), 2, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_money_spent_on_weapons(lua_State* L) { // 0x0528 COMMAND_ADD_MONEY_SPENT_ON_WEAPONS (reVC Script7.cpp:874)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_money_spent_on_weapons"; }
+        Command<COMMAND_ADD_MONEY_SPENT_ON_WEAPONS>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_player_drunkenness(lua_State* L) { // 0x052C COMMAND_SET_PLAYER_DRUNKENNESS (reVC Script7.cpp:893)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_drunkenness"; }
+        Command<COMMAND_SET_PLAYER_DRUNKENNESS>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_stores_knocked_off(lua_State* L) { // 0x0531 COMMAND_ADD_STORES_KNOCKED_OFF (reVC Script7.cpp:907)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_stores_knocked_off"; }
+        Command<COMMAND_ADD_STORES_KNOCKED_OFF>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_pizzas_delivered(lua_State* L) { // 0x0534 COMMAND_ADD_PIZZAS_DELIVERED (reVC Script7.cpp:916)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_pizzas_delivered"; }
+        Command<COMMAND_ADD_PIZZAS_DELIVERED>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_ice_creams_sold(lua_State* L) { // 0x0536 COMMAND_ADD_ICE_CREAMS_SOLD (reVC Script7.cpp:921)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_ice_creams_sold"; }
+        Command<COMMAND_ADD_ICE_CREAMS_SOLD>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_in_players_group_can_fight(lua_State* L) { // 0x053C COMMAND_SET_CHAR_IN_PLAYERS_GROUP_CAN_FIGHT (reVC Script7.cpp:930)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_in_players_group_can_fight"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_char_in_players_group_can_fight"; }
+        Command<COMMAND_SET_CHAR_IN_PLAYERS_GROUP_CAN_FIGHT>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_random_car_of_type_in_area_no_save(lua_State* L) { // 0x053E COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA_NO_SAVE (reVC Script7.cpp:946)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_random_car_of_type_in_area_no_save"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_random_car_of_type_in_area_no_save"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_random_car_of_type_in_area_no_save"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_random_car_of_type_in_area_no_save"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function get_random_car_of_type_in_area_no_save"; }
+        int out0 = 0;
+        Command<COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA_NO_SAVE>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_player_auto_aim(lua_State* L) { // 0x0540 COMMAND_SET_PLAYER_AUTO_AIM (reVC Script7.cpp:981)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_auto_aim"; }
+        Command<COMMAND_SET_PLAYER_AUTO_AIM>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_blood_ring_kills(lua_State* L) { // 0x0543 COMMAND_ADD_BLOOD_RING_KILLS (reVC Script7.cpp:1007)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_blood_ring_kills"; }
+        Command<COMMAND_ADD_BLOOD_RING_KILLS>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_longest_time_in_blood_ring(lua_State* L) { // 0x0544 COMMAND_SET_LONGEST_TIME_IN_BLOOD_RING (reVC Script7.cpp:1011)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_longest_time_in_blood_ring"; }
+        Command<COMMAND_SET_LONGEST_TIME_IN_BLOOD_RING>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int remove_everything_for_huge_cutscene(lua_State* L) { // 0x0545 COMMAND_REMOVE_EVERYTHING_FOR_HUGE_CUTSCENE (reVC Script7.cpp:1015)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_REMOVE_EVERYTHING_FOR_HUGE_CUTSCENE>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_touching_vehicle(lua_State* L) { // 0x0546 COMMAND_IS_PLAYER_TOUCHING_VEHICLE (reVC Script7.cpp:1020)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_player_touching_vehicle"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_PLAYER_TOUCHING_VEHICLE>(CWorld::PlayerInFocus, CPools::GetVehicleRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int check_for_ped_model_around_player(lua_State* L) { // 0x0548 COMMAND_CHECK_FOR_PED_MODEL_AROUND_PLAYER (reVC Script7.cpp:1033)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function check_for_ped_model_around_player"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function check_for_ped_model_around_player"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function check_for_ped_model_around_player"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function check_for_ped_model_around_player"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function check_for_ped_model_around_player"; }
+        Command<COMMAND_CHECK_FOR_PED_MODEL_AROUND_PLAYER>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (int)lua_tointeger(L, 4), (int)lua_tointeger(L, 5)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int attach_cutscene_object_to_vehicle(lua_State* L) { // 0x054B COMMAND_ATTACH_CUTSCENE_OBJECT_TO_VEHICLE (reVC Script7.cpp:1071)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function attach_cutscene_object_to_vehicle"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 2)) { throw "bad argument in function attach_cutscene_object_to_vehicle"; }
+        CVehicle* e_2 = findcarinpool(lua_topointer(L, 2)); if (!e_2) { return 0; }
+        Command<COMMAND_ATTACH_CUTSCENE_OBJECT_TO_VEHICLE>(CPools::GetObjectRef(e_1), CPools::GetVehicleRef(e_2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_tonights_event(lua_State* L) { // 0x054D COMMAND_SET_TONIGHTS_EVENT (reVC Script7.cpp:1085)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_tonights_event"; }
+        Command<COMMAND_SET_TONIGHTS_EVENT>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int freeze_object_position(lua_State* L) { // 0x0550 COMMAND_FREEZE_OBJECT_POSITION (reVC Script7.cpp:1102)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function freeze_object_position"; }
+        CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function freeze_object_position"; }
+        Command<COMMAND_FREEZE_OBJECT_POSITION>(CPools::GetObjectRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_player_has_met_debbie_harry(lua_State* L) { // 0x0551 COMMAND_SET_PLAYER_HAS_MET_DEBBIE_HARRY (reVC Script7.cpp:1111)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_has_met_debbie_harry"; }
+        Command<COMMAND_SET_PLAYER_HAS_MET_DEBBIE_HARRY>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_up_taxi_shortcut(lua_State* L) { // 0x0556 COMMAND_SET_UP_TAXI_SHORTCUT (reVC Script7.cpp:1126)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_up_taxi_shortcut"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_up_taxi_shortcut"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_up_taxi_shortcut"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_up_taxi_shortcut"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function set_up_taxi_shortcut"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function set_up_taxi_shortcut"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function set_up_taxi_shortcut"; }
+        if (LUA_TNUMBER != lua_type(L, 8)) { throw "bad argument in function set_up_taxi_shortcut"; }
+        Command<COMMAND_SET_UP_TAXI_SHORTCUT>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (float)lua_tonumber(L, 8)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int clear_taxi_shortcut(lua_State* L) { // 0x0557 COMMAND_CLEAR_TAXI_SHORTCUT (reVC Script7.cpp:1134)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_CLEAR_TAXI_SHORTCUT>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int add_porn_leaflet_to_rubbish(lua_State* L) { // 0x055A COMMAND_ADD_PORN_LEAFLET_TO_RUBBISH (reVC Script7.cpp:1139)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_porn_leaflet_to_rubbish"; }
+        Command<COMMAND_ADD_PORN_LEAFLET_TO_RUBBISH>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int make_player_fire_proof(lua_State* L) { // 0x055D COMMAND_MAKE_PLAYER_FIRE_PROOF (reVC Script7.cpp:1155)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function make_player_fire_proof"; }
+        Command<COMMAND_MAKE_PLAYER_FIRE_PROOF>(CWorld::PlayerInFocus, (int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int create_random_char_as_driver(lua_State* L) { // 0x0560 COMMAND_CREATE_RANDOM_CHAR_AS_DRIVER (reVC Script7.cpp:1178)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function create_random_char_as_driver"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        int out0 = 0;
+        Command<COMMAND_CREATE_RANDOM_CHAR_AS_DRIVER>(CPools::GetVehicleRef(e_1), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_ignore_threats_behind_objects(lua_State* L) { // 0x0562 COMMAND_SET_CHAR_IGNORE_THREATS_BEHIND_OBJECTS (reVC Script7.cpp:1239)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_ignore_threats_behind_objects"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_char_ignore_threats_behind_objects"; }
+        Command<COMMAND_SET_CHAR_IGNORE_THREATS_BEHIND_OBJECTS>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int make_heli_come_crashing_down(lua_State* L) { // 0x0564 COMMAND_MAKE_HELI_COME_CRASHING_DOWN (reVC Script7.cpp:1266)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function make_heli_come_crashing_down"; }
+        CVehicle* e_1 = findcarinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        Command<COMMAND_MAKE_HELI_COME_CRASHING_DOWN>(CPools::GetVehicleRef(e_1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_char_stuck(lua_State* L) { // 0x0571 COMMAND_IS_CHAR_STUCK (reVC Script7.cpp:1347)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_stuck"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_IS_CHAR_STUCK>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_all_taxis_have_nitro(lua_State* L) { // 0x0572 COMMAND_SET_ALL_TAXIS_HAVE_NITRO (reVC Script7.cpp:1355)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_all_taxis_have_nitro"; }
+        Command<COMMAND_SET_ALL_TAXIS_HAVE_NITRO>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_vigilante_level(lua_State* L) { // 0x0578 COMMAND_REGISTER_VIGILANTE_LEVEL (reVC Script8.cpp:35)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_vigilante_level"; }
+        Command<COMMAND_REGISTER_VIGILANTE_LEVEL>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_maximum_number_of_cars_in_garage(lua_State* L) { // 0x057A COMMAND_SET_MAXIMUM_NUMBER_OF_CARS_IN_GARAGE (reVC Script8.cpp:63)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_maximum_number_of_cars_in_garage"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_maximum_number_of_cars_in_garage"; }
+        Command<COMMAND_SET_MAXIMUM_NUMBER_OF_CARS_IN_GARAGE>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int wanted_stars_are_flashing(lua_State* L) { // 0x057B COMMAND_WANTED_STARS_ARE_FLASHING (reVC Script8.cpp:67)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        Command<COMMAND_WANTED_STARS_ARE_FLASHING>(); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_bus_fares_collected_by_player(lua_State* L) { // 0x057F COMMAND_GET_BUS_FARES_COLLECTED_BY_PLAYER (reVC Script8.cpp:89)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_GET_BUS_FARES_COLLECTED_BY_PLAYER>(CWorld::PlayerInFocus, &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_best_position(lua_State* L) { // 0x0582 COMMAND_REGISTER_BEST_POSITION (reVC Script8.cpp:126)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_best_position"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function register_best_position"; }
+        Command<COMMAND_REGISTER_BEST_POSITION>((int)lua_tointeger(L, 1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_info_zone(lua_State* L) { // 0x0583 COMMAND_IS_PLAYER_IN_INFO_ZONE (reVC Script8.cpp:130)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function is_player_in_info_zone"; }
+        std::vector<MaRawParam> prm;
+        { MaRawParam p; p.isFloat = 0; p.i = (int)(CWorld::PlayerInFocus); p.f = 0.0f; prm.push_back(p); }
+        prm.push_back(MaRawParam{0,0,0.0f}); // label placeholder
+        std::string key(lua_tostring(L, 1));
+        ma_cmdq_defer([prm, key]() -> bool {
+            return ma_run_label_ex((unsigned int)COMMAND_IS_PLAYER_IN_INFO_ZONE - 0x10000, prm.data(), (int)prm.size(), 1, key.c_str());
+        });
+        return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_char_attempted_attractor(lua_State* L) { // 0x0586 COMMAND_HAS_CHAR_ATTEMPTED_ATTRACTOR (reVC Script8.cpp:155)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_char_attempted_attractor"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_HAS_CHAR_ATTEMPTED_ATTRACTOR>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_load_collision_for_char_flag(lua_State* L) { // 0x0588 COMMAND_SET_LOAD_COLLISION_FOR_CHAR_FLAG (reVC Script8.cpp:186)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_load_collision_for_char_flag"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_load_collision_for_char_flag"; }
+        Command<COMMAND_SET_LOAD_COLLISION_FOR_CHAR_FLAG>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int has_char_bought_ice_cream(lua_State* L) { // 0x058B COMMAND_HAS_CHAR_BOUGHT_ICE_CREAM (reVC Script8.cpp:216)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_char_bought_ice_cream"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        bool res = Command<COMMAND_HAS_CHAR_BOUGHT_ICE_CREAM>(CPools::GetPedRef(e_1));
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_progress_percentage(lua_State* L) { // 0x058C COMMAND_GET_PROGRESS_PERCENTAGE (reVC Script8.cpp:224)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        int out0 = 0;
+        Command<COMMAND_GET_PROGRESS_PERCENTAGE>(&out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_shortcut_pickup_point(lua_State* L) { // 0x058D COMMAND_SET_SHORTCUT_PICKUP_POINT (reVC Script8.cpp:228)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_shortcut_pickup_point"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_shortcut_pickup_point"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function set_shortcut_pickup_point"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function set_shortcut_pickup_point"; }
+        Command<COMMAND_SET_SHORTCUT_PICKUP_POINT>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int get_random_ice_cream_customer_in_area(lua_State* L) { // 0x058F COMMAND_GET_RANDOM_ICE_CREAM_CUSTOMER_IN_AREA (reVC Script8.cpp:240)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_random_ice_cream_customer_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function get_random_ice_cream_customer_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function get_random_ice_cream_customer_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function get_random_ice_cream_customer_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function get_random_ice_cream_customer_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function get_random_ice_cream_customer_in_area"; }
+        if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function get_random_ice_cream_customer_in_area"; }
+        int out0 = 0;
+        Command<COMMAND_GET_RANDOM_ICE_CREAM_CUSTOMER_IN_AREA>((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (int)lua_tointeger(L, 5), (int)lua_tointeger(L, 6), (int)lua_tointeger(L, 7), &out0);
+        lua_pushinteger(L, out0);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int set_char_frightened_in_jacked_car(lua_State* L) { // 0x0593 COMMAND_SET_CHAR_FRIGHTENED_IN_JACKED_CAR (reVC Script8.cpp:314)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_frightened_in_jacked_car"; }
+        CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
+        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function set_char_frightened_in_jacked_car"; }
+        Command<COMMAND_SET_CHAR_FRIGHTENED_IN_JACKED_CAR>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int is_player_in_shortcut_taxi(lua_State* L) { // 0x0596 COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI (reVC Script8.cpp:336)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        bool res = Command<COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI>(CWorld::PlayerInFocus);
+        lua_pushboolean(L, res ? 1 : 0); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+int register_fire_level(lua_State* L) { // 0x0599 COMMAND_REGISTER_FIRE_LEVEL (reVC Script8.cpp:370)
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_fire_level"; }
+        Command<COMMAND_REGISTER_FIRE_LEVEL>((int)lua_tointeger(L, 1)); return 0;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+// === AUTO-ADDED OPCODE WRAPPERS (20.11) ===
