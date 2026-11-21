@@ -1,6 +1,7 @@
 #include "funcs.h"
 #include <climits>// INT_MAX — верхняя граница wait(ms)
 #include <mutex>
+#include <atomic>
 #include <vector>
 #include "compat/diag.h"// ma_diag::model_event — состояние модели в журнале сторожа (compat/diag.cpp)
 #include "compat/ma_tasks.h"
@@ -9292,6 +9293,35 @@ int set_player_control(lua_State* L) {// выкл телефон.
 			int mod = lua_tonumber(L, 1);// координата x.
 
 			Command<COMMAND_SET_PLAYER_CONTROL>(CWorld::PlayerInFocus, mod);// exe: (индекс игрока, флаг управления).
+
+			// === ВОЗВРАТ УПРАВЛЕНИЯ ТРАНСПОРТОМ (при included mod==1) ===
+			// plane_goto_coords оставляет самолёт в STATUS_PHYSICS с автопилотом
+			// MISSION_PLANE_FLYTOCOORS — пока эти поля не сброшены, игрок не может
+			// управлять («двигатель глохнет»). Восстанавливаем их в игровом потоке.
+			if (mod == 1) {
+				CPed* pl = FindPlayerPed();
+				if (pl && pl->m_bInVehicle && pl->m_pVehicle) {
+					CVehicle* car = pl->m_pVehicle;
+					ma_cmdq_post([car]() {
+						// 1) автопилот: перестать вести самолёт к точке
+						CAutoPilot* ap = &car->m_autoPilot;
+						if (ap->m_nCarMission == MISSION_PLANE_FLYTOCOORS) {
+							ap->m_nCarMission = MISSION_NONE;   // 22 -> 0
+							writelog("set_player_control: автопилот FLYTOCOORS сброшен в NONE");
+						}
+						// 2) статус сущности: STATUS_PHYSICS(3) -> STATUS_PLAYER(0)
+						//    биты 3..7 слова +0x50 (m_nState), младшие 3 бита (m_nType) не трогаем.
+						unsigned char* flags = (unsigned char*)((char*)car + 0x50);
+						if (((*flags >> 3) & 0x1F) == 3) {  // STATUS_PHYSICS
+							*flags = (unsigned char)((*flags & 0x07) | (0 << 3));  // STATUS_PLAYER
+							writelog("set_player_control: STATUS_PHYSICS -> STATUS_PLAYER");
+						}
+						// 3) подкинуть самолёт вверх на 3 метра, чтобы не упал
+						CVector np = car->GetPosition(); np.z += 3.0f; car->SetPosition(np);
+						// газ и AIRSHIP НЕ трогаем — по указанию пользователя.
+					});
+				}
+			}
 			return 0;
 
 			/*	Устанавливает контроль над персонажем игрока 01B4: set_player[игрок ручка] can_move[INT]
@@ -33268,10 +33298,40 @@ int set_free_health_care(lua_State* L) { // 0x0414 COMMAND_SET_FREE_HEALTH_CARE 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
+
+// === ГЛОБАЛЬНАЯ ЗАЩИТА ОТ ДВОЙНОГО ЗАПУСКА МИССИИ (ВСЕ точки входа) ===
+// Механизм из оригинального движка / исходников:
+//  * $ONMISSION        — CTheScripts::IsPlayerOnAMission() (флаг «миссия идёт»);
+//  * m_bIsMission      — CRunningScript (reVC: m_bIsMissionScript), выставляется
+//                        движком СРАЗУ при 0417 (reVC Script6.cpp:399).
+//                        Это главный и самый надёжный признак уже идущей миссии.
+//  * кулдаун 3 сек     — страховка от двойного нажатия, пока флаги не поднялись.
+static std::atomic<unsigned long long>& ma_last_mission_start() {
+    static std::atomic<unsigned long long> t{0}; // без глобального конструктора
+    return t;
+}
+static bool ma_mission_script_active() {
+    for (CRunningScript* sc = CTheScripts::pActiveScripts; sc; sc = sc->m_pNext) {
+        if (sc->m_bIsActive && sc->m_bIsMission) return true;
+    }
+    return false;
+}
+static bool ma_mission_start_allowed() {
+    if (ma_mission_script_active()) return false;
+    if (CTheScripts::IsPlayerOnAMission()) return false;
+    unsigned long long now = GetTickCount64();
+    unsigned long long last = ma_last_mission_start().load();
+    if (now < last || now - last < 3000) return false;
+    ma_last_mission_start().store(now);
+    return true;
+}
+// === КОНЕЦ ГЛОБАЛЬНОЙ ЗАЩИТЫ ===
+
 int load_and_launch_mission_internal(lua_State* L) { // 0x0417 COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL (reVC Script6.cpp:373)
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function load_and_launch_mission_internal"; }
+        if (!ma_mission_start_allowed()) { writelog("0417: ОТКАЗ — миссия уже идёт"); return 0; }
         Command<COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL>((int)lua_tointeger(L, 1)); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
@@ -34525,3 +34585,342 @@ int set_car_gas(lua_State* L) {
     lua_pushboolean(L, true); return 1;
 }
 // === CAR GAS PEDAL (21.11) ===
+
+// 0417 LOAD_AND_LAUNCH_MISSION_INTERNAL — запуск миссии по индексу (0..119 в VC).
+// Таблица индексов: GTAMods wiki «0417» (Vice City).
+int start_mission(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
+    int index = (int)lua_tointeger(L, 1);
+    if (index < 0 || index > 119) { lua_pushboolean(L, false); return 1; }
+    if (!ma_mission_start_allowed()) { writelog("start_mission: ОТКАЗ — миссия уже идёт"); lua_pushboolean(L, false); return 1; }
+    Command<COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL>(index);
+    lua_pushboolean(L, true); return 1;
+}
+// «Оригинальный/подготовленный» запуск: снимает состояния, из-за которых
+// миссия на закрытом острове/в закрытом месте может вылететь или не стартовать.
+int start_mission_orig(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
+    int index = (int)lua_tointeger(L, 1);
+    if (index < 0 || index > 119) { lua_pushboolean(L, false); return 1; }
+    if (!ma_mission_start_allowed()) { writelog("start_mission_orig: ОТКАЗ — миссия уже идёт"); lua_pushboolean(L, false); return 1; }
+
+
+    Command<COMMAND_CLEAR_PRINTS>();                       // убрать старые тексты
+    Command<COMMAND_SET_TIME_SCALE>(1.0f);                 // нормальная скорость
+    Command<COMMAND_SET_PLAYER_CONTROL>(CWorld::PlayerInFocus, 1); // вернуть управление
+    Command<COMMAND_RESTORE_CAMERA_JUMPCUT>();             // вернуть камеру игрока
+    Command<COMMAND_PLAY_ANNOUNCEMENT>(1);                 // объявление «мосты открыты»
+
+    // Зоны заграждений (из Complete Mission Loader r4): снимаем запреты для
+    // машин (SWITCH_ROADS_ON / 01E7) и педов (SWITCH_PED_ROADS_ON / 022A).
+    static const float bars[][6] = {
+        {-692.193f,-1522.901f,0.0f,-575.311f,-1453.378f,30.0f},
+        {-214.6f,-948.8f,0.0f,-258.7f,-920.6f,30.0f},
+        {-787.8f,-519.4f,10.0f,-657.5f,-475.2f,20.0f},
+        {-230.0f,-464.5f,10.0f,56.85f,-459.8f,20.0f},
+        {-99.8f,1041.9f,0.0f,-129.0f,1097.4f,30.0f}
+    };
+    for (const auto& b : bars) {
+        Command<COMMAND_SWITCH_ROADS_ON>(b[0], b[1], b[2], b[3], b[4], b[5]);
+        Command<COMMAND_SWITCH_PED_ROADS_ON>(b[0], b[1], b[2], b[3], b[4], b[5]);
+    }
+    Command<COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL>(index);
+    lua_pushboolean(L, true); return 1;
+}
+// === MISSION LAUNCH (21.11) ===
+
+// === ORIGINAL MISSION NAMES (21.11) ===
+// === ORIGINAL MISSION NAMES (21.11) ===
+// Полная таблица 97 оригинальных миссий Vice City (индексы 0..96)
+// по GTAMods wiki «0417» — script name + английское название.
+struct VcOriginalMission { const char* script; const char* title; };
+static const VcOriginalMission g_vcMissions[97] = {
+    {"INITIAL", "Initial"}, // 0
+    {"INTRO", "Intro"}, // 1
+    {"HOTEL", "An Old Friend"}, // 2
+    {"LAWYER1", "The Party"}, // 3
+    {"LAWYER2", "Back Alley Brawl"}, // 4
+    {"LAWYER3", "Jury Fury"}, // 5
+    {"LAWYER4", "Riot"}, // 6
+    {"GENERL1", "Treacherous Swine"}, // 7
+    {"COL2", "Mall Shootout"}, // 8
+    {"GENERL3", "Guardian Angels"}, // 9
+    {"COL_4", "Sir, Yes Sir!"}, // 10
+    {"COL_5", "All Hands On Deck!"}, // 11
+    {"BARON1", "The Chase"}, // 12
+    {"BARON2", "Phnom Penh '86"}, // 13
+    {"BARON3", "The Fastest Boat"}, // 14
+    {"BARON4", "Supply & Demand"}, // 15
+    {"BARON5", "Rub Out"}, // 16
+    {"KENT1", "Death Row"}, // 17
+    {"SERG1", "Four Iron"}, // 18
+    {"SERG3", "Demolition Man"}, // 19
+    {"SERG2", "Two Bit Hit"}, // 20
+    {"BANKJO1", "No Escape?"}, // 21
+    {"BANKJO2", "The Shootist"}, // 22
+    {"BANKJO3", "The Driver"}, // 23
+    {"BANKJO4", "The Job"}, // 24
+    {"PHIL1", "Gun Runner"}, // 25
+    {"PHIL2", "Boomshine Saigon"}, // 26
+    {"PORNO1", "Recruitment Drive"}, // 27
+    {"PORNO2", "Dildo Dodo"}, // 28
+    {"PORNO3", "Martha's Mug Shot"}, // 29
+    {"PORNO4", "G-spotlight"}, // 30
+    {"PROTEC1", "Shakedown"}, // 31
+    {"PROTEC2", "Bar Brawl"}, // 32
+    {"PROTEC3", "Cop Land"}, // 33
+    {"COUNT1", "Spilling the Beans"}, // 34
+    {"COUNT2", "Hit the Courier"}, // 35
+    {"BUYPRO1", "Printworks purchase"}, // 36
+    {"CARBUY1", "Car Showroom (Sunshine Autos) purchase"}, // 37
+    {"BUYPRO2", "Film Studio (Inter Global Films) purchase"}, // 38
+    {"ICECUT", "Ice Cream Factory (Cherry Poppers) purchase"}, // 39
+    {"TAXCUT", "Taxi Firm (Kaufman Cabs) purchase"}, // 40
+    {"BUYPRO3", "The Malibu purchase"}, // 41
+    {"BOATBY", "Boatyard purchase"}, // 42
+    {"BUYPRO4", "Pole Position Club purchase"}, // 43
+    {"BUYPRO5", "El Swanko Casa purchase"}, // 44
+    {"LNKVBUY", "Links View Apartment purchase"}, // 45
+    {"HYCOBUY", "Hyman Condo purchase"}, // 46
+    {"OCHEBUY", "Ocean Heights Apartment purchase"}, // 47
+    {"WASHBUY", "1102 Washington Street purchase"}, // 48
+    {"VCPTBUY", "3321 Vice Point purchase"}, // 49
+    {"SKUMBUY", "Skumole Shack purchase"}, // 50
+    {"CAP_1", "Cap the Collector"}, // 51
+    {"FIN_1", "Keep your Friends Close..."}, // 52
+    {"BIKE1", "Alloy Wheels of Steel"}, // 53
+    {"BIKE2", "Messing with the Man"}, // 54
+    {"BIKE3", "Hog Tied"}, // 55
+    {"CUBAN1", "Stunt Boat Challenge"}, // 56
+    {"CUBAN2", "Cannon Fodder"}, // 57
+    {"CUBAN3", "Naval Engagement"}, // 58
+    {"CUBAN4", "Trojan Voodoo"}, // 59
+    {"HAIT1", "Juju Scramble"}, // 60
+    {"HAIT2", "Bombs Away!"}, // 61
+    {"HAIT3", "Dirty Lickin's"}, // 62
+    {"ROCKB1", "Love Juice"}, // 63
+    {"ROCKB2", "Psycho Killer"}, // 64
+    {"ROCKB3", "Publicity Tour"}, // 65
+    {"RANGE", "Weapon Range"}, // 66
+    {"ASSIN1", "Road Kill"}, // 67
+    {"ASSIN2", "Waste the Wife"}, // 68
+    {"ASSIN3", "Autocide"}, // 69
+    {"ASSIN4", "Check Out at the Check In"}, // 70
+    {"ASSIN5", "Loose Ends"}, // 71
+    {"TAXWAR1", "V.I.P."}, // 72
+    {"TAXWAR2", "Friendly Rivalry"}, // 73
+    {"TAXWAR3", "Cabmaggedon"}, // 74
+    {"TAXI", "Taxi Driver"}, // 75
+    {"AMBULAN", "Paramedic"}, // 76
+    {"FIRETRU", "Firefighter"}, // 77
+    {"COPCAR", "Vigilante"}, // 78
+    {"OVALRNG", "Hotring"}, // 79
+    {"MM", "Bloodring"}, // 80
+    {"KICKST", "Dirtring"}, // 81
+    {"RACE", "Sunshine Autos Races"}, // 82
+    {"ICECRE1", "Distribution"}, // 83
+    {"HELI1SC", "Downtown Chopper Checkpoint"}, // 84
+    {"HELI2SC", "Ocean Beach Chopper Checkpoint"}, // 85
+    {"HELI3SC", "Vice Point Chopper Checkpoint"}, // 86
+    {"HELI4SC", "Little Haiti Chopper Checkpoint"}, // 87
+    {"BMX_1", "Trial by Dirt"}, // 88
+    {"BMX_2", "Test Track"}, // 89
+    {"T4X4_1", "PCJ Playground"}, // 90
+    {"CARPRK1", "Cone Crazy"}, // 91
+    {"PIZZA", "Pizza Boy"}, // 92
+    {"RCHELI", "RC Raider Pickup"}, // 93
+    {"RCRACE1", "RC Bandit Race"}, // 94
+    {"RCPLNE1", "RC Baron Race"}, // 95
+    {"COKERUN", "Checkpoint Charlie"}, // 96
+};
+int get_original_mission_name(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    int i = (LUA_TNUMBER == lua_type(L, 1)) ? (int)lua_tointeger(L, 1) : -1;
+    lua_pushstring(L, (i >= 0 && i < 97) ? g_vcMissions[i].title : "");
+    return 1;
+}
+int get_original_mission_script(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    int i = (LUA_TNUMBER == lua_type(L, 1)) ? (int)lua_tointeger(L, 1) : -1;
+    lua_pushstring(L, (i >= 0 && i < 97) ? g_vcMissions[i].script : "");
+    return 1;
+}
+int show_original_mission(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    int i = (LUA_TNUMBER == lua_type(L, 1)) ? (int)lua_tointeger(L, 1) : -1;
+    if (i < 0 || i >= 97) { lua_pushboolean(L, false); return 1; }
+    char buf[256];
+    _snprintf(buf, sizeof(buf), "%d - %s (%s)", i, g_vcMissions[i].title, g_vcMissions[i].script);
+    std::string text(buf);
+    writelog(text.c_str());
+    ma_cmdq_post([text]() { wchar_t* w = ma_msgpool::put(text.c_str()); CMessages::AddMessageJumpQ(w, 5000, 1); });
+    lua_pushboolean(L, true); return 1;
+}
+// === MISSION LIST OVERLAY (21.11) ===
+// Постраничный список миссий в стиле скриншота: тёмная панель слева,
+// 20 миссий на страницу, стрелки листают/выбирают, Action запускает миссию.
+struct MissionListOverlay {
+    bool active = false;
+    int page = 0;        // 0..4 (97 миссий по 20)
+    int selected = 0;    // 0..96
+    CPed* player = nullptr;
+    unsigned long long until = 0;
+    bool prevL = false, prevR = false, prevU = false, prevD = false, prevA = false;
+};
+static MissionListOverlay& mission_list_overlay() { static MissionListOverlay o; return o; }
+static void mission_list_close() {
+    MissionListOverlay& o = mission_list_overlay();
+    o.active = false;
+    ma_cmdq_post([]() { Command<COMMAND_CLEAR_HELP>(); });
+    if (o.player) {
+        Command<COMMAND_SET_PLAYER_CONTROL>(CWorld::PlayerInFocus, 1);
+        o.player = nullptr;
+    }
+}
+static void mission_list_post_page(MissionListOverlay& o) { // чёрный HELP TEXT BOX (03E5)
+    char buf[512];
+    int base = (o.selected / 10) * 10;
+    int n = _snprintf(buf, sizeof(buf), "ORIGINAL MISSIONS %d-%d\nUP/DN - scroll",
+        base, base + 9 > 96 ? 96 : base + 9);
+    for (int i = base; i < base + 10 && i < 97; i++) {
+        int w = _snprintf(buf + n, sizeof(buf) - (size_t)n, "\n%02d %s%s", i, g_vcMissions[i].title,
+            (i == o.selected) ? "  <<" : "");
+        if (w < 0) break; n += w;
+    }
+    std::string text(buf);
+    writelog(text.c_str());
+    ma_cmdq_post([text]() { // constant text box: quickMessage=false, permanent=true
+        wchar_t* w = ma_msgpool::put(text.c_str());
+        CHud::SetHelpMessage(w, false, true);
+    });
+}
+void ma_mission_list_draw() { // таймер 7 сек + стрелки обновляют text box
+    MissionListOverlay& o = mission_list_overlay();
+    if (!o.active) return;
+    if (GetTickCount64() > o.until) { mission_list_close(); return; }
+    bool U = ma_keys().held[0x26] != 0, D = ma_keys().held[0x28] != 0;
+    bool up_edge = U && !o.prevU, down_edge = D && !o.prevD;
+    if (up_edge) { o.selected -= 10; if (o.selected < 0) o.selected = 90; }
+    if (down_edge) { o.selected += 10; if (o.selected > 96) o.selected = 0; }
+    o.prevU = U; o.prevD = D;
+    if (up_edge || down_edge) {
+        o.until = GetTickCount64() + 7000; // заново 7 секунд
+        mission_list_post_page(o);
+    }
+}
+int show_original_missions(lua_State* L) { // без аргументов: открыть постраничный список
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    MissionListOverlay& o = mission_list_overlay();
+    o.active = true; o.page = 0; o.selected = 0;
+    o.until = GetTickCount64() + 7000;
+    o.player = FindPlayerPed();
+    if (o.player) {
+        Command<COMMAND_SET_PLAYER_CONTROL>(CWorld::PlayerInFocus, 0);
+    }
+    writelog("show_original_missions: list opened");
+    mission_list_post_page(o);
+    lua_pushboolean(L, true); return 1;
+}
+int hide_original_missions(lua_State* L) { // закрыть список и вернуть управление
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    mission_list_close();
+    lua_pushboolean(L, true); return 1;
+}
+int start_mission_original(lua_State* L) { // явное имя: запуск ОРИГИНАЛЬНОЙ миссии с подготовкой
+    return start_mission_orig(L);
+}
+// === ORIGINAL MISSION NAMES (21.11) ===
+
+// === ПОДГОТОВКА КИНОСТУДИИ (21.11) — по образцу миссии 38 Interglobal Films Buy ===
+// get_model_id_by_name(name) -> id модели (или -1)
+int get_model_id_by_name(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    if (LUA_TSTRING != lua_type(L, 1)) { lua_pushinteger(L, -1); return 1; }
+    int id = -1;
+    CModelInfo::GetModelInfo(lua_tostring(L, 1), &id);
+    lua_pushinteger(L, id); return 1;
+}
+// check_studio_gates() -> пишет в лог состояние трёх объектов киностудии.
+// Хендлы берём из ScriptSpace по смещениям глобальных переменных ($263,$264,$1811),
+// как в оригинальном main.scm: CREATE_OBJECT_NO_OFFSET ... $263 → ScriptSpace[263*4].
+int check_studio_gates(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    unsigned char* sp = CRunningScript::GetScriptSpaceBase();
+    struct G { const char* name; int var; const char* closed; const char* opened; float x,y,z; };
+    static const G gs[] = {
+        {"FRONT", 263, "CI_GATESCLOSED",    "CI_GATESOPEN",    10.273f,  963.308f, 12.258f},
+        {"BACK",  264, "CI_BACKGATECLOSE",  "CI_BACKGATEOPEN", -14.381f,  884.120f, 13.542f},
+        {"JETY",  1811,"CI_JETYGATESCLOSED","CI_JETYGATESOPEN",-115.825f,1028.550f, 11.334f},
+    };
+    for (const auto& it : gs) {
+        int ref = *(int*)(sp + it.var * 4);        // хендл объекта из ScriptSpace
+        int cm = -1, om = -1;
+        CModelInfo::GetModelInfo(it.closed, &cm);
+        CModelInfo::GetModelInfo(it.opened, &om);
+        CObject* o = (ref >= 0) ? CPools::GetObject(ref) : nullptr;
+        int cur = (o != nullptr) ? o->m_nModelIndex : -999;
+        char b[256];
+        snprintf(b, sizeof(b), "STUDIO %s: ref=%d obj=%p model=%d closed=%d open=%d",
+                 it.name, ref, (void*)o, cur, cm, om);
+        writelog(b);
+    }
+    lua_pushboolean(L, true); return 1;
+}
+
+// open_studio_gates(): убрать закрытые ворота/дверь и поставить открытые.
+// Полная копия логики миссии 38 «Interglobal Films Buy» из оригинального main.scm:
+//   DELETE_OBJECT $263/$264/$1811  →  CREATE_OBJECT_NO_OFFSET открытых моделей.
+// Проверка состояния: если модель объекта УЖЕ открытая — ничего не делаем.
+int open_studio_gates(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    unsigned char* sp = CRunningScript::GetScriptSpaceBase();
+    struct G { const char* name; int var; const char* closed; const char* opened; float x,y,z; };
+    static const G gs[] = {
+        {"FRONT", 263,  "CI_GATESCLOSED",     "CI_GATESOPEN",     10.273f,  963.308f, 12.258f},
+        {"BACK",  264,  "CI_BACKGATECLOSE",   "CI_BACKGATEOPEN",  -14.381f,  884.120f, 13.542f},
+        {"JETY",  1811, "CI_JETYGATESCLOSED", "CI_JETYGATESOPEN",-115.825f, 1028.550f, 11.334f},
+    };
+    int opened_count = 0;
+    for (const auto& it : gs) {
+        int ref = *(int*)(sp + it.var * 4);
+        int cm = -1, om = -1;
+        CModelInfo::GetModelInfo(it.closed, &cm);
+        CModelInfo::GetModelInfo(it.opened, &om);
+        CObject* o = (ref >= 0) ? CPools::GetObject(ref) : nullptr;
+        int cur = (o != nullptr) ? o->m_nModelIndex : -999;
+        if (cur == om) {  // уже открыта — пропускаем
+            char b[160]; snprintf(b, sizeof(b), "STUDIO %s: уже открыта (model=%d)", it.name, cur);
+            writelog(b);
+            continue;
+        }
+        if (cur != cm) {  // модель не закрытая и не открытая — не трогаем
+            char b[160]; snprintf(b, sizeof(b), "STUDIO %s: неизвестная модель %d — пропуск", it.name, cur);
+            writelog(b);
+            continue;
+        }
+        // Закрыта → удаляем по хендлу и создаём открытую (в игровом потоке).
+        char b[200];
+        snprintf(b, sizeof(b), "STUDIO %s: ЗАКРЫТА (model=%d) — открываем -> %d", it.name, cur, om);
+        writelog(b);
+        float x=it.x, y=it.y, z=it.z;
+        int closedRef = ref, openModel = om, var = it.var;
+        ma_cmdq_post([x,y,z,closedRef,openModel,var,sp]() {
+            Command<COMMAND_DELETE_OBJECT>(closedRef);
+            float newRef = 0;
+            Command<COMMAND_CREATE_OBJECT_NO_OFFSET>(openModel, x, y, z, &newRef);
+            if ((int)newRef >= 0) {
+                Command<COMMAND_DONT_REMOVE_OBJECT>((int)newRef);
+                *(int*)(sp + var * 4) = (int)newRef;  // обновить хендл в ScriptSpace
+            }
+            char lb[160];
+            snprintf(lb, sizeof(lb), "STUDIO: created open ref=%d model=%d", (int)newRef, openModel);
+            writelog(lb);
+        });
+        opened_count++;
+    }
+    lua_pushinteger(L, opened_count); return 1;
+}
+// === КОНЕЦ ПОДГОТОВКИ КИНОСТУДИИ ===
+

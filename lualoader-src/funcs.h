@@ -2805,3 +2805,21 @@ int is_airship_cheat(lua_State* L);
 // === CAR GAS PEDAL (21.11) ===
 int set_car_gas(lua_State* L);
 // === CAR GAS PEDAL (21.11) ===
+
+// === MISSION LAUNCH (21.11) ===
+int start_mission(lua_State* L);
+int start_mission_orig(lua_State* L);
+// === MISSION LAUNCH (21.11) ===
+
+// === ORIGINAL MISSION NAMES (21.11) ===
+int get_original_mission_name(lua_State* L);
+int get_original_mission_script(lua_State* L);
+int show_original_mission(lua_State* L);
+int show_original_missions(lua_State* L);
+int start_mission_original(lua_State* L);
+void ma_mission_list_draw();
+int hide_original_missions(lua_State* L); // кадровая отрисовка списка миссий
+// === ORIGINAL MISSION NAMES (21.11) ===
+int get_model_id_by_name(lua_State* L);
+int check_studio_gates(lua_State* L);
+int open_studio_gates(lua_State* L);

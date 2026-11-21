@@ -543,6 +543,8 @@ public: Message() {
             // «модуль+смещение» без Toolhelp в момент краха.
             ma_diag::dump_modules_once();
         }
+        ma_mission_list_draw(); // 21.11: постраничный список оригинальных миссий
+
         // 0) Сторожа кадра: пишут в журнал ТОЛЬКО при аномалии.
         ma_diag::msg_keepalive_purge();
         ma_diag::font_style_guard();

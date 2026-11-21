@@ -2395,5 +2395,21 @@ int funs(lua_State* L) {// список функций.
 
 	// === CAR GAS PEDAL (21.11) ===
 	lua_register(L, "set_car_gas", set_car_gas); // 21.11: m_fGasPedal +0x1F0 (тяга полёта)
+
+	// === MISSION LAUNCH (21.11) ===
+	lua_register(L, "start_mission", start_mission); // 21.11: запуск миссии (0417)
+	lua_register(L, "start_mission_orig", start_mission_orig); // 21.11: запуск миссии (0417) с подготовкой
+
+	// === ORIGINAL MISSION NAMES (21.11) ===
+	lua_register(L, "get_original_mission_name", get_original_mission_name); // 21.11: оригинальные миссии
+	lua_register(L, "get_original_mission_script", get_original_mission_script); // 21.11: оригинальные миссии
+	lua_register(L, "show_original_mission", show_original_mission); // 21.11: оригинальные миссии
+	lua_register(L, "show_original_missions", show_original_missions); // 21.11: оригинальные миссии
+	lua_register(L, "hide_original_missions", hide_original_missions); // 21.11: закрыть список миссий
+	lua_register(L, "start_mission_original", start_mission_original); // 21.11: оригинальные миссии
+	lua_register(L, "get_model_id_by_name", get_model_id_by_name); // получить id модели по имени
+	lua_register(L, "check_studio_gates", check_studio_gates); // диагностика ворот киностудии
+	lua_register(L, "open_studio_gates", open_studio_gates); // убрать закрытые ворота и поставить открытые
 return 0;
 };
+
