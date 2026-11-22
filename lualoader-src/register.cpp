@@ -2442,6 +2442,17 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "list_flags", list_flags);
 	lua_register(L, "keep_rc", keep_rc);
 	lua_register(L, "get_mem_addr", get_mem_addr);
+	lua_register(L, "force_rc_autopilot", force_rc_autopilot);
+	lua_register(L, "press_fire", press_fire);
+	lua_register(L, "release_fire", release_fire);
+	lua_register(L, "set_script_int", set_script_int);
+	lua_register(L, "get_script_int", get_script_int);
+	lua_register(L, "set_pad_controls", set_pad_controls);
+	lua_register(L, "sys_key_down", sys_key_down);
+	lua_register(L, "sys_key_up", sys_key_up);
+	lua_register(L, "sys_mouse_down", sys_mouse_down);
+	lua_register(L, "sys_mouse_up", sys_mouse_up);
+	lua_register(L, "find_all_peds_by_model", find_all_peds_by_model);
 return 0;
 };
 

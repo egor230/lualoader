@@ -9790,14 +9790,22 @@ int findcar_nearest_in_cord(lua_State* L) {// найти ближайшее ав
 			float x = lua_tointeger(L, 1); float y = lua_tonumber(L, 2); float z = lua_tonumber(L, 3);	CVector pos = { x, y, z };// вектор координат.
 			CPed* p = FindPlayerPed(); CVehicle* v = NULL;
 
-			if (p->m_bInVehicle && p->m_pVehicle != NULL) {// в авто пед?
-				CVehicle* v = p->m_pVehicle;	}// получить указатель на хенлд авто в котором сидит томии.
-
-			for (float radius = 1.0; radius < 101.0; radius++) {
-				for (auto car : CPools::ms_pVehiclePool) {
-      			  if (car != v && CVector::Distance(car->GetPosition(), pos) < radius) {
-					  lua_pushboolean(L, true); lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
-						return 2;	}	}	}
+			if (p != nullptr && p->m_bInVehicle && p->m_pVehicle != NULL) {
+				v = p->m_pVehicle;
+			}
+			// Безопасный перебор по индексу: range-based итератор пула падал
+			// (READ 0x0C) сразу после старта миссии, когда пул в переходном состоянии.
+			auto* pool = CPools::ms_pVehiclePool;
+			if (pool != nullptr) {
+				for (int idx = 0; idx < pool->m_nSize; idx++) {
+					CVehicle* car = pool->GetAt(idx);
+					if (car == nullptr || car == v) continue;
+					if (CVector::Distance(car->GetPosition(), pos) < 100.0f) {
+						lua_pushboolean(L, true); lua_pushlightuserdata(L, car);
+						return 2;
+					}
+				}
+			}
 			CVehicle* car = NULL;
 			lua_pushboolean(L, false); lua_pushlightuserdata(L, car);// отправить в стек и получить из стека можно
 			return 2;
@@ -15646,16 +15654,13 @@ int plane_goto_coords(lua_State* L) {// plane_goto_coords(car, x, y, z[, speed])
 			if (car->m_nModelIndex == 194)
 				savedStatus = *((unsigned char*)((char*)car + 0x50));
 
-			// ПУНКТ 2 (автопилот) УБРАН: для RC (194) НЕ вызываем команду полёта,
-			// чтобы игрок мог вести самолёт вручную и проверить, будет ли вылет.
-			if (car->m_nModelIndex != 194)
-				Command<COMMAND_PLANE_GOTO_COORDS>(CPools::GetVehicleRef(car), x, y, z, speed);
+			// АВТОПИЛОТ: вызываем команду полёта ДЛЯ ВСЕХ моделей, включая RC (194).
+			// именно она заставляет самолёт ЛЕТЕТЬ САМ к координатам (x,y,z).
+			Command<COMMAND_PLANE_GOTO_COORDS>(CPools::GetVehicleRef(car), x, y, z, speed);
 
-			if (car->m_nModelIndex == 194) {
-				unsigned char* fl = (unsigned char*)((char*)car + 0x50);
-				*fl = (unsigned char)((savedStatus & 0x07) | (*fl & ~0x07)); // вернуть только status (биты 3-7)
-				*fl = savedStatus;                                          // полностью исходный байт
-			}
+			// НЕ восстанавливаем статус: после COMMAND_PLANE_GOTO_COORDS самолёт
+			// остаётся в STATUS_PHYSICS, и автопилот SteerAIPlaneTowardsTargetCoors
+			// ведёт его к точке. Игрок при этом НЕ управляет самолётом.
 			return 0;
 		}
 		else { throw "bad argument in function plane_goto_coords(car,x,y,z[,speed])"; }
@@ -35383,4 +35388,158 @@ int get_mem_addr(lua_State* L) {
     else if (!strcmp(n,"VEHICLE_PTR_OFF"))a = 0x3A8;     // CPed::m_pVehicle
     else if (!strcmp(n,"IN_VEHICLE_OFF"))a = 0x3AC;      // m_bInVehicle
     lua_pushinteger(L, (lua_Integer)a); return 1;
+}
+
+// === ПРИНУДИТЕЛЬНЫЙ РЕЖИМ ПОЛЁТА ДЛЯ RC-САМОЛЁТА (22.11.2026) ===
+// Проблема: RC Baron при STATUS_PLAYER_REMOTE слушает пульт (FlyingControl RCPLANE)
+// и НЕ реагирует на автопилот plane_goto_coords. Нужно снять remote-режим и
+// поставить STATUS_PHYSICS — тогда SteerAIPlaneTowardsTargetCoors ведёт его к цели.
+int force_rc_autopilot(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    const void* p = lua_topointer(L, 1);
+    CVehicle* car = findcarinpool(p);
+    if (!car) { lua_pushboolean(L, false); return 1; }
+
+    // 1) снять STATUS_PLAYER_REMOTE (10) -> STATUS_PHYSICS (3), биты 3-7 по +0x50
+    unsigned char* flags = (unsigned char*)((char*)car + 0x50);
+    unsigned char before = *flags;
+    *flags = (unsigned char)((*flags & 0x07) | (3 << 3));   // STATUS_PHYSICS
+
+    // 2) разблокировать dveri/управление
+    car->bIsLocked = false;
+    // 3) автопилот: убрать remote-машину у игрока
+    CPlayerInfo* info = &CWorld::Players[CWorld::PlayerInFocus];
+    if (*(CVehicle**)((char*)info + 0x4) == car)
+        *(CVehicle**)((char*)info + 0x4) = nullptr;
+
+    char b[220];
+    CVector pos = car->GetPosition();
+    snprintf(b, sizeof(b), "force_rc_autopilot: status 0x%X->0x%X model=%d mission=%d speed=%.3f pos=%.1f %.1f %.1f",
+             (unsigned)before, (unsigned)*flags, car->m_nModelIndex,
+             (int)car->m_autoPilot.m_nCarMission, car->m_vecMoveSpeed.Magnitude(),
+             pos.x, pos.y, pos.z);
+    writelog(b);
+    lua_pushboolean(L, true); return 1;
+}
+
+// === ЭМУЛЯЦИЯ ЛКМ (левая кнопка мыши) для сброса бомбы (22.11.2026) ===
+// CPad::NewMouseControllerState.lmb — первое поле (offset 0) структуры.
+// press_fire() выставляет lmb=1 на короткое время в игровом потоке,
+// игра читает это как нажатие огня -> RC-самолёт сбрасывает бомбу.
+int press_fire(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    // Адрес NewMouseControllerState из базы (v1.0 EN): 0x9B5F8C (CPad+static).
+    // Используем прямой доступ через CPad (надёжнее).
+    try {
+        // CPad::GetPad(0)->NewMouseControllerState — static ref, пишем через known addr
+        // Найдём адрес через ma_w8 с запасным вариантом.
+        unsigned int addr = 0x9B5F8C; // NewMouseControllerState (lmb) — fallback
+        ma_w8(addr, 1);
+        // через 2 кадра игра сама сбросит; повторный вызов в Lua снимет
+        lua_pushboolean(L, true);
+    } catch (...) { lua_pushboolean(L, false); }
+    return 1;
+}
+int release_fire(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    ma_w8(0x9B5F8C, 0);
+    lua_pushboolean(L, true); return 1;
+}
+
+// === ЗАПИСЬ SCM-ПЕРЕМЕННОЙ (int) по индексу $NNNN (22.11.2026) ===
+// Смещение в ScriptSpace = var_index * 4 (по правилам SCM).
+// Например $5872 (счётчик этапов миссии 61) = ScriptSpace[5872*4].
+int set_script_int(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    int idx = (int)lua_tointeger(L, 1);
+    int val = (int)lua_tointeger(L, 2);
+    unsigned int off = (unsigned int)idx * 4;
+    if (off + 4 <= sizeof(CTheScripts::ScriptSpace)) {
+        *(int*)(&CTheScripts::ScriptSpace[off]) = val;
+        lua_pushboolean(L, true);
+    } else lua_pushboolean(L, false);
+    return 1;
+}
+int get_script_int(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    int idx = (int)lua_tointeger(L, 1);
+    unsigned int off = (unsigned int)idx * 4;
+    if (off + 4 <= sizeof(CTheScripts::ScriptSpace)) {
+        lua_pushinteger(L, *(int*)(&CTheScripts::ScriptSpace[off]));
+    } else lua_pushinteger(L, -1);
+    return 1;
+}
+
+// === LOW-LEVEL ЭМУЛЯЦИЯ УПРАВЛЕНИЯ (22.11.2026) ===
+// CPad::GetPad(0)->NewState (CControllerState) по адресу 0x9B491C (GTA VC 1.0 EN).
+// Поля (signed short): LeftStickX @0x0, LeftStickY @0x2, RightStickX @0x4,
+// RightStickY @0x6, ButtonCross @0x20 (газ), ButtonCircle @0x22 (огонь/бомба).
+// set_pad_controls(lx,ly,rx,ry,cross,circle) —directly пишет ввод в игру.
+int set_pad_controls(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    static const unsigned int PADS[2] = { 0x9B491C, 0x9B491C + 0x6C }; // NewState и PCTempKeyState
+    short lx = (short)lua_tointeger(L, 1);
+    short ly = (short)lua_tointeger(L, 2);
+    short rx = (short)lua_tointeger(L, 3);
+    short ry = (short)lua_tointeger(L, 4);
+    short cross = (short)lua_tointeger(L, 5);
+    short circle = (short)lua_tointeger(L, 6);
+    for (unsigned int PAD : PADS) {
+        *(short*)(PAD + 0x00) = lx;      // LeftStickX — руль A/D
+        *(short*)(PAD + 0x02) = ly;      // LeftStickY — W/S
+        *(short*)(PAD + 0x04) = rx;      // RightStickX — numpad 6/4 (наклон)
+        *(short*)(PAD + 0x06) = ry;      // RightStickY
+        *(short*)(PAD + 0x20) = cross;   // ButtonCross — газ (W)
+        *(short*)(PAD + 0x22) = circle;  // ButtonCircle — огонь/бомба (ЛКМ)
+    }
+    lua_pushboolean(L, true); return 1;
+}
+
+// === СИСТЕМНАЯ ЭМУЛЯЦИЯ КЛАВИШИ (уровень ОС, через keybd_event) ===
+// key_down(0x57) / key_up(0x57) — реальное нажатие/отпускание W в Windows/Wine.
+// keybd_event ставит событие в системную очередь ввода, игра получает его
+// как обычную клавишу — это НЕ запись в память CPad.
+int sys_key_down(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    BYTE vk = (BYTE)lua_tointeger(L, 1);
+    keybd_event(vk, 0, 0, 0);                    // KEYEVENTF_KEYDOWN
+    lua_pushboolean(L, true); return 1;
+}
+int sys_key_up(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    BYTE vk = (BYTE)lua_tointeger(L, 1);
+    keybd_event(vk, 0, KEYEVENTF_KEYUP, 0);      // отпустить
+    lua_pushboolean(L, true); return 1;
+}
+
+// === СИСТЕМНАЯ ЭМУЛЯЦИЯ ЛКМ (mouse_event, уровень ОС) ===
+int sys_mouse_down(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+    lua_pushboolean(L, true); return 1;
+}
+int sys_mouse_up(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+    lua_pushboolean(L, true); return 1;
+}
+
+// === РАДАР: все педы заданной модели из пула (22.11.2026) ===
+// find_ped_by_model возвращает только ПЕРВОГО —这里 перебираем весь пул.
+int find_all_peds_by_model(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    int model = (int)lua_tointeger(L, 1);
+    lua_newtable(L);
+    int n = 1;
+    if (CPools::ms_pPedPool) {
+        for (int i = 0; i < CPools::ms_pPedPool->m_nSize; i++) {
+            CPed* ped = CPools::ms_pPedPool->GetAt(i);
+            if (ped != nullptr && ped->m_nModelIndex == model) {
+                lua_pushlightuserdata(L, ped);
+                lua_rawseti(L, -2, n++);   // table[n] = ped
+            }
+        }
+    }
+    lua_pushinteger(L, n - 1);   // вернуть количество
+    return 2;
 }

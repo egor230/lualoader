@@ -159,9 +159,35 @@ static void script_thread_main(std::shared_ptr<ScriptRec> rec, std::string dumpe
     lua_sethook(T, script_stop_hook, LUA_MASKCOUNT, 2000);
     ma_diag::set_thread_name(rec->file.c_str());
 
-    int st = luaL_loadfile(T, rec->file.c_str());
+    // === ЗАГРУЗКА СКРИПТА С ЛЮБЫМ ИМЕНЕМ (русские, пробелы, 23.11) ===
+    // luaL_loadfile использует ANSI-путь и НЕ открывает файлы с кириллицей в Wine.
+    // Читаем файл бинарно через std::ifstream (std::filesystem::path — UTF-8,
+    // на Windows stream принимает широкий путь) и грузим из буфера.
+    int st = LUA_ERRFILE;
+    {
+        // Конвертируем UTF-8 имя -> широкий путь и открываем через _wfopen.
+        //belt: так русские имена и пробелы работают и в Wine.
+        int wlen = MultiByteToWideChar(CP_UTF8, 0, rec->file.c_str(), -1, nullptr, 0);
+        std::wstring wide(wlen > 0 ? wlen : 1, L'\0');
+        if (wlen > 0) MultiByteToWideChar(CP_UTF8, 0, rec->file.c_str(), -1, &wide[0], wlen);
+        FILE* f = (wlen > 0) ? _wfopen(wide.c_str(), L"rb") : nullptr;
+        if (f) {
+            fseek(f, 0, SEEK_END); long sz = ftell(f); fseek(f, 0, SEEK_SET);
+            std::string buf(sz > 0 ? sz : 0, '\0');
+            if (sz > 0) fread(&buf[0], 1, sz, f);
+            fclose(f);
+            // luaL_loadfile пропускает UTF-8 BOM, luaL_loadbuffer — нет: убрать вручную
+            size_t boff = 0;
+            if (buf.size() >= 3 && (unsigned char)buf[0] == 0xEF &&
+                (unsigned char)buf[1] == 0xBB && (unsigned char)buf[2] == 0xBF) boff = 3;
+            st = luaL_loadbuffer(T, buf.data() + boff, buf.size() - boff, ("@" + rec->file).c_str());
+        } else {
+            // запасной вариант: ANSI-путь (для ASCII-имён)
+            st = luaL_loadfile(T, rec->file.c_str());
+        }
+    }
     if (st != LUA_OK) {
-        log_lua_error(T, "luaL_loadfile");
+        log_lua_error(T, "luaL_loadbuffer/loadfile");
         rec->done.store(true);
         return;
     }
