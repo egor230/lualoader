@@ -2860,6 +2860,8 @@ int press_fire(lua_State* L);
 int release_fire(lua_State* L);
 int set_script_int(lua_State* L);
 int get_script_int(lua_State* L);
+int set_all_timers_99(lua_State* L);   // все убывающие таймеры миссий -> 99 минут (сохранить original)
+int restore_all_timers(lua_State* L);  // вернуть таймеры к значениям до вызова set_all_timers_99
 int set_pad_controls(lua_State* L);
 int sys_key_down(lua_State* L);
 int sys_key_up(lua_State* L);

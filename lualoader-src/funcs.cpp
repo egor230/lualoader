@@ -35470,6 +35470,67 @@ int get_script_int(lua_State* L) {
     return 1;
 }
 
+// === ВСЕ УБЫВАЮЩИЕ ТАЙМЕРЫ МИССИЙ (23.11.2026) ===
+// Переменные SCM, которые показываются через DISPLAY_ONSCREEN_TIMER (014E/03C3)
+// и уменьшаются игрой. Список собран из ВСЕХ исходников миссий:
+//   Source missions/Оригинал игры (97 миссий) — 32 переменные.
+// set_all_timers_99()  — сохранить текущие значения и поставить 99 минут всем.
+// restore_all_timers() — вернуть ровно те значения, что были до вызова.
+static const int k_all_mission_timers[] = {
+    1614, 1747, 3402, 3677, 3918, 3919, 4087, 4566,
+    4635, 5253, 5281, 5389, 5700, 5751, 5790, 6142,
+    6400, 6685, 6714, 6740, 6841, 6900, 6997, 7196,
+    7237, 7442, 7878, 8012, 8049, 8229, 8474, 8580
+};
+static const int k_timer_count = (int)(sizeof(k_all_mission_timers) / sizeof(k_all_mission_timers[0]));
+static int g_saved_mission_timers[k_timer_count] = {};
+static bool g_mission_timers_saved = false;
+static const int k_timers_99_ms = 99 * 60 * 1000;   // 99 минут = 5 940 000 мс
+
+int set_all_timers_99(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    int n = 0;
+    for (int i = 0; i < k_timer_count; ++i) {
+        unsigned int off = (unsigned int)k_all_mission_timers[i] * 4;
+        if (off + 4 <= sizeof(CTheScripts::ScriptSpace)) {
+            int* p = (int*)(&CTheScripts::ScriptSpace[off]);
+            g_saved_mission_timers[i] = *p;   // запоминаем original
+            *p = k_timers_99_ms;              // 99 минут
+            ++n;
+        }
+    }
+    g_mission_timers_saved = true;
+    char dbg[160];
+    _snprintf_s(dbg, sizeof(dbg), _TRUNCATE,
+        "TIMERS99: сохранено и выставлено 99 мин (%d мс) для %d таймеров", k_timers_99_ms, n);
+    writelog(dbg);
+    lua_pushinteger(L, n);
+    return 1;
+}
+
+int restore_all_timers(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    if (!g_mission_timers_saved) {
+        writelog("TIMERS99: нечего восстанавливать — сначала вызови set_all_timers_99()");
+        lua_pushinteger(L, 0);
+        return 1;
+    }
+    int n = 0;
+    for (int i = 0; i < k_timer_count; ++i) {
+        unsigned int off = (unsigned int)k_all_mission_timers[i] * 4;
+        if (off + 4 <= sizeof(CTheScripts::ScriptSpace)) {
+            *(int*)(&CTheScripts::ScriptSpace[off]) = g_saved_mission_timers[i];
+            ++n;
+        }
+    }
+    g_mission_timers_saved = false;
+    char dbg[160];
+    _snprintf_s(dbg, sizeof(dbg), _TRUNCATE, "TIMERS99: восстановлено исходных значений: %d", n);
+    writelog(dbg);
+    lua_pushinteger(L, n);
+    return 1;
+}
+
 // === LOW-LEVEL ЭМУЛЯЦИЯ УПРАВЛЕНИЯ (22.11.2026) ===
 // CPad::GetPad(0)->NewState (CControllerState) по адресу 0x9B491C (GTA VC 1.0 EN).
 // Поля (signed short): LeftStickX @0x0, LeftStickY @0x2, RightStickX @0x4,

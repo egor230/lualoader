@@ -2447,6 +2447,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "release_fire", release_fire);
 	lua_register(L, "set_script_int", set_script_int);
 	lua_register(L, "get_script_int", get_script_int);
+	lua_register(L, "set_all_timers_99", set_all_timers_99);    // 23.11: все убывающие таймеры -> 99 мин
+	lua_register(L, "restore_all_timers", restore_all_timers);  // 23.11: вернуть исходные значения таймеров
 	lua_register(L, "set_pad_controls", set_pad_controls);
 	lua_register(L, "sys_key_down", sys_key_down);
 	lua_register(L, "sys_key_up", sys_key_up);

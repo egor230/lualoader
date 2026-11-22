@@ -132,7 +132,7 @@ function main()
   while true do
     wait(10)
     local player = findplayer()
-    if player ~= nil and not busy and Keypress("VK_G") then
+    if player ~= nil and not busy and cheat("bombs") then
       busy = true
 
       -- посадка в грузовик (как в миссии)
