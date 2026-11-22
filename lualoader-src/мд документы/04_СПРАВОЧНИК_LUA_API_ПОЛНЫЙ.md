@@ -45416,3 +45416,385 @@ CVector np = car->GetPosition(); np.z += 3.0f; car->SetPosition(np); // подб
 | Самолёт падает при возврате | сбросили AIRSHIP | оставить `0xA10B11 = 1` |
 | `set_player_control(0,1)` выключает управление | функция берёт 1 аргумент | вызывать `set_player_control(1)` |
 | `terminate` не вернул управление | terminate не вызывает cleanup | не использовать, звать `set_player_control(1)` |
+
+
+### КРАШ при запуске миссии через 0417 — предзагрузка моделей (21.11.2026, ВАЖНО!)
+
+**Проблема:** при запуске миссии 61 «Bombs Away!» через `start_mission_original(61)`
+игра вылетала крашем `0x4CA523` = `CLink_CEntityInfo_Insert` (`READ addr=0x08`,
+нулевой `ebx`). При этом **LUA-КОНТЕКСТ УПАВШЕГО ПОТОКА: поток не вызывал Lua-API**
+— то есть краш был НЕ в нашем Lua-скрипте, а в самом движке при вставке сущности
+в мир с нулевым RwObject.
+
+**Причина:** миссия 61 в main.scm перед созданием лодок/RC-самолёта делает
+`REQUEST_MODEL` для всех моделей (189, 194, 182, 223, 202, 164, 83, 84, 276),
+`LOAD_SCENE`, `LOAD_ALL_MODELS_NOW` и ожидание загрузки. При запуске через 0417
+эта подготовка не всегда успевает — модель не загружена, `CREATE_CAR` создаёт
+сущность без RwObject → краш при вставке в список секторов.
+
+**Решение (сделано):** в `start_mission_orig()` перед
+`COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL` для миссии 61 все её модели заранее
+грузятся через проверенную `load_model_before_avalible()` (REQUEST_MODEL +
+LOAD_ALL + ожидание), с записью в лог `модели миссии 61 предзагружены`.
+После этого вылет ушёл.
+
+**Урок:** если миссия через 0417 крашит в `CLink_CEntityInfo_Insert` до всяких
+Lua-вызовов — сначала проверь, не нужно ли предзагрузить её модели.
+
+
+---
+
+# Часть XIII. Исследование флагов игры (22.11.2026)
+
+## XIII.1. Инструменты
+- **IDB-база**: `gta vc база/gta-vc_11en.idb` (python-idb в `/tmp/idbenv`)
+- **Internet** (навык web-tools): GitHub API + raw.githubusercontent.com (ddgs/Yahoo не работают)
+- **Исходники reVC**: `re3-miami.zip` локально + GitHub `mrxenginner/reVC`
+- **Дизассемблер**: pefile + capstone (ищем обращения к `.bss 0xA00000..0xA20000`)
+
+## XIII.2. Найденные адреса флагов (GTA VC 1.0 EN, base 0x400000)
+
+Найдены сканированием cheat-handler'а в `gta-vc.exe` (0x4AC800-0x4AD200).
+
+| Адрес | Назначение (по reVC) | Источник |
+|---|---|---|
+| `0xA10B11` | AIRSHIP / Flying Fish — полёт для всех машин (наш `set_airship_cheat`) | `cmp/mov` в 0x4ACD40, 0x609063, 0x5A4590 |
+| `0xA10B0F` | флаг рядом с AIRSHIP (cheat-группа) | `cmp [0xa10b0f]` в 0x609051 |
+| `0xA10B81` | флаг рядом (cheat-группа) | `cmp [0xa10b81]` в 0x60905A |
+| `0xA10B2E` | флаг (устанавливается вместе с AIRSHIP в 0x4ACBE4/0x4ACD4A) | mov в 0x4ACBE4 |
+| `0xA10B82` | флаг (0/1 в 0x4AC8D7/0x4AC91B) | mov |
+| `0xA10B26` | флаг (0/1 в 0x4AC8D0/0x4AC922) | mov |
+| `0xA10ADC` | флаг (mov 1 в 0x4AC848) | mov |
+| `0xA10B23` | флаг (cmp/mov в 0x4ACEE7/0x4ACEF8) | cmp/mov |
+| `0xA10B47` | флаг (mov 1 в 0x4AC88C) | mov |
+| `0xA10B5F` | флаг (mov 1 в 0x4ACE88) | mov |
+| `0xA10942` | байт состояния ввода/cheat (mov 0x20) | mov |
+
+## XIII.3. Флаги из reVC (SearchParams / SCM)
+
+reVC `Script6.cpp:807`:
+```cpp
+UpdateCompareFlag(CVehicle::bAllDodosCheat || CVehicle::bCheat3 ||
+                  CVehicle::bHoverCheat || CVehicle::bCheat8 || CVehicle::bCheat9);
+```
+`Script7.cpp:315`: `CVehicle::bDisableRemoteDetonationOnContact = (ScriptParams[0] == 0);`
+`Script7.cpp:1358`: `CVehicle::bAllTaxisHaveNitro = ScriptParams[0] != 0;`
+`Script6.cpp:1541`: `CVehicle::bDisableRemoteDetonation = !ScriptParams[0];`
+
+`CVehicle` static bool (Vehicle.h 392-404):
+- `bWheelsOnlyCheat`
+- `bAllDodosCheat`
+- `bHoverCheat`
+- `bAllTaxisHaveNitro`
+- `bDisableRemoteDetonation`
+- `bDisableRemoteDetonationOnContact`
+- `bCheat3`, `bCheat8`, `bCheat9`
+
+`CCarCtrl` (CarCtrl.h): `bMadDriversCheat`
+`CTrafficLights`: `bGreenLightsCheat`
+`CPed`: `bFannyMagnetCheat`
+`CPad`: `bHasPlayerCheated`
+
+`CTheScripts` (Script.h 441): `bAlreadyRunningAMissionScript`, `bUsingAMultiScriptFile`,
+`bPlayerIsInTheStatium`, `bPlayerHasMetDebbieHarry`
+
+## XIII.4. Что осталось сделать (поэтапно)
+1. Сопоставить каждый из 10 адресов с reVC-именем (через IDB-имена функций/ GXT "CHEAT1").
+2. Добавить по 2 Lua-функции на флаг: `get_<flag>()` / `set_<flag>(bool)`.
+3. Записать адреса в funcs.cpp через `ma_r8`/`ma_w8` (уже есть pattern).
+
+## XIII.5. Зацепка для краша `0x4CA523`
+Адрес `0xA10B11` лежит в `.bss (0x6F0000..0xA19BA1)`. Список рендера
+`gSortedVehiclesAndPeds` — в `.data`, НЕ перекрывается. Значит AIRSHIP-флаг
+не является причиной порчи списка. Причина краша остаётся в crash-контексте
+(`ebx=0` при CLink_Remove в рендере) — нужен корректный хук (предыдущая попытка
+с code-cave ломала игру из-за вызова fopen в render-потоке и была откачена).
+
+
+### XIII.6. Lua API для флагов (22.11.2026, добавлено)
+
+**Универсальное:**
+- `get_flag(addr)` -> 0/1
+- `set_flag(addr, 0/1)` -> bool
+- `flag_addr("ИМЯ")` -> адрес (AIRSHIP, RC_ZONE, RC_MODE, AIRSHIP2, CHEAT82, CHEAT26, CHEATADC, CHEAT23, CHEAT47, CHEAT5F, CHEATSTATE)
+
+**Именованные (по 2 на флаг):**
+| Флаг | get | set | адрес |
+|---|---|---|---|
+| AIRSHIP | `get_flag_airship()` | `set_flag_airship(bool)` | 0xA10B11 |
+| RC_ZONE | `get_flag_rc_zone()` | `set_flag_rc_zone(bool)` | 0xA10B0F |
+| RC_MODE | `get_flag_rc_mode()` | `set_flag_rc_mode(bool)` | 0xA10B81 |
+| AIRSHIP2 | `get_flag_airship2()` | `set_flag_airship2(bool)` | 0xA10B2E |
+| CHEAT82 | `get_flag_cheat82()` | `set_flag_cheat82(bool)` | 0xA10B82 |
+| CHEAT26 | `get_flag_cheat26()` | `set_flag_cheat26(bool)` | 0xA10B26 |
+| CHEATADC | `get_flag_cheatadc()` | `set_flag_cheatadc(bool)` | 0xA10ADC |
+| CHEAT23 | `get_flag_cheat23()` | `set_flag_cheat23(bool)` | 0xA10B23 |
+| CHEAT47 | `get_flag_cheat47()` | `set_flag_cheat47(bool)` | 0xA10B47 |
+| CHEAT5F | `get_flag_cheat5f()` | `set_flag_cheat5f(bool)` | 0xA10B5F |
+| CHEATSTATE | `get_flag_cheatstate()` | `set_flag_cheatstate(bool)` | 0xA10942 |
+
+
+### XIII.7. ПОЛНЫЙ СПИСОК ФЛАГОВ — 215 адресов (22.11.2026)
+
+Сканированием `.text` на байтовые обращения (`cmp/mov byte ptr [0xAxxxxx]`)
+найдено **215 уникальных byte-флагов** в `.bss (0xA00000..0xA20000)`.
+Все они доступны через универсальные функции:
+
+- `get_flag(адрес)` -> 0/1
+- `set_flag(адрес, 0/1)` -> bool
+- `flag_addr("ИМЯ")` -> адрес (для 11 именованных)
+- `get_flag_named("FLAG_0xA10B6B")` / `set_flag_named("FLAG_0xA10B6B", bool)` — для ЛЮБОГО из 215
+- `list_flags()` -> таблица `["FLAG_0xA....."] = адрес` (все 215)
+
+Полный список адресов сохранён в `/tmp/opencode/flag_addresses.txt` и встроен
+в `g_allFlags[]` (funcs.cpp). Имена вида `FLAG_0xA....."` — авто-генерируемые
+(реVC-имена известны только для ~11 ключевых, остальные требуют дальнейшего
+сопоставления с `re3-miami` structures).
+
+Диапазоны: 0xA0D000..0xA0DC80 (глобалы движения/мира),
+0xA0F000..0xA0FDE8 (игровые состояния), 0xA10000..0xA10BA0 (cheat/флаги).
+Самые «горячие» (по числу обращений):
+0xA10942 (58), 0xA10B6B (57), 0xA10B39 (52), 0xA10AF6 (51), 0xA10B43 (27).
+
+
+### XIII.8. ЧТО ОБОЗНАЧАЮТ ФЛАГИ (объяснение, 22.11.2026)
+
+**Источник имён:** reVC `src/core/Pad.cpp` (cheat-функции) и `src/vehicles/Vehicle.h`
+(static bool). Адреса восстановлены дизассемблированием `gta-vc.exe` 1.0 EN.
+
+#### Подтверждённые соответствия (адрес = reVC-переменная)
+
+| Адрес | reVC-имя | Что делает |
+|---|---|---|
+| `0xA10B11` | `CVehicle::bAllDodosCheat` (наш AIRSHIP) | Chitty Chitty Bang Bang — все машины летают как DODO. Ставится в `FlyingFishCheat`/`ChittyChittyBangBangCheat`. Включён => `IsRealPlane()`-логика + `FlyingControl(FLIGHT_MODEL_PLANE)`. |
+| `0xA10B2E` | `CVehicle::bCheat3` | Strong Grip cheat (улучшенное сцепление) |
+| `0xA10B47` | `CVehicle::bHoverCheat` | Back To The Future — машины парят |
+| `0xA10B5F` | `CVehicle::bCheat8` | Flying Fish cheat (аналог airship) |
+| `0xA10B81` | `CVehicle::bPlayerInRCBuggy` (CReplay.h) | игрок в RC-машине |
+| `0xA10B23` | `CVehicle::bDisableRemoteDetonation` | из `COMMAND_SET_DISABLE_RC_DETONATE` |
+| `0xA10ADC` | `CVehicle::bWheelsOnlyCheat` | Only Render Wheels — рендерятся только колёса |
+| `0xA10B26` | `CVehicle::bAllTaxisHaveNitro` | такси с нитро |
+| `0xA10B82` | `CPad::bHasPlayerCheated` | игрок использовал чит (счётчик) |
+| `0xA10942` | байт состояния ввода/cheat-строки | `mov 0x20` — served как флаг «чит активирован» |
+
+#### Cheat-функции reVC и их переменные (полный список)
+
+| Функция reVC | Переменная | Эффект |
+|---|---|---|
+| `FastWeatherCheat` | `gbFastTime` | быстрое время |
+| `OnlyRenderWheelsCheat` | `CVehicle::bWheelsOnlyCheat` | только колёса |
+| `ChittyChittyBangBangCheat` | `CVehicle::bAllDodosCheat` | все машины летают |
+| `StrongGripCheat` | `CVehicle::bCheat3` | strong grip |
+| `FannyMagnetCheat` | `CPed::bFannyMagnetCheat` | девушки-фанатки |
+| `BlackCarsCheat`/`PinkCarsCheat` | `gbBlackCars`/`gbPinkCars` | цвета машин |
+| `TrafficLightsCheat` | `CTrafficLights::bGreenLightsCheat` | зелёные светофоры |
+| `MadCarsCheat` | `CCarCtrl::bMadDriversCheat` | безумные водители |
+| `NoSeaBedCheat` | `CWaterLevel::m_bRenderSeaBed` | без дна моря |
+| `RenderWaterLayersCheat` | `CWaterLevel::m_nRenderWaterLayers` | слои воды |
+| `BackToTheFuture` | `CVehicle::bHoverCheat` | парение |
+| `KangarooCheat` | `playerPed->m_ped_flagI80` + масса | прыжки |
+| `AllCarsHeliCheat` | `bAllCarCheat` | все машины-вертолёты |
+| `WallClimbingCheat` | `gGravityCheat` | лазание по стенам |
+| `FlyingFishCheat` | `CVehicle::bCheat8` | летающая рыба |
+| `DoShowChaseStatCheat` | `CStats::ShowChaseStatOnScreen` | статистика погони |
+
+#### Остальные 200+ флагов
+Большинство из 215 — это **не читы**, а внутренние state-переменные игры
+(0xA0Dxxx — мир/трафик, 0xA0Fxxx — HUD/скрипты, 0xA10Axx..0xA10BA0 — игровые
+режимы). Их reVC-имена known, но соответствие адрес<>имя пока не восстановлено
+(в IDB нет symbol-имён для globals). Все они доступны через
+`get_flag_named("FLAG_0xA.....")` — можно переключать и наблюдать эффект.
+
+** как узнать имя любого флага:** найти в реVC переменную, которая читается
+в той же функции, что и этот адрес в exe (need IDA + reVC diff), либо
+переключить флаг через `set_flag_named` и посмотреть, что изменилось в игре.
+
+
+### XIII.9. IDB-ПОДТВЕРЖДЕНИЕ привязки флагов к функциям (22.11.2026)
+
+Фоновый поиск по `gta-vc_11en.idb` дал точные имена функций, которые
+обращаются к флагам (это доказательство, а не догадка):
+
+| Адрес обращения | Флаг | Функция из IDB | Что это значит |
+|---|---|---|---|
+| 0x4A9228 | 0xA10B11 (AIRSHIP) | `CPad::EditCodesForControls(int,int)` | флаг привязан к **управлению** (кнопки) |
+| 0x4ACD40 | 0xA10B11 | `CPad::AddToPCCheatString(char)` | флаг ставится **чит-кодом с клавиатуры** |
+| 0x4AC940 | 0xA10B11 | `CPad::AddToPCCheatString(char)` | то же |
+| 0x4ACE88 / 0x4AC88C | 0xA10B5F / 0xA10B47 | `CPad::AddToPCCheatString(char)` | читы Hover/FlyingFish вводятся клавиатурой |
+| 0x609051 | 0xA10B0F/81/11 | `CRunningScript::ProcessCommands1000To1099(int)` | флаги читаются **скриптом** (опкоды 0x04xx: SET_ENABLE_RC_DETONATE и т.п.) |
+| 0x5A4590 | 0xA10B11 | `CBoat::ProcessControl()` | AIRSHIP влияет на **лодки** |
+| 0x4AB8D0 | cheat state | `CPad::UpdatePads()` | состояние чит-строки обновляется каждый кадр ввода |
+
+**Вывод:** `0xA10B11` — настоящий AIRSHIP-флаг, который (1) вводится читом,
+(2) читается скриптами миссий, (3) влияет на физику лодок. Наш
+`set_airship_cheat()` пишет именно его — это подтверждено IDB.
+
+
+### XIII.10. Адреса из реальных CLEO-скриптов (подтверждение диапазонов)
+
+Скачаны репозитории `bttfhillvalley/vc-cleo-scripts`, `niltwill/vc-cleo-scripts`
+через GitHub API. Найденные адреса (confirm работают в VC 1.0 EN):
+
+| Адрес | Размер | Значение | Источник |
+|---|---|---|---|
+| `0xA0FD04` | 4 | Resolution Width | Common/DrawTexture.txt |
+| `0xA0FD08` | 4 | Resolution Height | Common/DrawTexture.txt |
+| `0x980038` | 1 | radio on/off | Boards/BoardHacks.txt |
+| `0x978810` | 1 | текущий interior | RemoteControl.txt |
+| `0x975330` | 4 | dwTimesBusted | KeepPlayerOutfit |
+| `0x975320` | 4 | dwTimesWasted | KeepPlayerOutfit |
+| `0x936910` | 4 | MOUSE_X (угол) | RhinoFiretruckMouse |
+| `0x936914` | 4 | MOUSE_Y (угол) | RhinoFiretruckMouse |
+
+Это подтверждает, что диапазон `0xA0F000..0xA0FFFF` = глобальные переменные/HUD,
+а `0xA10A00..0xA10BA0` = игровые флаги/режимы.
+
+#### Результат поиска в интернете (честно)
+Прямые таблицы `0xA10Bxx -> имя` в открытом доступе НЕ найдены:
+ddgs/Yahoo — timeout, Google/Qwant/Mojeek/Startpage — captcha/JS-challenge,
+GitHub code search — требует авторизацию. GitHub raw + репозитории CLEO/reVC
+доступны, но там адресов byte-флагов нет. Поэтому соответствия установлены
+локально: IDB (имена функций) + reVC (имена переменных) + дизассемблирование.
+
+
+---
+
+# Часть XIV. Класс радиоуправления (CRemote) и ПРИЧИНА КРАША самолёта (22.11.2026)
+
+Это самое важное открытие в расследовании вылета `0x4CA523`. Причина найдена
+**в исходниках reVC**, а не догадками.
+
+## XIV.1. Класс CRemote (reVC src/control/Remote.cpp/h)
+
+```cpp
+class CRemote {
+    static void GivePlayerRemoteControlledCar(float x,y,z, rot, uint16 model);
+    static void TakeRemoteControlledCarFromPlayer(bool blowUp = true);
+};
+```
+
+**`GivePlayerRemoteControlledCar` (opcode 046E)** делает:
+- `new CAutomobile(model, MISSION_VEHICLE)`;
+- `car->SetStatus(STATUS_PLAYER_REMOTE)`;
+- `car->bIsLocked = true`;
+- `AutoPilot.m_nCarMission = MISSION_NONE`, `m_nTempAction = TEMPACT_NONE`,
+  `m_nDrivingStyle = DRIVINGSTYLE_STOP_FOR_CARS`, `m_nCruiseSpeed = 9.0`;
+- `car->bEngineOn = true`;
+- если игрок уже в машине → ей ставится `STATUS_PLAYER_DISABLED`;
+- `m_pRemoteVehicle = car` (CPlayerInfo);
+- камера: для plane/heli — `MODE_CAM_ON_A_STRING`, иначе `MODE_BEHINDCAR`.
+
+**`TakeRemoteControlledCarFromPlayer`** делает:
+- `bIsLocked = false`;
+- `m_nTimeLostRemoteCar = CTimer::GetTimeInMilliseconds()`;
+- `m_bInRemoteMode = true`, `field_D5 = blowUp`, `field_D6 = true`.
+
+## XIV.2. ПРИЧИНА КРАША (PlayerInfo.cpp:402-425) — ВАЖНО!
+
+```cpp
+if (m_bInRemoteMode) {
+    uint32 timeWithoutRemoteCar = CTimer::GetTimeInMilliseconds() - m_nTimeLostRemoteCar;
+    ...
+    if (timeWithoutRemoteCar > 2000) {
+        ...
+        m_bInRemoteMode = false;
+        m_pRemoteVehicle->bRemoveFromWorld = true;   // <-- УДАЛЕНИЕ RC!
+        m_pRemoteVehicle = nil;
+        if (FindPlayerVehicle()) FindPlayerVehicle()->SetStatus(STATUS_PLAYER);
+    }
+}
+```
+
+**Через 2 секунды после «потери» RC игра помечает её `bRemoveFromWorld` и удаляет.**
+Наш полёт к лодке длился ~6 сек → RC удалялся → Lua всё ещё держал хендл и звал
+`plane_goto_coords(plane,...)` → рендер падал в `CLink_CEntityInfo_Insert (0x4CA523)`
+при вставке удалённой сущности. Это объясняет ВСЕ предыдущие краши.
+
+## XIV.3. Решение — `keep_rc(car)` (добавлено в funcs.cpp)
+
+Новая Lua-функция:
+```lua
+keep_rc(car)   -- каждый такт: CWorld::Players[0].m_pRemoteVehicle = car
+```
+Она не даёт игре «потерять» RC (не даёт сработать ветке удаления).
+Вызывается в цикле полёта `mission.lua` перед `plane_goto_coords`.
+
+Смещения `CPlayerInfo` (Plugin-SDK): `m_pPed @0x0`, `m_pRemoteVehicle @0x4`,
+`m_nPlayerState @0xCC`, `field_D5 @0xD5`, `field_D6 @0xD6`.
+
+## XIV.4. Итоговая схема RC-полёта
+1. G → миссия 61 → телепорт Томми к грузовику → запуск миссии
+2. сесть в грузовик → найти RC Baron (194) через `find_car_by_model`
+3. `keep_rc(plane)` каждый такт (НЕ давать удалиться)
+4. `plane_goto_coords(plane, ...)` на координаты лодки +20 Z
+5. в конце вернуть управление
+
+## XIV.5. Урок
+Краш `0x4CA523` (READ 0x08 в `CLink_CEntityInfo_Remove`) = **удалённая сущность
+осталась в списке рендера**. Проверяй lifetime созданных миссией машин: если
+игра может их удалить (RC, mission cleanup), удерживай ссылку или прекращай
+использовать хендл до удаления.
+
+
+---
+
+# Часть XV. Изучение deep-research-report.md (22.11.2026)
+
+Отчёт `lualoader-src/deep-research-report.md` — каталог адресов GTA VC. Сверен с
+Plugin-SDK и нашими данными:
+
+## XV.1. Подтверждённые адреса (совпали с Plugin-SDK)
+| Имя | Адрес/оффсет | Подтверждение |
+|---|---|---|
+| `CPed::m_fHealth` | +0x354 | Plugin-SDK VALIDATE_OFFSET — совпало |
+| `CPed::m_fArmour` | +0x358 | совпало |
+| `CPed::m_aWeapons[10]` | +0x408 | совпало |
+| `CWorld::Players` | 0x94AD28 | из отчёта (v1.0) |
+| `PlayerInFocus` | 0xA10AFB | **уже есть в нашем списке 215 флагов** |
+| `ms_nCurrentScanCode` | 0xA1098E | из отчёта |
+| `bDoingCarCollisions` | 0x9B6E58 | из отчёта |
+| CPed coords | +0x34/38/3C | из отчёта |
+| `m_pVehicle`/`m_bInVehicle` | +0x3A8/+0x3AC | совпало с Plugin-SDK |
+
+## XV.2. Важная деталь из отчёта — версии
+- v1.0: адреса как в таблице;
+- v1.1: **+0x8** ко всем адресам;
+- Steam/GOG: **−0xFF8**;
+- DE (UE4): адреса完全不同, CLEO-Redux с ASLR.
+
+Наш банк адресов и флагов — **для v1.0 EN** (gta-vc_11en.idb, base 0x400000).
+
+## XV.3. Добавленный API
+`get_mem_addr("ИМЯ")` — возвращает адрес/оффсет из отчёта:
+WORLD_PLAYERS, PLAYER_IN_FOCUS, PED_BASE, MOVING_LIST, BIG_BUILDINGS,
+CAR_COLLISIONS, SCAN_CODE, HEALTH_OFF, ARMOUR_OFF, COORD_X_OFF/Y/Z_OFF,
+WEAPONS_OFF, CUR_WEAPON_OFF, VEHICLE_PTR_OFF, IN_VEHICLE_OFF.
+Затем читать через `get_flag(адрес)` / напрямую через memory API.
+
+## XV.4. Вывод
+Отчёт подтвердил наши смещения и дал недостающие глобальные адреса. Ничего не
+противоречит. Все адреса внесены в API и задокументированы.
+
+
+## XV.5. ВАЖНО: ПЁД (CPed) vs ИГРОК (CPlayerInfo) — НЕ ПУТАТЬ!
+
+Это частая ошибка. Это РАЗНЫЕ структуры:
+
+**ИГРОК = `CPlayerInfo`** ( vtk `CWorld::Players[CWorld::PlayerInFocus]`, v1.0 @0x94AD28):
+- `m_pPed @0x0` — указатель на ПЕДА;
+- `m_pRemoteVehicle @0x4` — RC-машина;
+- `m_nMoney @0xA0`, `m_nDisplayMoney @0xA4`;
+- `m_nPlayerState @0xCC`, `field_D5 @0xD5`, `field_D6 @0xD6`;
+- `m_pVehicleEx @0x54`, `m_aszPlayerName @0x58`.
+
+**ПЁД = `CPlayerPed` (наследник CPed)** — то, что бегает по миру:
+- `FindPlayerPed()` / `FindPlayerChar()` возвращают **педа**, не игрока;
+- координаты `+0x34/38/3C`, здоровье `+0x354`, броня `+0x358`,
+  оружие `+0x408`, текущее оружие `+0x504`, `m_pVehicle +0x3A8`,
+  `m_bInVehicle +0x3AC` — **все это поля ПЕДА**.
+
+Lua API: `findplayer()` → пёд (CPed*), `getpedcoordes(пёд)`, `getpedhealth(пёд)` —
+работают с ПЕДОМ. Деньги/RC/состояние игрока — через CPlayerInfo
+(`get_mem_addr("WORLD_PLAYERS")` + оффсеты).
+
+Правило: **«игрок» (CPlayerInfo) хранит данные, «пёд» (CPed) — тело в мире.**

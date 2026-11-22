@@ -132,7 +132,9 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_car_upsidedown", is_car_upsidedown); // 121 01F4: car 12@ flipped если машина перевернута.
 	lua_register(L, "is_car_upright", is_car_upright); // 122 020D: car 12@ flipped если указанный автомобиль стоит на колесах.
 	lua_register(L, "find_road_for_car", find_road_for_car); // 123 найти дорогу.
-	lua_register(L, "setcarstrong", setcarstrong); // 124 сделать авто устойчивым.
+	lua_register(L, "setcarstrong", setcarstrong);
+	lua_register(L, "set_car_only_damaged_by_player", set_car_only_damaged_by_player);
+	lua_register(L, "open_diaz_gates", open_diaz_gates); // открыть ворота острова Диаса // 02AA // 124 сделать авто устойчивым.
 	lua_register(L, "putincar", putincar); // 125 переместить педа в авто.
 	lua_register(L, "print_front", game_font_print); // 126 вывести особенный игровой текст.
 	lua_register(L, "star_timer", star_timer); // 127 включить таймер.
@@ -2410,6 +2412,36 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_model_id_by_name", get_model_id_by_name); // получить id модели по имени
 	lua_register(L, "check_studio_gates", check_studio_gates); // диагностика ворот киностудии
 	lua_register(L, "open_studio_gates", open_studio_gates); // убрать закрытые ворота и поставить открытые
+	lua_register(L, "get_flag", get_flag);
+	lua_register(L, "set_flag", set_flag);
+	lua_register(L, "flag_addr", flag_addr);
+	lua_register(L, "get_flag_airship", get_flag_airship);
+	lua_register(L, "set_flag_airship", set_flag_airship);
+	lua_register(L, "get_flag_rc_zone", get_flag_rc_zone);
+	lua_register(L, "set_flag_rc_zone", set_flag_rc_zone);
+	lua_register(L, "get_flag_rc_mode", get_flag_rc_mode);
+	lua_register(L, "set_flag_rc_mode", set_flag_rc_mode);
+	lua_register(L, "get_flag_airship2", get_flag_airship2);
+	lua_register(L, "set_flag_airship2", set_flag_airship2);
+	lua_register(L, "get_flag_cheat82", get_flag_cheat82);
+	lua_register(L, "set_flag_cheat82", set_flag_cheat82);
+	lua_register(L, "get_flag_cheat26", get_flag_cheat26);
+	lua_register(L, "set_flag_cheat26", set_flag_cheat26);
+	lua_register(L, "get_flag_cheatadc", get_flag_cheatadc);
+	lua_register(L, "set_flag_cheatadc", set_flag_cheatadc);
+	lua_register(L, "get_flag_cheat23", get_flag_cheat23);
+	lua_register(L, "set_flag_cheat23", set_flag_cheat23);
+	lua_register(L, "get_flag_cheat47", get_flag_cheat47);
+	lua_register(L, "set_flag_cheat47", set_flag_cheat47);
+	lua_register(L, "get_flag_cheat5f", get_flag_cheat5f);
+	lua_register(L, "set_flag_cheat5f", set_flag_cheat5f);
+	lua_register(L, "get_flag_cheatstate", get_flag_cheatstate);
+	lua_register(L, "set_flag_cheatstate", set_flag_cheatstate);
+	lua_register(L, "get_flag_named", get_flag_named);
+	lua_register(L, "set_flag_named", set_flag_named);
+	lua_register(L, "list_flags", list_flags);
+	lua_register(L, "keep_rc", keep_rc);
+	lua_register(L, "get_mem_addr", get_mem_addr);
 return 0;
 };
 

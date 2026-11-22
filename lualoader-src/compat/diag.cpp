@@ -491,6 +491,7 @@ void report(EXCEPTION_POINTERS* ep, const char* how) {
                 ? (unsigned)((const unsigned char*)ep->ContextRecord->Eip)[7] : 0);
     }
 
+
     unsigned long long since = g_inflightSince.load();
     n += _snprintf_s(buf + n, sizeof(buf) - n, _TRUNCATE,
         "\r\nВЛОЖЕННОСТЬ Command<>: глубина=%d, макс=%d, случаев=%d\r\n"

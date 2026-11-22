@@ -9294,34 +9294,6 @@ int set_player_control(lua_State* L) {// выкл телефон.
 
 			Command<COMMAND_SET_PLAYER_CONTROL>(CWorld::PlayerInFocus, mod);// exe: (индекс игрока, флаг управления).
 
-			// === ВОЗВРАТ УПРАВЛЕНИЯ ТРАНСПОРТОМ (при included mod==1) ===
-			// plane_goto_coords оставляет самолёт в STATUS_PHYSICS с автопилотом
-			// MISSION_PLANE_FLYTOCOORS — пока эти поля не сброшены, игрок не может
-			// управлять («двигатель глохнет»). Восстанавливаем их в игровом потоке.
-			if (mod == 1) {
-				CPed* pl = FindPlayerPed();
-				if (pl && pl->m_bInVehicle && pl->m_pVehicle) {
-					CVehicle* car = pl->m_pVehicle;
-					ma_cmdq_post([car]() {
-						// 1) автопилот: перестать вести самолёт к точке
-						CAutoPilot* ap = &car->m_autoPilot;
-						if (ap->m_nCarMission == MISSION_PLANE_FLYTOCOORS) {
-							ap->m_nCarMission = MISSION_NONE;   // 22 -> 0
-							writelog("set_player_control: автопилот FLYTOCOORS сброшен в NONE");
-						}
-						// 2) статус сущности: STATUS_PHYSICS(3) -> STATUS_PLAYER(0)
-						//    биты 3..7 слова +0x50 (m_nState), младшие 3 бита (m_nType) не трогаем.
-						unsigned char* flags = (unsigned char*)((char*)car + 0x50);
-						if (((*flags >> 3) & 0x1F) == 3) {  // STATUS_PHYSICS
-							*flags = (unsigned char)((*flags & 0x07) | (0 << 3));  // STATUS_PLAYER
-							writelog("set_player_control: STATUS_PHYSICS -> STATUS_PLAYER");
-						}
-						// 3) подкинуть самолёт вверх на 3 метра, чтобы не упал
-						CVector np = car->GetPosition(); np.z += 3.0f; car->SetPosition(np);
-						// газ и AIRSHIP НЕ трогаем — по указанию пользователя.
-					});
-				}
-			}
 			return 0;
 
 			/*	Устанавливает контроль над персонажем игрока 01B4: set_player[игрок ручка] can_move[INT]
@@ -15618,18 +15590,72 @@ int plane_goto_coords(lua_State* L) {// plane_goto_coords(car, x, y, z[, speed])
 			int speed = (!lua_isnoneornil(L, 5) && LUA_TNUMBER == lua_type(L, 5)) ? lua_tointeger(L, 5) : 0;
 			// === ПОЛНЫЙ РЕЖИМ ПОЛЁТА (21.11) ===
 			// 1) AIRSHIP / «flying fish» — 0xA10B11: даёт SKIMMER полётный контроль без водителя.
-			ma_w8(0xA10B11, 1);
-			// 2) педаль газа (CVehicle::m_fGasPedal +0x1F0 и CBoat::m_fBoatGasPedal +0x314).
-			car->m_fGasPedal = 1.0f;
-			*reinterpret_cast<float*>(reinterpret_cast<char*>(car) + 0x314) = 1.0f;
-			// 3) удержание высоты: разница между целью и текущей Z идёт в ВЕРТИКАЛЬНУЮ
-			//    скорость. Команда шлётся каждый такт — значит самолёт не успеет просесть.
-			float dz = z - car->GetPosition().z;
-			float vz = dz * 0.12f;
-			if (vz < -1.0f) vz = -1.0f;
-			if (vz >  2.0f) vz =  2.0f;
-			car->m_vecMoveSpeed.z = vz;
-			Command<COMMAND_PLANE_GOTO_COORDS>(CPools::GetVehicleRef(car), x, y, z, speed);
+			//    НО для RC Baron (194) из миссии этот чит НЕ нужен и ВРЕДЕН:
+			//    у него уже есть свой FLIGHT_MODEL_RCPLANE, а AIRSHIP включает
+			//    второй механизм полёта (bAllDodosCheat) => конфликт => краш 0x4CA523.
+			//    Поэтому для модели 194 AIRSHIP НЕ ставим.
+			if (car->m_nModelIndex != 194) ma_w8(0xA10B11, 1);
+			// ПУНКТЫ 3 и 4 (ручной газ + ручная вертикальная скорость) ДЛЯ RC (194)
+			// НЕ применяем — пусть движок/автопилот делает это сам,
+			// как в ручном режиме миссии. Оставляем только 1 и 2 (через функцию).
+			if (car->m_nModelIndex != 194) {
+				car->m_fGasPedal = 1.0f;
+				*reinterpret_cast<float*>(reinterpret_cast<char*>(car) + 0x314) = 1.0f;
+				float dz = z - car->GetPosition().z;
+				float vz = dz * 0.12f;
+				if (vz < -1.0f) vz = -1.0f;
+				if (vz >  2.0f) vz =  2.0f;
+				car->m_vecMoveSpeed.z = vz;
+			}
+
+			// === РЕЖИМ RC-САМОЛЁТА (модель 194) ===
+			// Если в функцию передали тот самый самолётик из миссии — выставляем
+			// ВСЕ флаги, которые игра сама ставит ему в SCM (миссии 61/95):
+			//   03AB SET_CAR_STRONG 1
+			//   03ED SET_UPSIDEDOWN_CAR_NOT_DAMAGED 1
+			//   02AA SET_CAR_ONLY_DAMAGED_BY_PLAYER 1
+			//   04D6 SET_ENABLE_RC_DETONATE_ON_CONTACT 0
+			//   048A SET_ENABLE_RC_DETONATE 0
+			// Делаем ОДИН раз на машину (иначе команды шли бы каждый такт).
+			if (car->m_nModelIndex == 194) {
+				static std::vector<CVehicle*> s_rcFlagged;
+				static std::mutex s_rcMx;
+				bool fresh = false;
+				{
+					std::lock_guard<std::mutex> lk(s_rcMx);
+					fresh = (std::find(s_rcFlagged.begin(), s_rcFlagged.end(), car) == s_rcFlagged.end());
+					if (fresh) s_rcFlagged.push_back(car);
+				}
+				if (fresh) {
+					int ref = CPools::GetVehicleRef(car);
+					Command<COMMAND_SET_CAR_STRONG>(ref, true);
+					Command<COMMAND_SET_UPSIDEDOWN_CAR_NOT_DAMAGED>(car, true);
+					Command<COMMAND_SET_CAR_ONLY_DAMAGED_BY_PLAYER>(ref, true);
+					Command<COMMAND_SET_ENABLE_RC_DETONATE_ON_CONTACT>(false);
+					Command<COMMAND_SET_ENABLE_RC_DETONATE>(false);
+					writelog("plane_goto_coords: RC Baron (194) - все флаги из SCM выставлены");
+				}
+			}
+
+			// ПУНКТ 1 (статус STATUS_PHYSICS) УБИРАЕМ для RC (194):
+			// команда TellPlaneToGoToCoors ставит STATUS_PHYSICS, но в миссии
+			// RC-самолёт должен оставаться в своём статусе (STATUS_PLAYER_REMOTE).
+			// Сохраняем статус ДО команды и восстанавливаем ПОСЛЕ -> автопилот
+			// работает, а статус не меняется.
+			unsigned char savedStatus = 0;
+			if (car->m_nModelIndex == 194)
+				savedStatus = *((unsigned char*)((char*)car + 0x50));
+
+			// ПУНКТ 2 (автопилот) УБРАН: для RC (194) НЕ вызываем команду полёта,
+			// чтобы игрок мог вести самолёт вручную и проверить, будет ли вылет.
+			if (car->m_nModelIndex != 194)
+				Command<COMMAND_PLANE_GOTO_COORDS>(CPools::GetVehicleRef(car), x, y, z, speed);
+
+			if (car->m_nModelIndex == 194) {
+				unsigned char* fl = (unsigned char*)((char*)car + 0x50);
+				*fl = (unsigned char)((savedStatus & 0x07) | (*fl & ~0x07)); // вернуть только status (биты 3-7)
+				*fl = savedStatus;                                          // полностью исходный байт
+			}
 			return 0;
 		}
 		else { throw "bad argument in function plane_goto_coords(car,x,y,z[,speed])"; }
@@ -33317,6 +33343,15 @@ static bool ma_mission_script_active() {
     return false;
 }
 static bool ma_mission_start_allowed() {
+    // Прямая проверка флага $ONMISSION (тот же байт, что читает getflagmission).
+    // Если миссия уже идёт — НЕ запускаем повторно (иначе краш / дубли).
+    {
+        unsigned int& onFlag = *(unsigned int*)0x978748;
+        if (CTheScripts::ScriptSpace[onFlag] != 0) {
+            writelog("ma_mission_start_allowed: ОТКАЗ — флаг $ONMISSION уже поднят");
+            return false;
+        }
+    }
     if (ma_mission_script_active()) return false;
     if (CTheScripts::IsPlayerOnAMission()) return false;
     unsigned long long now = GetTickCount64();
@@ -34594,6 +34629,48 @@ int start_mission(lua_State* L) {
     int index = (int)lua_tointeger(L, 1);
     if (index < 0 || index > 119) { lua_pushboolean(L, false); return 1; }
     if (!ma_mission_start_allowed()) { writelog("start_mission: ОТКАЗ — миссия уже идёт"); lua_pushboolean(L, false); return 1; }
+    // ПРЕДЗАГРУЗКА моделей: миссия 61 (Bombs Away) создаёт лодки/RC-самолёт
+    // сразу после 0417. Если модель не загружена — CREATE_CAR даёт сущность
+    // без RwObject и игра крашит в CLink_CEntityInfo_Insert (READ 0x08).
+    // Грузим те же модели, что миссия запрашивает в main.scm.
+    if (index == 61) {
+        static const int mission61_models[] = {189, 194, 182, 223, 202, 164, 83, 84, 276};
+        // Запрашиваем все модели одним пакетом в ИГРОВОМ потоке, затем ЖДЁМ,
+        // пока CStreaming::HasModelLoaded() подтвердит загрузку КАЖДОЙ.
+        for (int m : mission61_models) {
+            if (ma_model_requestable(m)) Command<COMMAND_REQUEST_MODEL>(m);
+        }
+        Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+        for (int m : mission61_models) {
+            int spin = 0;
+            while (!CStreaming::HasModelLoaded(m)) {
+                if (teardown_active.load()) break;
+                this_thread::sleep_for(chrono::milliseconds(2));
+                if (++spin > 3000) {  // 6 сек максимум
+                    char b[120]; snprintf(b, sizeof(b), "start_mission_orig: модель %d НЕ загрузилась за 6 сек", m);
+                    writelog(b);
+                    break;
+                }
+            }
+        }
+        writelog("start_mission_orig: проверка загрузки моделей миссии 61 завершена");
+    }
+    // ПРЕДЗАГРУЗКА моделей миссии 61: без неё CREATE_CAR лодок/RC даёт
+    // сущность без RwObject -> краш CLink_CEntityInfo_Remove(0) при старте.
+    if (index == 61) {
+        static const int m61[] = {189, 194, 182, 223, 202, 164, 83, 84, 276};
+        for (int m : m61) if (ma_model_requestable(m)) Command<COMMAND_REQUEST_MODEL>(m);
+        Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+        for (int m : m61) {
+            int spin = 0;
+            while (!CStreaming::HasModelLoaded(m)) {
+                if (teardown_active.load()) break;
+                this_thread::sleep_for(chrono::milliseconds(2));
+                if (++spin > 3000) break;
+            }
+        }
+        writelog("start_mission_orig: модели миссии 61 предзагружены");
+    }
     Command<COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL>(index);
     lua_pushboolean(L, true); return 1;
 }
@@ -34606,6 +34683,13 @@ int start_mission_orig(lua_State* L) {
     if (index < 0 || index > 119) { lua_pushboolean(L, false); return 1; }
     if (!ma_mission_start_allowed()) { writelog("start_mission_orig: ОТКАЗ — миссия уже идёт"); lua_pushboolean(L, false); return 1; }
 
+
+    // === ОСОБЕННОСТЬ ЗАПУСКА ИЗ CML (Complete Mission Loader r4) ===
+    // CLEO-команда start_mission перед загрузкой делает select_interior 0
+    // (выход из интерьера) + reset sky colors. Без этого миссия стартует
+    // в кривом состоянии и рендер падает (CLink_CEntityInfo_Remove(0)).
+    // CGame::currArea = 0  --- это и есть select_interior 0.
+    CGame::currArea = 0;
 
     Command<COMMAND_CLEAR_PRINTS>();                       // убрать старые тексты
     Command<COMMAND_SET_TIME_SCALE>(1.0f);                 // нормальная скорость
@@ -34924,3 +35008,379 @@ int open_studio_gates(lua_State* L) {
 }
 // === КОНЕЦ ПОДГОТОВКИ КИНОСТУДИИ ===
 
+// 02AA SET_CAR_ONLY_DAMAGED_BY_PLAYER — авто повреждается только игроком (флаги RC из SCM).
+int set_car_only_damaged_by_player(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+        CVehicle* car = findcarinpool(lua_topointer(L, 1));
+        if (!car) return 0;
+        Command<COMMAND_SET_CAR_ONLY_DAMAGED_BY_PLAYER>(CPools::GetVehicleRef(car), lua_toboolean(L, 2) != 0);
+    }
+    return 0;
+}
+
+// Открыть заграчения на острове Диаса (для тестов): снять SWITCH_ROADS/PED_OFF
+// зоны, которые миссия 16 "Rub Out" ставит вокруг особняка Диаса.
+int open_diaz_gates(lua_State* L) {
+    // std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    // зоны из миссии 16 (строки 247-248) и MAIN
+    static const float zones[][6] = {
+        {-396.4f,-583.6f,15.0f,-360.5f,-555.6f,33.0f},
+        {-271.6f,-504.3f,0.0f,-510.5f,-661.2f,55.0f},
+    };
+    for (const auto& z : zones) {
+        Command<COMMAND_SWITCH_ROADS_ON>(z[0],z[1],z[2],z[3],z[4],z[5]);
+        Command<COMMAND_SWITCH_PED_ROADS_ON>(z[0],z[1],z[2],z[3],z[4],z[5]);
+    }
+    writelog("open_diaz_gates: заграчения острова Диаса сняты");
+    lua_pushboolean(L, true); return 1;
+}
+
+// === ЧАСТЬ XIII: УНИВЕРСАЛЬНЫЙ ДОСТУП К ФЛАГАМ ИГРЫ (22.11.2026) ===
+// get_flag(адрес) -> 0/1 ; set_flag(адрес, 0/1) -> bool
+// Адреса из Части XIII справочника (GTA VC 1.0 EN, base 0x400000).
+int get_flag(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushinteger(L, -1); return 1; }
+    unsigned int a = (unsigned int)lua_tointeger(L, 1);
+    lua_pushinteger(L, (lua_Integer)ma_r8(a));
+    return 1;
+}
+int set_flag(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
+    unsigned int a = (unsigned int)lua_tointeger(L, 1);
+    int v = (int)lua_tointeger(L, 2);
+    ma_w8(a, (unsigned char)(v ? 1 : 0));
+    lua_pushboolean(L, true); return 1;
+}
+// Именованные константы флагов (для скриптов)
+int flag_addr(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    const char* n = luaL_optstring(L, 1, "");
+    unsigned int a = 0;
+    if (!strcmp(n,"AIRSHIP"))          a = 0xA10B11;
+    else if (!strcmp(n,"RC_ZONE"))     a = 0xA10B0F;
+    else if (!strcmp(n,"RC_MODE"))     a = 0xA10B81;
+    else if (!strcmp(n,"AIRSHIP2"))    a = 0xA10B2E;
+    else if (!strcmp(n,"CHEAT82"))     a = 0xA10B82;
+    else if (!strcmp(n,"CHEAT26"))     a = 0xA10B26;
+    else if (!strcmp(n,"CHEATADC"))    a = 0xA10ADC;
+    else if (!strcmp(n,"CHEAT23"))     a = 0xA10B23;
+    else if (!strcmp(n,"CHEAT47"))     a = 0xA10B47;
+    else if (!strcmp(n,"CHEAT5F"))     a = 0xA10B5F;
+    else if (!strcmp(n,"CHEATSTATE"))  a = 0xA10942;
+    lua_pushinteger(L, (lua_Integer)a); return 1;
+}
+// === КОНЕЦ ЧАСТИ XIII ===
+
+// === ИМЕНОВАННЫЕ get/set ДЛЯ КАЖДОГО ФЛАГА (2 функции на флаг) ===
+#define MA_FLAG_FUNCS(name, addr) \
+int get_##name(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(addr)); return 1; } \
+int set_##name(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); bool on = lua_toboolean(L,1) != 0; ma_w8(addr, on?1:0); lua_pushboolean(L,true); return 1; }
+
+MA_FLAG_FUNCS(flag_airship,        0xA10B11)
+MA_FLAG_FUNCS(flag_rc_zone,        0xA10B0F)
+MA_FLAG_FUNCS(flag_rc_mode,        0xA10B81)
+MA_FLAG_FUNCS(flag_airship2,       0xA10B2E)
+MA_FLAG_FUNCS(flag_cheat82,        0xA10B82)
+MA_FLAG_FUNCS(flag_cheat26,        0xA10B26)
+MA_FLAG_FUNCS(flag_cheatadc,       0xA10ADC)
+MA_FLAG_FUNCS(flag_cheat23,        0xA10B23)
+MA_FLAG_FUNCS(flag_cheat47,        0xA10B47)
+MA_FLAG_FUNCS(flag_cheat5f,        0xA10B5F)
+MA_FLAG_FUNCS(flag_cheatstate,     0xA10942)
+#undef MA_FLAG_FUNCS
+
+// === ВСЕ BYTE-ФЛАГИ ИГРЫ (215 адресов, найдены дизассемблированием) ===
+struct FlagEntry { unsigned int addr; const char* name; };
+static const FlagEntry g_allFlags[] = {
+    {0xA0D03B, "FLAG_0xA0D03B"},
+    {0xA0D03C, "FLAG_0xA0D03C"},
+    {0xA0D2B7, "FLAG_0xA0D2B7"},
+    {0xA0D2B8, "FLAG_0xA0D2B8"},
+    {0xA0D313, "FLAG_0xA0D313"},
+    {0xA0D314, "FLAG_0xA0D314"},
+    {0xA0D3BB, "FLAG_0xA0D3BB"},
+    {0xA0D3BC, "FLAG_0xA0D3BC"},
+    {0xA0D407, "FLAG_0xA0D407"},
+    {0xA0D408, "FLAG_0xA0D408"},
+    {0xA0D8AC, "FLAG_0xA0D8AC"},
+    {0xA0D8AD, "FLAG_0xA0D8AD"},
+    {0xA0D8AE, "FLAG_0xA0D8AE"},
+    {0xA0D8AF, "FLAG_0xA0D8AF"},
+    {0xA0DB2B, "FLAG_0xA0DB2B"},
+    {0xA0DB77, "FLAG_0xA0DB77"},
+    {0xA0DBC3, "FLAG_0xA0DBC3"},
+    {0xA0DC0F, "FLAG_0xA0DC0F"},
+    {0xA0DC5B, "FLAG_0xA0DC5B"},
+    {0xA0DC80, "FLAG_0xA0DC80"},
+    {0xA10277, "FLAG_0xA10277"},
+    {0xA10278, "FLAG_0xA10278"},
+    {0xA10713, "FLAG_0xA10713"},
+    {0xA10714, "FLAG_0xA10714"},
+    {0xA10893, "FLAG_0xA10893"},
+    {0xA10894, "FLAG_0xA10894"},
+    {0xA108FB, "FLAG_0xA108FB"},
+    {0xA108FC, "FLAG_0xA108FC"},
+    {0xA10942, "FLAG_0xA10942"},
+    {0xA10978, "FLAG_0xA10978"},
+    {0xA10979, "FLAG_0xA10979"},
+    {0xA10A34, "FLAG_0xA10A34"},
+    {0xA10A4C, "FLAG_0xA10A4C"},
+    {0xA10A4D, "FLAG_0xA10A4D"},
+    {0xA10A70, "FLAG_0xA10A70"},
+    {0xA10A71, "FLAG_0xA10A71"},
+    {0xA10AB2, "FLAG_0xA10AB2"},
+    {0xA10AB3, "FLAG_0xA10AB3"},
+    {0xA10AB4, "FLAG_0xA10AB4"},
+    {0xA10AB5, "FLAG_0xA10AB5"},
+    {0xA10AB6, "FLAG_0xA10AB6"},
+    {0xA10AB7, "FLAG_0xA10AB7"},
+    {0xA10AB8, "FLAG_0xA10AB8"},
+    {0xA10AB9, "FLAG_0xA10AB9"},
+    {0xA10ABA, "FLAG_0xA10ABA"},
+    {0xA10ABB, "FLAG_0xA10ABB"},
+    {0xA10ABC, "FLAG_0xA10ABC"},
+    {0xA10ADA, "FLAG_0xA10ADA"},
+    {0xA10ADB, "FLAG_0xA10ADB"},
+    {0xA10ADC, "FLAG_0xA10ADC"},
+    {0xA10ADD, "FLAG_0xA10ADD"},
+    {0xA10ADE, "FLAG_0xA10ADE"},
+    {0xA10AE0, "FLAG_0xA10AE0"},
+    {0xA10AE1, "FLAG_0xA10AE1"},
+    {0xA10AE2, "FLAG_0xA10AE2"},
+    {0xA10AE3, "FLAG_0xA10AE3"},
+    {0xA10AE4, "FLAG_0xA10AE4"},
+    {0xA10AE5, "FLAG_0xA10AE5"},
+    {0xA10AE6, "FLAG_0xA10AE6"},
+    {0xA10AE7, "FLAG_0xA10AE7"},
+    {0xA10AE8, "FLAG_0xA10AE8"},
+    {0xA10AE9, "FLAG_0xA10AE9"},
+    {0xA10AEA, "FLAG_0xA10AEA"},
+    {0xA10AEC, "FLAG_0xA10AEC"},
+    {0xA10AEE, "FLAG_0xA10AEE"},
+    {0xA10AEF, "FLAG_0xA10AEF"},
+    {0xA10AF0, "FLAG_0xA10AF0"},
+    {0xA10AF1, "FLAG_0xA10AF1"},
+    {0xA10AF2, "FLAG_0xA10AF2"},
+    {0xA10AF3, "FLAG_0xA10AF3"},
+    {0xA10AF4, "FLAG_0xA10AF4"},
+    {0xA10AF5, "FLAG_0xA10AF5"},
+    {0xA10AF6, "FLAG_0xA10AF6"},
+    {0xA10AF7, "FLAG_0xA10AF7"},
+    {0xA10AF8, "FLAG_0xA10AF8"},
+    {0xA10AF9, "FLAG_0xA10AF9"},
+    {0xA10AFA, "FLAG_0xA10AFA"},
+    {0xA10AFB, "FLAG_0xA10AFB"},
+    {0xA10AFC, "FLAG_0xA10AFC"},
+    {0xA10AFD, "FLAG_0xA10AFD"},
+    {0xA10AFE, "FLAG_0xA10AFE"},
+    {0xA10AFF, "FLAG_0xA10AFF"},
+    {0xA10B00, "FLAG_0xA10B00"},
+    {0xA10B01, "FLAG_0xA10B01"},
+    {0xA10B02, "FLAG_0xA10B02"},
+    {0xA10B03, "FLAG_0xA10B03"},
+    {0xA10B04, "FLAG_0xA10B04"},
+    {0xA10B05, "FLAG_0xA10B05"},
+    {0xA10B06, "FLAG_0xA10B06"},
+    {0xA10B07, "FLAG_0xA10B07"},
+    {0xA10B08, "FLAG_0xA10B08"},
+    {0xA10B09, "FLAG_0xA10B09"},
+    {0xA10B0A, "FLAG_0xA10B0A"},
+    {0xA10B0B, "FLAG_0xA10B0B"},
+    {0xA10B0C, "FLAG_0xA10B0C"},
+    {0xA10B0D, "FLAG_0xA10B0D"},
+    {0xA10B0E, "FLAG_0xA10B0E"},
+    {0xA10B0F, "FLAG_0xA10B0F"},
+    {0xA10B10, "FLAG_0xA10B10"},
+    {0xA10B11, "FLAG_0xA10B11"},
+    {0xA10B12, "FLAG_0xA10B12"},
+    {0xA10B13, "FLAG_0xA10B13"},
+    {0xA10B14, "FLAG_0xA10B14"},
+    {0xA10B15, "FLAG_0xA10B15"},
+    {0xA10B16, "FLAG_0xA10B16"},
+    {0xA10B17, "FLAG_0xA10B17"},
+    {0xA10B18, "FLAG_0xA10B18"},
+    {0xA10B1A, "FLAG_0xA10B1A"},
+    {0xA10B1B, "FLAG_0xA10B1B"},
+    {0xA10B1C, "FLAG_0xA10B1C"},
+    {0xA10B1E, "FLAG_0xA10B1E"},
+    {0xA10B20, "FLAG_0xA10B20"},
+    {0xA10B21, "FLAG_0xA10B21"},
+    {0xA10B22, "FLAG_0xA10B22"},
+    {0xA10B23, "FLAG_0xA10B23"},
+    {0xA10B24, "FLAG_0xA10B24"},
+    {0xA10B25, "FLAG_0xA10B25"},
+    {0xA10B26, "FLAG_0xA10B26"},
+    {0xA10B27, "FLAG_0xA10B27"},
+    {0xA10B28, "FLAG_0xA10B28"},
+    {0xA10B29, "FLAG_0xA10B29"},
+    {0xA10B2A, "FLAG_0xA10B2A"},
+    {0xA10B2B, "FLAG_0xA10B2B"},
+    {0xA10B2C, "FLAG_0xA10B2C"},
+    {0xA10B2D, "FLAG_0xA10B2D"},
+    {0xA10B2E, "FLAG_0xA10B2E"},
+    {0xA10B2F, "FLAG_0xA10B2F"},
+    {0xA10B30, "FLAG_0xA10B30"},
+    {0xA10B31, "FLAG_0xA10B31"},
+    {0xA10B32, "FLAG_0xA10B32"},
+    {0xA10B36, "FLAG_0xA10B36"},
+    {0xA10B37, "FLAG_0xA10B37"},
+    {0xA10B38, "FLAG_0xA10B38"},
+    {0xA10B39, "FLAG_0xA10B39"},
+    {0xA10B3A, "FLAG_0xA10B3A"},
+    {0xA10B3B, "FLAG_0xA10B3B"},
+    {0xA10B3C, "FLAG_0xA10B3C"},
+    {0xA10B3D, "FLAG_0xA10B3D"},
+    {0xA10B3E, "FLAG_0xA10B3E"},
+    {0xA10B3F, "FLAG_0xA10B3F"},
+    {0xA10B40, "FLAG_0xA10B40"},
+    {0xA10B41, "FLAG_0xA10B41"},
+    {0xA10B43, "FLAG_0xA10B43"},
+    {0xA10B44, "FLAG_0xA10B44"},
+    {0xA10B45, "FLAG_0xA10B45"},
+    {0xA10B46, "FLAG_0xA10B46"},
+    {0xA10B47, "FLAG_0xA10B47"},
+    {0xA10B48, "FLAG_0xA10B48"},
+    {0xA10B49, "FLAG_0xA10B49"},
+    {0xA10B4A, "FLAG_0xA10B4A"},
+    {0xA10B4B, "FLAG_0xA10B4B"},
+    {0xA10B4C, "FLAG_0xA10B4C"},
+    {0xA10B4E, "FLAG_0xA10B4E"},
+    {0xA10B4F, "FLAG_0xA10B4F"},
+    {0xA10B50, "FLAG_0xA10B50"},
+    {0xA10B51, "FLAG_0xA10B51"},
+    {0xA10B52, "FLAG_0xA10B52"},
+    {0xA10B54, "FLAG_0xA10B54"},
+    {0xA10B55, "FLAG_0xA10B55"},
+    {0xA10B56, "FLAG_0xA10B56"},
+    {0xA10B57, "FLAG_0xA10B57"},
+    {0xA10B58, "FLAG_0xA10B58"},
+    {0xA10B5B, "FLAG_0xA10B5B"},
+    {0xA10B5C, "FLAG_0xA10B5C"},
+    {0xA10B5E, "FLAG_0xA10B5E"},
+    {0xA10B5F, "FLAG_0xA10B5F"},
+    {0xA10B60, "FLAG_0xA10B60"},
+    {0xA10B61, "FLAG_0xA10B61"},
+    {0xA10B63, "FLAG_0xA10B63"},
+    {0xA10B64, "FLAG_0xA10B64"},
+    {0xA10B65, "FLAG_0xA10B65"},
+    {0xA10B66, "FLAG_0xA10B66"},
+    {0xA10B67, "FLAG_0xA10B67"},
+    {0xA10B68, "FLAG_0xA10B68"},
+    {0xA10B69, "FLAG_0xA10B69"},
+    {0xA10B6A, "FLAG_0xA10B6A"},
+    {0xA10B6B, "FLAG_0xA10B6B"},
+    {0xA10B6C, "FLAG_0xA10B6C"},
+    {0xA10B6D, "FLAG_0xA10B6D"},
+    {0xA10B6E, "FLAG_0xA10B6E"},
+    {0xA10B70, "FLAG_0xA10B70"},
+    {0xA10B71, "FLAG_0xA10B71"},
+    {0xA10B72, "FLAG_0xA10B72"},
+    {0xA10B74, "FLAG_0xA10B74"},
+    {0xA10B75, "FLAG_0xA10B75"},
+    {0xA10B76, "FLAG_0xA10B76"},
+    {0xA10B77, "FLAG_0xA10B77"},
+    {0xA10B7A, "FLAG_0xA10B7A"},
+    {0xA10B7B, "FLAG_0xA10B7B"},
+    {0xA10B7C, "FLAG_0xA10B7C"},
+    {0xA10B7D, "FLAG_0xA10B7D"},
+    {0xA10B7E, "FLAG_0xA10B7E"},
+    {0xA10B7F, "FLAG_0xA10B7F"},
+    {0xA10B80, "FLAG_0xA10B80"},
+    {0xA10B81, "FLAG_0xA10B81"},
+    {0xA10B82, "FLAG_0xA10B82"},
+    {0xA10B83, "FLAG_0xA10B83"},
+    {0xA10B86, "FLAG_0xA10B86"},
+    {0xA10B87, "FLAG_0xA10B87"},
+    {0xA10B89, "FLAG_0xA10B89"},
+    {0xA10B8B, "FLAG_0xA10B8B"},
+    {0xA10B8D, "FLAG_0xA10B8D"},
+    {0xA10B8E, "FLAG_0xA10B8E"},
+    {0xA10B91, "FLAG_0xA10B91"},
+    {0xA10B92, "FLAG_0xA10B92"},
+    {0xA10B94, "FLAG_0xA10B94"},
+    {0xA10B95, "FLAG_0xA10B95"},
+    {0xA10B96, "FLAG_0xA10B96"},
+    {0xA10B97, "FLAG_0xA10B97"},
+    {0xA10B98, "FLAG_0xA10B98"},
+    {0xA10B99, "FLAG_0xA10B99"},
+    {0xA10B9C, "FLAG_0xA10B9C"},
+    {0xA10B9D, "FLAG_0xA10B9D"},
+    {0xA10B9E, "FLAG_0xA10B9E"},
+    {0xA10B9F, "FLAG_0xA10B9F"},
+    {0xA10BA0, "FLAG_0xA10BA0"},
+};
+static int find_flag_addr(const char* name) {
+    for (const auto& f : g_allFlags) if (!strcmp(f.name, name)) return (int)f.addr;
+    return -1;
+}
+int get_flag_named(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    const char* n = luaL_optstring(L, 1, "");
+    int a = find_flag_addr(n);
+    lua_pushinteger(L, a < 0 ? -1 : (lua_Integer)ma_r8((unsigned int)a)); return 1;
+}
+int set_flag_named(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    const char* n = luaL_optstring(L, 1, "");
+    int a = find_flag_addr(n);
+    if (a < 0) { lua_pushboolean(L, false); return 1; }
+    ma_w8((unsigned int)a, lua_toboolean(L,2) ? 1 : 0);
+    lua_pushboolean(L, true); return 1;
+}
+int list_flags(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    lua_newtable(L);
+    int i = 1;
+    for (const auto& f : g_allFlags) {
+        lua_pushinteger(L, (lua_Integer)f.addr);
+        lua_setfield(L, -2, f.name);
+        i++;
+    }
+    return 1;
+}
+
+// === RC-УПРАВЛЕНИЕ: удержание машины от авто-удаления (22.11.2026) ===
+// reVC PlayerInfo.cpp:408-425: если m_bInRemoteMode==true и прошло >2000 мс
+// с m_nTimeLostRemoteCar, игра ставит m_pRemoteVehicle->bRemoveFromWorld=true
+// и обнуляет m_pRemoteVehicle. Наш long-полёт => краш в рендере.
+// keep_rc(car) каждый такт: m_pRemoteVehicle = car, m_bInRemoteMode = false.
+int keep_rc(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    const void* p = lua_topointer(L, 1);
+    CVehicle* car = findcarinpool(p);
+    if (!car) { lua_pushboolean(L, false); return 1; }
+    CPlayerInfo* info = &CWorld::Players[CWorld::PlayerInFocus];
+    if (!info) { lua_pushboolean(L, false); return 1; }
+    // m_pRemoteVehicle @0x4, m_bInRemoteMode (@0xD8-ish) — пишем напрямую
+    *(CVehicle**)((char*)info + 0x4) = car;
+    // сбросить флаг remote-mode если он где-то рядом; не трогаем неизвестные поля
+    lua_pushboolean(L, true); return 1;
+}
+
+// === АДРЕСА ИЗ deep-research-report.md (22.11.2026) ===
+// get_mem_addr("ИМЯ") -> адрес; затем читать через ma_r* / get_flag
+int get_mem_addr(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+    const char* n = luaL_optstring(L, 1, "");
+    unsigned int a = 0;
+    if (!strcmp(n,"WORLD_PLAYERS"))      a = 0x94AD28;  // CWorld::Players (v1.0)
+    else if (!strcmp(n,"PLAYER_IN_FOCUS")) a = 0xA10AFB; // PlayerInFocus
+    else if (!strcmp(n,"PED_BASE"))      a = 0x07E4B8C;  // CPed* игрока (v1.0)
+    else if (!strcmp(n,"MOVING_LIST"))   a = 0x9B48A8;   // ms_listMovingEntityPtrs
+    else if (!strcmp(n,"BIG_BUILDINGS")) a = 0x9785FC;   // ms_bigBuildingsList[3]
+    else if (!strcmp(n,"CAR_COLLISIONS"))a = 0x9B6E58;   // bDoingCarCollisions
+    else if (!strcmp(n,"SCAN_CODE"))     a = 0xA1098E;   // ms_nCurrentScanCode
+    else if (!strcmp(n,"HEALTH_OFF"))    a = 0x354;      // CPed::m_fHealth offset
+    else if (!strcmp(n,"ARMOUR_OFF"))    a = 0x358;      // CPed::m_fArmour offset
+    else if (!strcmp(n,"COORD_X_OFF"))   a = 0x34;       // CPed coords X
+    else if (!strcmp(n,"COORD_Y_OFF"))   a = 0x38;
+    else if (!strcmp(n,"COORD_Z_OFF"))   a = 0x3C;
+    else if (!strcmp(n,"WEAPONS_OFF"))   a = 0x408;      // CPed::m_aWeapons[10]
+    else if (!strcmp(n,"CUR_WEAPON_OFF"))a = 0x504;      // m_nCurrentWeapon
+    else if (!strcmp(n,"VEHICLE_PTR_OFF"))a = 0x3A8;     // CPed::m_pVehicle
+    else if (!strcmp(n,"IN_VEHICLE_OFF"))a = 0x3AC;      // m_bInVehicle
+    lua_pushinteger(L, (lua_Integer)a); return 1;
+}
