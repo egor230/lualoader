@@ -2862,6 +2862,17 @@ int set_script_int(lua_State* L);
 int get_script_int(lua_State* L);
 int set_all_timers_99(lua_State* L);   // все убывающие таймеры миссий -> 99 минут (сохранить original)
 int restore_all_timers(lua_State* L);  // вернуть таймеры к значениям до вызова set_all_timers_99
+int map_overlay_on(lua_State* L);      // 23.11: показать карту меню
+int map_overlay_off(lua_State* L);     // скрыть карту меню
+int map_overlay_toggle(lua_State* L);  // переключить карту меню
+int map_overlay_is_on(lua_State* L);   // статус (boolean)
+int map_crosshair_world(lua_State* L); // 23.11: экран карты -> мир (x,y или nil)
+int map_coords_diag(lua_State* L);     // 23.11: лог полей CMenuManager
+int map_cross_set(lua_State* L);       // 23.11: задать перекрестие (u,v 0..1)
+int CreateSpecialActor(lua_State* L);   // 23.11: макрос — сам грузит/создаёт/выгружает
+int map_cross_get(lua_State* L);       // 23.11: получить перекрестие + мир (u,v,x,y)
+int play_wav_file(lua_State* L);       // 23.11: play_wav_file("Audio/fin_1a.wav")
+int stop_wav_file(lua_State* L);       // 23.11: остановить звук
 int set_pad_controls(lua_State* L);
 int sys_key_down(lua_State* L);
 int sys_key_up(lua_State* L);

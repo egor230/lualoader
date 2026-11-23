@@ -190,7 +190,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_ped_damage_from_ped", is_ped_damage_from_ped); // 176 получил ли пед урон от педа.
 	lua_register(L, "is_targetting_in_ped", is_targetting_in_ped); // 177 игрок целиться в педа.
 	lua_register(L, "Remove_weapon_model", Remove_weapon_model); // 178 удалить оружие у педа.
-	lua_register(L, "Createped", Createped); // 179 макрос создать педа.
+	lua_register(L, "Createped", Createped);
+	lua_register(L, "CreateSpecialActor", CreateSpecialActor); // 23.11: спец-актёр: сам грузит/создаёт/выгружает
 	lua_register(L, "Createcar", Createcar); // 180 макрос создать авто на координатах.
 	lua_register(L, "Giveweaponped", Giveweaponped); // 181 макрос дать педу оружие и патроны.
 	lua_register(L, "Opendoorcar", Opendoorcar); // 182 Макрос открыть все двери авто.
@@ -2449,6 +2450,16 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_script_int", get_script_int);
 	lua_register(L, "set_all_timers_99", set_all_timers_99);    // 23.11: все убывающие таймеры -> 99 мин
 	lua_register(L, "restore_all_timers", restore_all_timers);  // 23.11: вернуть исходные значения таймеров
+	lua_register(L, "map_overlay_on", map_overlay_on);          // 23.11: показать карту меню
+	lua_register(L, "map_overlay_off", map_overlay_off);        // 23.11: скрыть карту меню
+	lua_register(L, "map_overlay_toggle", map_overlay_toggle);  // 23.11: переключить карту меню
+	lua_register(L, "map_overlay_is_on", map_overlay_is_on);    // 23.11: статус карты
+	lua_register(L, "map_crosshair_world", map_crosshair_world); // 23.11: точка карты -> мир
+	lua_register(L, "map_coords_diag", map_coords_diag);         // 23.11: диагностика полей карты
+	lua_register(L, "map_cross_set", map_cross_set);             // 23.11: перекрестие (u,v)
+	lua_register(L, "map_cross_get", map_cross_get);             // 23.11: перекрестие + мир
+	lua_register(L, "play_wav_file", play_wav_file);             // 23.11: WAV из Audio/
+	lua_register(L, "stop_wav_file", stop_wav_file);             // 23.11: остановить WAV
 	lua_register(L, "set_pad_controls", set_pad_controls);
 	lua_register(L, "sys_key_down", sys_key_down);
 	lua_register(L, "sys_key_up", sys_key_up);

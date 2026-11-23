@@ -9,6 +9,7 @@
 #include <exception>
 #include "compat/diag.h"
 #include "compat/ma_tasks.h"
+#include "compat/ma_mapoverlay.h"
 using namespace plugin;
 using namespace std;
 
@@ -551,6 +552,7 @@ public: Message() {
     ma_diag::install();
     ma_cmdq_install_hook();
     ma_stream_install_hook();
+    ma_mapoverlay_install();   // 23.11: карта по клавише H (MAP.txd/radar)
 
     // --- ГЛАВНЫЙ ОБРАБОТЧИК КАДРА ---
     Events::gameProcessEvent += [] {
@@ -584,6 +586,7 @@ public: Message() {
         // 1) Клавиатура (задача на игровом потоке: Ctrl-рестарт, clrfl, cheatstr).
         ma_task_start_keyboard();
         ma_tasks_frame();
+        ma_mapoverlay_frame();   // 23.11: опрос клавиши H и данных карты
 
         // 2) Флаги клавиатуры.
         if (ma_task_keyboard* kb = ma_keyboard()) {

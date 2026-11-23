@@ -67,7 +67,7 @@ done
 #       plugin.cpp уже вызывал ma_tasks_frame/ma_task_start_keyboard.
 #     compat/ma_sched.cpp УДАЛЁН из сборки (2026-11-04, директива юзера):
 #     планировщик — 2021-модель (один OS-поток на каждый .lua, plugin.cpp).
-for c in compat/diag.cpp compat/cmdq_hooks.cpp compat/ma_streaming.cpp compat/ma_tasks.cpp; do
+for c in compat/diag.cpp compat/cmdq_hooks.cpp compat/ma_streaming.cpp compat/ma_tasks.cpp compat/ma_mapoverlay.cpp compat/ma_mapcoords.cpp; do
     o="$BUILD/$(basename "${c%.cpp}").o"
     if [ "$c" -nt "$o" ] || [ "compat/diag.h" -nt "$o" ] || [ "compat/ma_streaming.h" -nt "$o" ] || [ "compat/ma_tasks.h" -nt "$o" ]; then
         echo "CXX  $c"
@@ -81,7 +81,7 @@ echo "LINK ${NAME}.asi"
 $CXX --target=i686-w64-mingw32 -m32 "${OBJS[@]}" -shared \
     -static-libgcc -static-libstdc++ \
     -L"$SDK/output/lib" -lPlugin_VC \
-    -ldbghelp \
+    -ldbghelp -lwinmm \
     -o "$OUT"
 
 # 4. BUILD-GATE (правило 13.10: compat/* не добавляют глобальных конструкторов

@@ -16,6 +16,17 @@
 - [Часть II. Структурированный указатель по категориям](#часть-ii-структурированный-указатель-по-категориям) — компактная группировка функций по подсистемам.
 - [Часть III. Нумерованный каталог (снимок категорий)](#часть-iii-нумерованный-каталог-снимок-категорий) — историческая нумерация и конвенции.
 - [Часть IV. Изменения 20.11.2026](#часть-iv-изменения-20112026) — что добавлено и исправлено.
+- [Части V–IX. Расширения, если есть](#части-vix) — адреса, категории, очистка.
+- [Часть X. Практическое руководство по миссиям](#часть-x-практическое-руководство-как-запускать-и-писать-миссии-21112026) — запуск, написание, условия.
+- [Части XI–XIX. Наблюдения, краши, полёт самолёта](#части-xixix) — отладка, CRemote, system input.
+- [Часть XX. Победа в миссии 61 «Bombs Away!»](#часть-xx-победа--автопрохождение-миссии-61-23112026) — рабочий алгоритм.
+- [Части XXI–XXII. Итоги и миссия 19](#части-xxixxii) — шпаргалка ошибок, Demolition Man.
+- [Часть XXIII. Детальное руководство по миссии 19 + новые API](#часть-xxiii-детальное-руководство-миссия-19--новые-api-23112026) — все ошибки с доказательствами.
+- [Часть XXIV. Карта меню поверх игры по H](#часть-xxiv-карта-меню-поверх-игры-по-клавише-h-23112026--рабочее-решение) — fronten2.txd, 9 тайлов.
+- [Часть XXV. CMapCoordinates](#часть-xxv-cmapcoordinates--координаты-игрового-мира-по-точке-карты-23112026) — экран → радар → мир.
+- [Часть XXVI. WAV и скрипт «Вызов такси»](#часть-xxvi-воспроизведение-wav-и-скрипт-вызов-такси-23112026) — звук, taxi.lua, исправления.
+- [Часть XXVII. Нормализация булевых аргументов](#xxvii-нормализация-булевых-аргументов-23112026) — 1/0 и true/false.
+- **[Часть XXVIII. Макросы с большой буквы и уроки «Вызова такси»](#часть-xxviii-макросы-с-большой-буквы-и-уроки-вызова-такси-23112026)** — создающие функции, режимы вождения, все поломки.
 
 ---
 
@@ -45182,7 +45193,7 @@ load_and_launch_mission_internal(28) -- прямой 0417
 ## X.5. Чек-лист перед запуском («сделано на 100%»)
 
 - [ ] Прочитан исходник миссии в `Source missions/Оригинал игры (97 миссий)/`.
-- [ ] Взяты ВСЕ координаты (синие и красные пары), цвета,做梦序 из `.txt`.
+- [ ] Взяты ВСЕ координаты (синие и красные пары), цвета, порядок из `.txt`.
 - [ ] В `lualoader/` только один скрипт на кнопку (остальные в бэкапе).
 - [ ] Камеру не трогаем (нет `set_camera_on_car` / `restore_camera`).
 - [ ] Скорость снижена по просьбе; `wait(300)` после чекпоинта стоит.
@@ -45760,7 +45771,7 @@ Plugin-SDK и нашими данными:
 - v1.0: адреса как в таблице;
 - v1.1: **+0x8** ко всем адресам;
 - Steam/GOG: **−0xFF8**;
-- DE (UE4): адреса完全不同, CLEO-Redux с ASLR.
+- DE (UE4): адреса полностью другие, CLEO-Redux с ASLR.
 
 Наш банк адресов и флагов — **для v1.0 EN** (gta-vc_11en.idb, base 0x400000).
 
@@ -45831,7 +45842,7 @@ if (car->m_nModelIndex != 194)
 `find_car_by_model(194)` (уже безопасный).
 
 ## XVI.4. ИЗВЕСТНАЯ ПРОБЛЕМА (в работе)
-Через время камера **возвращается на грузовик** —的游戏/миссия перехватывает
+Через время камера **возвращается на грузовик** — игра/миссия перехватывает
 камеру. Нужно удерживать камеру на самолёте (повторно вызывать `set_camera_on_car`
 в цикле или снять перехват миссии).
 
@@ -46239,7 +46250,7 @@ $7237 $7442 $7878 $8012 $8049 $8229 $8474 $8580
 | 3 | вертолёт кружит | цель «вперёд на 60 м» от вертолёта | подумал, autopilot как у самолёта | убрать `plane_goto_coords`/`set_car_gas` вообще |
 | 4 | `widescreen=0 tries=0 → КАТСЦЕНА ЗАВЕРШЕНА` | `get_m_widescreen()` читает 0 сразу | поверил названию API | ждать `$3391 == 1` |
 | 5 | `cheatstr=''` | снимок клавиш не наполняется | искал ошибку в `cheat()` | активация кнопкой / текущая сборка работает с `destr` |
-| 6 | `bad argument #5 to 'format' (no value)` | `getcarcoordes()` в середине аргументов Lua返回 только первое значение | не знал rule Lua | `local x,y,z = getcarcoordes()` затем format |
+| 6 | `bad argument #5 to 'format' (no value)` | `getcarcoordes()` в середине аргументов Lua возвращает только первое значение | не знал правило Lua | `local x,y,z = getcarcoordes()` затем format |
 | 7 | `bad argument in function set_car_tires_invulnerable` | передал `1` вместо `true` | подумал, int как у других API | boolean |
 | 8 | `$3392=0` у бомб 2/3/4 | у каждой бомбы свой счётчик `$3392..$3395` | копипаста одной переменной | `BOMB_STATE = {3392,3393,3394,3395}` |
 | 9 | `бомба (229.84 -347.13)` во всех 4 итерациях | радиус поиска 8 м, бомбы в 3 м | «найди ближайшую» нашёл первую | радиус 1.5 м |
@@ -46319,3 +46330,343 @@ STATE [перед ЛКМ бомбы 2]: $3391=1 $3392=3 $3393=1 $3394=0 $3395=0 
 - Новые API: `lualoader-src/funcs.cpp` (после `get_script_int`), `funcs.h`, `register.cpp`
 - Лог: `lualoader/log.txt`
 - Запуск игры: `Запуск GTA Vice City в оконном режиме.sh`
+
+
+---
+
+# Часть XXIV. КАРТА МЕНЮ ПОВЕРХ ИГРЫ ПО КЛАВИШЕ H (23.11.2026) — РАБОЧЕЕ РЕШЕНИЕ
+
+## XXIV.1. Задача и результат
+По нажатию **H** во время игрового процесса на экран выводится **большая карта,
+именно та, что отображается в меню**, с её собственными текстурами, без наших
+меток и без мигания. Повторное нажатие H скрывает карту.
+
+Файлы: `lualoader-src/compat/ma_mapoverlay.{h,cpp}`, подключены в `build.sh`
+(список `for c in compat/...`), вызовы в `plugin.cpp`:
+- `ma_mapoverlay_install()` — в конструкторе `Message` (после `ma_stream_install_hook`);
+- `ma_mapoverlay_frame()` — в `Events::gameProcessEvent` после `ma_tasks_frame()`.
+
+BUILD-GATE после каждого изменения: `_GLOBAL__sub_I=30, .tls=0x24`.
+
+## XXIV.2. Почему не сработали три предыдущих подхода (важно!)
+| Подход | Почему провалился |
+|---|---|
+| Своя текстура `radar` из `models/MAP.txd` | Это **другая** карта (радарная), на ней «странные значки», не меню |
+| `CRadar::DrawMap()` в `drawingEvent` | Ничего не рисует — игра перерисовывает поверх |
+| `CRadar::DrawMap()` в `drawBlipsEvent` | Тоже не дал нужной карты |
+| 9 спрайтов из `FrontEndMenuManager.m_aMenuSprites` | Во время игры `m_bSpritesLoaded == 0`, указатели пусты — экран пустой |
+
+## XXIV.3. РАБОЧЕЕ РЕШЕНИЕ: 9 текстур из `fronten2.txd`
+Как вы и подсказали, карта меню состоит из 9 частей. В `models/fronten2.txd`
+реально лежат текстуры (проверено по байтам файла):
+```
+mapTop01 mapTop02 mapTop03
+mapMid01 mapMid02 mapMid03
+mapBot01 mapBot02 mapBot03
+```
+Игра держит их в `CMenuManager::m_aMenuSprites[26]` (смещение `0x84`),
+но **только в меню**. Поэтому мы грузим TXD самим плагином:
+```cpp
+int slot = CTxdStore::AddTxdSlot("vc_menu_map");
+CTxdStore::LoadTxd(slot, "models/fronten2.txd");
+CTxdStore::PushCurrentTxd();
+CTxdStore::SetCurrentTxd(slot);
+g_tiles = new CSprite2d[9];
+for (int i = 0; i < 9; ++i)
+    g_tiles[i].SetTexture(const_cast<char*>(k_tileNames[i])); // mapTop01 ...
+CTxdStore::PopCurrentTxd();
+```
+В логе: `MAPOVERLAY: fronten2.txd загружен, слот=3, текстур карты меню=9/9`.
+
+## XXIV.4. Где рисовать: порядок событий VC 1.0 (причина мигания и «странных значков»)
+```
+drawingEvent -> drawHudEvent -> drawRadarMapEvent -> drawBlipsEvent
+```
+Если рисовать в `drawingEvent`, игра позже рисует HUD, радар и blips **поверх** карты —
+отсюда «странные значки». Рисуем в **последнем** `Events::drawBlipsEvent`.
+
+Но `drawBlipsEvent` приходит **по двум адресам за кадр** (`0x55AB18` и `0x49B34C`) —
+карта рисовалась дважды и **мигала**. Защита — один раз за игровой кадр:
+```cpp
+unsigned int now = CTimer::m_snTimeInMilliseconds;
+if (now == g_lastDrawTime) return;
+g_lastDrawTime = now;
+```
+
+## XXIV.5. Отрисовка сетки 3×3
+```cpp
+float size = min(SCREEN_WIDTH, SCREEN_HEIGHT) * 0.92f;
+float tile = size / 3.0f;
+for (row = 0; row < 3; ++row)
+  for (col = 0; col < 3; ++col) {
+    CSprite2d& s = g_tiles[row*3 + col];   // 0..8 = top..bot
+    s.Draw(CRect(left + col*tile, top + row*tile,
+                 left + (col+1)*tile, top + (row+1)*tile),
+           CRGBA(255,255,255,255));
+  }
+```
+Тёмная рамка рисуется `CSprite2d::DrawRect` вокруг квадрата.
+
+## XXIV.6. НОВЫЕ Lua-ФУНКЦИИ управления картой
+Реализованы в `compat/ma_mapoverlay.cpp` (`ma_mapoverlay_set/is_on`), обёртки в
+`funcs.cpp`, регистрация в `register.cpp`:
+
+| Функция | Аргументы | Возвращает | Назначение |
+|---|---|---|---|
+| `map_overlay_on()` | — | `true` | показать карту |
+| `map_overlay_off()` | — | `true` | скрыть карту |
+| `map_overlay_toggle()` | — | boolean (новое состояние) | переключить |
+| `map_overlay_is_on()` | — | boolean | узнать, открыта ли карта |
+
+**Пример:**
+```lua
+if Keypress("VK_H") then map_overlay_toggle() end
+-- или из любого скрипта:
+map_overlay_on()
+wait(5000)
+map_overlay_off()
+```
+Клавиша H работает независимо от Lua-скриптов; Lua-функции — дополнительный способ.
+
+## XXIV.7. BUILD-GATE и Wine-подводные камни
+1. **Никаких глобальных объектов с конструктором** (например, `CSprite2d g_tiles[9]`):
+   `new CSprite2d[9]` в `load_menu_map()`, глобал — только указатель.
+2. **Никакого `writelog()` в `ma_mapoverlay_install()`** — он вызывается из
+   глобального конструктора `Message` в `plugin.cpp`; IO под loader-lock вешает игру
+   (`RtlpWaitForCriticalSection ... blocked by 0000`). Лог — из `ma_mapoverlay_frame()`
+   и из Lua-обёрток, которые работают в игровом потоке.
+3. Не трогать `CSprite2d` после `shutdownRwEvent` — вызвать `Delete()` и `delete[]`.
+
+## XXIV.8. Чек-лист на будущее (для любой оверлей-графики)
+1. Искать картинку не «в памяти через CE», а среди **уже загруженных TXD** игры.
+2. Проверять, что спрайты реально загружены в текущем состоянии игры; если нет — грузить TXD самому.
+3. Рисовать в ПОСЛЕДНЕМ событии кадра, иначе HUD перекроет.
+4. Защищаться от двойного вызова события по времени кадра.
+5. Никаких глобальных конструкторов и IO в конструкторе ASI.
+
+
+---
+
+# Часть XXV. CMapCoordinates — координаты игрового мира по точке карты (23.11.2026)
+
+## XXV.1. Что добавлено
+Новый компонент `lualoader-src/compat/ma_mapcoords.{h,cpp}` (подключён в `build.sh`)
+и две Lua-функции в `funcs.cpp` / `register.cpp`. BUILD-GATE OK (30/0x24).
+
+Основа — готовое обратное преобразование из **Waypoint Mod** (IslamMachido),
+перенесённое на Plugin-SDK.
+
+## XXV.2. Поля CMenuManager (смещения подтверждены SDK)
+| Поле | Смещение | Адрес (VC 1.0) |
+|---|---|---|
+| `m_bDrawRadarOrMap` | 0x35 | 0x869665 |
+| `m_fMapZoom` | 0x40 | 0x869670 |
+| `m_fMapBaseX` | 0x44 | 0x869674 |
+| `m_fMapBaseY` | 0x48 | 0x869678 |
+| `m_nMouseTempPosX` | 0x64 | 0x869694 |
+| `m_nMouseTempPosY` | 0x68 | 0x869698 |
+
+Константы преобразования (из Waypoint Mod): `0x68FD0C`(kx), `0x68FD10`(bx),
+`0x68FD14`(sx), `0x68FD18`(ky), `0x68FD1C`(by), `0x68FD20`(sy).
+
+## XXV.3. Алгоритм (экран -> радар -> мир)
+```cpp
+kx=*(float*)0x68FD0C; bx=*(float*)0x68FD10; sx=*(float*)0x68FD14;
+ky=*(float*)0x68FD18; by=*(float*)0x68FD1C; sy=*(float*)0x68FD20;
+scaleX = RsGlobal.screenWidth  * sx;
+scaleY = RsGlobal.screenHeight * sy;
+radar.x = (mouseTempX / scaleX - (bx*zoom + m_fMapBaseX)) / (kx*zoom);
+radar.y = (m_fMapBaseY - by*zoom - mouseTempY / scaleY) / (ky*zoom);
+CRadar::TransformRadarPointToRealWorldSpace(world, radar);
+```
+
+**Важное отличие от оригинального мода:** мы НЕ требуем `m_bDrawRadarOrMap`, потому что
+наш оверлей рисует карту сам, а флаг меню во время геймплея равен 0. Достаточно
+`m_fMapZoom != 0`.
+
+Фактические значения в работающей сборке (лог):
+```
+MAPCOORDS: drawMap=0 mouseTemp=(476 324) zoom=162.00000 base=(352.593 225.000)
+           k=(0.661934 0.665635) b=(0.234800 0.065807)
+           s=(0.001418 0.002232) screen=952x648
+```
+`mouseTemp=(476,324)` — ровно центр экрана 952×648 (перекрестие неподвижно, карта
+двигается под ним).
+
+## XXV.4. Новые Lua-функции
+| Функция | Возвращает | Назначение |
+|---|---|---|
+| `map_crosshair_world()` | `x, y` или `nil` | координаты игрового мира под перекрестием |
+| `map_coords_diag()` | `true` | записать в лог все поля CMenuManager и константы |
+
+Пример:
+```lua
+local x, y = map_crosshair_world()
+if x then log_line(string.format("точка карты -> мир: %.1f %.1f", x, y)) end
+map_coords_diag()   -- диагностика при настройке
+```
+
+## XXV.5. Проверка работоспособности (факт из лога)
+```
+MAPOVERLAY: перекрестие -> мир (123.3 -865.3)
+MAPOVERLAY: перекрестие -> мир (114.3 -981.9)
+MAPOVERLAY: перекрестие -> мир (116.1 -980.9)
+```
+Значения меняются вместе с перемещением Томми и попадают в тот же район, что и его
+координаты из игрового лога (≈136, -817) — преобразование работает.
+
+## XXV.6. Диагностика в оверлее
+При открытой карте (H) раз в ~10 секунд в лог пишутся `MAPCOORDS: ...` и
+`MAPOVERLAY: перекрестие -> мир (X Y)`, чтобы в любой момент видеть, что данные живые.
+
+## XXV.7. Ограничения
+Адреса констант привязаны к VC 1.0 EN (Plugin-SDK). Для 1.1/Steam нужно перепроверить.
+Функция даёт координаты точки **в системе отсчёта меню**; при использовании с нашим
+собственным оверлеем (сетка 3×3) нужна дополнительная калибровка под наш прямоугольник.
+
+
+---
+
+# Часть XXVI. ВОСПРОИЗВЕДЕНИЕ WAV И СКРИПТ «Вызов такси» (23.11.2026)
+
+## XXVI.1. Новые Lua-функции звука
+Вместо отсутствующих в SDK опкодов `03CF LOAD_WAV / 03D0 IS_WAV_LOADED /
+03D1 PLAY_WAV / 03D2 HAS_WAV_ENDED` добавлены две функции через WinMM (`mmsystem.h`):
+
+| Функция | Аргумент | Возвращает | Назначение |
+|---|---|---|---|
+| `play_wav_file(path)` | путь к WAV (например `"Audio/fin_1a.wav"`) | boolean | проиграть асинхронно (`PlaySoundA`, `SND_FILENAME\|SND_ASYNC\|SND_NODEFAULT`) |
+| `stop_wav_file()` | — | `true` | остановить (`PlaySoundA(NULL,NULL,SND_PURGE)`) |
+
+**Сборка:** в `build.sh` добавлен `-lwinmm` на линковке (иначе `undefined reference to _imp__PlaySoundA@12`).
+BUILD-GATE OK (30/0x24).
+
+Звук взён из папки игры: `Audio/fin_1a.wav` — тот же, что `03CF: load_wav 'FIN_1a'` в CLEO-скрипте `taxi.cs`.
+
+## XXVI.2. Скрипт `lualoader/taxi.lua` (без префикса Автопрохождение_)
+Активация — **клавиша T** (`Keypress("VK_T")`). Цепочка по `taxi.cs` и вашим уточнениям:
+1. Томми берёт телефон → фраза cok1_6 «I'm sick of these pricks. / Меня уже тошнит от этих придурков.» + **звук `Audio/fin_1a.wav`** → текст «Такси подъезжает / Taxi rides to You» → телефон убирается.
+2. Модели TAXI (150) и WMOCA (74) → такси у ближайшей дороги (`find_road_for_car`), водитель, иммунитеты.
+3. **Быстрее и агрессивнее:** `set_car_max_speed(taxi, 90)` (в .cs было 50), старт 40, `set_driving_style_op(taxi, 1)`.
+4. Такси едет к Томми → Томми садится пассажиром → `set_player_control(0)`.
+5. Выводится наша большая карта (`map_overlay_on`), ждём **E**.
+6. E → `map_cross_get()` записывает координаты перекрестия, карта закрывается (`map_overlay_off`), `find_road_for_car(wx,wy)` → такси едет на ближайшую дорогу.
+7. **Только во время поездки** — вторая фраза bnk4_3j «Yeah, you'll have somebody's eye out! / Ага, ты так кому-нибудь глаз выбьешь!».
+8. По прибытии `exitcar(player)`, `set_player_control(1)`, текст «we're here, boss. / Мы на месте, босс.».
+
+Логи в `log.txt`: `TAXICALL START ... STEP1…STEP10 ... END`.
+
+## XXVI.3. ИСПРАВЛЕНИЯ после первого теста (причины вылета и плохого текста)
+1. **`hold_cellphone` ждёт число, не boolean.** В логе `bad argument in function hold_cellphone`.
+   Было `hold_cellphone(player, true)` → стало `hold_cellphone(player, 1)` / `(player, 0)`.
+2. **`createped(model, type, x, y, z)`** — модель ПЕРВАЯ, тип второй. Было `createped(4, 74, ...)`
+   → создавался пед с моделью 4 → `ACCESS_VIOLATION` в `COMMAND_CREATE_CHAR` (опкод 0x9A).
+   Стало `createped(DRIVER_MODEL, 4, ...)`.
+3. **Русский текст портился** из-за `mbstowcs` в C-локейте в `ma_msgpool::put`
+   (funcs.cpp:1498). Заменено на `MultiByteToWideChar(CP_UTF8, ...)` — `showtext`/`printmessage`
+   теперь правильно показывают кириллицу.
+4. **Маркера над такси не было.** Добавлен `create_marker_car(taxi)` (аналог `0186` из `taxi.cs`).
+
+---
+
+## XXVII. НОРМАЛИЗАЦИЯ БУЛЕВЫХ АРГУМЕНТОВ (23.11.2026)
+
+Любая функция, ждущая `true/false`, теперь принимает и `1/0`, и наоборот.
+В `funcs.cpp` добавлены хелперы:
+
+- `ma_arg_is_bool(type)` — `LUA_TBOOLEAN`, `LUA_TNUMBER` или `LUA_TNIL`;
+- `ma_arg_bool(L, idx)` — `0` → `false`, любое другое число → `true`, boolean как есть
+  (обычный `lua_toboolean` считает `0` истиной — поэтому нужен свой);
+- `ma_arg_int(L, idx)` — `true` → `1`, `false` → `0`, число как есть.
+
+Автоматически заменено: 80 проверок `LUA_TBOOLEAN == lua_type`, 5 проверок `!=`
+и 93 вызова `lua_toboolean`. Отдельно исправлены флаговые функции, которые
+проверяли только `LUA_TNUMBER`: `freeze_char_position` (заморозка актёра),
+`freeze_object_position`, `freeze_onscreen_timer`, `ped_frozen`.
+
+BUILD-GATE OK (30/0x24).
+
+
+---
+
+# Часть XXVIII. МАКРОСЫ С БОЛЬШОЙ БУКВЫ И УРОКИ «ВЫЗОВА ТАКСИ» (23.11.2026)
+
+## XXVIII.1. Принцип «большая буква = макрос»
+Пользователь установил правило: если функция называется с заглавной буквы — она
+**сама всё делает**: грузит модель, проверяет загрузку, создаёт сущность и выгружает модель.
+С маленькой — разработчик грузит модель сам, функция только проверяет.
+
+| Функция | Аргумент 1 | Поведение |
+|---|---|---|
+| `create_obj(model, x, y, z)` | число | модель грузит вызывающий; функция проверяет `HasModelLoaded`, создаёт и `release_model` |
+| `Createobj(model, x, y, z)` | число | **макрос**: грузит сам → проверяет → создаёт → выгружает |
+| `createcar(model, x, y, z)` | число | модель грузит вызывающий; создаёт авто |
+| `Createcar(model, x, y, z)` | число **или** строка | **макрос**: с числом грузит/создаёт/выгружает; со строкой ищет имя в `car_model_list` и держит модель |
+| `createped(model, type, x, y, z)` | числа | модель грузит вызывающий |
+| `Createped("NAME", x, y, z)` | строка | макрос, умеет спец-актёров (IGMERC и др.) |
+| `CreateSpecialActor(model, type, x, y, z)` | числа | **макрос для специального актёра**: грузит → `COMMAND_CREATE_CHAR` → `release_model` |
+
+Все макросы при неудаче пишут в лог и возвращают `nil`. BUILD-GATE OK (30/0x24).
+
+## XXVIII.2. Новые API этого этапа (полный список)
+| Функция | Назначение |
+|---|---|
+| `play_wav_file("Audio/fin_1a.wav")` | проиграть WAV через WinMM (`PlaySoundA`, `-lwinmm` в `build.sh`) |
+| `stop_wav_file()` | остановить звук (`SND_PURGE`) |
+| `map_overlay_on/off/toggle/is_on` | управление большой картой меню |
+| `map_cross_set(u,v)`, `map_cross_get()` | перекрестие + мировые координаты |
+| `map_crosshair_world()`, `map_coords_diag()` | точка карты → мир, диагностика полей |
+| `set_all_timers_99()`, `restore_all_timers()` | 32 убывающих таймера → 99 мин и обратно |
+| `setcamera...` | камера в оверлее |
+
+## XXVIII.3. РЕЖИМ ВОЖДЕНИЯ ИЗ МИССИИ 23 «The Driver» (источник: `23 - The Driver.txt`)
+```
+0423: SET_CAR_TRACTION        1.5
+00AD: SET_CAR_CRUISE_SPEED    45
+00AE: SET_CAR_DRIVING_STYLE   2
+03AB: SET_CAR_STRONG          1
+039C: SET_CAR_WATERTIGHT      1
+03ED: SET_UPSIDEDOWN_CAR_NOT_DAMAGED 1
+02AA: SET_CAR_ONLY_DAMAGED_BY_PLAYER 1
+0175: SET_CAR_HEADING         ...
+00A9: CAR_SET_IDLE
+```
+Lua-эквивалент в `taxi.lua`: `set_car_traction(taxi,1.5)`, `setcarspeed(taxi,45)`,
+`set_driving_style_op(taxi,2)`, `setcarstrong`, `set_car_watertight(true)`,
+`car_upside_safe(true)`, `set_car_only_damaged_by_player(true)`,
+`set_ped_max_drive_speed(driver,45)`.
+**Константная скорость 45**, а не рывок — именно это убирает «быстро потом медленно».
+
+## XXVIII.4. ВСЕ ПОЛОМКИ «ВЫЗОВА ТАКСИ» С ПРИЧИНАМИ (не повторять!)
+| Симптом | Причина | Лечение |
+|---|---|---|
+| `attempt to call a nil value 'set_car_driving_style_op'` | имя API — **`set_driving_style_op`** (без `car`) | правильное имя |
+| `bad argument in function hold_cellphone` | функция ждёт **число**, а не `true` | `hold_cellphone(player, 1)` / `(player, 0)` |
+| Такси «летает» по карте | `cardrive` и скорость повторялись каждые 100 мс; макс. 140 подбрасывало | команда один раз; cruise 45–50 |
+| Такси ехало **от** игрока (дистанция 284→396) | `setcarangle` каждые 100 мс ломал AI-маршрут | поворот **только при спавне** |
+| Такси застревает в переулке | цель — сырые координаты Томми, не дорога | `find_road_for_car` (аналог `02C1`) + `STUCK` перестановка |
+| Камера дёргается | `TakeControlNoEntity(...,1,1)` — мгновенный режим | `set_camera_on_car(taxi,18,2)` — обычная камера позади |
+| Камера смотрит сверху | `set_camera_position` принимает вектор, не точку | `set_camera_and_point` / `camera_at_point(...,2)` |
+| Русский текст кракозябрами | `mbstowcs` в C-локейте | `MultiByteToWideChar(CP_UTF8)` в `ma_msgpool::put` |
+| `Createcar(150,...)` возвращал nil | заглавная версия ждала **строку** | добавить числовой макрос (XXVIII.1) |
+| Водитель не создавался | `createped(4,74,...)` — перепутаны `model`/`type` | `setcardrive(taxi,74,4)` — сразу в машине |
+| Маркер не удалялся | не было вызова | `remove_blip(marker)` по прибытии |
+| `STUCK` спамил каждую секунду | срабатывал на 0-й секунде | счётчик `stuck_t > 30` (3 сек) |
+
+## XXVIII.5. ПРАВИЛО СТАБИЛЬНОСТИ (главный вывод)
+1. **Не трогать угол машины в цикле** — AI сам едет по маршруту.
+2. **Не повторять `cardrive` и скорость каждый такт** — одна команда, потом наблюдение.
+3. **Цель поездки всегда привязывать к дороге** (`find_road_for_car`).
+4. **Не менять игровые флаги ради скорости**; ускорять только удалением лишних пауз.
+5. **Рабочий taxi доезжал**: лог 07:05 — `TAXIPOS` дистанция 249 → 8.9, `STEP3ARRIVE`.
+   Снимок рабочего варианта хранится в истории; при сомнениях — откатывать к нему.
+
+## XXVIII.6. СИНТАКСИС `taxi.lua` (рабочая заготовка, с комментариями на каждой строке)
+- Активация: **T** (`Keypress("VK_T")`).
+- Телефон: `loadmodel(258)` → `hold_cellphone(1)` → пауза ~1 сек → фраза cok1_6 + `Audio/fin_1a.wav` → «Такси подъезжает» → `hold_cellphone(0)`.
+- Спавн: `find_road_for_car(px+170.3, py+170.3, pz)` → `load_scene` → `Createcar(150,...)` → `setcardrive(taxi,74,4)` → маркер.
+- Поездка: `cardrive` к дороге у Томми, камера `set_camera_on_car`, логи `TAXIPOS`, `STUCK`.
+- Посадка: `set_char_obj_enter_car_as_passenger` + fallback `warp_ped_passenger`, `set_player_control(0)`.
+- Карта: `map_overlay_on`, **E** → `map_cross_get` → `find_road_for_car` → `cardrive`.
+- Фразы **только в поездке**: cok1_6 и bnk4_3j.
+- Финал: `exitcar`, `set_player_control(1)`.

@@ -1,4 +1,26 @@
 #include "funcs.h"
+#include "compat/ma_mapoverlay.h"
+#include "compat/ma_mapcoords.h"
+#include <mmsystem.h>   // PlaySoundA — WAV из Audio/
+
+// === НОРМАЛИЗАЦИЯ БУЛЕВЫХ АРГУМЕНТОВ (23.11.2026) ===
+// Любая функция, ждущая true/false, теперь понимает и 1/0, и true/false.
+// lua_toboolean в Lua считает 0 "truthy" — поэтому 0 обрабатываем явно.
+static inline bool ma_arg_is_bool(int t) {
+    return t == LUA_TBOOLEAN || t == LUA_TNUMBER || t == LUA_TNIL;
+}
+static inline int ma_arg_int(lua_State* L, int idx) {   // 1/0 из true/false или числа
+    int t = lua_type(L, idx);
+    if (t == LUA_TBOOLEAN) return lua_toboolean(L, idx) ? 1 : 0;
+    if (t == LUA_TNUMBER)  return (int)lua_tonumber(L, idx);
+    return 0;
+}
+static inline bool ma_arg_bool(lua_State* L, int idx) {
+    int t = lua_type(L, idx);
+    if (t == LUA_TNUMBER) return lua_tonumber(L, idx) != 0.0;
+    if (t == LUA_TBOOLEAN) return lua_toboolean(L, idx) != 0;
+    return false;   // nil / отсутствующий аргумент
+}
 #include <climits>// INT_MAX — верхняя граница wait(ms)
 #include <mutex>
 #include <atomic>
@@ -299,12 +321,15 @@ int Createped(lua_State* L) {// макрос создать педа.
 int Createcar(lua_State* L) {// макрос создать авто на координатах.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TSTRING == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
-			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {// значение число.
+		// 23.11: макрос с БОЛЬШОЙ буквы принимает и ЧИСЛО (id модели), и СТРОКУ (имя).
+		// Числовой путь: сам грузит, создаёт авто и ВЫГРУЖАЕТ модель (release_model).
+		bool by_id = (LUA_TNUMBER == lua_type(L, 1));
+		if ((by_id || LUA_TSTRING == lua_type(L, 1)) && LUA_TNUMBER == lua_type(L, 2)
+			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
 			CVehicle* car = NULL;
-			const char* name_model = lua_tostring(L, 1);// модель авто.
+			const char* name_model = (LUA_TSTRING == lua_type(L, 1)) ? lua_tostring(L, 1) : "";
 
-			int model = find_in_map(car_model_list, name_model);
+			int model = by_id ? (int)lua_tointeger(L, 1) : find_in_map(car_model_list, name_model);
 			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
 			float z = lua_tonumber(L, 4); CVector pos = { x, y, z };
 			if (model == 0) { writelog("Createcar: имени нет в списке или модель не загрузилась"); lua_pushnil(L); return 1; }// (финал-8) model==0 = имени НЕТ (0 — валидный id, но не авто/объект)
@@ -321,7 +346,10 @@ int Createcar(lua_State* L) {// макрос создать авто на коо
 			}
 
 			Command<COMMAND_CREATE_CAR>(model, pos.x, pos.y, pos.z, &car);
-			if (car != NULL) hold_model(L, model);
+			if (car != NULL) {
+				if (by_id) release_model(model);   // числовой макрос: CREATE -> ВЫГРУЗКА
+				else hold_model(L, model);         // строковый путь: держим как раньше
+			}
 			if (car == NULL) {
 				// (27.10) Загрузка теперь идёт через load_model_before_avalible
 				// (без ma_stream_want). Модель встала, а CREATE_CAR вернул NULL —
@@ -370,8 +398,8 @@ int Createobj(lua_State* L) {// макрос создать объект.
 			CObject* obj = NULL;
 			if (model == 0 || !ma_model_requestable(model) || !load_model_before_avalible(model)) { writelog("Createobj: имени нет в списке или модель не загрузилась"); lua_pushnil(L); return 1; }// (финал-8) model==0 = имени НЕТ (0 — валидный id, но не авто/объект); (26.10) + гейт CD-образа
 			Command<COMMAND_CREATE_OBJECT>(model, pos.x, pos.y, pos.z, &obj);
-			if (obj != NULL) hold_model(L, model);
-			if (obj == NULL) { writelog("Createobj: CREATE_OBJECT вернул NULL"); lua_pushnil(L); return 1; }
+			if (obj != NULL) release_model(model);   // macros: CREATE -> ВЫГРУЗКА модели
+			if (obj == NULL) { release_model(model); writelog("Createobj: CREATE_OBJECT вернул NULL"); lua_pushnil(L); return 1; }
 			{ std::lock_guard<std::mutex> lk(mtx); mapobjs.emplace(obj, L); }// добавить в map для авто.
 			lua_pushlightuserdata(L, obj);// отправить в стек указатель на объект.
 			return 1;
@@ -664,11 +692,11 @@ int opendoorcar(lua_State* L) { // открыть дверь авто.
 int draw_corona(lua_State* L) {// создать корону.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
+		if (ma_arg_is_bool(lua_type(L, 1)) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
 			&& LUA_TNUMBER == lua_type(L, 5) && LUA_TNUMBER == lua_type(L, 6) && LUA_TNUMBER == lua_type(L, 7) && LUA_TNUMBER == lua_type(L, 8)
 			&& LUA_TNUMBER == lua_type(L, 9) && LUA_TNUMBER == lua_type(L, 10)) {// аудит 25.10: индекс 6 не проверялся.
 
-			bool switc = lua_toboolean(L, 1);// вкл\выкл корону.
+			bool switc = ma_arg_bool(L, 1);// вкл\выкл корону.
 			float radius = lua_tonumber(L, 2);// радиус короны.
 			int type = lua_tointeger(L, 3);// тип.
 			int glow_flare = lua_tointeger(L, 4); // свечение.
@@ -701,7 +729,7 @@ int game_font_print(lua_State* L) {// вывести особенный игро
 				lua_gettable(L, -2); lua_insert(L, i);
 			}
 			lua_pop(L, 1);
-			bool printgame = lua_toboolean(L, 1);//включить отобржения на экране
+			bool printgame = ma_arg_bool(L, 1);//включить отобржения на экране
 			string strprintgame = lua_tostring(L, 2);
 			int abc_x = lua_tointeger(L, 3);
 			int ord_y = lua_tointeger(L, 4);
@@ -1498,13 +1526,12 @@ namespace ma_msgpool {
 	static wchar_t g_pool[kSlots][kChars];
 	static volatile LONG g_next = 0;
 
-	wchar_t* put(const char* c) {// конвертировать и отдать ПОСТОЯННЫЙ слот.
+	wchar_t* put(const char* c) {// конвертировать UTF-8 -> wchar и отдать ПОСТОЯННЫЙ слот.
 		LONG n = InterlockedIncrement(&g_next) - 1;
 		wchar_t* dst = g_pool[n % kSlots];
-		size_t w = mbstowcs(dst, c, kChars - 1);
-		if (w == (size_t)-1) w = 0;
-		if (w > (size_t)(kChars - 1)) w = kChars - 1;
-		dst[w] = 0;
+		// mbstowcs в C-локейте коверкает кириллицу: используем явный CP_UTF8.
+		int w = MultiByteToWideChar(CP_UTF8, 0, c, -1, dst, kChars - 1);
+		if (w <= 0) { dst[0] = 0; }
 		dst[kChars - 1] = 0;
 		return dst;
 	}
@@ -1982,11 +2009,14 @@ int createobj(lua_State* L) {// создать объект.
 			float x = lua_tonumber(L, 2); float y = lua_tonumber(L, 3);
 			float z = lua_tonumber(L, 4); CVector pos = { x, y, z };
 			CObject* obj = NULL;
-			// Правило: без загруженной модели не создаём; после создания ДЕРЖИМ
-			// модель за скриптом (hold_model) — она не выгружается, пока жива сущность.
-			if (model == 0 || !ma_model_requestable(model) || !load_model_before_avalible(model)) { writelog("createobj: имени нет в списке или модель не загрузилась"); lua_pushnil(L); return 1; }// (финал-8) model==0 = имени НЕТ; (26.10) + гейт CD-образа
+			// Маленькая буква: модель должен загрузить ВЫЗЫВАЮЩИЙ (loadmodel).
+			// Здесь только проверяем, что она в памяти, создаём и ВЫГРУЖАЕМ.
+			if (model == 0 || !ma_model_requestable(model) || !CStreaming::HasModelLoaded(model)) {
+				writelog("createobj: модель не загружена — сначала loadmodel(model)");
+				lua_pushnil(L); return 1;
+			}
 			Command<COMMAND_CREATE_OBJECT>(model, pos.x, pos.y, pos.z, &obj);
-			if (obj != NULL) hold_model(L, model);// модель ДЕРЖИТСЯ скриптом, пока жив объект
+			if (obj != NULL) release_model(model);   // CREATE -> ВЫГРУЗКА модели
 			if (obj == NULL) { writelog("createobj: CREATE_OBJECT вернул NULL"); lua_pushnil(L); return 1; }
 			{ std::lock_guard<std::mutex> lk(mtx); mapobjs.emplace(obj, L); }// добавить в map для авто.
 			lua_pushlightuserdata(L, obj);// отправить в стек указатель на объект.
@@ -2409,12 +2439,12 @@ int set_current_weapon_ped(lua_State* L) {// установить текущее
 int set_ped_stay_when_attacked(lua_State* L) {// пед держит позицию при атаке (0350).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на педа.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на педа.
 
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			if (ped == NULL) return 0;
-			bool stay = lua_toboolean(L, 2);// держать позицию.
+			bool stay = ma_arg_bool(L, 2);// держать позицию.
 
 			Command<COMMAND_SET_CHAR_STAY_IN_SAME_PLACE>(CPools::GetPedRef(ped), stay);
 			return 0;
@@ -2463,11 +2493,11 @@ int set_ped_personality(lua_State* L) {// уст. личность педа (024
 int set_ped_only_damaged_by_player(lua_State* L) {// пед ранен только игроком (02A9: SET_CHAR_ONLY_DAMAGED_BY_PLAYER).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// (ped, flag).
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// (ped, flag).
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CHAR_ONLY_DAMAGED_BY_PLAYER>(CPools::GetPedRef(ped), flag);// установить флаг.
 			return 0;
 		}
@@ -2498,11 +2528,11 @@ int is_ped_health_greater(lua_State* L) {// здоровье педа больш
 int make_obj_targettable(lua_State* L) {// в объект можно целиться (035D: MAKE_OBJECT_TARGETTABLE).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// (obj, flag).
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// (obj, flag).
 			const void* p = lua_topointer(L, 1);
 			CObject* obj = findobjinpool(p);// получить указатель на объект.
 			if (obj == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_MAKE_OBJECT_TARGETTABLE>(CPools::GetObjectRef(obj), flag);// установить целевой флаг.
 			return 0;
 		}
@@ -2515,11 +2545,11 @@ int make_obj_targettable(lua_State* L) {// в объект можно целит
 int set_object_collision(lua_State* L) {// объект сталкивается с миром? (0382: SET_OBJECT_COLLISION).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// (obj, flag).
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// (obj, flag).
 			const void* p = lua_topointer(L, 1);
 			CObject* obj = findobjinpool(p);// получить указатель на объект.
 			if (obj == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_OBJECT_COLLISION>(CPools::GetObjectRef(obj), flag);// bUsesCollision (reVC Script4.cpp).
 			return 0;
 		}
@@ -2532,11 +2562,11 @@ int set_object_collision(lua_State* L) {// объект сталкивается
 int set_object_dynamic(lua_State* L) {// объект динамический (падает/двигается)? (0392: SET_OBJECT_DYNAMIC).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// (obj, flag).
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// (obj, flag).
 			const void* p = lua_topointer(L, 1);
 			CObject* obj = findobjinpool(p);// получить указатель на объект.
 			if (obj == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_OBJECT_DYNAMIC>(CPools::GetObjectRef(obj), flag);// SetIsStatic/AddToMovingList (reVC Script4.cpp).
 			return 0;
 		}
@@ -2991,8 +3021,8 @@ int set_wanted(lua_State* L) {// уcтановить уровень розыск
 int set_widescreen(lua_State* L) {// вкл/выкл широкий экран.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {// значение булевое.
-			bool switc = lua_toboolean(L, 1);//
+		if (ma_arg_is_bool(lua_type(L, 1))) {// значение булевое.
+			bool switc = ma_arg_bool(L, 1);//
 			Command<COMMAND_SWITCH_WIDESCREEN>(switc);
 			return 0;
 		}
@@ -3048,8 +3078,8 @@ int clear_wanted(lua_State* L) {// убрать уровень розыска.
 int set_police_ignore_player(lua_State* L) {// копы игнорируют игрока? (01F7: SET_POLICE_IGNORE_PLAYER).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {// (flag) — игрок всегда фокусный (CWorld::PlayerInFocus).
-			bool flag = lua_toboolean(L, 1);
+		if (ma_arg_is_bool(lua_type(L, 1))) {// (flag) — игрок всегда фокусный (CWorld::PlayerInFocus).
+			bool flag = ma_arg_bool(L, 1);
 			Command<COMMAND_SET_POLICE_IGNORE_PLAYER>(CWorld::PlayerInFocus, flag);// m_bIgnoredByCops + StopAllLawEnforcers (reVC Script3.cpp).
 			return 0;
 		}
@@ -3485,8 +3515,8 @@ int setflagmission(lua_State* L) {// уcтановить флага миссии
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
  	unsigned int& OnAMissionFlag = *(unsigned int*)0x978748;
  	try {
- 		if (LUA_TBOOLEAN == lua_type(L, 1)) {// значение число.
-			bool flag = lua_toboolean(L, 1);
+ 		if (ma_arg_is_bool(lua_type(L, 1))) {// значение число.
+			bool flag = ma_arg_bool(L, 1);
 			CTheScripts::ScriptSpace[OnAMissionFlag] = flag;
 			return 0;
 		}
@@ -3606,8 +3636,8 @@ int Getflagmission(lua_State* L) {// большая: поднять сторож
 
 int Setflagmission(lua_State* L) {// большая: поставить флаг + поднять сторож.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
-	if (LUA_TBOOLEAN == lua_type(L, 1)) {
-		bool flag = lua_toboolean(L, 1);
+	if (ma_arg_is_bool(lua_type(L, 1))) {
+		bool flag = ma_arg_bool(L, 1);
 		mission_flag_set(flag);
 		if (flag) mission_watch_start(L);
 		else {
@@ -3777,6 +3807,41 @@ int play_voice(lua_State* L) {// проиграть реплику педа.
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 	return 0;
 };
+
+// === МАКРОС "СОЗДАТЬ АКТЁРА" С БОЛЬШОЙ БУКВЫ (23.11.2026) ===
+// CreateSpecialActor(model, type, x, y, z) — числовой id модели:
+//   сам грузит модель -> проверяет -> создаёт актёра -> ВЫГРУЖАЕТ модель.
+// (Тип 4 — обычный уличный актёр; 5 — специальный/_static.)
+int CreateSpecialActor(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
+			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) &&
+			LUA_TNUMBER == lua_type(L, 5)) {
+			int model = (int)lua_tointeger(L, 1);
+			int type  = (int)lua_tointeger(L, 2);
+			float x = lua_tonumber(L, 3), y = lua_tonumber(L, 4), z = lua_tonumber(L, 5);
+			CVector pos = { x, y, z };
+			if (model == 0 || !ma_model_requestable(model) || !load_model_before_avalible(model)) {
+				writelog("CreateSpecialActor: модель не загрузилась — актёр не создаётся");
+				lua_pushnil(L); return 1;
+			}
+			CPed* ped = nullptr;
+			Command<COMMAND_CREATE_CHAR>(type, model, pos.x, pos.y, pos.z, &ped);
+			if (ped == nullptr) {
+				release_model(model);       // création не удалась — снять модель
+				writelog("CreateSpecialActor: CREATE_CHAR вернул NULL");
+				lua_pushnil(L); return 1;
+			}
+			release_model(model);           //macro: выгружаем сразу после создания
+			{ std::lock_guard<std::mutex> lk(mtx); mappeds.emplace(ped, L); }
+			lua_pushlightuserdata(L, ped);
+			return 1;
+		}
+		throw "bad argument in function CreateSpecialActor";
+	} catch (const char* x) { writelog(x); }
+	return 0;
+}
 
 int createped(lua_State* L) {// создать педа.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
@@ -4545,7 +4610,7 @@ int star_timer(lua_State* L) {// ([ключ, флаг]) — reVC Script4.cpp:178
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		const char* str = (LUA_TSTRING == lua_type(L, 1)) ? lua_tostring(L, 1) : "";
-		bool flag = (!lua_isnoneornil(L, 2) && LUA_TBOOLEAN == lua_type(L, 2)) ? (lua_toboolean(L, 2) != 0) : false;
+		bool flag = (!lua_isnoneornil(L, 2) && ma_arg_is_bool(lua_type(L, 2))) ? (ma_arg_bool(L, 2) != 0) : false;
 		char key[8] = {};
 		for (int k = 0; k < 7 && str[k]; k++) {
 			char c = str[k]; if (c >= 'A' && c <= 'Z') c = (char)(c - 'A' + 'a'); key[k] = c;
@@ -8209,7 +8274,7 @@ int set_cops_ignored(lua_State* L) {// установить игнор копо�
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {//03BF: set_player $PLAYER_CHAR ignored_by_everyone_to 0
 		if (LUA_TNUMBER == lua_type(L, 1)) {// значение число.
-			int status = lua_toboolean(L, 1);
+			int status = ma_arg_bool(L, 1);
 
 			Command<COMMAND_SET_EVERYONE_IGNORE_PLAYER>(CWorld::PlayerInFocus, status);
 			return 0;
@@ -8243,13 +8308,13 @@ int set_camera_near_clip(lua_State* L) {// установить обрезку �
 int setpedcrouch(lua_State* L) {// пед сел.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))
 			&& LUA_TNUMBER == lua_type(L, 3)) {// указатель на педа.
 
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool sw = lua_toboolean(L, 2);
+			bool sw = ma_arg_bool(L, 2);
 			int time = lua_tonumber(L, 3);//
 			Command<COMMAND_SET_CHAR_CROUCH>(CPools::GetPedRef(ped), sw, time);
 			return 0;
@@ -8434,12 +8499,12 @@ int set_player_mod(lua_State* L) {// уст настроения игрока.
 int setped_damaged_player(lua_State* L) {// педу может нанести ущерб только игрок.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на педа.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на педа.
 
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool sw = lua_toboolean(L, 2);
+			bool sw = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CHAR_ONLY_DAMAGED_BY_PLAYER>(CPools::GetPedRef(ped), 0);
 			return 0;
 			/*
@@ -8457,12 +8522,12 @@ int setped_damaged_player(lua_State* L) {// педу может нанести �
 int set_ped_reaction_threat(lua_State* L) {// уст реакцию педа на ответную угрозу.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на педа (аудит 25.10: было «==(L, 2)» — опечатка, проверка всегда истинна).
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на педа (аудит 25.10: было «==(L, 2)» — опечатка, проверка всегда истинна).
 
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool sw = lua_toboolean(L, 2);
+			bool sw = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CHAR_THREAT_REACTION>(CPools::GetPedRef(ped),sw);// уст реакцию педа на ответную угрозу.
 
 			return 0;
@@ -8476,11 +8541,11 @@ int set_ped_reaction_threat(lua_State* L) {// уст реакцию педа н�
 int obj_target(lua_State* L) {// в объект можно целиться.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// значение объект.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// значение объект.
 			const void* p = lua_topointer(L, 1);
 			CObject* obj = findobjinpool(p);// получить указатель на объект.
 			if (obj == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool sw = lua_toboolean(L, 2);
+			bool sw = ma_arg_bool(L, 2);
 			Command<COMMAND_MAKE_OBJECT_TARGETTABLE>(CPools::GetObjectRef(obj), sw);// удалить объект.
 
 			return 0;
@@ -8731,13 +8796,13 @@ int set_brakes_car(lua_State* L) {//уст тормоза авто игрока.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		//0221: set_player $PLAYER_CHAR apply_brakes_to_car 1
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {
+		if (ma_arg_is_bool(lua_type(L, 1))) {
 			/*	Описание	Применяет тормоза к машине игрока.
 Параметры (v2)	1) Дескриптор игрока (целое число) (INT)
 2) логическое значение (1 или 0) (INT)
 Игры	са vc iii
 */
-			bool s = lua_toboolean(L, 1);
+			bool s = ma_arg_bool(L, 1);
 			Command<COMMAND_APPLY_BRAKES_TO_PLAYERS_CAR>(CWorld::PlayerInFocus, s);
 			return 0;
 		}
@@ -8750,13 +8815,13 @@ int set_brakes_car(lua_State* L) {//уст тормоза авто игрока.
 int setmarker_brightness(lua_State* L) {// уст яркость маркера.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {//	0166: set_marker $4082 brightness_to 1.
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// значение число.
+		if (LUA_TNUMBER == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// значение число.
 			/* Описание	Устанавливает, должна ли метка отображаться затемненной.
 Параметры (v2)	1) Дескриптор метки (целое число) (INT)
 2) логическое значение (1 или 0) (INT)
 			*/
 			int marker = lua_tointeger(L, 1);// маркер.
-			bool s = lua_toboolean(L, 2);// размер маркера на карте.
+			bool s = ma_arg_bool(L, 2);// размер маркера на карте.
 
 			Command<COMMAND_DIM_BLIP>(s, marker);
 			return 0;
@@ -8771,12 +8836,12 @@ int setmarker_brightness(lua_State* L) {// уст яркость маркера.
 int setpednode_seek(lua_State* L) {// пед игнорирорует пути педов.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {// 0411: set_actor 0@ use_pednode_seek 0 .
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на педа.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на педа.
 
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool sw = lua_toboolean(L, 2);
+			bool sw = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CHAR_USE_PEDNODE_SEEK>(CPools::GetPedRef(ped), sw);
 			return 0;
 
@@ -11175,11 +11240,11 @@ int get_car_engine_on(lua_State* L) {// работает ли двигатель
 int set_car_engine_on(lua_State* L) {// включить или выключить двигатель авто.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на авто и булево.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на авто и булево.
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool on = lua_toboolean(L, 2);// вкл/выкл двигатель.
+			bool on = ma_arg_bool(L, 2);// вкл/выкл двигатель.
 			car->bEngineOn = on;// установить состояние двигателя.
 			return 0;
 		}
@@ -11209,11 +11274,11 @@ int get_car_lights_on(lua_State* L) {// включены ли фары авто.
 int set_car_lights_on(lua_State* L) {// включить или выключить фары авто.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на авто и булево.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на авто и булево.
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool on = lua_toboolean(L, 2);// вкл/выкл фары.
+			bool on = ma_arg_bool(L, 2);// вкл/выкл фары.
 			car->bLightsOn = on;// установить состояние фар.
 			return 0;
 		}
@@ -11243,11 +11308,11 @@ int get_car_handbrake_on(lua_State* L) {// включен ли ручной то
 int set_car_handbrake_on(lua_State* L) {// включить или выключить ручной тормоз авто.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на авто и булево.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на авто и булево.
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool on = lua_toboolean(L, 2);// вкл/выкл ручник.
+			bool on = ma_arg_bool(L, 2);// вкл/выкл ручник.
 			car->bIsHandbrakeOn = on;// установить ручник.
 			return 0;
 		}
@@ -11277,11 +11342,11 @@ int get_car_locked(lua_State* L) {// заблокировано ли авто с
 int set_car_locked(lua_State* L) {// заблокировать или разблокировать авто скриптом.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на авто и булево.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на авто и булево.
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool locked = lua_toboolean(L, 2);// заблокировать/разблокировать.
+			bool locked = ma_arg_bool(L, 2);// заблокировать/разблокировать.
 			car->bIsLocked = locked;// установить блокировку.
 			return 0;
 		}
@@ -11345,11 +11410,11 @@ int get_car_is_big(lua_State* L) {// авто это большая машина
 int set_car_comedy_controls(lua_State* L) {// вкл/выкл шуточное управление авто (машину крутит).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на авто и булево.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на авто и булево.
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool comedy = lua_toboolean(L, 2);// вкл/выкл шуточное управление.
+			bool comedy = ma_arg_bool(L, 2);// вкл/выкл шуточное управление.
 			car->bComedyControls = comedy;// установить шуточное управление.
 			return 0;
 		}
@@ -11362,11 +11427,11 @@ int set_car_comedy_controls(lua_State* L) {// вкл/выкл шуточное �
 int set_car_hide_occupants(lua_State* L) {// скрыть/показать седоков авто (как в миссиях).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на авто и булево.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на авто и булево.
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool hide = lua_toboolean(L, 2);// скрыть/показать седоков.
+			bool hide = ma_arg_bool(L, 2);// скрыть/показать седоков.
 			car->bHideOccupants = hide;// установить скрытие седоков.
 			return 0;
 		}
@@ -11396,11 +11461,11 @@ int get_car_tires_invulnerable(lua_State* L) {// шины авто неуязв�
 int set_car_tires_invulnerable(lua_State* L) {// сделать шины авто неуязвимыми.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на авто и булево.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на авто и булево.
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool inv = lua_toboolean(L, 2);// вкл/выкл неуязвимость шин.
+			bool inv = ma_arg_bool(L, 2);// вкл/выкл неуязвимость шин.
 			car->bCarTiresInvulnerable = inv;// установить неуязвимость шин.
 			return 0;
 		}
@@ -12437,8 +12502,8 @@ int get_player_display_money(lua_State* L) {// получить отобража
 int set_player_drive_by(lua_State* L) {// set_player_drive_by(true/false) - разрешить или запретить игроку стрельбу на ходу из авто.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {// булево.
-			bool can = lua_toboolean(L, 1);// разрешить/запретить.
+		if (ma_arg_is_bool(lua_type(L, 1))) {// булево.
+			bool can = ma_arg_bool(L, 1);// разрешить/запретить.
 			CPlayerPed& player = *FindPlayerPed();
 			CPlayerInfo* info = player.GetPlayerInfoForThisPlayerPed();
 			if (info == NULL) { return 0; }// нет инфы - выйти.
@@ -13434,11 +13499,11 @@ int get_obj_camera_avoids(lua_State* L) {// камера обходит объе
 int set_obj_camera_avoids(lua_State* L) {// set_obj_camera_avoids(obj, true/false) - камера обходит объект.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// указатель на объект и булево.
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// указатель на объект и булево.
 			const void* p = lua_topointer(L, 1);
 			CObject* obj = findobjinpool(p);// получить указатель на объект.
 			if (obj == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool avoids = lua_toboolean(L, 2);// обходит или нет.
+			bool avoids = ma_arg_bool(L, 2);// обходит или нет.
 			obj->m_bCameraAvoids = avoids;// установить обход.
 			return 0;
 		}
@@ -13625,10 +13690,10 @@ int fire_find_nearest(lua_State* L) {// fire_find_nearest(x, y, z) - найти 
 int fire_start_on_point(lua_State* L) {// fire_start_on_point(x, y, z, size, moves) - поджечь точку.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) && LUA_TBOOLEAN == lua_type(L, 5)) {// числа и булево.
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) && ma_arg_is_bool(lua_type(L, 5))) {// числа и булево.
 			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2); float z = lua_tonumber(L, 3);
 			float size = lua_tonumber(L, 4);// размер пожара.
-			bool moves = lua_toboolean(L, 5);// пожар распространяется.
+			bool moves = ma_arg_bool(L, 5);// пожар распространяется.
 			CVector pos = { x, y, z };
 			gFireManager.StartFire(pos, size, moves);// поджечь точку.
 			return 0;
@@ -14508,8 +14573,8 @@ int get_radio_channel(lua_State* L) {// получить текущую ради
 int set_music_does_fade(lua_State* L) {// set_music_does_fade(true/false) - музыка затухает при выходе из авто.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {// булево.
-			bool fade = lua_toboolean(L, 1);// затухание.
+		if (ma_arg_is_bool(lua_type(L, 1))) {// булево.
+			bool fade = ma_arg_bool(L, 1);// затухание.
 			Command<COMMAND_SET_MUSIC_DOES_FADE>(fade);// установить затухание.
 			return 0;
 		}
@@ -15054,9 +15119,9 @@ int gangs_choose_ped_model(lua_State* L) {// gangs_choose_ped_model(gang) - по
 int gangs_set_attack_with_cops(lua_State* L) {// gangs_set_attack_with_cops(pedtype, true/false) - банда атакует игрока с копами.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {// число и булево.
+		if (LUA_TNUMBER == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {// число и булево.
 			int pedtype = lua_tointeger(L, 1);// тип педа.
-			bool attack = lua_toboolean(L, 2);// атаковать или нет.
+			bool attack = ma_arg_bool(L, 2);// атаковать или нет.
 			CGangs::SetWillAttackPlayerWithCops((ePedType)pedtype, attack);// установить атаку.
 			return 0;
 		}
@@ -15785,11 +15850,11 @@ int boat_set_cruise_speed(lua_State* L) {// установить крейсер�
 int boat_anchor(lua_State* L) {// boat_anchor(car, true/false) - якорить катер.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool anchor = lua_toboolean(L, 2);// якорь.
+			bool anchor = ma_arg_bool(L, 2);// якорь.
 			if (car && car->m_nVehicleClass == VEHICLE_BOAT) {
 				Command<COMMAND_ANCHOR_BOAT>(CPools::GetVehicleRef(car), anchor);// якорить.
 			}
@@ -15885,11 +15950,11 @@ int is_vehicle_boat(lua_State* L) {// транспорт это катер?.
 int train_catch_char_obj(lua_State* L) {// train_catch_char_obj(ped, true/false) - пед ловит поезд.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);// получить указатель на педа.
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool catch_train = lua_toboolean(L, 2);// поймать.
+			bool catch_train = ma_arg_bool(L, 2);// поймать.
 			Command<COMMAND_SET_CHAR_OBJ_CATCH_TRAIN>(CPools::GetPedRef(ped), catch_train);// ловить.
 			return 0;
 		}
@@ -15902,11 +15967,11 @@ int train_catch_char_obj(lua_State* L) {// train_catch_char_obj(ped, true/false)
 int train_catch_coll_obj(lua_State* L) {// train_catch_coll_obj(obj, true/false) - объект ловит поезд.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CObject* obj = findobjinpool(p);// получить указатель на объект.
 			if (obj == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool catch_train = lua_toboolean(L, 2);// поймать.
+			bool catch_train = ma_arg_bool(L, 2);// поймать.
 			Command<COMMAND_SET_COLL_OBJ_CATCH_TRAIN>(CPools::GetObjectRef(obj), catch_train);// ловить.
 			return 0;
 		}
@@ -16000,11 +16065,11 @@ int rc_buggy_remove(lua_State* L) {// удалить RC-багги.
 int rc_detonate_enable(lua_State* L) {// rc_detonate_enable(car, true/false) - включить детонацию RC.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool enable = lua_toboolean(L, 2);// включить.
+			bool enable = ma_arg_bool(L, 2);// включить.
 			Command<COMMAND_SET_ENABLE_RC_DETONATE>(enable);// exe: ОДИН параметр — глобальный флаг (car не передаётся).
 			return 0;
 		}
@@ -16017,11 +16082,11 @@ int rc_detonate_enable(lua_State* L) {// rc_detonate_enable(car, true/false) - �
 int rc_detonate_on_contact_enable(lua_State* L) {// rc_detonate_on_contact_enable(car, true/false) - детонация RC при контакте.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);// получить указатель на авто.
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool enable = lua_toboolean(L, 2);// включить.
+			bool enable = ma_arg_bool(L, 2);// включить.
 			Command<COMMAND_SET_ENABLE_RC_DETONATE_ON_CONTACT>(enable);// exe: ОДИН параметр — глобальный флаг (car не передаётся).
 			return 0;
 		}
@@ -16045,8 +16110,8 @@ int player_is_in_remote_mode(lua_State* L) {// игрок в режиме пул
 int set_fade_jumpcut_after_rc_explosion(lua_State* L) {// set_fade_jumpcut_after_rc_explosion(true/false) - затухание после взрыва RC.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {
-			bool fade = lua_toboolean(L, 1);// затухание.
+		if (ma_arg_is_bool(lua_type(L, 1))) {
+			bool fade = ma_arg_bool(L, 1);// затухание.
 			Command<COMMAND_SET_FADE_AND_JUMPCUT_AFTER_RC_EXPLOSION>(fade);// установить.
 			return 0;
 		}
@@ -16403,11 +16468,11 @@ int car_face_coord(lua_State* L) {// (car, x, y) повернуть к коор�
 int freeze_car_position(lua_State* L) {// (car, bool) заморозить позицию.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_FREEZE_CAR_POSITION>(car, flag);
 			return 0;
 		}
@@ -16420,11 +16485,11 @@ int freeze_car_position(lua_State* L) {// (car, bool) заморозить по�
 int freeze_car_no_collide(lua_State* L) {// (car, bool) заморозить без коллизий.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_FREEZE_CAR_POSITION_AND_DONT_LOAD_COLLISION>(car, flag);
 			return 0;
 		}
@@ -16509,11 +16574,11 @@ int car_ram_car(lua_State* L) {// (car1, car2) таранить.
 int car_change_lane(lua_State* L) {// (car, bool) смена полосы.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_CHANGE_LANE>(car, flag);
 			return 0;
 		}
@@ -16526,11 +16591,11 @@ int car_change_lane(lua_State* L) {// (car, bool) смена полосы.
 int car_drive_straight(lua_State* L) {// (car, bool) ехать прямо.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_DRIVE_STRAIGHT_AHEAD>(car, flag);
 			return 0;
 		}
@@ -16611,11 +16676,11 @@ int car_straight_dist(lua_State* L) {// (car, int) дистанция прямо
 int car_convoy(lua_State* L) {// (car, bool) конвойное авто.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_MARK_CAR_AS_CONVOY_CAR>(car, flag);
 			return 0;
 		}
@@ -16695,11 +16760,11 @@ int car_on_trailer(lua_State* L) {// (car) на прицеп.
 int set_car_visible(lua_State* L) {// (car, bool) видимость.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_VISIBLE>(car, flag);
 			return 0;
 		}
@@ -16712,11 +16777,11 @@ int set_car_visible(lua_State* L) {// (car, bool) видимость.
 int set_car_watertight(lua_State* L) {// (car, bool) водонепроницаемость.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_WATERTIGHT>(car, flag);
 			return 0;
 		}
@@ -16729,11 +16794,11 @@ int set_car_watertight(lua_State* L) {// (car, bool) водонепроница�
 int set_car_big_wheels(lua_State* L) {// (car, bool) большие колеса.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_BIG_WHEELS>(car, flag);
 			return 0;
 		}
@@ -16746,11 +16811,11 @@ int set_car_big_wheels(lua_State* L) {// (car, bool) большие колеса
 int set_car_bproof(lua_State* L) {// (car, bool) пуленепробиваемость.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_BULLETPROOF>(car, flag);
 			return 0;
 		}
@@ -16763,11 +16828,11 @@ int set_car_bproof(lua_State* L) {// (car, bool) пуленепробиваем�
 int set_car_fproof(lua_State* L) {// (car, bool) огнеупорность.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_FLAMEPROOF>(car, flag);
 			return 0;
 		}
@@ -16780,11 +16845,11 @@ int set_car_fproof(lua_State* L) {// (car, bool) огнеупорность.
 int set_car_rproof(lua_State* L) {// (car, bool) ракетоупорность.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_ROCKETPROOF>(car, flag);
 			return 0;
 		}
@@ -16797,11 +16862,11 @@ int set_car_rproof(lua_State* L) {// (car, bool) ракетоупорность.
 int set_car_no_collide(lua_State* L) {// (car, bool) без коллизий.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_NO_COLLIDE>(car, flag);
 			return 0;
 		}
@@ -16814,11 +16879,11 @@ int set_car_no_collide(lua_State* L) {// (car, bool) без коллизий.
 int set_car_burst_tires(lua_State* L) {// (car, bool) пробиваемость шин.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAN_BURST_CAR_TYRES>(car, flag);
 			return 0;
 		}
@@ -16831,11 +16896,11 @@ int set_car_burst_tires(lua_State* L) {// (car, bool) пробиваемость
 int set_car_dmg_player_only(lua_State* L) {// (car, bool) урон только от игрока.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CAR_ONLY_DAMAGED_BY_PLAYER>(car, flag);
 			return 0;
 		}
@@ -16848,11 +16913,11 @@ int set_car_dmg_player_only(lua_State* L) {// (car, bool) урон только 
 int car_load_collision(lua_State* L) {// (car, bool) загрузка коллизий.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_LOAD_COLLISION_FOR_CAR_FLAG>(car, flag);
 			return 0;
 		}
@@ -16865,11 +16930,11 @@ int car_load_collision(lua_State* L) {// (car, bool) загрузка колли
 int car_upside_safe(lua_State* L) {// (car, bool) перевернутое не ломается.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_UPSIDEDOWN_CAR_NOT_DAMAGED>(car, flag);
 			return 0;
 		}
@@ -17568,11 +17633,11 @@ int pop_car_boot_physics(lua_State* L) {// (car) открыть физикой.
 int lock_doors(lua_State* L) {// (car, bool) запереть двери.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_LOCK_CAR_DOORS>(car, flag);
 			return 0;
 		}
@@ -17717,11 +17782,11 @@ int shuffle_to_driver(lua_State* L) {// (ped) пересесть за руль.
 int stay_when_jacked(lua_State* L) {// (ped, bool) не покидать при угоне.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_CHAR_STAY_IN_CAR_WHEN_JACKED>(ped, flag);
 			return 0;
 		}
@@ -17931,11 +17996,11 @@ int set_car_ammo(lua_State* L) {// (car, int, int) боезапас.
 int switch_car_weapons(lua_State* L) {// (car, bool) переключить оружие.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SWITCH_VEHICLE_WEAPONS>(car, flag);
 			return 0;
 		}
@@ -17981,11 +18046,11 @@ int fire_hunter_gun(lua_State* L) {// (car) выстрел Hunter.
 int set_tank_detonate(lua_State* L) {// (car, bool) танк взрывает авто.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SET_TANK_DETONATE_CARS>(car, flag);
 			return 0;
 		}
@@ -18062,11 +18127,11 @@ int give_car_alarm(lua_State* L) {// (car) сигнализация.
 int switch_car_siren(lua_State* L) {// (car, bool) сирена.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CVehicle* car = findcarinpool(p);
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			bool flag = lua_toboolean(L, 2);
+			bool flag = ma_arg_bool(L, 2);
 			Command<COMMAND_SWITCH_CAR_SIREN>(car, flag);
 			return 0;
 		}
@@ -19328,8 +19393,8 @@ int heli_is_catalina_on(lua_State* L) { // вертолёт Катарины а�
 int heli_set_catalina_on(lua_State* L) { // вкл/выкл вертолёт Катарины
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {
-			CHeli::CatalinaHeliOn = (bool)lua_toboolean(L, 1);
+		if (ma_arg_is_bool(lua_type(L, 1))) {
+			CHeli::CatalinaHeliOn = (bool)ma_arg_bool(L, 1);
 			return 0;
 		}
 		else { throw "bad argument in function heli_set_catalina_on"; }
@@ -19498,8 +19563,8 @@ int get_char_weapon_in_slot(lua_State* L) { // оружие в слоте пед
 int set_player_fast_reload(lua_State* L) { // быстрая перезарядка игроку
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {
-			Command<COMMAND_SET_PLAYER_FAST_RELOAD>(CWorld::PlayerInFocus, (bool)lua_toboolean(L, 1));
+		if (ma_arg_is_bool(lua_type(L, 1))) {
+			Command<COMMAND_SET_PLAYER_FAST_RELOAD>(CWorld::PlayerInFocus, (bool)ma_arg_bool(L, 1));
 			return 0;
 		}
 		else { throw "bad argument in function set_player_fast_reload"; }
@@ -19511,12 +19576,12 @@ int is_char_shooting_in_area(lua_State* L) { // пед стреляет в зо�
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
 			LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4) &&
-			LUA_TNUMBER == lua_type(L, 5) && LUA_TBOOLEAN == lua_type(L, 6)) {
+			LUA_TNUMBER == lua_type(L, 5) && ma_arg_is_bool(lua_type(L, 6))) {
 			CPed* ped = findpedinpool(lua_topointer(L, 1));
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
 			float x1 = (float)lua_tonumber(L, 2), y1 = (float)lua_tonumber(L, 3);
 			float x2 = (float)lua_tonumber(L, 4), y2 = (float)lua_tonumber(L, 5);
-			bool sphere = (bool)lua_toboolean(L, 6);
+			bool sphere = (bool)ma_arg_bool(L, 6);
 			bool r = Command<COMMAND_IS_CHAR_SHOOTING_IN_AREA>(CPools::GetPedRef(ped), x1, y1, x2, y2, sphere);
 			lua_pushboolean(L, r);
 			return 1;
@@ -19528,10 +19593,10 @@ int is_char_shooting_in_area(lua_State* L) { // пед стреляет в зо�
 int set_char_stop_shoot_dont_seek_entity(lua_State* L) { // пед перестаёт стрелять и не ищет цель
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			CPed* ped = findpedinpool(lua_topointer(L, 1));
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			Command<COMMAND_SET_CHAR_STOP_SHOOT_DONT_SEEK_ENTITY>(CPools::GetPedRef(ped), (bool)lua_toboolean(L, 1));
+			Command<COMMAND_SET_CHAR_STOP_SHOOT_DONT_SEEK_ENTITY>(CPools::GetPedRef(ped), (bool)ma_arg_bool(L, 1));
 			return 0;
 		}
 		else { throw "bad argument in function set_char_stop_shoot_dont_seek_entity"; }
@@ -20821,8 +20886,8 @@ int get_streaming_disabled(lua_State* L) { // стриминг отключён
 int set_streaming_disabled(lua_State* L) { // отключить стриминг моделей
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {
-			CStreaming::ms_disableStreaming = (bool)lua_toboolean(L, 1);
+		if (ma_arg_is_bool(lua_type(L, 1))) {
+			CStreaming::ms_disableStreaming = (bool)ma_arg_bool(L, 1);
 		}
 		else { throw "bad argument in function set_streaming_disabled"; }
 	}
@@ -20926,10 +20991,10 @@ int traffic_should_car_stop_for_bridge(lua_State* L) { // машина долж�
 int should_car_stop_for_light(lua_State* L) { // должна ли машина остановиться на свет
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			CVehicle* car = findcarinpool(lua_topointer(L, 1));
 			if (car == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			CTrafficLights::ShouldCarStopForLight(car, (bool)lua_toboolean(L, 2));
+			CTrafficLights::ShouldCarStopForLight(car, (bool)ma_arg_bool(L, 2));
 		}
 		else { throw "bad argument in function should_car_stop_for_light"; }
 	}
@@ -21176,8 +21241,8 @@ int set_radar_range(lua_State* L) { // уст. дальность радара
 int set_sun_blocked_by_clouds(lua_State* L) { // уст. солнце закрыто облаками
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {
-			CCoronas::SunBlockedByClouds = (bool)lua_toboolean(L, 1);
+		if (ma_arg_is_bool(lua_type(L, 1))) {
+			CCoronas::SunBlockedByClouds = (bool)ma_arg_bool(L, 1);
 		}
 		else { throw "bad argument in function set_sun_blocked_by_clouds"; }
 	}
@@ -22962,10 +23027,10 @@ int get_ped_m_bInVehicle(lua_State* L) { // m_bInVehicle (CPed)
 int set_ped_m_bInVehicle(lua_State* L) { // уст. m_bInVehicle (CPed)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			CPed* ped = findpedinpool(lua_topointer(L, 1));
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			ped->m_bInVehicle = (bool)lua_toboolean(L, 2);
+			ped->m_bInVehicle = (bool)ma_arg_bool(L, 2);
 			return 0;
 		}
 		else { throw "bad argument in function set_ped_m_bInVehicle"; }
@@ -23066,10 +23131,10 @@ int get_ped_m_bHasPhone(lua_State* L) { // m_bHasPhone (CPed)
 int set_ped_m_bHasPhone(lua_State* L) { // уст. m_bHasPhone (CPed)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			CPed* ped = findpedinpool(lua_topointer(L, 1));
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			ped->m_bHasPhone = (bool)lua_toboolean(L, 2);
+			ped->m_bHasPhone = (bool)ma_arg_bool(L, 2);
 			return 0;
 		}
 		else { throw "bad argument in function set_ped_m_bHasPhone"; }
@@ -24584,10 +24649,10 @@ int get_ped_m_bCanPedTalk(lua_State* L) { // m_bCanPedTalk (CPed)
 int set_ped_m_bCanPedTalk(lua_State* L) { // уст. m_bCanPedTalk (CPed)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			CPed* ped = findpedinpool(lua_topointer(L, 1));
 			if (ped == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			ped->m_bCanPedTalk = (bool)lua_toboolean(L, 2);
+			ped->m_bCanPedTalk = (bool)ma_arg_bool(L, 2);
 			return 0;
 		}
 		else { throw "bad argument in function set_ped_m_bCanPedTalk"; }
@@ -24797,10 +24862,10 @@ int get_obj_m_bCameraAvoids(lua_State* L) { // m_bCameraAvoids (CObject)
 int set_obj_m_bCameraAvoids(lua_State* L) { // уст. m_bCameraAvoids (CObject)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			CObject* obj = findobjinpool(lua_topointer(L, 1));
 			if (obj == NULL) { return 0; }// проверка типа сущности — молча, без записи в журнал (директива юзера 25.10).
-			obj->m_bCameraAvoids = (bool)lua_toboolean(L, 2);
+			obj->m_bCameraAvoids = (bool)ma_arg_bool(L, 2);
 			return 0;
 		}
 		else { throw "bad argument in function set_obj_m_bCameraAvoids"; }
@@ -26469,8 +26534,8 @@ int choose_gang_ped_model(lua_State* L) { // выбрать модель пед�
 int set_gang_attack_player_with_cops(lua_State* L) { // банда атакует игрока с копами
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
-			CGangs::SetWillAttackPlayerWithCops((ePedType)lua_tointeger(L, 1), (bool)lua_toboolean(L, 2));
+		if (LUA_TNUMBER == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
+			CGangs::SetWillAttackPlayerWithCops((ePedType)lua_tointeger(L, 1), (bool)ma_arg_bool(L, 2));
 		}
 		else { throw "bad argument in function set_gang_attack_player_with_cops"; }
 	}
@@ -27730,8 +27795,8 @@ int ped_set_look_flag(lua_State* L) {// задать флаг взгляда п�
 			if (!ped) { lua_pushboolean(L, false); return 1; }
 			CEntity* ent = findluaentity(lua_topointer(L, 2));
 			if (!ent) { lua_pushboolean(L, false); return 1; }
-			bool keep = (LUA_TBOOLEAN == lua_type(L, 3)) ? lua_toboolean(L, 3) : true;// не бросать взгляд при новом.
-			bool cancel = (LUA_TBOOLEAN == lua_type(L, 4)) ? lua_toboolean(L, 4) : false;// отменить предыдущий взгляд.
+			bool keep = (ma_arg_is_bool(lua_type(L, 3))) ? ma_arg_bool(L, 3) : true;// не бросать взгляд при новом.
+			bool cancel = (ma_arg_is_bool(lua_type(L, 4))) ? ma_arg_bool(L, 4) : false;// отменить предыдущий взгляд.
 			ped->SetLookFlag(ent, keep, cancel);
 			lua_pushboolean(L, true);
 			return 1;
@@ -27785,11 +27850,11 @@ int ped_set_move_state(lua_State* L) {// задать скорость пере�
 int ped_set_wander_path(lua_State* L) {// вкл/выкл блуждание педа по пути (CPed::SetWanderPath 0x4FAB80).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
 			const void* p = lua_topointer(L, 1);
 			CPed* ped = findpedinpool(p);
 			if (!ped) { lua_pushboolean(L, false); return 1; }
-			bool on = lua_toboolean(L, 2);
+			bool on = ma_arg_bool(L, 2);
 			ped->SetWanderPath(on ? 1 : 0);
 			lua_pushboolean(L, true);
 			return 1;
@@ -27889,7 +27954,7 @@ int car_join_road_goto(lua_State* L) {// встроить авто в дорог
 			CVehicle* car = findcarinpool(p);
 			if (!car) { lua_pushboolean(L, false); return 1; }
 			float x = (float)lua_tonumber(L, 2); float y = (float)lua_tonumber(L, 3); float z = (float)lua_tonumber(L, 4);
-			bool any = (LUA_TBOOLEAN == lua_type(L, 5)) ? lua_toboolean(L, 5) : true;// ехать по любой дороге.
+			bool any = (ma_arg_is_bool(lua_type(L, 5))) ? ma_arg_bool(L, 5) : true;// ехать по любой дороге.
 			lua_pushboolean(L, CCarCtrl::JoinCarWithRoadSystemGotoCoors(car, CVector{ x, y, z }, any));
 			return 1;
 		}
@@ -28034,8 +28099,8 @@ int clear_adrenaline(lua_State* L) {// снять адреналин игрок�
 int annoy_player_ped(lua_State* L) {// разозлить педа на игрока (CPlayerPed::AnnoyPlayerPed).
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
-		if (LUA_TBOOLEAN == lua_type(L, 1)) {
-			bool flag = lua_toboolean(L, 1);
+		if (ma_arg_is_bool(lua_type(L, 1))) {
+			bool flag = ma_arg_bool(L, 1);
 			CPlayerPed& player1 = *FindPlayerPed();
 			player1.AnnoyPlayerPed(flag);
 			lua_pushboolean(L, true);
@@ -28068,7 +28133,7 @@ int register_crime(lua_State* L) {// зарегистрировать прест
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
 			int type = lua_tointeger(L, 1);
 			CVector pos = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
-			bool dontcare = (LUA_TBOOLEAN == lua_type(L, 5)) ? lua_toboolean(L, 5) : false;// полиции всё равно.
+			bool dontcare = (ma_arg_is_bool(lua_type(L, 5))) ? ma_arg_bool(L, 5) : false;// полиции всё равно.
 			CPlayerPed& player1 = *FindPlayerPed();
 			if (!player1.m_pWanted) { lua_pushboolean(L, false); return 1; }
 			player1.m_pWanted->RegisterCrime((eCrimeType)type, pos, 0, dontcare);
@@ -28087,7 +28152,7 @@ int register_crime_immediately(lua_State* L) {// мгновенно (без оч
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
 			int type = lua_tointeger(L, 1);
 			CVector pos = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
-			bool dontcare = (LUA_TBOOLEAN == lua_type(L, 5)) ? lua_toboolean(L, 5) : false;
+			bool dontcare = (ma_arg_is_bool(lua_type(L, 5))) ? ma_arg_bool(L, 5) : false;
 			CPlayerPed& player1 = *FindPlayerPed();
 			if (!player1.m_pWanted) { lua_pushboolean(L, false); return 1; }
 			player1.m_pWanted->RegisterCrime_Immediately((eCrimeType)type, pos, 0, dontcare);
@@ -28219,8 +28284,8 @@ int set_help_message(lua_State* L) {// показать сообщение по�
 	try {
 		if (LUA_TSTRING == lua_type(L, 1)) {
 			const char* msg = lua_tostring(L, 1);
-			bool quick = (LUA_TBOOLEAN == lua_type(L, 2)) ? lua_toboolean(L, 2) : false;
-			bool permanent = (LUA_TBOOLEAN == lua_type(L, 3)) ? lua_toboolean(L, 3) : false;
+			bool quick = (ma_arg_is_bool(lua_type(L, 2))) ? ma_arg_bool(L, 2) : false;
+			bool permanent = (ma_arg_is_bool(lua_type(L, 3))) ? ma_arg_bool(L, 3) : false;
 			CHud::SetHelpMessage(msg, quick, permanent);
 			lua_pushboolean(L, true);
 			return 1;
@@ -28261,7 +28326,7 @@ int point_light_add(lua_State* L) {// добавить точечный исто
 			float range = (float)lua_tonumber(L, 8);
 			float r = (float)lua_tonumber(L, 9); float g = (float)lua_tonumber(L, 10); float b = (float)lua_tonumber(L, 11);
 			unsigned char fog = (LUA_TNUMBER == lua_type(L, 12)) ? (unsigned char)lua_tointeger(L, 12) : 4;
-			bool extra = (LUA_TBOOLEAN == lua_type(L, 13)) ? lua_toboolean(L, 13) : false;// доп. тени.
+			bool extra = (ma_arg_is_bool(lua_type(L, 13))) ? ma_arg_bool(L, 13) : false;// доп. тени.
 			CPointLights::AddLight(type, point, dir, range, r, g, b, fog, extra);
 			lua_pushboolean(L, true);
 			return 1;
@@ -28373,7 +28438,7 @@ int set_free_resprays(lua_State* L) {// 0335: SET_FREE_RESPRAYS — вкл/вы�
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int flag = lua_toboolean(L, 1);
+			int flag = ma_arg_bool(L, 1);
 			Command<COMMAND_SET_FREE_RESPRAYS>(flag);
 			return 0;
 		}
@@ -28620,7 +28685,7 @@ int switch_rubbish(lua_State* L) {// 03AD: SWITCH_RUBBISH.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int flag = lua_toboolean(L, 1);
+			int flag = ma_arg_bool(L, 1);
 			Command<COMMAND_SWITCH_RUBBISH>(flag);
 			return 0;
 		}
@@ -28634,7 +28699,7 @@ int switch_streaming(lua_State* L) {// 03AF: SWITCH_STREAMING.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1)) {
-			int flag = lua_toboolean(L, 1);
+			int flag = ma_arg_bool(L, 1);
 			Command<COMMAND_SWITCH_STREAMING>(flag);
 			return 0;
 		}
@@ -28668,7 +28733,7 @@ int set_visibility_of_closest_object_of_type(lua_State* L) {// 0363: SET_VISIBIL
 			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2); float z = lua_tonumber(L, 3);
 			float radius = lua_tonumber(L, 4);
 			int model = lua_tointeger(L, 5);
-			int visible = lua_toboolean(L, 6);
+			int visible = ma_arg_bool(L, 6);
 			Command<COMMAND_SET_VISIBILITY_OF_CLOSEST_OBJECT_OF_TYPE>(x, y, z, radius, model, visible);
 			return 0;
 		}
@@ -30370,8 +30435,8 @@ int is_player_in_area_2d(lua_State* L) { // 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D 
         if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function is_player_in_area_2d"; }
         if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_player_in_area_2d"; }
         if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_player_in_area_2d"; }
-        if (LUA_TBOOLEAN != lua_type(L, 5)) { throw "bad argument in function is_player_in_area_2d"; }
-        bool res = Command<COMMAND_IS_PLAYER_IN_AREA_2D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (lua_toboolean(L, 5) != 0));
+        if (!ma_arg_is_bool(lua_type(L, 5))) { throw "bad argument in function is_player_in_area_2d"; }
+        bool res = Command<COMMAND_IS_PLAYER_IN_AREA_2D>(CWorld::PlayerInFocus, (float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (ma_arg_bool(L, 5) != 0));
         lua_pushboolean(L, res ? 1 : 0); return 1;
     } catch (const char* x) { writelog(x); }
     return 0;
@@ -30778,8 +30843,8 @@ int is_car_in_area_2d(lua_State* L) { // 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC 
         if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_car_in_area_2d"; }
         if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_car_in_area_2d"; }
         if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_car_in_area_2d"; }
-        if (LUA_TBOOLEAN != lua_type(L, 6)) { throw "bad argument in function is_car_in_area_2d"; }
-        bool res = Command<COMMAND_IS_CAR_IN_AREA_2D>(CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (lua_toboolean(L, 6) != 0));
+        if (!ma_arg_is_bool(lua_type(L, 6))) { throw "bad argument in function is_car_in_area_2d"; }
+        bool res = Command<COMMAND_IS_CAR_IN_AREA_2D>(CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (ma_arg_bool(L, 6) != 0));
         lua_pushboolean(L, res ? 1 : 0); return 1;
     } catch (const char* x) { writelog(x); }
     return 0;
@@ -31148,8 +31213,8 @@ int is_char_in_area_2d(lua_State* L) { // 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reV
         if (LUA_TNUMBER != lua_type(L, 3)) { throw "bad argument in function is_char_in_area_2d"; }
         if (LUA_TNUMBER != lua_type(L, 4)) { throw "bad argument in function is_char_in_area_2d"; }
         if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_char_in_area_2d"; }
-        if (LUA_TBOOLEAN != lua_type(L, 6)) { throw "bad argument in function is_char_in_area_2d"; }
-        bool res = Command<COMMAND_IS_CHAR_IN_AREA_2D>(CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (lua_toboolean(L, 6) != 0));
+        if (!ma_arg_is_bool(lua_type(L, 6))) { throw "bad argument in function is_char_in_area_2d"; }
+        bool res = Command<COMMAND_IS_CHAR_IN_AREA_2D>(CPools::GetPedRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (ma_arg_bool(L, 6) != 0));
         lua_pushboolean(L, res ? 1 : 0); return 1;
     } catch (const char* x) { writelog(x); }
     return 0;
@@ -31413,8 +31478,8 @@ int freeze_char_position(lua_State* L) { // 0x04D7 COMMAND_FREEZE_CHAR_POSITION 
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function freeze_char_position"; }
         CPed* e_1 = findpedinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
-        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function freeze_char_position"; }
-        Command<COMMAND_FREEZE_CHAR_POSITION>(CPools::GetPedRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+        if (!ma_arg_is_bool(lua_type(L, 2))) { throw "bad argument in function freeze_char_position"; }
+        Command<COMMAND_FREEZE_CHAR_POSITION>(CPools::GetPedRef(e_1), ma_arg_int(L, 2)); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
@@ -31583,8 +31648,8 @@ int set_text_proportional(lua_State* L) { // 0x0348 COMMAND_SET_TEXT_PROPORTIONA
 int freeze_onscreen_timer(lua_State* L) { // 0x0396 COMMAND_FREEZE_ONSCREEN_TIMER (reVC Script4.cpp:1413)
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
-        if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function freeze_onscreen_timer"; }
-        Command<COMMAND_FREEZE_ONSCREEN_TIMER>((int)lua_tointeger(L, 1)); return 0;
+        if (!ma_arg_is_bool(lua_type(L, 1))) { throw "bad argument in function freeze_onscreen_timer"; }
+        Command<COMMAND_FREEZE_ONSCREEN_TIMER>(ma_arg_int(L, 1)); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
@@ -32606,8 +32671,8 @@ int is_car_in_area_3d(lua_State* L) { // 0x00B1 COMMAND_IS_CAR_IN_AREA_3D (reVC 
         if (LUA_TNUMBER != lua_type(L, 5)) { throw "bad argument in function is_car_in_area_3d"; }
         if (LUA_TNUMBER != lua_type(L, 6)) { throw "bad argument in function is_car_in_area_3d"; }
         if (LUA_TNUMBER != lua_type(L, 7)) { throw "bad argument in function is_car_in_area_3d"; }
-        if (LUA_TBOOLEAN != lua_type(L, 8)) { throw "bad argument in function is_car_in_area_3d"; }
-        bool res = Command<COMMAND_IS_CAR_IN_AREA_3D>(CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (lua_toboolean(L, 8) != 0));
+        if (!ma_arg_is_bool(lua_type(L, 8))) { throw "bad argument in function is_car_in_area_3d"; }
+        bool res = Command<COMMAND_IS_CAR_IN_AREA_3D>(CPools::GetVehicleRef(e_1), (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4), (float)lua_tonumber(L, 5), (float)lua_tonumber(L, 6), (float)lua_tonumber(L, 7), (ma_arg_bool(L, 8) != 0));
         lua_pushboolean(L, res ? 1 : 0); return 1;
     } catch (const char* x) { writelog(x); }
     return 0;
@@ -33984,8 +34049,8 @@ int freeze_object_position(lua_State* L) { // 0x0550 COMMAND_FREEZE_OBJECT_POSIT
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function freeze_object_position"; }
         CObject* e_1 = findobjinpool(lua_topointer(L, 1)); if (!e_1) { return 0; }
-        if (LUA_TNUMBER != lua_type(L, 2)) { throw "bad argument in function freeze_object_position"; }
-        Command<COMMAND_FREEZE_OBJECT_POSITION>(CPools::GetObjectRef(e_1), (int)lua_tointeger(L, 2)); return 0;
+        if (!ma_arg_is_bool(lua_type(L, 2))) { throw "bad argument in function freeze_object_position"; }
+        Command<COMMAND_FREEZE_OBJECT_POSITION>(CPools::GetObjectRef(e_1), ma_arg_int(L, 2)); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
@@ -34594,8 +34659,8 @@ int set_airship_cheat(lua_State* L) {
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     bool on = true;
     if (!lua_isnoneornil(L, 1)) {
-        if (LUA_TBOOLEAN != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
-        on = lua_toboolean(L, 1) != 0;
+        if (!ma_arg_is_bool(lua_type(L, 1))) { lua_pushboolean(L, false); return 1; }
+        on = ma_arg_bool(L, 1) != 0;
     }
     ma_w8(0xA10B11, on ? 1 : 0);
     lua_pushboolean(L, true); return 1;
@@ -35016,10 +35081,10 @@ int open_studio_gates(lua_State* L) {
 // 02AA SET_CAR_ONLY_DAMAGED_BY_PLAYER — авто повреждается только игроком (флаги RC из SCM).
 int set_car_only_damaged_by_player(lua_State* L) {
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
-    if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TBOOLEAN == lua_type(L, 2)) {
+    if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
         CVehicle* car = findcarinpool(lua_topointer(L, 1));
         if (!car) return 0;
-        Command<COMMAND_SET_CAR_ONLY_DAMAGED_BY_PLAYER>(CPools::GetVehicleRef(car), lua_toboolean(L, 2) != 0);
+        Command<COMMAND_SET_CAR_ONLY_DAMAGED_BY_PLAYER>(CPools::GetVehicleRef(car), ma_arg_bool(L, 2) != 0);
     }
     return 0;
 }
@@ -35082,7 +35147,7 @@ int flag_addr(lua_State* L) {
 // === ИМЕНОВАННЫЕ get/set ДЛЯ КАЖДОГО ФЛАГА (2 функции на флаг) ===
 #define MA_FLAG_FUNCS(name, addr) \
 int get_##name(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(addr)); return 1; } \
-int set_##name(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); bool on = lua_toboolean(L,1) != 0; ma_w8(addr, on?1:0); lua_pushboolean(L,true); return 1; }
+int set_##name(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); bool on = ma_arg_bool(L, 1) != 0; ma_w8(addr, on?1:0); lua_pushboolean(L,true); return 1; }
 
 MA_FLAG_FUNCS(flag_airship,        0xA10B11)
 MA_FLAG_FUNCS(flag_rc_zone,        0xA10B0F)
@@ -35332,7 +35397,7 @@ int set_flag_named(lua_State* L) {
     const char* n = luaL_optstring(L, 1, "");
     int a = find_flag_addr(n);
     if (a < 0) { lua_pushboolean(L, false); return 1; }
-    ma_w8((unsigned int)a, lua_toboolean(L,2) ? 1 : 0);
+    ma_w8((unsigned int)a, ma_arg_bool(L, 2) ? 1 : 0);
     lua_pushboolean(L, true); return 1;
 }
 int list_flags(lua_State* L) {
@@ -35529,6 +35594,50 @@ int restore_all_timers(lua_State* L) {
     writelog(dbg);
     lua_pushinteger(L, n);
     return 1;
+}
+
+// === КАРТА МЕНЮ ПО КЛАВИШЕ H (23.11.2026) ===
+// Обёртки Lua над CMapOverlay: allow scripts to show/hide the map.
+int map_overlay_on(lua_State* L)     { ma_mapoverlay_set(true);  lua_pushboolean(L, true); return 1; }
+int map_overlay_off(lua_State* L)    { ma_mapoverlay_set(false); lua_pushboolean(L, true); return 1; }
+int map_overlay_toggle(lua_State* L) { ma_mapoverlay_set(!ma_mapoverlay_is_on()); lua_pushboolean(L, ma_mapoverlay_is_on()); return 1; }
+int map_overlay_is_on(lua_State* L)  { lua_pushboolean(L, ma_mapoverlay_is_on()); return 1; }
+
+// === КООРДИНАТЫ ТОЧКИ КАРТЫ МЕНЮ (23.11.2026) ===
+int map_crosshair_world(lua_State* L) {
+    float x = 0.0f, y = 0.0f;
+    if (!ma_map_crosshair_world(x, y)) { lua_pushnil(L); return 1; }
+    lua_pushnumber(L, x); lua_pushnumber(L, y); return 2;
+}
+int map_coords_diag(lua_State* L) {
+    ma_map_coords_diag(); lua_pushboolean(L, true); return 1;
+}
+int map_cross_set(lua_State* L) {
+    float u = (float)lua_tonumber(L, 1), v = (float)lua_tonumber(L, 2);
+    ma_map_cross_set(u, v); lua_pushboolean(L, true); return 1;
+}
+// === ВОСПРОИЗВЕДЕНИЕ WAV ИЗ ПАПКИ ИГРЫ (23.11.2026) ===
+// Аналог 03CF/03D1 из taxi.cs: play_wav_file("Audio/fin_1a.wav").
+int play_wav_file(lua_State* L) {
+    const char* path = (LUA_TSTRING == lua_type(L, 1)) ? lua_tostring(L, 1) : "";
+    BOOL ok = PlaySoundA(path, NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
+    lua_pushboolean(L, ok ? 1 : 0);
+    return 1;
+}
+int stop_wav_file(lua_State* L) {
+    PlaySoundA(NULL, NULL, SND_PURGE);
+    lua_pushboolean(L, true);
+    return 1;
+}
+
+int map_cross_get(lua_State* L) {
+    float u, v, wx, wy;
+    ma_map_cross_get(u, v);
+    bool ok = ma_map_uv_world(u, v, wx, wy);
+    lua_pushnumber(L, u); lua_pushnumber(L, v);
+    lua_pushnumber(L, wx); lua_pushnumber(L, wy);
+    lua_pushboolean(L, ok);
+    return 5;
 }
 
 // === LOW-LEVEL ЭМУЛЯЦИЯ УПРАВЛЕНИЯ (22.11.2026) ===
