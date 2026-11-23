@@ -1510,7 +1510,8 @@ int set_ped_can_shot_in_car(lua_State* L); // водитель авто може
 int iscarfire(lua_State* L); // авто горит?
 
 int is_car_damage_by_car(lua_State* L); // Если авто получило урон от другого авто.
-int show_text_gtx_table(lua_State* L); // вывести текст из таблицы.
+int show_text_gtx_table(lua_State* L);
+int show_text_key(lua_State* L);   // 23.11: GXT-ключ -> сама грузит нужную таблицу // вывести текст из таблицы.
 int ped_road_off(lua_State* L); // выкл путь педов.
 int ped_road_on(lua_State* L); // вкл путь педов.
 

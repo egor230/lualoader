@@ -9628,6 +9628,155 @@ int show_text_gtx_table(lua_State* L) {// вывести текст из таб�
 	return 0;
 };
 
+
+// === АВТО-ОПРЕДЕЛЕНИЕ GXT-ТАБЛИЦЫ ПО КЛЮЧУ (23.11.2026) ===
+// Карта собрана из всех исходников миссий: LOAD_MISSION_TEXT + PRINT_NOW.
+static const std::map<std::string, const char*> g_gxt_prefix_table = {
+    {"A", "AMBULAE"},
+    {"ASM1", "ASSIN1"},
+    {"ASM2", "ASSIN2"},
+    {"ASM3", "ASSIN3"},
+    {"ASM4", "ASSIN4"},
+    {"ASM5", "ASSIN5"},
+    {"ASS1", "BARON5"},
+    {"ASSET", "BANKJ4"},
+    {"BIKE1", "BIKE1"},
+    {"BJM1", "BANKJ1"},
+    {"BJM2", "BANKJ2"},
+    {"BJM3", "BANKJ3"},
+    {"BK4", "BANKJ4"},
+    {"BLOD", "MM"},
+    {"BM", "BANKJ4"},
+    {"BM1", "BIKE1"},
+    {"BM2", "BIKE2"},
+    {"BM3", "BIKE3"},
+    {"BNK1", "BANKJ1"},
+    {"BNK2", "BANKJ2"},
+    {"BNK3", "BANKJ3"},
+    {"BNK4", "BANKJ4"},
+    {"C", "BANKJ4"},
+    {"CAP", "MAIN"},
+    {"CAP1", "MAIN"},
+    {"CAR1", "CARBUY"},
+    {"CM1", "COUNT1"},
+    {"CNT1", "COUNT1"},
+    {"CNT2", "COUNT2"},
+    {"COK1", "BARON1"},
+    {"COK2", "BARON2"},
+    {"COK3", "BARON3"},
+    {"COK4", "BARON4"},
+    {"COL2", "GENERA2"},
+    {"COL4", "GENERA4"},
+    {"COL5", "GENERA5"},
+    {"COL5A", "GENERA5"},
+    {"COL5B", "GENERA5"},
+    {"CONE", "CARPAR1"},
+    {"CUB1", "CUBAN1"},
+    {"CUB2", "CUBAN2"},
+    {"CUB3", "CUBAN3"},
+    {"CUB4", "CUBAN4"},
+    {"DRUG", "BOATBUY"},
+    {"F", "FIRETRK"},
+    {"FIN", "FINALE"},
+    {"FIN1", "FINALE"},
+    {"FIN2", "FINALE"},
+    {"FIN3", "FINALE"},
+    {"GEN1", "GENERA1"},
+    {"GEN3", "GENERA3"},
+    {"GUN", "LAWYER2"},
+    {"H", "BANKJ4"},
+    {"HAM1", "HAIT1"},
+    {"HAM3", "HAIT3"},
+    {"HAT2", "HAIT2"},
+    {"HOTR", "OVALRIG"},
+    {"ICC1", "ICECRE1"},
+    {"ICE", "ICECRE1"},
+    {"IN", "TAXI1"},
+    {"INT1", "INTRO"},
+    {"INT2", "INTRO"},
+    {"INT3", "INTRO"},
+    {"INT4", "INTRO"},
+    {"INTB", "HOTEL"},
+    {"KICK", "KICKSTT"},
+    {"KICK1", "KICKSTT"},
+    {"KPM1", "KENT1"},
+    {"LAW1", "LAWYER1"},
+    {"LAW2", "LAWYER2"},
+    {"LAW2B", "LAWYER2"},
+    {"LAW2C", "LAWYER2"},
+    {"LAW3", "LAWYER2"},
+    {"LAW4", "LAWYER4"},
+    {"LAWP", "LAWYER1"},
+    {"M", "KENT1"},
+    {"MERC", "ROCK1"},
+    {"MM", "CARPAR1"},
+    {"MOB", "ROCK1"},
+    {"P", "BANKJ4"},
+    {"PHI", "PHIL2"},
+    {"PHI1", "PHIL1"},
+    {"PHI2", "PHIL2"},
+    {"PHIL1", "PHIL1"},
+    {"PHIL2", "PHIL2"},
+    {"PIZ1", "PIZZA"},
+    {"POR", "PORN4"},
+    {"POR1", "PORN1"},
+    {"POR2", "PORN2"},
+    {"POR3", "PORN3"},
+    {"POR4", "PORN4"},
+    {"PRO", "PROT3"},
+    {"PRO1", "PROT1"},
+    {"PRO2", "PROT2"},
+    {"PRO3", "PROT3"},
+    {"PSYCH", "ROCK2"},
+    {"RACES", "RACES"},
+    {"RBM1", "ROCK1"},
+    {"RBM2", "ROCK2"},
+    {"RBM3", "ROCK3"},
+    {"RCH1", "RCHELI1"},
+    {"RCPL1", "RCPLNE1"},
+    {"RCR1", "RCRACE1"},
+    {"RCRC1", "RCRACE1"},
+    {"RESC", "KENT1"},
+    {"ROK1", "ROCK1"},
+    {"ROK3", "ROCK3"},
+    {"SIREN", "FIRETRK"},
+    {"SPRAY", "FIRETRK"},
+    {"T4X4", "MAIN"},
+    {"TAX", "TAXIWA3"},
+    {"TAX1", "TAXIWA1"},
+    {"TAX2", "TAXIWA2"},
+    {"TAX3", "TAXIWA3"},
+    {"TAXC", "TAXICUT"},
+    {"TAXW1", "TAXIWA1"},
+    {"TAXW3", "TAXIWA3"},
+    {"TEX", "SERG2"},
+    {"TEX1", "SERG1"},
+    {"TEX2", "SERG2"},
+    {"TEX3", "SERG3"},
+};
+
+int show_text_key(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TSTRING == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {
+			std::string key(lua_tostring(L, 1));
+			int time = (int)lua_tointeger(L, 2);
+			int type = ma_clamp_big_style((int)lua_tointeger(L, 3));
+			std::string prefix = key.substr(0, key.find('_'));
+			auto it = g_gxt_prefix_table.find(prefix);
+			if (it != g_gxt_prefix_table.end()) {
+				Command<COMMAND_LOAD_MISSION_TEXT>(it->second);   // грузим нужную таблицу
+			}
+			ma_cmdq_defer([time, type, key]() -> bool {
+				return ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
+			});
+			return 0;
+		}
+		throw "bad argument in function show_text_key";
+	} catch (const char* x) { writelog(x); }
+	return 0;
+}
+
 int load_gtx_table(lua_State* L) {// вывести текст из таблицы.
 	try {
 		if (LUA_TSTRING == lua_type(L, 1)) {// значение число.

@@ -1469,7 +1469,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_ped_can_shot_in_car", set_ped_can_shot_in_car); // 1449 водитель авто может получить пули.
 	lua_register(L, "iscarfire", iscarfire); // 1450 авто горит?
 	lua_register(L, "is_car_damage_by_car", is_car_damage_by_car); // 1451 Если авто получило урон от другого авто.
-	lua_register(L, "show_text_gtx_table", show_text_gtx_table); // 1452 вывести текст из таблицы.
+	lua_register(L, "show_text_gtx_table", show_text_gtx_table);
+	lua_register(L, "show_text_key", show_text_key); // 23.11: авто-таблица по GXT-ключу // 1452 вывести текст из таблицы.
 	lua_register(L, "ped_road_off", ped_road_off); // 1453 выкл путь педов.
 	lua_register(L, "ped_road_on", ped_road_on); // 1454 вкл путь педов.
 	lua_register(L, "car_road_off", car_road_off); // 1455 выкл путь авто.
