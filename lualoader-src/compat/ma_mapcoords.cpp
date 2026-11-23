@@ -63,17 +63,18 @@ bool ma_map_crosshair_world(float& worldX, float& worldY) {
 }
 
 bool ma_map_uv_world(float u, float v, float& worldX, float& worldY) {
-    // ТОЧНОЕ преобразование по полной карте Vice City (константы из проекта
-    // GTA VC Interactive Map / Deniz Ariyan, которые вы сами прислали):
-    //   pixelX = 449.625 + worldX / 3.91232329951
-    //   pixelY = 360.000 - worldY / 3.91232329951
-    //Обратно:
-    const float imgW = 900.0f;     // карта меню = 3x3 тайла = 900x720 пикселей
+    // КАЛИБРОВКА ПО НАСТОЯЩЕЙ КАРТЕ fronten2.txd (3x3 тайла).
+    // Формула взята из обработчика мыши проекта GTA Vice City Interactive Map
+    // (без смещений маркера 28.375 / 54, которые туда НЕ относятся):
+    //   worldX = (pixelX - 478) * 3.91232329951
+    //   worldY = (414 - pixelY) * 3.91232329951
+    // u,v — доля по собранному изображению 900x720 (3 тайла по 300x240).
+    const float imgW = 900.0f;
     const float imgH = 720.0f;
     const float scale = 3.91232329951f;
     float px = u * imgW;
     float py = v * imgH;
-    worldX = (px - 449.625f) * scale;
-    worldY = (360.0f - py) * scale;
+    worldX = (px - 478.0f) * scale;
+    worldY = (414.0f - py) * scale;
     return true;
 }
