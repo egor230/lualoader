@@ -513,6 +513,9 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "world_add_entity", world_add_entity); // 496 добавить сущность в мир.
 	lua_register(L, "world_clear_scan_codes", world_clear_scan_codes); // 497 сбросить коды сканирования.
 	lua_register(L, "general_atan_of_xy", general_atan_of_xy); // 498 арктангенс от x,y.
+	lua_register(L, "angle_entity_to_entity", angle_entity_to_entity); // 23.11: угол 2-й сущности к 1-й
+	lua_register(L, "angle_to_entity", angle_to_entity);
+	lua_register(L, "get_angle_to_target", get_angle_to_target);
 	lua_register(L, "general_angle_between_points", general_angle_between_points); // 499 угол между точками.
 	lua_register(L, "general_radian_angle_between_points", general_radian_angle_between_points); // 500 угол между точками в радианах.
 	lua_register(L, "general_limit_angle", general_limit_angle); // 501 нормализовать угол.

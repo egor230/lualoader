@@ -65,7 +65,7 @@ function main()                                             -- главная ф
       log(string.format("STEP2a: сцена загружена. Томми=(%.1f %.1f %.1f) дорога=(%.1f %.1f %.1f)",
         px, py, pz, sx, sy, sz))                            -- лог координат спавна
       local taxi = Createcar(TAXI_MODEL, sx, sy, sz)        -- создаём такси на дороге
-      local heading = general_angle_between_points(sx, sy, px, py) -- угол к Томми
+      local heading = angle_entity_to_entity(taxi, player) -- угол к Томми
       setcarangle(taxi, heading)                            -- разворачиваем нос к Томми
       if taxi == nil or not isvehicle(taxi) then            -- если машина не создалась
         log("ОШИБКА: такси не создалось")                   -- пишем ошибку

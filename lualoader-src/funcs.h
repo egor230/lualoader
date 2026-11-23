@@ -2860,6 +2860,9 @@ int press_fire(lua_State* L);
 int release_fire(lua_State* L);
 int set_script_int(lua_State* L);
 int get_script_int(lua_State* L);
+int angle_entity_to_entity(lua_State* L); // 23.11: угол 2-й сущности к 1-й (любые пары)
+int angle_to_entity(lua_State* L);
+int get_angle_to_target(lua_State* L);
 int set_all_timers_99(lua_State* L);   // все убывающие таймеры миссий -> 99 минут (сохранить original)
 int restore_all_timers(lua_State* L);  // вернуть таймеры к значениям до вызова set_all_timers_99
 int map_overlay_on(lua_State* L);      // 23.11: показать карту меню

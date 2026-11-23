@@ -14922,6 +14922,38 @@ int general_atan_of_xy(lua_State* L) {// general_atan_of_xy(x, y) - получи
 	return 0;
 };
 
+// === УНИВЕРСАЛЬНЫЙ УГОЛ МЕЖДУ ДВУМЯ СУЩНОСТЯМИ (23.11.2026) ===
+// angle_entity_to_entity(A, B) -> угол в градусах, под которым B должен смотреть на A.
+// A и B — ЛЮБЫЕ комбинации: car/ped/object × car/ped/object (6 пар).
+// Порядок как в general_angle_between_points: СМОТРЯЩИЙ первым, ЦЕЛЬ вторым:
+//   angle = CGeneral::GetAngleBetweenPoints(B.x, B.y, A.x, A.y);
+// (именно этот вызов дал -34.6 в taxi.lua: такси -> Томми).
+static bool ma_entity_pos(const void* p, CVector& out) {
+    if (CVehicle* c = findcarinpool(p)) { out = c->GetPosition(); return true; }
+    if (CPed*    q = findpedinpool(p)) { out = q->GetPosition(); return true; }
+    if (CObject* o = findobjinpool(p)) { out = o->GetPosition(); return true; }
+    return false;
+}
+int angle_entity_to_entity(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        if (LUA_TLIGHTUSERDATA != lua_type(L, 1) || LUA_TLIGHTUSERDATA != lua_type(L, 2)) {
+            throw "bad argument in function angle_entity_to_entity (need 2 entities)";
+        }
+        CVector a, b;   // a = цель (1-й аргумент), b = смотрящий (2-й аргумент)
+        if (!ma_entity_pos(lua_topointer(L, 1), a) || !ma_entity_pos(lua_topointer(L, 2), b)) {
+            lua_pushnil(L); return 1;
+        }
+        float ang = CGeneral::GetAngleBetweenPoints(b.x, b.y, a.x, a.y);
+        lua_pushnumber(L, ang);
+        return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+// алиасы для удобства
+int angle_to_entity(lua_State* L) { return angle_entity_to_entity(L); }
+int get_angle_to_target(lua_State* L) { return angle_entity_to_entity(L); }
+
 int general_angle_between_points(lua_State* L) {// general_angle_between_points(x1,y1,x2,y2) - угол между точками в градусах.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
