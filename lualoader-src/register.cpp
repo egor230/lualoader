@@ -1423,10 +1423,6 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "delete_entity", delete_entity); // 1400 удалить сущность сразу.
 	lua_register(L, "clean_leader", clean_leader); // 1401 перестать следовать за лидером.
 	lua_register(L, "show_save_menu", show_save_menu); // 1402 меню сохранения (жив, не в миссии, не в машине).
-	lua_register(L, "save_game_slot", save_game_slot); // 1610 0x61D8B0 сохранить игру в слот 1..8 (игровой поток).
-	lua_register(L, "save_to_slot", save_game_slot);   // 1611 псевдоним save_game_slot.
-	lua_register(L, "load_game_slot", load_game_slot); // 1612 0x61A6C0 загрузить игру из слота 1..8 (игровой поток).
-	lua_register(L, "load_from_slot", load_game_slot); // 1613 псевдоним load_game_slot.
 	lua_register(L, "is_ped_shooting", is_ped_shooting); // 1403 пед стреляет?.
 	lua_register(L, "set_ped_visible", set_ped_visible); // 1404 уст невидимость педу.
 	lua_register(L, "set_player_mod", set_player_mod); // 1405 уст настроения игрока.
@@ -1650,6 +1646,10 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_player_in_area_3d", is_player_in_area_3d); // 1607 0057 игрок в 3D-зоне по двум углам.
 	lua_register(L, "is_char_in_area_3d", is_char_in_area_3d); // 1608 0154 пед в 3D-зоне по двум углам.
 	lua_register(L, "player_made_progress", player_made_progress); // 1609 030C процент прохождения игры.
+	lua_register(L, "save_game_slot", save_game_slot); // 1610 0x61D8B0 сохранить игру в слот 1..8 (игровой поток).
+	lua_register(L, "save_to_slot", save_game_slot);   // 1611 псевдоним save_game_slot.
+	lua_register(L, "load_game_slot", load_game_slot); // 1612 0x61A6C0 загрузить игру из слота 1..8 (игровой поток).
+	lua_register(L, "load_from_slot", load_game_slot); // 1613 псевдоним load_game_slot.
 
 
 	// (доп.) Обёртки по значениям: стиль вождения, временные действия и миссии авто
