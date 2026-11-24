@@ -1653,830 +1653,830 @@ int funs(lua_State* L) {// список функций.
 
 
 	// (доп.) Обёртки по значениям: стиль вождения, временные действия и миссии авто
-	lua_register(L, "set_car_driving_style_stop_for_cars", set_car_driving_style_stop_for_cars);
-	lua_register(L, "set_car_driving_style_slow_down_for_cars", set_car_driving_style_slow_down_for_cars);
-	lua_register(L, "set_car_driving_style_avoid_cars", set_car_driving_style_avoid_cars);
-	lua_register(L, "set_car_driving_style_plough_through", set_car_driving_style_plough_through);
-	lua_register(L, "set_car_driving_style_stop_for_cars_ignore_lights", set_car_driving_style_stop_for_cars_ignore_lights);
-	lua_register(L, "car_temp_action_none", car_temp_action_none);
-	lua_register(L, "car_temp_action_wait", car_temp_action_wait);
-	lua_register(L, "car_temp_action_reverse", car_temp_action_reverse);
-	lua_register(L, "car_temp_action_handbrake_turn_left", car_temp_action_handbrake_turn_left);
-	lua_register(L, "car_temp_action_handbrake_turn_right", car_temp_action_handbrake_turn_right);
-	lua_register(L, "car_temp_action_handbrake_straight", car_temp_action_handbrake_straight);
-	lua_register(L, "car_temp_action_turn_left", car_temp_action_turn_left);
-	lua_register(L, "car_temp_action_turn_right", car_temp_action_turn_right);
-	lua_register(L, "car_temp_action_go_forward", car_temp_action_go_forward);
-	lua_register(L, "car_temp_action_swerve_left", car_temp_action_swerve_left);
-	lua_register(L, "car_temp_action_swerve_right", car_temp_action_swerve_right);
-	lua_register(L, "car_mission_none", car_mission_none);
-	lua_register(L, "car_mission_cruise", car_mission_cruise);
-	lua_register(L, "car_mission_ram_player_faraway", car_mission_ram_player_faraway);
-	lua_register(L, "car_mission_ram_player_close", car_mission_ram_player_close);
-	lua_register(L, "car_mission_block_player_faraway", car_mission_block_player_faraway);
-	lua_register(L, "car_mission_block_player_close", car_mission_block_player_close);
-	lua_register(L, "car_mission_block_player_handbrake_stop", car_mission_block_player_handbrake_stop);
-	lua_register(L, "car_mission_wait_for_deletion", car_mission_wait_for_deletion);
-	lua_register(L, "car_mission_goto_coords", car_mission_goto_coords);
-	lua_register(L, "car_mission_goto_coords_straight", car_mission_goto_coords_straight);
-	lua_register(L, "car_mission_emergency_vehicle_stop", car_mission_emergency_vehicle_stop);
-	lua_register(L, "car_mission_stop_forever", car_mission_stop_forever);
-	lua_register(L, "car_mission_goto_coords_accurate", car_mission_goto_coords_accurate);
-	lua_register(L, "car_mission_goto_coords_straight_accurate", car_mission_goto_coords_straight_accurate);
-	lua_register(L, "car_mission_goto_coords_as_the_crow_swims", car_mission_goto_coords_as_the_crow_swims);
-	lua_register(L, "car_mission_ram_car_faraway", car_mission_ram_car_faraway);
-	lua_register(L, "car_mission_ram_car_close", car_mission_ram_car_close);
-	lua_register(L, "car_mission_block_car_faraway", car_mission_block_car_faraway);
-	lua_register(L, "car_mission_block_car_close", car_mission_block_car_close);
-	lua_register(L, "car_mission_block_car_handbrake_stop", car_mission_block_car_handbrake_stop);
-	lua_register(L, "car_mission_heli_fly_to_coords", car_mission_heli_fly_to_coords);
-	lua_register(L, "car_mission_attack_player", car_mission_attack_player);
-	lua_register(L, "car_mission_plane_fly_to_coords", car_mission_plane_fly_to_coords);
-	lua_register(L, "car_mission_heli_land", car_mission_heli_land);
-	lua_register(L, "car_mission_slowly_drive_towards_player_1", car_mission_slowly_drive_towards_player_1);
-	lua_register(L, "car_mission_slowly_drive_towards_player_2", car_mission_slowly_drive_towards_player_2);
-	lua_register(L, "car_mission_block_player_forward_and_back", car_mission_block_player_forward_and_back);
+	lua_register(L, "set_car_driving_style_stop_for_cars", set_car_driving_style_stop_for_cars); // 1614 стиль вождения авто: stop for cars
+	lua_register(L, "set_car_driving_style_slow_down_for_cars", set_car_driving_style_slow_down_for_cars); // 1615 стиль вождения авто: slow down for cars
+	lua_register(L, "set_car_driving_style_avoid_cars", set_car_driving_style_avoid_cars); // 1616 стиль вождения авто: avoid cars
+	lua_register(L, "set_car_driving_style_plough_through", set_car_driving_style_plough_through); // 1617 стиль вождения авто: plough through
+	lua_register(L, "set_car_driving_style_stop_for_cars_ignore_lights", set_car_driving_style_stop_for_cars_ignore_lights); // 1618 стиль вождения авто: stop for cars ignore lights
+	lua_register(L, "car_temp_action_none", car_temp_action_none); // 1619 временное действие авто: none
+	lua_register(L, "car_temp_action_wait", car_temp_action_wait); // 1620 временное действие авто: wait
+	lua_register(L, "car_temp_action_reverse", car_temp_action_reverse); // 1621 временное действие авто: reverse
+	lua_register(L, "car_temp_action_handbrake_turn_left", car_temp_action_handbrake_turn_left); // 1622 временное действие авто: handbrake turn left
+	lua_register(L, "car_temp_action_handbrake_turn_right", car_temp_action_handbrake_turn_right); // 1623 временное действие авто: handbrake turn right
+	lua_register(L, "car_temp_action_handbrake_straight", car_temp_action_handbrake_straight); // 1624 временное действие авто: handbrake straight
+	lua_register(L, "car_temp_action_turn_left", car_temp_action_turn_left); // 1625 временное действие авто: turn left
+	lua_register(L, "car_temp_action_turn_right", car_temp_action_turn_right); // 1626 временное действие авто: turn right
+	lua_register(L, "car_temp_action_go_forward", car_temp_action_go_forward); // 1627 временное действие авто: go forward
+	lua_register(L, "car_temp_action_swerve_left", car_temp_action_swerve_left); // 1628 временное действие авто: swerve left
+	lua_register(L, "car_temp_action_swerve_right", car_temp_action_swerve_right); // 1629 временное действие авто: swerve right
+	lua_register(L, "car_mission_none", car_mission_none); // 1630 поведение авто в миссии: none
+	lua_register(L, "car_mission_cruise", car_mission_cruise); // 1631 поведение авто в миссии: cruise
+	lua_register(L, "car_mission_ram_player_faraway", car_mission_ram_player_faraway); // 1632 поведение авто в миссии: ram player faraway
+	lua_register(L, "car_mission_ram_player_close", car_mission_ram_player_close); // 1633 поведение авто в миссии: ram player close
+	lua_register(L, "car_mission_block_player_faraway", car_mission_block_player_faraway); // 1634 поведение авто в миссии: block player faraway
+	lua_register(L, "car_mission_block_player_close", car_mission_block_player_close); // 1635 поведение авто в миссии: block player close
+	lua_register(L, "car_mission_block_player_handbrake_stop", car_mission_block_player_handbrake_stop); // 1636 поведение авто в миссии: block player handbrake stop
+	lua_register(L, "car_mission_wait_for_deletion", car_mission_wait_for_deletion); // 1637 поведение авто в миссии: wait for deletion
+	lua_register(L, "car_mission_goto_coords", car_mission_goto_coords); // 1638 поведение авто в миссии: goto coords
+	lua_register(L, "car_mission_goto_coords_straight", car_mission_goto_coords_straight); // 1639 поведение авто в миссии: goto coords straight
+	lua_register(L, "car_mission_emergency_vehicle_stop", car_mission_emergency_vehicle_stop); // 1640 поведение авто в миссии: emergency vehicle stop
+	lua_register(L, "car_mission_stop_forever", car_mission_stop_forever); // 1641 поведение авто в миссии: stop forever
+	lua_register(L, "car_mission_goto_coords_accurate", car_mission_goto_coords_accurate); // 1642 поведение авто в миссии: goto coords accurate
+	lua_register(L, "car_mission_goto_coords_straight_accurate", car_mission_goto_coords_straight_accurate); // 1643 поведение авто в миссии: goto coords straight accurate
+	lua_register(L, "car_mission_goto_coords_as_the_crow_swims", car_mission_goto_coords_as_the_crow_swims); // 1644 поведение авто в миссии: goto coords as the crow swims
+	lua_register(L, "car_mission_ram_car_faraway", car_mission_ram_car_faraway); // 1645 поведение авто в миссии: ram car faraway
+	lua_register(L, "car_mission_ram_car_close", car_mission_ram_car_close); // 1646 поведение авто в миссии: ram car close
+	lua_register(L, "car_mission_block_car_faraway", car_mission_block_car_faraway); // 1647 поведение авто в миссии: block car faraway
+	lua_register(L, "car_mission_block_car_close", car_mission_block_car_close); // 1648 поведение авто в миссии: block car close
+	lua_register(L, "car_mission_block_car_handbrake_stop", car_mission_block_car_handbrake_stop); // 1649 поведение авто в миссии: block car handbrake stop
+	lua_register(L, "car_mission_heli_fly_to_coords", car_mission_heli_fly_to_coords); // 1650 поведение авто в миссии: heli fly to coords
+	lua_register(L, "car_mission_attack_player", car_mission_attack_player); // 1651 поведение авто в миссии: attack player
+	lua_register(L, "car_mission_plane_fly_to_coords", car_mission_plane_fly_to_coords); // 1652 поведение авто в миссии: plane fly to coords
+	lua_register(L, "car_mission_heli_land", car_mission_heli_land); // 1653 поведение авто в миссии: heli land
+	lua_register(L, "car_mission_slowly_drive_towards_player_1", car_mission_slowly_drive_towards_player_1); // 1654 поведение авто в миссии: slowly drive towards player 1
+	lua_register(L, "car_mission_slowly_drive_towards_player_2", car_mission_slowly_drive_towards_player_2); // 1655 поведение авто в миссии: slowly drive towards player 2
+	lua_register(L, "car_mission_block_player_forward_and_back", car_mission_block_player_forward_and_back); // 1656 поведение авто в миссии: block player forward and back
 
 
 	// (доп.) Обёртки: скорость передвижения педа, pedstat, банды
-	lua_register(L, "ped_move_state_none", ped_move_state_none);
-	lua_register(L, "ped_move_state_still", ped_move_state_still);
-	lua_register(L, "ped_move_state_walk", ped_move_state_walk);
-	lua_register(L, "ped_move_state_run", ped_move_state_run);
-	lua_register(L, "ped_move_state_sprint", ped_move_state_sprint);
-	lua_register(L, "set_ped_stat_player", set_ped_stat_player);
-	lua_register(L, "set_ped_stat_cop", set_ped_stat_cop);
-	lua_register(L, "set_ped_stat_medic", set_ped_stat_medic);
-	lua_register(L, "set_ped_stat_fire", set_ped_stat_fire);
-	lua_register(L, "set_ped_stat_gang1", set_ped_stat_gang1);
-	lua_register(L, "set_ped_stat_gang2", set_ped_stat_gang2);
-	lua_register(L, "set_ped_stat_gang3", set_ped_stat_gang3);
-	lua_register(L, "set_ped_stat_gang4", set_ped_stat_gang4);
-	lua_register(L, "set_ped_stat_gang5", set_ped_stat_gang5);
-	lua_register(L, "set_ped_stat_gang6", set_ped_stat_gang6);
-	lua_register(L, "set_ped_stat_gang7", set_ped_stat_gang7);
-	lua_register(L, "set_ped_stat_street_guy", set_ped_stat_street_guy);
-	lua_register(L, "set_ped_stat_suit_guy", set_ped_stat_suit_guy);
-	lua_register(L, "set_ped_stat_sensible_guy", set_ped_stat_sensible_guy);
-	lua_register(L, "set_ped_stat_geek_guy", set_ped_stat_geek_guy);
-	lua_register(L, "set_ped_stat_old_guy", set_ped_stat_old_guy);
-	lua_register(L, "set_ped_stat_tough_guy", set_ped_stat_tough_guy);
-	lua_register(L, "set_ped_stat_street_girl", set_ped_stat_street_girl);
-	lua_register(L, "set_ped_stat_suit_girl", set_ped_stat_suit_girl);
-	lua_register(L, "set_ped_stat_sensible_girl", set_ped_stat_sensible_girl);
-	lua_register(L, "set_ped_stat_geek_girl", set_ped_stat_geek_girl);
-	lua_register(L, "set_ped_stat_old_girl", set_ped_stat_old_girl);
-	lua_register(L, "set_ped_stat_tough_girl", set_ped_stat_tough_girl);
-	lua_register(L, "set_ped_stat_tramp_male", set_ped_stat_tramp_male);
-	lua_register(L, "set_ped_stat_tramp_female", set_ped_stat_tramp_female);
-	lua_register(L, "set_ped_stat_tourist", set_ped_stat_tourist);
-	lua_register(L, "set_ped_stat_prostitute", set_ped_stat_prostitute);
-	lua_register(L, "set_ped_stat_criminal", set_ped_stat_criminal);
-	lua_register(L, "set_ped_stat_busker", set_ped_stat_busker);
-	lua_register(L, "set_ped_stat_taxidriver", set_ped_stat_taxidriver);
-	lua_register(L, "set_ped_stat_psycho", set_ped_stat_psycho);
-	lua_register(L, "set_ped_stat_steward", set_ped_stat_steward);
-	lua_register(L, "set_ped_stat_sportsfan", set_ped_stat_sportsfan);
-	lua_register(L, "set_ped_stat_shopper", set_ped_stat_shopper);
-	lua_register(L, "set_ped_stat_oldshopper", set_ped_stat_oldshopper);
-	lua_register(L, "set_ped_stat_beach_guy", set_ped_stat_beach_guy);
-	lua_register(L, "set_ped_stat_beach_girl", set_ped_stat_beach_girl);
-	lua_register(L, "set_ped_stat_skater", set_ped_stat_skater);
-	lua_register(L, "set_ped_stat_std_mission", set_ped_stat_std_mission);
-	lua_register(L, "set_ped_stat_coward", set_ped_stat_coward);
-	lua_register(L, "gang_enable_attack_player_with_cops", gang_enable_attack_player_with_cops);
-	lua_register(L, "gang_disable_attack_player_with_cops", gang_disable_attack_player_with_cops);
-	lua_register(L, "reset_gangs", reset_gangs);
+	lua_register(L, "ped_move_state_none", ped_move_state_none); // 1657 состояние движения педа: none
+	lua_register(L, "ped_move_state_still", ped_move_state_still); // 1658 состояние движения педа: still
+	lua_register(L, "ped_move_state_walk", ped_move_state_walk); // 1659 состояние движения педа: walk
+	lua_register(L, "ped_move_state_run", ped_move_state_run); // 1660 состояние движения педа: run
+	lua_register(L, "ped_move_state_sprint", ped_move_state_sprint); // 1661 состояние движения педа: sprint
+	lua_register(L, "set_ped_stat_player", set_ped_stat_player); // 1662 назначить pedstat: player
+	lua_register(L, "set_ped_stat_cop", set_ped_stat_cop); // 1663 назначить pedstat: cop
+	lua_register(L, "set_ped_stat_medic", set_ped_stat_medic); // 1664 назначить pedstat: medic
+	lua_register(L, "set_ped_stat_fire", set_ped_stat_fire); // 1665 назначить pedstat: fire
+	lua_register(L, "set_ped_stat_gang1", set_ped_stat_gang1); // 1666 назначить pedstat: gang1
+	lua_register(L, "set_ped_stat_gang2", set_ped_stat_gang2); // 1667 назначить pedstat: gang2
+	lua_register(L, "set_ped_stat_gang3", set_ped_stat_gang3); // 1668 назначить pedstat: gang3
+	lua_register(L, "set_ped_stat_gang4", set_ped_stat_gang4); // 1669 назначить pedstat: gang4
+	lua_register(L, "set_ped_stat_gang5", set_ped_stat_gang5); // 1670 назначить pedstat: gang5
+	lua_register(L, "set_ped_stat_gang6", set_ped_stat_gang6); // 1671 назначить pedstat: gang6
+	lua_register(L, "set_ped_stat_gang7", set_ped_stat_gang7); // 1672 назначить pedstat: gang7
+	lua_register(L, "set_ped_stat_street_guy", set_ped_stat_street_guy); // 1673 назначить pedstat: street guy
+	lua_register(L, "set_ped_stat_suit_guy", set_ped_stat_suit_guy); // 1674 назначить pedstat: suit guy
+	lua_register(L, "set_ped_stat_sensible_guy", set_ped_stat_sensible_guy); // 1675 назначить pedstat: sensible guy
+	lua_register(L, "set_ped_stat_geek_guy", set_ped_stat_geek_guy); // 1676 назначить pedstat: geek guy
+	lua_register(L, "set_ped_stat_old_guy", set_ped_stat_old_guy); // 1677 назначить pedstat: old guy
+	lua_register(L, "set_ped_stat_tough_guy", set_ped_stat_tough_guy); // 1678 назначить pedstat: tough guy
+	lua_register(L, "set_ped_stat_street_girl", set_ped_stat_street_girl); // 1679 назначить pedstat: street girl
+	lua_register(L, "set_ped_stat_suit_girl", set_ped_stat_suit_girl); // 1680 назначить pedstat: suit girl
+	lua_register(L, "set_ped_stat_sensible_girl", set_ped_stat_sensible_girl); // 1681 назначить pedstat: sensible girl
+	lua_register(L, "set_ped_stat_geek_girl", set_ped_stat_geek_girl); // 1682 назначить pedstat: geek girl
+	lua_register(L, "set_ped_stat_old_girl", set_ped_stat_old_girl); // 1683 назначить pedstat: old girl
+	lua_register(L, "set_ped_stat_tough_girl", set_ped_stat_tough_girl); // 1684 назначить pedstat: tough girl
+	lua_register(L, "set_ped_stat_tramp_male", set_ped_stat_tramp_male); // 1685 назначить pedstat: tramp male
+	lua_register(L, "set_ped_stat_tramp_female", set_ped_stat_tramp_female); // 1686 назначить pedstat: tramp female
+	lua_register(L, "set_ped_stat_tourist", set_ped_stat_tourist); // 1687 назначить pedstat: tourist
+	lua_register(L, "set_ped_stat_prostitute", set_ped_stat_prostitute); // 1688 назначить pedstat: prostitute
+	lua_register(L, "set_ped_stat_criminal", set_ped_stat_criminal); // 1689 назначить pedstat: criminal
+	lua_register(L, "set_ped_stat_busker", set_ped_stat_busker); // 1690 назначить pedstat: busker
+	lua_register(L, "set_ped_stat_taxidriver", set_ped_stat_taxidriver); // 1691 назначить pedstat: taxidriver
+	lua_register(L, "set_ped_stat_psycho", set_ped_stat_psycho); // 1692 назначить pedstat: psycho
+	lua_register(L, "set_ped_stat_steward", set_ped_stat_steward); // 1693 назначить pedstat: steward
+	lua_register(L, "set_ped_stat_sportsfan", set_ped_stat_sportsfan); // 1694 назначить pedstat: sportsfan
+	lua_register(L, "set_ped_stat_shopper", set_ped_stat_shopper); // 1695 назначить pedstat: shopper
+	lua_register(L, "set_ped_stat_oldshopper", set_ped_stat_oldshopper); // 1696 назначить pedstat: oldshopper
+	lua_register(L, "set_ped_stat_beach_guy", set_ped_stat_beach_guy); // 1697 назначить pedstat: beach guy
+	lua_register(L, "set_ped_stat_beach_girl", set_ped_stat_beach_girl); // 1698 назначить pedstat: beach girl
+	lua_register(L, "set_ped_stat_skater", set_ped_stat_skater); // 1699 назначить pedstat: skater
+	lua_register(L, "set_ped_stat_std_mission", set_ped_stat_std_mission); // 1700 назначить pedstat: std mission
+	lua_register(L, "set_ped_stat_coward", set_ped_stat_coward); // 1701 назначить pedstat: coward
+	lua_register(L, "gang_enable_attack_player_with_cops", gang_enable_attack_player_with_cops); // 1702 поведение банды: enable attack player with cops
+	lua_register(L, "gang_disable_attack_player_with_cops", gang_disable_attack_player_with_cops); // 1703 поведение банды: disable attack player with cops
+	lua_register(L, "reset_gangs", reset_gangs); // 1704 обёртка: reset gangs
 
 	// (20.11) Реализации, которые существовали в funcs.cpp, но НЕ были зарегистрированы.
 	// Параметры сверены с reVC/телом функции; неполные create_rope2..11 НЕ регистрируются.
-	lua_register(L, "carmovespeed", carmovespeed); // авто, vx, vy, vz — прямая запись m_vecMoveSpeed.
-	lua_register(L, "get_clip_current_weapon", get_clip_current_weapon); // пед → патроны в обойме.
-	lua_register(L, "getpedarmour", getpedarmour); // пед → броня.
-	lua_register(L, "is_car_model", is_car_model); // имя модели, авто → bool (0137).
-	lua_register(L, "is_ped_sitting_in_car", is_ped_sitting_in_car); // пед, авто → bool (0448).
-	lua_register(L, "load_gtx_table", load_gtx_table); // имя GXT-таблицы (LOAD_MISSION_TEXT).
-	lua_register(L, "set_path_to_module", set_path_to_module); // выставить package.path (без аргументов).
-	lua_register(L, "set_player_control", set_player_control); // 0/1 — управление игроком (01B4).
+	lua_register(L, "carmovespeed", carmovespeed); // 1705 авто, vx, vy, vz — прямая запись m_vecMoveSpeed.
+	lua_register(L, "get_clip_current_weapon", get_clip_current_weapon); // 1706 пед → патроны в обойме.
+	lua_register(L, "getpedarmour", getpedarmour); // 1707 пед → броня.
+	lua_register(L, "is_car_model", is_car_model); // 1708 имя модели, авто → bool (0137).
+	lua_register(L, "is_ped_sitting_in_car", is_ped_sitting_in_car); // 1709 пед, авто → bool (0448).
+	lua_register(L, "load_gtx_table", load_gtx_table); // 1710 имя GXT-таблицы (LOAD_MISSION_TEXT).
+	lua_register(L, "set_path_to_module", set_path_to_module); // 1711 выставить package.path (без аргументов).
+	lua_register(L, "set_player_control", set_player_control); // 1712 0/1 — управление игроком (01B4).
 
 	
 	
 	// === AUTO-ADDED OPCODE WRAPPERS (20.11) ===
-	lua_register(L, "print_with_number_big", print_with_number_big); // 0x01E3 COMMAND_PRINT_WITH_NUMBER_BIG (reVC Script2.cpp:1389)
-	lua_register(L, "add_score", add_score); // 0x0109 COMMAND_ADD_SCORE (reVC Script.cpp:4512)
-	lua_register(L, "has_deatharrest_been_executed", has_deatharrest_been_executed); // 0x0112 COMMAND_HAS_DEATHARREST_BEEN_EXECUTED (reVC Script.cpp:4556)
-	lua_register(L, "clear_prints", clear_prints); // 0x00BE COMMAND_CLEAR_PRINTS (reVC Script.cpp:4162)
-	lua_register(L, "set_fading_colour", set_fading_colour); // 0x0169 COMMAND_SET_FADING_COLOUR (reVC Script2.cpp:384)
-	lua_register(L, "load_special_character", load_special_character); // 0x023C COMMAND_LOAD_SPECIAL_CHARACTER (reVC Script3.cpp:662)
-	lua_register(L, "has_special_character_loaded", has_special_character_loaded); // 0x023D COMMAND_HAS_SPECIAL_CHARACTER_LOADED (reVC Script3.cpp:673)
-	lua_register(L, "set_cutscene_offset", set_cutscene_offset); // 0x0244 COMMAND_SET_CUTSCENE_OFFSET (reVC Script3.cpp:729)
-	lua_register(L, "load_cutscene", load_cutscene); // 0x02E4 COMMAND_LOAD_CUTSCENE (reVC Script3.cpp:1950)
-	lua_register(L, "create_cutscene_object", create_cutscene_object); // 0x02E5 COMMAND_CREATE_CUTSCENE_OBJECT (reVC Script3.cpp:1958)
-	lua_register(L, "set_cutscene_anim", set_cutscene_anim); // 0x02E6 COMMAND_SET_CUTSCENE_ANIM (reVC Script3.cpp:1966)
-	lua_register(L, "start_cutscene", start_cutscene); // 0x02E7 COMMAND_START_CUTSCENE (reVC Script3.cpp:1977)
-	lua_register(L, "get_cutscene_time", get_cutscene_time); // 0x02E8 COMMAND_GET_CUTSCENE_TIME (reVC Script3.cpp:1980)
-	lua_register(L, "clear_cutscene", clear_cutscene); // 0x02EA COMMAND_CLEAR_CUTSCENE (reVC Script3.cpp:1987)
-	lua_register(L, "set_shortcut_dropoff_point_for_mission", set_shortcut_dropoff_point_for_mission); // 0x058E COMMAND_SET_SHORTCUT_DROPOFF_POINT_FOR_MISSION (reVC Script8.cpp:234)
-	lua_register(L, "clear_this_print", clear_this_print); // 0x03D5 COMMAND_CLEAR_THIS_PRINT (reVC Script4.cpp:2079)
-	lua_register(L, "is_player_in_any_car", is_player_in_any_car); // 0x00E0 COMMAND_IS_PLAYER_IN_ANY_CAR (reVC Script.cpp:4400)
-	lua_register(L, "is_player_in_car", is_player_in_car); // 0x00DC COMMAND_IS_PLAYER_IN_CAR (reVC Script.cpp:4370)
-	lua_register(L, "get_player_coordinates", get_player_coordinates); // 0x0054 COMMAND_GET_PLAYER_COORDINATES (reVC Script.cpp:3183)
-	lua_register(L, "load_special_model", load_special_model); // 0x02F3 COMMAND_LOAD_SPECIAL_MODEL (reVC Script3.cpp:2086)
-	lua_register(L, "is_char_in_car", is_char_in_car); // 0x00DB COMMAND_IS_CHAR_IN_CAR (reVC Script.cpp:4361)
-	lua_register(L, "is_char_in_any_car", is_char_in_any_car); // 0x00DF COMMAND_IS_CHAR_IN_ANY_CAR (reVC Script.cpp:4393)
-	lua_register(L, "locate_player_any_means_3d", locate_player_any_means_3d); // 0x00F5 COMMAND_LOCATE_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4448)
-	lua_register(L, "get_car_coordinates", get_car_coordinates); // 0x00AA COMMAND_GET_CAR_COORDINATES (reVC Script.cpp:3982)
-	lua_register(L, "store_car_player_is_in", store_car_player_is_in); // 0x00DA COMMAND_STORE_CAR_PLAYER_IS_IN (reVC Script.cpp:4310)
-	lua_register(L, "clear_onscreen_counter", clear_onscreen_counter); // 0x0151 COMMAND_CLEAR_ONSCREEN_COUNTER (reVC Script2.cpp:194)
-	lua_register(L, "clear_extra_colours", clear_extra_colours); // 0x04FA COMMAND_CLEAR_EXTRA_COLOURS (reVC Script7.cpp:567)
-	lua_register(L, "register_oddjob_mission_passed", register_oddjob_mission_passed); // 0x0595 COMMAND_REGISTER_ODDJOB_MISSION_PASSED (reVC Script8.cpp:330)
-	lua_register(L, "locate_char_on_foot_2d", locate_char_on_foot_2d); // 0x00ED COMMAND_LOCATE_CHAR_ON_FOOT_2D (reVC Script.cpp:4436)
-	lua_register(L, "locate_car_2d", locate_car_2d); // 0x01AD COMMAND_LOCATE_CAR_2D (reVC Script2.cpp:881)
-	lua_register(L, "display_onscreen_counter_with_string", display_onscreen_counter_with_string); // 0x03C4 COMMAND_DISPLAY_ONSCREEN_COUNTER_WITH_STRING (reVC Script4.cpp:1797)
-	lua_register(L, "set_extra_colours", set_extra_colours); // 0x04F9 COMMAND_SET_EXTRA_COLOURS (reVC Script7.cpp:561)
-	lua_register(L, "set_char_obj_enter_car_as_driver", set_char_obj_enter_car_as_driver); // 0x01D5 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_DRIVER (reVC Script2.cpp:1285)
-	lua_register(L, "create_object_no_offset", create_object_no_offset); // 0x029B COMMAND_CREATE_OBJECT_NO_OFFSET (reVC Script3.cpp:1260)
-	lua_register(L, "change_blip_display", change_blip_display); // 0x018B COMMAND_CHANGE_BLIP_DISPLAY (reVC Script2.cpp:683)
-	lua_register(L, "set_char_health", set_char_health); // 0x0223 COMMAND_SET_CHAR_HEALTH (reVC Script3.cpp:393)
-	lua_register(L, "locate_player_on_foot_3d", locate_player_on_foot_3d); // 0x00F6 COMMAND_LOCATE_PLAYER_ON_FOOT_3D (reVC Script.cpp:4449)
-	lua_register(L, "get_char_coordinates", get_char_coordinates); // 0x00A0 COMMAND_GET_CHAR_COORDINATES (reVC Script.cpp:3759)
-	lua_register(L, "register_fastest_time", register_fastest_time); // 0x042E COMMAND_REGISTER_FASTEST_TIME (reVC Script6.cpp:635)
-	lua_register(L, "print", print); // 0x00BB COMMAND_PRINT (reVC Script.cpp:4139)
-	lua_register(L, "display_onscreen_timer", display_onscreen_timer); // 0x014E COMMAND_DISPLAY_ONSCREEN_TIMER (reVC Script2.cpp:169)
-	lua_register(L, "locate_player_in_car_3d", locate_player_in_car_3d); // 0x00F7 COMMAND_LOCATE_PLAYER_IN_CAR_3D (reVC Script.cpp:4450)
-	lua_register(L, "locate_player_any_means_car_2d", locate_player_any_means_car_2d); // 0x01FC COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_2D (reVC Script3.cpp:108)
-	lua_register(L, "print_with_2_numbers_now", print_with_2_numbers_now); // 0x02FD COMMAND_PRINT_WITH_2_NUMBERS_NOW (reVC Script3.cpp:2161)
-	lua_register(L, "clear_small_prints", clear_small_prints); // 0x03EB COMMAND_CLEAR_SMALL_PRINTS (reVC Script6.cpp:99)
-	lua_register(L, "is_player_in_model", is_player_in_model); // 0x00DE COMMAND_IS_PLAYER_IN_MODEL (reVC Script.cpp:4386)
-	lua_register(L, "switch_car_generator", switch_car_generator); // 0x014C COMMAND_SWITCH_CAR_GENERATOR (reVC Script2.cpp:146)
-	lua_register(L, "turn_char_to_face_char", turn_char_to_face_char); // 0x020E COMMAND_TURN_CHAR_TO_FACE_CHAR (reVC Script3.cpp:163)
-	lua_register(L, "is_player_playing", is_player_playing); // 0x0256 COMMAND_IS_PLAYER_PLAYING (reVC Script3.cpp:854)
-	lua_register(L, "is_point_obscured_by_a_mission_entity", is_point_obscured_by_a_mission_entity); // 0x038A COMMAND_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY (reVC Script4.cpp:1262)
-	lua_register(L, "sqrt", sqrt); // 0x01FB COMMAND_SQRT (reVC Script3.cpp:101)
-	lua_register(L, "set_camera_in_front_of_player", set_camera_in_front_of_player); // 0x03C8 COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER (reVC Script4.cpp:1983)
-	lua_register(L, "locate_char_on_foot_3d", locate_char_on_foot_3d); // 0x00FF COMMAND_LOCATE_CHAR_ON_FOOT_3D (reVC Script.cpp:4462)
-	lua_register(L, "print_with_number_now", print_with_number_now); // 0x01E5 COMMAND_PRINT_WITH_NUMBER_NOW (reVC Script2.cpp:1403)
-	lua_register(L, "was_cutscene_skipped", was_cutscene_skipped); // 0x056A COMMAND_WAS_CUTSCENE_SKIPPED (reVC Script7.cpp:1305)
-	lua_register(L, "set_zone_ped_info", set_zone_ped_info); // 0x015C COMMAND_SET_ZONE_PED_INFO (reVC Script2.cpp:275)
-	lua_register(L, "add_money_spent_on_property", add_money_spent_on_property); // 0x0529 COMMAND_ADD_MONEY_SPENT_ON_PROPERTY (reVC Script7.cpp:878)
-	lua_register(L, "set_property_as_owned", set_property_as_owned); // 0x0542 COMMAND_SET_PROPERTY_AS_OWNED (reVC Script7.cpp:1003)
-	lua_register(L, "get_object_coordinates", get_object_coordinates); // 0x01BB COMMAND_GET_OBJECT_COORDINATES (reVC Script2.cpp:951)
-	lua_register(L, "generate_random_int_in_range", generate_random_int_in_range); // 0x0209 COMMAND_GENERATE_RANDOM_INT_IN_RANGE (reVC Script3.cpp:129)
-	lua_register(L, "set_char_cant_be_dragged_out", set_char_cant_be_dragged_out); // 0x039E COMMAND_SET_CHAR_CANT_BE_DRAGGED_OUT (reVC Script4.cpp:1485)
-	lua_register(L, "set_cutscene_anim_to_loop", set_cutscene_anim_to_loop); // 0x04BC COMMAND_SET_CUTSCENE_ANIM_TO_LOOP (reVC Script7.cpp:139)
-	lua_register(L, "is_player_in_area_2d", is_player_in_area_2d); // 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D (reVC Script.cpp:3248)
-	lua_register(L, "set_time_of_day", set_time_of_day); // 0x00C0 COMMAND_SET_TIME_OF_DAY (reVC Script.cpp:4170)
-	lua_register(L, "locate_stopped_player_in_car_3d", locate_stopped_player_in_car_3d); // 0x00FA COMMAND_LOCATE_STOPPED_PLAYER_IN_CAR_3D (reVC Script.cpp:4453)
-	lua_register(L, "set_char_obj_enter_car_as_passenger", set_char_obj_enter_car_as_passenger); // 0x01D4 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_PASSENGER (reVC Script2.cpp:1275)
-	lua_register(L, "set_char_suffers_critical_hits", set_char_suffers_critical_hits); // 0x0446 COMMAND_SET_CHAR_SUFFERS_CRITICAL_HITS (reVC Script6.cpp:801)
-	lua_register(L, "store_car_char_is_in", store_car_char_is_in); // 0x00D9 COMMAND_STORE_CAR_CHAR_IS_IN (reVC Script.cpp:4258)
-	lua_register(L, "locate_player_any_means_2d", locate_player_any_means_2d); // 0x00E3 COMMAND_LOCATE_PLAYER_ANY_MEANS_2D (reVC Script.cpp:4422)
-	lua_register(L, "locate_stopped_player_on_foot_3d", locate_stopped_player_on_foot_3d); // 0x00F9 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_3D (reVC Script.cpp:4452)
-	lua_register(L, "set_player_as_leader", set_player_as_leader); // 0x01DF COMMAND_SET_PLAYER_AS_LEADER (reVC Script2.cpp:1357)
-	lua_register(L, "add_short_range_sprite_blip_for_coord", add_short_range_sprite_blip_for_coord); // 0x04CE COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_COORD (reVC Script7.cpp:244)
-	lua_register(L, "stop_char_looking", stop_char_looking); // 0x022F COMMAND_STOP_CHAR_LOOKING (reVC Script3.cpp:548)
-	lua_register(L, "has_cutscene_finished", has_cutscene_finished); // 0x02E9 COMMAND_HAS_CUTSCENE_FINISHED (reVC Script3.cpp:1984)
-	lua_register(L, "shut_player_up", shut_player_up); // 0x04E2 COMMAND_SHUT_PLAYER_UP (reVC Script7.cpp:390)
-	lua_register(L, "is_char_health_greater", is_char_health_greater); // 0x0184 COMMAND_IS_CHAR_HEALTH_GREATER (reVC Script2.cpp:605)
-	lua_register(L, "store_wanted_level", store_wanted_level); // 0x01C0 COMMAND_STORE_WANTED_LEVEL (reVC Script2.cpp:1028)
-	lua_register(L, "is_char_in_players_group", is_char_in_players_group); // 0x0320 COMMAND_IS_CHAR_IN_PLAYERS_GROUP (reVC Script4.cpp:65)
-	lua_register(L, "make_player_safe_for_cutscene", make_player_safe_for_cutscene); // 0x03EF COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE (reVC Script6.cpp:125)
-	lua_register(L, "create_protection_pickup", create_protection_pickup); // 0x04A6 COMMAND_CREATE_PROTECTION_PICKUP (reVC Script6.cpp:1719)
-	lua_register(L, "locate_stopped_player_any_means_3d", locate_stopped_player_any_means_3d); // 0x00F8 COMMAND_LOCATE_STOPPED_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4451)
-	lua_register(L, "char_look_at_player_always", char_look_at_player_always); // 0x022D COMMAND_CHAR_LOOK_AT_PLAYER_ALWAYS (reVC Script3.cpp:526)
-	lua_register(L, "stop_player_looking", stop_player_looking); // 0x0230 COMMAND_STOP_PLAYER_LOOKING (reVC Script3.cpp:559)
-	lua_register(L, "store_car_player_is_in_no_save", store_car_player_is_in_no_save); // 0x03C1 COMMAND_STORE_CAR_PLAYER_IS_IN_NO_SAVE (reVC Script4.cpp:1770)
-	lua_register(L, "get_offset_from_car_in_world_coords", get_offset_from_car_in_world_coords); // 0x0407 COMMAND_GET_OFFSET_FROM_CAR_IN_WORLD_COORDS (reVC Script6.cpp:286)
-	lua_register(L, "shut_char_up", shut_char_up); // 0x0489 COMMAND_SHUT_CHAR_UP (reVC Script6.cpp:1524)
-	lua_register(L, "draw_weaponshop_corona", draw_weaponshop_corona); // 0x04D5 COMMAND_DRAW_WEAPONSHOP_CORONA (reVC Script7.cpp:302)
-	lua_register(L, "does_char_exist", does_char_exist); // 0x056D COMMAND_DOES_CHAR_EXIST (reVC Script7.cpp:1328)
-	lua_register(L, "point_camera_at_player", point_camera_at_player); // 0x0157 COMMAND_POINT_CAMERA_AT_PLAYER (reVC Script2.cpp:244)
-	lua_register(L, "mark_object_as_no_longer_needed", mark_object_as_no_longer_needed); // 0x01C4 COMMAND_MARK_OBJECT_AS_NO_LONGER_NEEDED (reVC Script2.cpp:1063)
-	lua_register(L, "get_player_char", get_player_char); // 0x01F5 COMMAND_GET_PLAYER_CHAR (reVC Script3.cpp:50)
-	lua_register(L, "get_ground_z_for_3d_coord", get_ground_z_for_3d_coord); // 0x02CE COMMAND_GET_GROUND_Z_FOR_3D_COORD (reVC Script3.cpp:1654)
-	lua_register(L, "place_object_relative_to_car", place_object_relative_to_car); // 0x035C COMMAND_PLACE_OBJECT_RELATIVE_TO_CAR (reVC Script4.cpp:726)
-	lua_register(L, "add_moving_particle_effect", add_moving_particle_effect); // 0x039D COMMAND_ADD_MOVING_PARTICLE_EFFECT (reVC Script4.cpp:1464)
-	lua_register(L, "change_garage_type", change_garage_type); // 0x02FA COMMAND_CHANGE_GARAGE_TYPE (reVC Script3.cpp:2127)
-	lua_register(L, "has_object_been_damaged", has_object_been_damaged); // 0x0366 COMMAND_HAS_OBJECT_BEEN_DAMAGED (reVC Script4.cpp:899)
-	lua_register(L, "is_player_sitting_in_car", is_player_sitting_in_car); // 0x0442 COMMAND_IS_PLAYER_SITTING_IN_CAR (reVC Script6.cpp:775)
-	lua_register(L, "is_char_on_foot", is_char_on_foot); // 0x044B COMMAND_IS_CHAR_ON_FOOT (reVC Script6.cpp:846)
-	lua_register(L, "is_car_in_area_2d", is_car_in_area_2d); // 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC Script.cpp:4084)
-	lua_register(L, "locate_player_on_foot_2d", locate_player_on_foot_2d); // 0x00E4 COMMAND_LOCATE_PLAYER_ON_FOOT_2D (reVC Script.cpp:4423)
-	lua_register(L, "locate_stopped_char_any_means_3d", locate_stopped_char_any_means_3d); // 0x0101 COMMAND_LOCATE_STOPPED_CHAR_ANY_MEANS_3D (reVC Script.cpp:4464)
-	lua_register(L, "set_char_as_leader", set_char_as_leader); // 0x01DE COMMAND_SET_CHAR_AS_LEADER (reVC Script2.cpp:1348)
-	lua_register(L, "locate_char_any_means_car_2d", locate_char_any_means_car_2d); // 0x0202 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_2D (reVC Script3.cpp:116)
-	lua_register(L, "generate_random_float_in_range", generate_random_float_in_range); // 0x0208 COMMAND_GENERATE_RANDOM_FLOAT_IN_RANGE (reVC Script3.cpp:124)
-	lua_register(L, "get_char_health", get_char_health); // 0x0226 COMMAND_GET_CHAR_HEALTH (reVC Script3.cpp:428)
-	lua_register(L, "char_look_at_char_always", char_look_at_char_always); // 0x022C COMMAND_CHAR_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:515)
-	lua_register(L, "player_look_at_char_always", player_look_at_char_always); // 0x022E COMMAND_PLAYER_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:537)
-	lua_register(L, "is_player_in_angled_area_3d", is_player_in_angled_area_3d); // 0x02B3 COMMAND_IS_PLAYER_IN_ANGLED_AREA_3D (reVC Script3.cpp:1494)
-	lua_register(L, "get_closest_char_node", get_closest_char_node); // 0x02C0 COMMAND_GET_CLOSEST_CHAR_NODE (reVC Script3.cpp:1547)
-	lua_register(L, "add_to_object_velocity", add_to_object_velocity); // 0x038C COMMAND_ADD_TO_OBJECT_VELOCITY (reVC Script4.cpp:1304)
-	lua_register(L, "is_player_sitting_in_any_car", is_player_sitting_in_any_car); // 0x0443 COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR (reVC Script6.cpp:784)
-	lua_register(L, "is_char_sitting_in_any_car", is_char_sitting_in_any_car); // 0x0449 COMMAND_IS_CHAR_SITTING_IN_ANY_CAR (reVC Script6.cpp:829)
-	lua_register(L, "disable_cutscene_shadows", disable_cutscene_shadows); // 0x0522 COMMAND_DISABLE_CUTSCENE_SHADOWS (reVC Script7.cpp:830)
-	lua_register(L, "add_number_of_assassinations", add_number_of_assassinations); // 0x0533 COMMAND_ADD_NUMBER_OF_ASSASSINATIONS (reVC Script7.cpp:912)
-	lua_register(L, "load_uncompressed_anim", load_uncompressed_anim); // 0x0569 COMMAND_LOAD_UNCOMPRESSED_ANIM (reVC Script7.cpp:1297)
-	lua_register(L, "locate_stopped_char_on_foot_2d", locate_stopped_char_on_foot_2d); // 0x00F0 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_2D (reVC Script.cpp:4439)
-	lua_register(L, "locate_char_any_means_char_2d", locate_char_any_means_char_2d); // 0x00F2 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_2D (reVC Script.cpp:4443)
-	lua_register(L, "is_player_dead", is_player_dead); // 0x0117 COMMAND_IS_PLAYER_DEAD (reVC Script.cpp:4577)
-	lua_register(L, "set_char_obj_wait_on_foot", set_char_obj_wait_on_foot); // 0x0192 COMMAND_SET_CHAR_OBJ_WAIT_ON_FOOT (reVC Script2.cpp:786)
-	lua_register(L, "add_route_point", add_route_point); // 0x01E2 COMMAND_ADD_ROUTE_POINT (reVC Script2.cpp:1383)
-	lua_register(L, "get_maximum_number_of_passengers", get_maximum_number_of_passengers); // 0x01EA COMMAND_GET_MAXIMUM_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1468)
-	lua_register(L, "get_random_car_of_type_in_area", get_random_car_of_type_in_area); // 0x0327 COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA (reVC Script4.cpp:134)
-	lua_register(L, "remove_route", remove_route); // 0x03AC COMMAND_REMOVE_ROUTE (reVC Script4.cpp:1583)
-	lua_register(L, "set_interpolation_parameters", set_interpolation_parameters); // 0x0460 COMMAND_SET_INTERPOLATION_PARAMETERS (reVC Script6.cpp:1149)
-	lua_register(L, "has_animation_loaded", has_animation_loaded); // 0x04EE COMMAND_HAS_ANIMATION_LOADED (reVC Script7.cpp:476)
-	lua_register(L, "display_nth_onscreen_counter_with_string", display_nth_onscreen_counter_with_string); // 0x04F7 COMMAND_DISPLAY_NTH_ONSCREEN_COUNTER_WITH_STRING (reVC Script7.cpp:540)
-	lua_register(L, "is_char_obj_no_obj", is_char_obj_no_obj); // 0x04FF COMMAND_IS_CHAR_OBJ_NO_OBJ (reVC Script7.cpp:610)
-	lua_register(L, "get_distance_between_coords_2d", get_distance_between_coords_2d); // 0x0509 COMMAND_GET_DISTANCE_BETWEEN_COORDS_2D (reVC Script7.cpp:679)
-	lua_register(L, "shake_cam", shake_cam); // 0x0003 COMMAND_SHAKE_CAM (reVC Script.cpp:2629)
-	lua_register(L, "is_char_in_area_2d", is_char_in_area_2d); // 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reVC Script.cpp:3821)
-	lua_register(L, "set_zone_car_info", set_zone_car_info); // 0x0152 COMMAND_SET_ZONE_CAR_INFO (reVC Script2.cpp:201)
-	lua_register(L, "add_blip_for_car_old", add_blip_for_car_old); // 0x0161 COMMAND_ADD_BLIP_FOR_CAR_OLD (reVC Script2.cpp:325)
-	lua_register(L, "add_blip_for_char_old", add_blip_for_char_old); // 0x0162 COMMAND_ADD_BLIP_FOR_CHAR_OLD (reVC Script2.cpp:335)
-	lua_register(L, "set_char_obj_flee_on_foot_till_safe", set_char_obj_flee_on_foot_till_safe); // 0x0193 COMMAND_SET_CHAR_OBJ_FLEE_ON_FOOT_TILL_SAFE (reVC Script2.cpp:795)
-	lua_register(L, "locate_stopped_car_3d", locate_stopped_car_3d); // 0x01B0 COMMAND_LOCATE_STOPPED_CAR_3D (reVC Script2.cpp:884)
-	lua_register(L, "print_with_number", print_with_number); // 0x01E4 COMMAND_PRINT_WITH_NUMBER (reVC Script2.cpp:1396)
-	lua_register(L, "get_number_of_passengers", get_number_of_passengers); // 0x01E9 COMMAND_GET_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1459)
-	lua_register(L, "set_player_health", set_player_health); // 0x0222 COMMAND_SET_PLAYER_HEALTH (reVC Script3.cpp:385)
-	lua_register(L, "get_player_health", get_player_health); // 0x0225 COMMAND_GET_PLAYER_HEALTH (reVC Script3.cpp:419)
-	lua_register(L, "sin", sin); // 0x02F6 COMMAND_SIN (reVC Script3.cpp:2099)
-	lua_register(L, "cos", cos); // 0x02F7 COMMAND_COS (reVC Script3.cpp:2104)
-	lua_register(L, "explode_player_head", explode_player_head); // 0x0322 COMMAND_EXPLODE_PLAYER_HEAD (reVC Script4.cpp:83)
-	lua_register(L, "is_area_occupied", is_area_occupied); // 0x0339 COMMAND_IS_AREA_OCCUPIED (reVC Script4.cpp:340)
-	lua_register(L, "swap_nearest_building_model", swap_nearest_building_model); // 0x03B6 COMMAND_SWAP_NEAREST_BUILDING_MODEL (reVC Script4.cpp:1642)
-	lua_register(L, "store_car_char_is_in_no_save", store_car_char_is_in_no_save); // 0x03C0 COMMAND_STORE_CAR_CHAR_IS_IN_NO_SAVE (reVC Script4.cpp:1760)
-	lua_register(L, "get_closest_car_node_with_heading", get_closest_car_node_with_heading); // 0x03D3 COMMAND_GET_CLOSEST_CAR_NODE_WITH_HEADING (reVC Script4.cpp:2061)
-	lua_register(L, "set_mission_audio_position", set_mission_audio_position); // 0x03D7 COMMAND_SET_MISSION_AUDIO_POSITION (reVC Script4.cpp:2091)
-	lua_register(L, "get_ammo_in_player_weapon", get_ammo_in_player_weapon); // 0x0419 COMMAND_GET_AMMO_IN_PLAYER_WEAPON (reVC Script6.cpp:413)
-	lua_register(L, "freeze_char_position", freeze_char_position); // 0x04D7 COMMAND_FREEZE_CHAR_POSITION (reVC Script7.cpp:318)
-	lua_register(L, "add_big_gun_flash", add_big_gun_flash); // 0x058A COMMAND_ADD_BIG_GUN_FLASH (reVC Script8.cpp:210)
-	lua_register(L, "is_player_pressing_horn", is_player_pressing_horn); // 0x0122 COMMAND_IS_PLAYER_PRESSING_HORN (reVC Script.cpp:4631)
-	lua_register(L, "point_camera_at_char", point_camera_at_char); // 0x0159 COMMAND_POINT_CAMERA_AT_CHAR (reVC Script2.cpp:259)
-	lua_register(L, "set_player_ammo", set_player_ammo); // 0x017A COMMAND_SET_PLAYER_AMMO (reVC Script2.cpp:573)
-	lua_register(L, "is_player_health_greater", is_player_health_greater); // 0x0183 COMMAND_IS_PLAYER_HEALTH_GREATER (reVC Script2.cpp:598)
-	lua_register(L, "locate_player_any_means_car_3d", locate_player_any_means_car_3d); // 0x01FF COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_3D (reVC Script3.cpp:111)
-	lua_register(L, "set_gang_weapons", set_gang_weapons); // 0x0237 COMMAND_SET_GANG_WEAPONS (reVC Script3.cpp:587)
-	lua_register(L, "is_player_stopped", is_player_stopped); // 0x029F COMMAND_IS_PLAYER_STOPPED (reVC Script3.cpp:1345)
-	lua_register(L, "is_char_in_chars_group", is_char_in_chars_group); // 0x031F COMMAND_IS_CHAR_IN_CHARS_GROUP (reVC Script3.cpp:2398)
-	lua_register(L, "set_camera_zoom", set_camera_zoom); // 0x032A COMMAND_SET_CAMERA_ZOOM (reVC Script4.cpp:208)
-	lua_register(L, "set_text_scale", set_text_scale); // 0x033F COMMAND_SET_TEXT_SCALE (reVC Script4.cpp:396)
-	lua_register(L, "set_text_colour", set_text_colour); // 0x0340 COMMAND_SET_TEXT_COLOUR (reVC Script4.cpp:403)
-	lua_register(L, "set_text_justify", set_text_justify); // 0x0341 COMMAND_SET_TEXT_JUSTIFY (reVC Script4.cpp:410)
-	lua_register(L, "set_text_centre", set_text_centre); // 0x0342 COMMAND_SET_TEXT_CENTRE (reVC Script4.cpp:416)
-	lua_register(L, "set_text_wrapx", set_text_wrapx); // 0x0343 COMMAND_SET_TEXT_WRAPX (reVC Script4.cpp:422)
-	lua_register(L, "set_text_background", set_text_background); // 0x0345 COMMAND_SET_TEXT_BACKGROUND (reVC Script4.cpp:436)
-	lua_register(L, "set_text_proportional", set_text_proportional); // 0x0348 COMMAND_SET_TEXT_PROPORTIONAL (reVC Script4.cpp:457)
-	lua_register(L, "freeze_onscreen_timer", freeze_onscreen_timer); // 0x0396 COMMAND_FREEZE_ONSCREEN_TIMER (reVC Script4.cpp:1413)
-	lua_register(L, "draw_sphere", draw_sphere); // 0x03A1 COMMAND_DRAW_SPHERE (reVC Script4.cpp:1514)
-	lua_register(L, "set_text_right_justify", set_text_right_justify); // 0x03E4 COMMAND_SET_TEXT_RIGHT_JUSTIFY (reVC Script4.cpp:2179)
-	lua_register(L, "set_generate_cars_around_camera", set_generate_cars_around_camera); // 0x03EA COMMAND_SET_GENERATE_CARS_AROUND_CAMERA (reVC Script6.cpp:95)
-	lua_register(L, "use_text_commands", use_text_commands); // 0x03F0 COMMAND_USE_TEXT_COMMANDS (reVC Script6.cpp:138)
-	lua_register(L, "set_car_can_be_damaged", set_car_can_be_damaged); // 0x03F5 COMMAND_SET_CAR_CAN_BE_DAMAGED (reVC Script6.cpp:166)
-	lua_register(L, "get_offset_from_object_in_world_coords", get_offset_from_object_in_world_coords); // 0x0400 COMMAND_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS (reVC Script6.cpp:253)
-	lua_register(L, "register_highest_score", register_highest_score); // 0x042F COMMAND_REGISTER_HIGHEST_SCORE (reVC Script6.cpp:639)
-	lua_register(L, "create_single_particle", create_single_particle); // 0x0437 COMMAND_CREATE_SINGLE_PARTICLE (reVC Script6.cpp:682)
-	lua_register(L, "is_player_on_foot", is_player_on_foot); // 0x044A COMMAND_IS_PLAYER_ON_FOOT (reVC Script6.cpp:837)
-	lua_register(L, "set_object_rotation", set_object_rotation); // 0x0453 COMMAND_SET_OBJECT_ROTATION (reVC Script6.cpp:951)
-	lua_register(L, "display_text_with_number", display_text_with_number); // 0x045A COMMAND_DISPLAY_TEXT_WITH_NUMBER (reVC Script6.cpp:1054)
-	lua_register(L, "get_random_cop_in_area", get_random_cop_in_area); // 0x0469 COMMAND_GET_RANDOM_COP_IN_AREA (reVC Script6.cpp:1233)
-	lua_register(L, "get_offset_from_char_in_world_coords", get_offset_from_char_in_world_coords); // 0x04C4 COMMAND_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS (reVC Script7.cpp:191)
-	lua_register(L, "switch_security_camera", switch_security_camera); // 0x04C7 COMMAND_SWITCH_SECURITY_CAMERA (reVC Script7.cpp:225)
-	lua_register(L, "set_zone_civilian_car_info", set_zone_civilian_car_info); // 0x04EC COMMAND_SET_ZONE_CIVILIAN_CAR_INFO (reVC Script7.cpp:443)
-	lua_register(L, "is_char_waiting_for_world_collision", is_char_waiting_for_world_collision); // 0x04F0 COMMAND_IS_CHAR_WAITING_FOR_WORLD_COLLISION (reVC Script7.cpp:492)
-	lua_register(L, "attach_char_to_object", attach_char_to_object); // 0x04F4 COMMAND_ATTACH_CHAR_TO_OBJECT (reVC Script7.cpp:523)
-	lua_register(L, "is_player_wearing", is_player_wearing); // 0x0500 COMMAND_IS_PLAYER_WEARING (reVC Script7.cpp:618)
-	lua_register(L, "attach_cutscene_object_to_bone", attach_cutscene_object_to_bone); // 0x0524 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_BONE (reVC Script7.cpp:846)
-	lua_register(L, "set_player_is_in_stadium", set_player_is_in_stadium); // 0x057E COMMAND_SET_PLAYER_IS_IN_STADIUM (reVC Script8.cpp:83)
-	lua_register(L, "char_wander_dir", char_wander_dir); // 0x009C COMMAND_CHAR_WANDER_DIR (reVC Script.cpp:3709)
-	lua_register(L, "get_time_of_day", get_time_of_day); // 0x00BF COMMAND_GET_TIME_OF_DAY (reVC Script.cpp:4165)
-	lua_register(L, "locate_player_in_car_2d", locate_player_in_car_2d); // 0x00E5 COMMAND_LOCATE_PLAYER_IN_CAR_2D (reVC Script.cpp:4424)
-	lua_register(L, "locate_stopped_player_on_foot_2d", locate_stopped_player_on_foot_2d); // 0x00E7 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_2D (reVC Script.cpp:4426)
-	lua_register(L, "locate_player_on_foot_char_2d", locate_player_on_foot_char_2d); // 0x00EA COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_2D (reVC Script.cpp:4431)
-	lua_register(L, "locate_player_in_car_char_2d", locate_player_in_car_char_2d); // 0x00EB COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_2D (reVC Script.cpp:4432)
-	lua_register(L, "locate_char_in_car_2d", locate_char_in_car_2d); // 0x00EE COMMAND_LOCATE_CHAR_IN_CAR_2D (reVC Script.cpp:4437)
-	lua_register(L, "locate_player_on_foot_char_3d", locate_player_on_foot_char_3d); // 0x00FC COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_3D (reVC Script.cpp:4457)
-	lua_register(L, "locate_player_in_car_char_3d", locate_player_in_car_char_3d); // 0x00FD COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_3D (reVC Script.cpp:4458)
-	lua_register(L, "is_score_greater", is_score_greater); // 0x010A COMMAND_IS_SCORE_GREATER (reVC Script.cpp:4518)
-	lua_register(L, "store_score", store_score); // 0x010B COMMAND_STORE_SCORE (reVC Script.cpp:4522)
-	lua_register(L, "set_deatharrest_state", set_deatharrest_state); // 0x0111 COMMAND_SET_DEATHARREST_STATE (reVC Script.cpp:4552)
-	lua_register(L, "create_car_generator", create_car_generator); // 0x014B COMMAND_CREATE_CAR_GENERATOR (reVC Script2.cpp:133)
-	lua_register(L, "add_hospital_restart", add_hospital_restart); // 0x016C COMMAND_ADD_HOSPITAL_RESTART (reVC Script2.cpp:395)
-	lua_register(L, "add_police_restart", add_police_restart); // 0x016D COMMAND_ADD_POLICE_RESTART (reVC Script2.cpp:405)
-	lua_register(L, "add_blip_for_contact_point", add_blip_for_contact_point); // 0x0189 COMMAND_ADD_BLIP_FOR_CONTACT_POINT (reVC Script2.cpp:657)
-	lua_register(L, "locate_player_in_car_car_2d", locate_player_in_car_car_2d); // 0x01FE COMMAND_LOCATE_PLAYER_IN_CAR_CAR_2D (reVC Script3.cpp:110)
-	lua_register(L, "locate_char_on_foot_car_2d", locate_char_on_foot_car_2d); // 0x0203 COMMAND_LOCATE_CHAR_ON_FOOT_CAR_2D (reVC Script3.cpp:117)
-	lua_register(L, "locate_char_any_means_car_3d", locate_char_any_means_car_3d); // 0x0205 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_3D (reVC Script3.cpp:119)
-	lua_register(L, "set_gang_ped_models", set_gang_ped_models); // 0x0235 COMMAND_SET_GANG_PED_MODELS (reVC Script3.cpp:579)
-	lua_register(L, "is_player_in_angled_area_2d", is_player_in_angled_area_2d); // 0x02AD COMMAND_IS_PLAYER_IN_ANGLED_AREA_2D (reVC Script3.cpp:1488)
-	lua_register(L, "set_zone_group", set_zone_group); // 0x0324 COMMAND_SET_ZONE_GROUP (reVC Script4.cpp:99)
-	lua_register(L, "display_text", display_text); // 0x033E COMMAND_DISPLAY_TEXT (reVC Script4.cpp:382)
-	lua_register(L, "open_garage", open_garage); // 0x0360 COMMAND_OPEN_GARAGE (reVC Script4.cpp:763)
-	lua_register(L, "is_sniper_bullet_in_area", is_sniper_bullet_in_area); // 0x037E COMMAND_IS_SNIPER_BULLET_IN_AREA (reVC Script4.cpp:1131)
-	lua_register(L, "print_string_in_string_now", print_string_in_string_now); // 0x0384 COMMAND_PRINT_STRING_IN_STRING_NOW (reVC Script4.cpp:1205)
-	lua_register(L, "remove_particle_effects_in_area", remove_particle_effects_in_area); // 0x03AE COMMAND_REMOVE_PARTICLE_EFFECTS_IN_AREA (reVC Script4.cpp:1591)
-	lua_register(L, "is_garage_closed", is_garage_closed); // 0x03B1 COMMAND_IS_GARAGE_CLOSED (reVC Script4.cpp:1624)
-	lua_register(L, "does_object_exist", does_object_exist); // 0x03CA COMMAND_DOES_OBJECT_EXIST (reVC Script4.cpp:1996)
-	lua_register(L, "clear_this_big_print", clear_this_big_print); // 0x03D6 COMMAND_CLEAR_THIS_BIG_PRINT (reVC Script4.cpp:2085)
-	lua_register(L, "no_special_camera_for_this_garage", no_special_camera_for_this_garage); // 0x03DA COMMAND_NO_SPECIAL_CAMERA_FOR_THIS_GARAGE (reVC Script4.cpp:2109)
-	lua_register(L, "set_car_avoid_level_transitions", set_car_avoid_level_transitions); // 0x0428 COMMAND_SET_CAR_AVOID_LEVEL_TRANSITIONS (reVC Script6.cpp:580)
-	lua_register(L, "get_car_model", get_car_model); // 0x0441 COMMAND_GET_CAR_MODEL (reVC Script6.cpp:766)
-	lua_register(L, "display_text_with_2_numbers", display_text_with_2_numbers); // 0x045B COMMAND_DISPLAY_TEXT_WITH_2_NUMBERS (reVC Script6.cpp:1065)
-	lua_register(L, "get_number_of_followers", get_number_of_followers); // 0x046D COMMAND_GET_NUMBER_OF_FOLLOWERS (reVC Script6.cpp:1354)
-	lua_register(L, "get_current_char_weapon", get_current_char_weapon); // 0x0470 COMMAND_GET_CURRENT_CHAR_WEAPON (reVC Script6.cpp:1390)
-	lua_register(L, "remove_all_char_weapons", remove_all_char_weapons); // 0x048F COMMAND_REMOVE_ALL_CHAR_WEAPONS (reVC Script6.cpp:1549)
-	lua_register(L, "has_player_got_weapon", has_player_got_weapon); // 0x0490 COMMAND_HAS_PLAYER_GOT_WEAPON (reVC Script6.cpp:1557)
-	lua_register(L, "get_position_of_analogue_sticks", get_position_of_analogue_sticks); // 0x0494 COMMAND_GET_POSITION_OF_ANALOGUE_STICKS (reVC Script6.cpp:1582)
-	lua_register(L, "set_object_path_speed", set_object_path_speed); // 0x049E COMMAND_SET_OBJECT_PATH_SPEED (reVC Script6.cpp:1668)
-	lua_register(L, "get_closest_straight_road", get_closest_straight_road); // 0x04B9 COMMAND_GET_CLOSEST_STRAIGHT_ROAD (reVC Script7.cpp:104)
-	lua_register(L, "get_nth_closest_car_node", get_nth_closest_car_node); // 0x04D3 COMMAND_GET_NTH_CLOSEST_CAR_NODE (reVC Script7.cpp:291)
-	lua_register(L, "set_object_records_collisions", set_object_records_collisions); // 0x04D9 COMMAND_SET_OBJECT_RECORDS_COLLISIONS (reVC Script7.cpp:334)
-	lua_register(L, "has_object_collided_with_anything", has_object_collided_with_anything); // 0x04DA COMMAND_HAS_OBJECT_COLLIDED_WITH_ANYTHING (reVC Script7.cpp:342)
-	lua_register(L, "set_heli_stabiliser", set_heli_stabiliser); // 0x04DF COMMAND_SET_HELI_STABILISER (reVC Script7.cpp:366)
-	lua_register(L, "is_object_in_water", is_object_in_water); // 0x04E7 COMMAND_IS_OBJECT_IN_WATER (reVC Script7.cpp:415)
-	lua_register(L, "set_player_can_do_drive_by", set_player_can_do_drive_by); // 0x0501 COMMAND_SET_PLAYER_CAN_DO_DRIVE_BY (reVC Script7.cpp:631)
-	lua_register(L, "sort_out_object_collision_with_car", sort_out_object_collision_with_car); // 0x050E COMMAND_SORT_OUT_OBJECT_COLLISION_WITH_CAR (reVC Script7.cpp:710)
-	lua_register(L, "print_help_forever", print_help_forever); // 0x0512 COMMAND_PRINT_HELP_FOREVER (reVC Script7.cpp:728)
-	lua_register(L, "create_forsale_property_pickup", create_forsale_property_pickup); // 0x0518 COMMAND_CREATE_FORSALE_PROPERTY_PICKUP (reVC Script7.cpp:775)
-	lua_register(L, "increase_player_max_health", increase_player_max_health); // 0x055E COMMAND_INCREASE_PLAYER_MAX_HEALTH (reVC Script7.cpp:1162)
-	lua_register(L, "increase_player_max_armour", increase_player_max_armour); // 0x055F COMMAND_INCREASE_PLAYER_MAX_ARMOUR (reVC Script7.cpp:1170)
-	lua_register(L, "create_random_char_as_passenger", create_random_char_as_passenger); // 0x0561 COMMAND_CREATE_RANDOM_CHAR_AS_PASSENGER (reVC Script7.cpp:1209)
-	lua_register(L, "set_object_area_visible", set_object_area_visible); // 0x0566 COMMAND_SET_OBJECT_AREA_VISIBLE (reVC Script7.cpp:1280)
-	lua_register(L, "set_char_crouch_when_threatened", set_char_crouch_when_threatened); // 0x056B COMMAND_SET_CHAR_CROUCH_WHEN_THREATENED (reVC Script7.cpp:1310)
-	lua_register(L, "set_allow_hurricanes", set_allow_hurricanes); // 0x057C COMMAND_SET_ALLOW_HURRICANES (reVC Script8.cpp:73)
-	lua_register(L, "play_announcement", play_announcement); // 0x057D COMMAND_PLAY_ANNOUNCEMENT (reVC Script8.cpp:77)
-	lua_register(L, "create_player", create_player); // 0x0053 COMMAND_CREATE_PLAYER (reVC Script.cpp:3159)
-	lua_register(L, "generate_random_int", generate_random_int); // 0x0099 COMMAND_GENERATE_RANDOM_INT (reVC Script.cpp:3637)
-	lua_register(L, "is_car_in_area_3d", is_car_in_area_3d); // 0x00B1 COMMAND_IS_CAR_IN_AREA_3D (reVC Script.cpp:4100)
-	lua_register(L, "get_minutes_to_time_of_day", get_minutes_to_time_of_day); // 0x00C1 COMMAND_GET_MINUTES_TO_TIME_OF_DAY (reVC Script.cpp:4174)
-	lua_register(L, "is_char_in_model", is_char_in_model); // 0x00DD COMMAND_IS_CHAR_IN_MODEL (reVC Script.cpp:4378)
-	lua_register(L, "locate_char_on_foot_char_2d", locate_char_on_foot_char_2d); // 0x00F3 COMMAND_LOCATE_CHAR_ON_FOOT_CHAR_2D (reVC Script.cpp:4444)
-	lua_register(L, "locate_char_in_car_3d", locate_char_in_car_3d); // 0x0100 COMMAND_LOCATE_CHAR_IN_CAR_3D (reVC Script.cpp:4463)
-	lua_register(L, "locate_stopped_char_on_foot_3d", locate_stopped_char_on_foot_3d); // 0x0102 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_3D (reVC Script.cpp:4465)
-	lua_register(L, "locate_char_any_means_char_3d", locate_char_any_means_char_3d); // 0x0104 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_3D (reVC Script.cpp:4469)
-	lua_register(L, "override_next_restart", override_next_restart); // 0x016E COMMAND_OVERRIDE_NEXT_RESTART (reVC Script2.cpp:415)
-	lua_register(L, "declare_mission_flag", declare_mission_flag); // 0x0180 COMMAND_DECLARE_MISSION_FLAG (reVC Script2.cpp:592)
-	lua_register(L, "dont_remove_char", dont_remove_char); // 0x01C5 COMMAND_DONT_REMOVE_CHAR (reVC Script2.cpp:1072)
-	lua_register(L, "cancel_override_restart", cancel_override_restart); // 0x01F6 COMMAND_CANCEL_OVERRIDE_RESTART (reVC Script3.cpp:59)
-	lua_register(L, "start_kill_frenzy", start_kill_frenzy); // 0x01F9 COMMAND_START_KILL_FRENZY (reVC Script3.cpp:86)
-	lua_register(L, "read_kill_frenzy_status", read_kill_frenzy_status); // 0x01FA COMMAND_READ_KILL_FRENZY_STATUS (reVC Script3.cpp:95)
-	lua_register(L, "set_taxi_lights", set_taxi_lights); // 0x0216 COMMAND_SET_TAXI_LIGHTS (reVC Script3.cpp:253)
-	lua_register(L, "print_big_q", print_big_q); // 0x0217 COMMAND_PRINT_BIG_Q (reVC Script3.cpp:262)
-	lua_register(L, "set_garage", set_garage); // 0x0219 COMMAND_SET_GARAGE (reVC Script3.cpp:279)
-	lua_register(L, "set_target_car_for_mission_garage", set_target_car_for_mission_garage); // 0x021B COMMAND_SET_TARGET_CAR_FOR_MISSION_GARAGE (reVC Script3.cpp:311)
-	lua_register(L, "set_gang_car_model", set_gang_car_model); // 0x0236 COMMAND_SET_GANG_CAR_MODEL (reVC Script3.cpp:583)
-	lua_register(L, "store_clock", store_clock); // 0x0253 COMMAND_STORE_CLOCK (reVC Script3.cpp:834)
-	lua_register(L, "reset_num_of_models_killed_by_player", reset_num_of_models_killed_by_player); // 0x0297 COMMAND_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1235)
-	lua_register(L, "get_num_of_models_killed_by_player", get_num_of_models_killed_by_player); // 0x0298 COMMAND_GET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1238)
-	lua_register(L, "is_player_in_angled_area_on_foot_3d", is_player_in_angled_area_on_foot_3d); // 0x02B4 COMMAND_IS_PLAYER_IN_ANGLED_AREA_ON_FOOT_3D (reVC Script3.cpp:1495)
-	lua_register(L, "is_player_in_angled_area_in_car_3d", is_player_in_angled_area_in_car_3d); // 0x02B5 COMMAND_IS_PLAYER_IN_ANGLED_AREA_IN_CAR_3D (reVC Script3.cpp:1496)
-	lua_register(L, "is_player_shooting_in_area", is_player_shooting_in_area); // 0x02D5 COMMAND_IS_PLAYER_SHOOTING_IN_AREA (reVC Script3.cpp:1722)
-	lua_register(L, "get_random_char_in_zone", get_random_char_in_zone); // 0x02DD COMMAND_GET_RANDOM_CHAR_IN_ZONE (reVC Script3.cpp:1844)
-	lua_register(L, "is_player_in_taxi", is_player_in_taxi); // 0x02DE COMMAND_IS_PLAYER_IN_TAXI (reVC Script3.cpp:1898)
-	lua_register(L, "create_collectable1", create_collectable1); // 0x02EC COMMAND_CREATE_COLLECTABLE1 (reVC Script3.cpp:1993)
-	lua_register(L, "set_collectable1_total", set_collectable1_total); // 0x02ED COMMAND_SET_COLLECTABLE1_TOTAL (reVC Script3.cpp:2002)
-	lua_register(L, "is_char_model", is_char_model); // 0x02F2 COMMAND_IS_CHAR_MODEL (reVC Script3.cpp:2078)
-	lua_register(L, "print_with_3_numbers", print_with_3_numbers); // 0x02FF COMMAND_PRINT_WITH_3_NUMBERS (reVC Script3.cpp:2177)
-	lua_register(L, "print_with_4_numbers", print_with_4_numbers); // 0x0302 COMMAND_PRINT_WITH_4_NUMBERS (reVC Script3.cpp:2200)
-	lua_register(L, "print_with_6_numbers", print_with_6_numbers); // 0x0308 COMMAND_PRINT_WITH_6_NUMBERS (reVC Script3.cpp:2244)
-	lua_register(L, "set_progress_total", set_progress_total); // 0x030D COMMAND_SET_PROGRESS_TOTAL (reVC Script3.cpp:2282)
-	lua_register(L, "register_jump_distance", register_jump_distance); // 0x030E COMMAND_REGISTER_JUMP_DISTANCE (reVC Script3.cpp:2288)
-	lua_register(L, "register_jump_height", register_jump_height); // 0x030F COMMAND_REGISTER_JUMP_HEIGHT (reVC Script3.cpp:2292)
-	lua_register(L, "register_jump_flips", register_jump_flips); // 0x0310 COMMAND_REGISTER_JUMP_FLIPS (reVC Script3.cpp:2296)
-	lua_register(L, "register_jump_spins", register_jump_spins); // 0x0311 COMMAND_REGISTER_JUMP_SPINS (reVC Script3.cpp:2300)
-	lua_register(L, "register_jump_stunt", register_jump_stunt); // 0x0312 COMMAND_REGISTER_JUMP_STUNT (reVC Script3.cpp:2304)
-	lua_register(L, "register_unique_jump_found", register_unique_jump_found); // 0x0313 COMMAND_REGISTER_UNIQUE_JUMP_FOUND (reVC Script3.cpp:2308)
-	lua_register(L, "set_unique_jumps_total", set_unique_jumps_total); // 0x0314 COMMAND_SET_UNIQUE_JUMPS_TOTAL (reVC Script3.cpp:2311)
-	lua_register(L, "register_passenger_dropped_off_taxi", register_passenger_dropped_off_taxi); // 0x0315 COMMAND_REGISTER_PASSENGER_DROPPED_OFF_TAXI (reVC Script3.cpp:2315)
-	lua_register(L, "register_money_made_taxi", register_money_made_taxi); // 0x0316 COMMAND_REGISTER_MONEY_MADE_TAXI (reVC Script3.cpp:2318)
-	lua_register(L, "set_player_never_gets_tired", set_player_never_gets_tired); // 0x0330 COMMAND_SET_PLAYER_NEVER_GETS_TIRED (reVC Script4.cpp:268)
-	lua_register(L, "close_garage", close_garage); // 0x0361 COMMAND_CLOSE_GARAGE (reVC Script4.cpp:769)
-	lua_register(L, "print_with_2_numbers_big", print_with_2_numbers_big); // 0x036D COMMAND_PRINT_WITH_2_NUMBERS_BIG (reVC Script4.cpp:963)
-	lua_register(L, "is_icecream_jingle_on", is_icecream_jingle_on); // 0x0383 COMMAND_IS_ICECREAM_JINGLE_ON (reVC Script4.cpp:1182)
-	lua_register(L, "is_char_male", is_char_male); // 0x03A3 COMMAND_IS_CHAR_MALE (reVC Script4.cpp:1533)
-	lua_register(L, "is_garage_open", is_garage_open); // 0x03B0 COMMAND_IS_GARAGE_OPEN (reVC Script4.cpp:1620)
-	lua_register(L, "switch_world_processing", switch_world_processing); // 0x03B7 COMMAND_SWITCH_WORLD_PROCESSING (reVC Script4.cpp:1676)
-	lua_register(L, "remove_all_player_weapons", remove_all_player_weapons); // 0x03B8 COMMAND_REMOVE_ALL_PLAYER_WEAPONS (reVC Script4.cpp:1680)
-	lua_register(L, "set_rotating_garage_door", set_rotating_garage_door); // 0x03BB COMMAND_SET_ROTATING_GARAGE_DOOR (reVC Script4.cpp:1721)
-	lua_register(L, "create_random_car_for_car_park", create_random_car_for_car_park); // 0x03C5 COMMAND_CREATE_RANDOM_CAR_FOR_CAR_PARK (reVC Script4.cpp:1808)
-	lua_register(L, "has_import_garage_slot_been_filled", has_import_garage_slot_been_filled); // 0x03D4 COMMAND_HAS_IMPORT_GARAGE_SLOT_BEEN_FILLED (reVC Script4.cpp:2073)
-	lua_register(L, "has_save_game_finished", has_save_game_finished); // 0x03D9 COMMAND_HAS_SAVE_GAME_FINISHED (reVC Script4.cpp:2106)
-	lua_register(L, "force_random_ped_type", force_random_ped_type); // 0x03DF COMMAND_FORCE_RANDOM_PED_TYPE (reVC Script4.cpp:2152)
-	lua_register(L, "get_collectable1s_collected", get_collectable1s_collected); // 0x03E1 COMMAND_GET_COLLECTABLE1S_COLLECTED (reVC Script4.cpp:2162)
-	lua_register(L, "get_car_colours", get_car_colours); // 0x03F3 COMMAND_GET_CAR_COLOURS (reVC Script6.cpp:150)
-	lua_register(L, "set_drunk_input_delay", set_drunk_input_delay); // 0x03FD COMMAND_SET_DRUNK_INPUT_DELAY (reVC Script6.cpp:236)
-	lua_register(L, "register_life_saved", register_life_saved); // 0x0401 COMMAND_REGISTER_LIFE_SAVED (reVC Script6.cpp:263)
-	lua_register(L, "register_criminal_caught", register_criminal_caught); // 0x0402 COMMAND_REGISTER_CRIMINAL_CAUGHT (reVC Script6.cpp:266)
-	lua_register(L, "register_ambulance_level", register_ambulance_level); // 0x0403 COMMAND_REGISTER_AMBULANCE_LEVEL (reVC Script6.cpp:269)
-	lua_register(L, "register_fire_extinguished", register_fire_extinguished); // 0x0404 COMMAND_REGISTER_FIRE_EXTINGUISHED (reVC Script6.cpp:273)
-	lua_register(L, "set_total_number_of_kill_frenzies", set_total_number_of_kill_frenzies); // 0x0408 COMMAND_SET_TOTAL_NUMBER_OF_KILL_FRENZIES (reVC Script6.cpp:296)
-	lua_register(L, "set_free_health_care", set_free_health_care); // 0x0414 COMMAND_SET_FREE_HEALTH_CARE (reVC Script6.cpp:357)
-	lua_register(L, "load_and_launch_mission_internal", load_and_launch_mission_internal); // 0x0417 COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL (reVC Script6.cpp:373)
-	lua_register(L, "set_object_draw_last", set_object_draw_last); // 0x0418 COMMAND_SET_OBJECT_DRAW_LAST (reVC Script6.cpp:405)
-	lua_register(L, "convert_metres_to_feet", convert_metres_to_feet); // 0x0425 COMMAND_CONVERT_METRES_TO_FEET (reVC Script6.cpp:521)
-	lua_register(L, "set_total_number_of_missions", set_total_number_of_missions); // 0x042C COMMAND_SET_TOTAL_NUMBER_OF_MISSIONS (reVC Script6.cpp:626)
-	lua_register(L, "convert_metres_to_feet_int", convert_metres_to_feet_int); // 0x042D COMMAND_CONVERT_METRES_TO_FEET_INT (reVC Script6.cpp:630)
-	lua_register(L, "set_char_is_chris_criminal", set_char_is_chris_criminal); // 0x0433 COMMAND_SET_CHAR_IS_CHRIS_CRIMINAL (reVC Script6.cpp:665)
-	lua_register(L, "start_credits", start_credits); // 0x0434 COMMAND_START_CREDITS (reVC Script6.cpp:673)
-	lua_register(L, "stop_credits", stop_credits); // 0x0435 COMMAND_STOP_CREDITS (reVC Script6.cpp:676)
-	lua_register(L, "are_credits_finished", are_credits_finished); // 0x0436 COMMAND_ARE_CREDITS_FINISHED (reVC Script6.cpp:679)
-	lua_register(L, "play_end_of_game_tune", play_end_of_game_tune); // 0x043F COMMAND_PLAY_END_OF_GAME_TUNE (reVC Script6.cpp:759)
-	lua_register(L, "stop_end_of_game_tune", stop_end_of_game_tune); // 0x0440 COMMAND_STOP_END_OF_GAME_TUNE (reVC Script6.cpp:762)
-	lua_register(L, "are_any_car_cheats_activated", are_any_car_cheats_activated); // 0x0445 COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED (reVC Script6.cpp:798)
-	lua_register(L, "load_splash_screen", load_splash_screen); // 0x044D COMMAND_LOAD_SPLASH_SCREEN (reVC Script6.cpp:902)
-	lua_register(L, "load_end_of_game_tune", load_end_of_game_tune); // 0x0451 COMMAND_LOAD_END_OF_GAME_TUNE (reVC Script6.cpp:940)
-	lua_register(L, "terminate_all_scripts_with_this_name", terminate_all_scripts_with_this_name); // 0x0459 COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME (reVC Script6.cpp:1037)
-	lua_register(L, "get_current_player_weapon", get_current_player_weapon); // 0x046F COMMAND_GET_CURRENT_PLAYER_WEAPON (reVC Script6.cpp:1381)
-	lua_register(L, "locate_char_any_means_object_2d", locate_char_any_means_object_2d); // 0x0471 COMMAND_LOCATE_CHAR_ANY_MEANS_OBJECT_2D (reVC Script6.cpp:1399)
-	lua_register(L, "locate_char_on_foot_object_2d", locate_char_on_foot_object_2d); // 0x0472 COMMAND_LOCATE_CHAR_ON_FOOT_OBJECT_2D (reVC Script6.cpp:1400)
-	lua_register(L, "can_char_see_dead_char", can_char_see_dead_char); // 0x0480 COMMAND_CAN_CHAR_SEE_DEAD_CHAR (reVC Script6.cpp:1473)
-	lua_register(L, "is_any_pickup_at_coords", is_any_pickup_at_coords); // 0x048C COMMAND_IS_ANY_PICKUP_AT_COORDS (reVC Script6.cpp:1540)
-	lua_register(L, "initialise_object_path", initialise_object_path); // 0x049C COMMAND_INITIALISE_OBJECT_PATH (reVC Script6.cpp:1649)
-	lua_register(L, "start_object_on_path", start_object_on_path); // 0x049D COMMAND_START_OBJECT_ON_PATH (reVC Script6.cpp:1660)
-	lua_register(L, "set_object_path_position", set_object_path_position); // 0x049F COMMAND_SET_OBJECT_PATH_POSITION (reVC Script6.cpp:1674)
-	lua_register(L, "clear_object_path", clear_object_path); // 0x04A1 COMMAND_CLEAR_OBJECT_PATH (reVC Script6.cpp:1681)
-	lua_register(L, "reset_havoc_caused_by_player", reset_havoc_caused_by_player); // 0x04BE COMMAND_RESET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:155)
-	lua_register(L, "get_havoc_caused_by_player", get_havoc_caused_by_player); // 0x04BF COMMAND_GET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:161)
-	lua_register(L, "create_script_roadblock", create_script_roadblock); // 0x04C0 COMMAND_CREATE_SCRIPT_ROADBLOCK (reVC Script7.cpp:168)
-	lua_register(L, "clear_all_script_roadblocks", clear_all_script_roadblocks); // 0x04C1 COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS (reVC Script7.cpp:174)
-	lua_register(L, "has_char_been_photographed", has_char_been_photographed); // 0x04C5 COMMAND_HAS_CHAR_BEEN_PHOTOGRAPHED (reVC Script7.cpp:201)
-	lua_register(L, "add_money_spent_on_clothes", add_money_spent_on_clothes); // 0x04CF COMMAND_ADD_MONEY_SPENT_ON_CLOTHES (reVC Script7.cpp:257)
-	lua_register(L, "set_heli_orientation", set_heli_orientation); // 0x04D0 COMMAND_SET_HELI_ORIENTATION (reVC Script7.cpp:262)
-	lua_register(L, "clear_heli_orientation", clear_heli_orientation); // 0x04D1 COMMAND_CLEAR_HELI_ORIENTATION (reVC Script7.cpp:275)
-	lua_register(L, "set_char_drowns_in_water", set_char_drowns_in_water); // 0x04D8 COMMAND_SET_CHAR_DROWNS_IN_WATER (reVC Script7.cpp:326)
-	lua_register(L, "get_char_armour", get_char_armour); // 0x04DD COMMAND_GET_CHAR_ARMOUR (reVC Script7.cpp:356)
-	lua_register(L, "locate_object_2d", locate_object_2d); // 0x04E5 COMMAND_LOCATE_OBJECT_2D (reVC Script7.cpp:411)
-	lua_register(L, "locate_object_3d", locate_object_3d); // 0x04E6 COMMAND_LOCATE_OBJECT_3D (reVC Script5.cpp:740)
-	lua_register(L, "is_object_in_area_3d", is_object_in_area_3d); // 0x04EA COMMAND_IS_OBJECT_IN_AREA_3D (reVC Script5.cpp:1295)
-	lua_register(L, "add_set_piece", add_set_piece); // 0x04F8 COMMAND_ADD_SET_PIECE (reVC Script7.cpp:552)
-	lua_register(L, "get_wheelie_stats", get_wheelie_stats); // 0x04FC COMMAND_GET_WHEELIE_STATS (reVC Script7.cpp:574)
-	lua_register(L, "switch_lift_camera", switch_lift_camera); // 0x0507 COMMAND_SWITCH_LIFT_CAMERA (reVC Script7.cpp:665)
-	lua_register(L, "create_locked_property_pickup", create_locked_property_pickup); // 0x0517 COMMAND_CREATE_LOCKED_PROPERTY_PICKUP (reVC Script7.cpp:760)
-	lua_register(L, "has_glass_been_shattered_nearby", has_glass_been_shattered_nearby); // 0x0523 COMMAND_HAS_GLASS_BEEN_SHATTERED_NEARBY (reVC Script7.cpp:835)
-	lua_register(L, "attach_cutscene_object_to_component", attach_cutscene_object_to_component); // 0x0525 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_COMPONENT (reVC Script7.cpp:852)
-	lua_register(L, "add_money_spent_on_weapons", add_money_spent_on_weapons); // 0x0528 COMMAND_ADD_MONEY_SPENT_ON_WEAPONS (reVC Script7.cpp:874)
-	lua_register(L, "set_player_drunkenness", set_player_drunkenness); // 0x052C COMMAND_SET_PLAYER_DRUNKENNESS (reVC Script7.cpp:893)
-	lua_register(L, "add_stores_knocked_off", add_stores_knocked_off); // 0x0531 COMMAND_ADD_STORES_KNOCKED_OFF (reVC Script7.cpp:907)
-	lua_register(L, "add_pizzas_delivered", add_pizzas_delivered); // 0x0534 COMMAND_ADD_PIZZAS_DELIVERED (reVC Script7.cpp:916)
-	lua_register(L, "add_ice_creams_sold", add_ice_creams_sold); // 0x0536 COMMAND_ADD_ICE_CREAMS_SOLD (reVC Script7.cpp:921)
-	lua_register(L, "set_char_in_players_group_can_fight", set_char_in_players_group_can_fight); // 0x053C COMMAND_SET_CHAR_IN_PLAYERS_GROUP_CAN_FIGHT (reVC Script7.cpp:930)
-	lua_register(L, "get_random_car_of_type_in_area_no_save", get_random_car_of_type_in_area_no_save); // 0x053E COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA_NO_SAVE (reVC Script7.cpp:946)
-	lua_register(L, "set_player_auto_aim", set_player_auto_aim); // 0x0540 COMMAND_SET_PLAYER_AUTO_AIM (reVC Script7.cpp:981)
-	lua_register(L, "add_blood_ring_kills", add_blood_ring_kills); // 0x0543 COMMAND_ADD_BLOOD_RING_KILLS (reVC Script7.cpp:1007)
-	lua_register(L, "set_longest_time_in_blood_ring", set_longest_time_in_blood_ring); // 0x0544 COMMAND_SET_LONGEST_TIME_IN_BLOOD_RING (reVC Script7.cpp:1011)
-	lua_register(L, "remove_everything_for_huge_cutscene", remove_everything_for_huge_cutscene); // 0x0545 COMMAND_REMOVE_EVERYTHING_FOR_HUGE_CUTSCENE (reVC Script7.cpp:1015)
-	lua_register(L, "is_player_touching_vehicle", is_player_touching_vehicle); // 0x0546 COMMAND_IS_PLAYER_TOUCHING_VEHICLE (reVC Script7.cpp:1020)
-	lua_register(L, "check_for_ped_model_around_player", check_for_ped_model_around_player); // 0x0548 COMMAND_CHECK_FOR_PED_MODEL_AROUND_PLAYER (reVC Script7.cpp:1033)
-	lua_register(L, "attach_cutscene_object_to_vehicle", attach_cutscene_object_to_vehicle); // 0x054B COMMAND_ATTACH_CUTSCENE_OBJECT_TO_VEHICLE (reVC Script7.cpp:1071)
-	lua_register(L, "set_tonights_event", set_tonights_event); // 0x054D COMMAND_SET_TONIGHTS_EVENT (reVC Script7.cpp:1085)
-	lua_register(L, "freeze_object_position", freeze_object_position); // 0x0550 COMMAND_FREEZE_OBJECT_POSITION (reVC Script7.cpp:1102)
-	lua_register(L, "set_player_has_met_debbie_harry", set_player_has_met_debbie_harry); // 0x0551 COMMAND_SET_PLAYER_HAS_MET_DEBBIE_HARRY (reVC Script7.cpp:1111)
-	lua_register(L, "set_up_taxi_shortcut", set_up_taxi_shortcut); // 0x0556 COMMAND_SET_UP_TAXI_SHORTCUT (reVC Script7.cpp:1126)
-	lua_register(L, "clear_taxi_shortcut", clear_taxi_shortcut); // 0x0557 COMMAND_CLEAR_TAXI_SHORTCUT (reVC Script7.cpp:1134)
-	lua_register(L, "add_porn_leaflet_to_rubbish", add_porn_leaflet_to_rubbish); // 0x055A COMMAND_ADD_PORN_LEAFLET_TO_RUBBISH (reVC Script7.cpp:1139)
-	lua_register(L, "make_player_fire_proof", make_player_fire_proof); // 0x055D COMMAND_MAKE_PLAYER_FIRE_PROOF (reVC Script7.cpp:1155)
-	lua_register(L, "create_random_char_as_driver", create_random_char_as_driver); // 0x0560 COMMAND_CREATE_RANDOM_CHAR_AS_DRIVER (reVC Script7.cpp:1178)
-	lua_register(L, "set_char_ignore_threats_behind_objects", set_char_ignore_threats_behind_objects); // 0x0562 COMMAND_SET_CHAR_IGNORE_THREATS_BEHIND_OBJECTS (reVC Script7.cpp:1239)
-	lua_register(L, "make_heli_come_crashing_down", make_heli_come_crashing_down); // 0x0564 COMMAND_MAKE_HELI_COME_CRASHING_DOWN (reVC Script7.cpp:1266)
-	lua_register(L, "is_char_stuck", is_char_stuck); // 0x0571 COMMAND_IS_CHAR_STUCK (reVC Script7.cpp:1347)
-	lua_register(L, "set_all_taxis_have_nitro", set_all_taxis_have_nitro); // 0x0572 COMMAND_SET_ALL_TAXIS_HAVE_NITRO (reVC Script7.cpp:1355)
-	lua_register(L, "register_vigilante_level", register_vigilante_level); // 0x0578 COMMAND_REGISTER_VIGILANTE_LEVEL (reVC Script8.cpp:35)
-	lua_register(L, "set_maximum_number_of_cars_in_garage", set_maximum_number_of_cars_in_garage); // 0x057A COMMAND_SET_MAXIMUM_NUMBER_OF_CARS_IN_GARAGE (reVC Script8.cpp:63)
-	lua_register(L, "wanted_stars_are_flashing", wanted_stars_are_flashing); // 0x057B COMMAND_WANTED_STARS_ARE_FLASHING (reVC Script8.cpp:67)
-	lua_register(L, "get_bus_fares_collected_by_player", get_bus_fares_collected_by_player); // 0x057F COMMAND_GET_BUS_FARES_COLLECTED_BY_PLAYER (reVC Script8.cpp:89)
-	lua_register(L, "register_best_position", register_best_position); // 0x0582 COMMAND_REGISTER_BEST_POSITION (reVC Script8.cpp:126)
-	lua_register(L, "is_player_in_info_zone", is_player_in_info_zone); // 0x0583 COMMAND_IS_PLAYER_IN_INFO_ZONE (reVC Script8.cpp:130)
-	lua_register(L, "has_char_attempted_attractor", has_char_attempted_attractor); // 0x0586 COMMAND_HAS_CHAR_ATTEMPTED_ATTRACTOR (reVC Script8.cpp:155)
-	lua_register(L, "set_load_collision_for_char_flag", set_load_collision_for_char_flag); // 0x0588 COMMAND_SET_LOAD_COLLISION_FOR_CHAR_FLAG (reVC Script8.cpp:186)
-	lua_register(L, "has_char_bought_ice_cream", has_char_bought_ice_cream); // 0x058B COMMAND_HAS_CHAR_BOUGHT_ICE_CREAM (reVC Script8.cpp:216)
-	lua_register(L, "get_progress_percentage", get_progress_percentage); // 0x058C COMMAND_GET_PROGRESS_PERCENTAGE (reVC Script8.cpp:224)
-	lua_register(L, "set_shortcut_pickup_point", set_shortcut_pickup_point); // 0x058D COMMAND_SET_SHORTCUT_PICKUP_POINT (reVC Script8.cpp:228)
-	lua_register(L, "get_random_ice_cream_customer_in_area", get_random_ice_cream_customer_in_area); // 0x058F COMMAND_GET_RANDOM_ICE_CREAM_CUSTOMER_IN_AREA (reVC Script8.cpp:240)
-	lua_register(L, "set_char_frightened_in_jacked_car", set_char_frightened_in_jacked_car); // 0x0593 COMMAND_SET_CHAR_FRIGHTENED_IN_JACKED_CAR (reVC Script8.cpp:314)
-	lua_register(L, "is_player_in_shortcut_taxi", is_player_in_shortcut_taxi); // 0x0596 COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI (reVC Script8.cpp:336)
-	lua_register(L, "register_fire_level", register_fire_level); // 0x0599 COMMAND_REGISTER_FIRE_LEVEL (reVC Script8.cpp:370)
+	lua_register(L, "print_with_number_big", print_with_number_big); // 1713 0x01E3 COMMAND_PRINT_WITH_NUMBER_BIG (reVC Script2.cpp:1389)
+	lua_register(L, "add_score", add_score); // 1714 0x0109 COMMAND_ADD_SCORE (reVC Script.cpp:4512)
+	lua_register(L, "has_deatharrest_been_executed", has_deatharrest_been_executed); // 1715 0x0112 COMMAND_HAS_DEATHARREST_BEEN_EXECUTED (reVC Script.cpp:4556)
+	lua_register(L, "clear_prints", clear_prints); // 1716 0x00BE COMMAND_CLEAR_PRINTS (reVC Script.cpp:4162)
+	lua_register(L, "set_fading_colour", set_fading_colour); // 1717 0x0169 COMMAND_SET_FADING_COLOUR (reVC Script2.cpp:384)
+	lua_register(L, "load_special_character", load_special_character); // 1718 0x023C COMMAND_LOAD_SPECIAL_CHARACTER (reVC Script3.cpp:662)
+	lua_register(L, "has_special_character_loaded", has_special_character_loaded); // 1719 0x023D COMMAND_HAS_SPECIAL_CHARACTER_LOADED (reVC Script3.cpp:673)
+	lua_register(L, "set_cutscene_offset", set_cutscene_offset); // 1720 0x0244 COMMAND_SET_CUTSCENE_OFFSET (reVC Script3.cpp:729)
+	lua_register(L, "load_cutscene", load_cutscene); // 1721 0x02E4 COMMAND_LOAD_CUTSCENE (reVC Script3.cpp:1950)
+	lua_register(L, "create_cutscene_object", create_cutscene_object); // 1722 0x02E5 COMMAND_CREATE_CUTSCENE_OBJECT (reVC Script3.cpp:1958)
+	lua_register(L, "set_cutscene_anim", set_cutscene_anim); // 1723 0x02E6 COMMAND_SET_CUTSCENE_ANIM (reVC Script3.cpp:1966)
+	lua_register(L, "start_cutscene", start_cutscene); // 1724 0x02E7 COMMAND_START_CUTSCENE (reVC Script3.cpp:1977)
+	lua_register(L, "get_cutscene_time", get_cutscene_time); // 1725 0x02E8 COMMAND_GET_CUTSCENE_TIME (reVC Script3.cpp:1980)
+	lua_register(L, "clear_cutscene", clear_cutscene); // 1726 0x02EA COMMAND_CLEAR_CUTSCENE (reVC Script3.cpp:1987)
+	lua_register(L, "set_shortcut_dropoff_point_for_mission", set_shortcut_dropoff_point_for_mission); // 1727 0x058E COMMAND_SET_SHORTCUT_DROPOFF_POINT_FOR_MISSION (reVC Script8.cpp:234)
+	lua_register(L, "clear_this_print", clear_this_print); // 1728 0x03D5 COMMAND_CLEAR_THIS_PRINT (reVC Script4.cpp:2079)
+	lua_register(L, "is_player_in_any_car", is_player_in_any_car); // 1729 0x00E0 COMMAND_IS_PLAYER_IN_ANY_CAR (reVC Script.cpp:4400)
+	lua_register(L, "is_player_in_car", is_player_in_car); // 1730 0x00DC COMMAND_IS_PLAYER_IN_CAR (reVC Script.cpp:4370)
+	lua_register(L, "get_player_coordinates", get_player_coordinates); // 1731 0x0054 COMMAND_GET_PLAYER_COORDINATES (reVC Script.cpp:3183)
+	lua_register(L, "load_special_model", load_special_model); // 1732 0x02F3 COMMAND_LOAD_SPECIAL_MODEL (reVC Script3.cpp:2086)
+	lua_register(L, "is_char_in_car", is_char_in_car); // 1733 0x00DB COMMAND_IS_CHAR_IN_CAR (reVC Script.cpp:4361)
+	lua_register(L, "is_char_in_any_car", is_char_in_any_car); // 1734 0x00DF COMMAND_IS_CHAR_IN_ANY_CAR (reVC Script.cpp:4393)
+	lua_register(L, "locate_player_any_means_3d", locate_player_any_means_3d); // 1735 0x00F5 COMMAND_LOCATE_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4448)
+	lua_register(L, "get_car_coordinates", get_car_coordinates); // 1736 0x00AA COMMAND_GET_CAR_COORDINATES (reVC Script.cpp:3982)
+	lua_register(L, "store_car_player_is_in", store_car_player_is_in); // 1737 0x00DA COMMAND_STORE_CAR_PLAYER_IS_IN (reVC Script.cpp:4310)
+	lua_register(L, "clear_onscreen_counter", clear_onscreen_counter); // 1738 0x0151 COMMAND_CLEAR_ONSCREEN_COUNTER (reVC Script2.cpp:194)
+	lua_register(L, "clear_extra_colours", clear_extra_colours); // 1739 0x04FA COMMAND_CLEAR_EXTRA_COLOURS (reVC Script7.cpp:567)
+	lua_register(L, "register_oddjob_mission_passed", register_oddjob_mission_passed); // 1740 0x0595 COMMAND_REGISTER_ODDJOB_MISSION_PASSED (reVC Script8.cpp:330)
+	lua_register(L, "locate_char_on_foot_2d", locate_char_on_foot_2d); // 1741 0x00ED COMMAND_LOCATE_CHAR_ON_FOOT_2D (reVC Script.cpp:4436)
+	lua_register(L, "locate_car_2d", locate_car_2d); // 1742 0x01AD COMMAND_LOCATE_CAR_2D (reVC Script2.cpp:881)
+	lua_register(L, "display_onscreen_counter_with_string", display_onscreen_counter_with_string); // 1743 0x03C4 COMMAND_DISPLAY_ONSCREEN_COUNTER_WITH_STRING (reVC Script4.cpp:1797)
+	lua_register(L, "set_extra_colours", set_extra_colours); // 1744 0x04F9 COMMAND_SET_EXTRA_COLOURS (reVC Script7.cpp:561)
+	lua_register(L, "set_char_obj_enter_car_as_driver", set_char_obj_enter_car_as_driver); // 1745 0x01D5 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_DRIVER (reVC Script2.cpp:1285)
+	lua_register(L, "create_object_no_offset", create_object_no_offset); // 1746 0x029B COMMAND_CREATE_OBJECT_NO_OFFSET (reVC Script3.cpp:1260)
+	lua_register(L, "change_blip_display", change_blip_display); // 1747 0x018B COMMAND_CHANGE_BLIP_DISPLAY (reVC Script2.cpp:683)
+	lua_register(L, "set_char_health", set_char_health); // 1748 0x0223 COMMAND_SET_CHAR_HEALTH (reVC Script3.cpp:393)
+	lua_register(L, "locate_player_on_foot_3d", locate_player_on_foot_3d); // 1749 0x00F6 COMMAND_LOCATE_PLAYER_ON_FOOT_3D (reVC Script.cpp:4449)
+	lua_register(L, "get_char_coordinates", get_char_coordinates); // 1750 0x00A0 COMMAND_GET_CHAR_COORDINATES (reVC Script.cpp:3759)
+	lua_register(L, "register_fastest_time", register_fastest_time); // 1751 0x042E COMMAND_REGISTER_FASTEST_TIME (reVC Script6.cpp:635)
+	lua_register(L, "print", print); // 1752 0x00BB COMMAND_PRINT (reVC Script.cpp:4139)
+	lua_register(L, "display_onscreen_timer", display_onscreen_timer); // 1753 0x014E COMMAND_DISPLAY_ONSCREEN_TIMER (reVC Script2.cpp:169)
+	lua_register(L, "locate_player_in_car_3d", locate_player_in_car_3d); // 1754 0x00F7 COMMAND_LOCATE_PLAYER_IN_CAR_3D (reVC Script.cpp:4450)
+	lua_register(L, "locate_player_any_means_car_2d", locate_player_any_means_car_2d); // 1755 0x01FC COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_2D (reVC Script3.cpp:108)
+	lua_register(L, "print_with_2_numbers_now", print_with_2_numbers_now); // 1756 0x02FD COMMAND_PRINT_WITH_2_NUMBERS_NOW (reVC Script3.cpp:2161)
+	lua_register(L, "clear_small_prints", clear_small_prints); // 1757 0x03EB COMMAND_CLEAR_SMALL_PRINTS (reVC Script6.cpp:99)
+	lua_register(L, "is_player_in_model", is_player_in_model); // 1758 0x00DE COMMAND_IS_PLAYER_IN_MODEL (reVC Script.cpp:4386)
+	lua_register(L, "switch_car_generator", switch_car_generator); // 1759 0x014C COMMAND_SWITCH_CAR_GENERATOR (reVC Script2.cpp:146)
+	lua_register(L, "turn_char_to_face_char", turn_char_to_face_char); // 1760 0x020E COMMAND_TURN_CHAR_TO_FACE_CHAR (reVC Script3.cpp:163)
+	lua_register(L, "is_player_playing", is_player_playing); // 1761 0x0256 COMMAND_IS_PLAYER_PLAYING (reVC Script3.cpp:854)
+	lua_register(L, "is_point_obscured_by_a_mission_entity", is_point_obscured_by_a_mission_entity); // 1762 0x038A COMMAND_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY (reVC Script4.cpp:1262)
+	lua_register(L, "sqrt", sqrt); // 1763 0x01FB COMMAND_SQRT (reVC Script3.cpp:101)
+	lua_register(L, "set_camera_in_front_of_player", set_camera_in_front_of_player); // 1764 0x03C8 COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER (reVC Script4.cpp:1983)
+	lua_register(L, "locate_char_on_foot_3d", locate_char_on_foot_3d); // 1765 0x00FF COMMAND_LOCATE_CHAR_ON_FOOT_3D (reVC Script.cpp:4462)
+	lua_register(L, "print_with_number_now", print_with_number_now); // 1766 0x01E5 COMMAND_PRINT_WITH_NUMBER_NOW (reVC Script2.cpp:1403)
+	lua_register(L, "was_cutscene_skipped", was_cutscene_skipped); // 1767 0x056A COMMAND_WAS_CUTSCENE_SKIPPED (reVC Script7.cpp:1305)
+	lua_register(L, "set_zone_ped_info", set_zone_ped_info); // 1768 0x015C COMMAND_SET_ZONE_PED_INFO (reVC Script2.cpp:275)
+	lua_register(L, "add_money_spent_on_property", add_money_spent_on_property); // 1769 0x0529 COMMAND_ADD_MONEY_SPENT_ON_PROPERTY (reVC Script7.cpp:878)
+	lua_register(L, "set_property_as_owned", set_property_as_owned); // 1770 0x0542 COMMAND_SET_PROPERTY_AS_OWNED (reVC Script7.cpp:1003)
+	lua_register(L, "get_object_coordinates", get_object_coordinates); // 1771 0x01BB COMMAND_GET_OBJECT_COORDINATES (reVC Script2.cpp:951)
+	lua_register(L, "generate_random_int_in_range", generate_random_int_in_range); // 1772 0x0209 COMMAND_GENERATE_RANDOM_INT_IN_RANGE (reVC Script3.cpp:129)
+	lua_register(L, "set_char_cant_be_dragged_out", set_char_cant_be_dragged_out); // 1773 0x039E COMMAND_SET_CHAR_CANT_BE_DRAGGED_OUT (reVC Script4.cpp:1485)
+	lua_register(L, "set_cutscene_anim_to_loop", set_cutscene_anim_to_loop); // 1774 0x04BC COMMAND_SET_CUTSCENE_ANIM_TO_LOOP (reVC Script7.cpp:139)
+	lua_register(L, "is_player_in_area_2d", is_player_in_area_2d); // 1775 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D (reVC Script.cpp:3248)
+	lua_register(L, "set_time_of_day", set_time_of_day); // 1776 0x00C0 COMMAND_SET_TIME_OF_DAY (reVC Script.cpp:4170)
+	lua_register(L, "locate_stopped_player_in_car_3d", locate_stopped_player_in_car_3d); // 1777 0x00FA COMMAND_LOCATE_STOPPED_PLAYER_IN_CAR_3D (reVC Script.cpp:4453)
+	lua_register(L, "set_char_obj_enter_car_as_passenger", set_char_obj_enter_car_as_passenger); // 1778 0x01D4 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_PASSENGER (reVC Script2.cpp:1275)
+	lua_register(L, "set_char_suffers_critical_hits", set_char_suffers_critical_hits); // 1779 0x0446 COMMAND_SET_CHAR_SUFFERS_CRITICAL_HITS (reVC Script6.cpp:801)
+	lua_register(L, "store_car_char_is_in", store_car_char_is_in); // 1780 0x00D9 COMMAND_STORE_CAR_CHAR_IS_IN (reVC Script.cpp:4258)
+	lua_register(L, "locate_player_any_means_2d", locate_player_any_means_2d); // 1781 0x00E3 COMMAND_LOCATE_PLAYER_ANY_MEANS_2D (reVC Script.cpp:4422)
+	lua_register(L, "locate_stopped_player_on_foot_3d", locate_stopped_player_on_foot_3d); // 1782 0x00F9 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_3D (reVC Script.cpp:4452)
+	lua_register(L, "set_player_as_leader", set_player_as_leader); // 1783 0x01DF COMMAND_SET_PLAYER_AS_LEADER (reVC Script2.cpp:1357)
+	lua_register(L, "add_short_range_sprite_blip_for_coord", add_short_range_sprite_blip_for_coord); // 1784 0x04CE COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_COORD (reVC Script7.cpp:244)
+	lua_register(L, "stop_char_looking", stop_char_looking); // 1785 0x022F COMMAND_STOP_CHAR_LOOKING (reVC Script3.cpp:548)
+	lua_register(L, "has_cutscene_finished", has_cutscene_finished); // 1786 0x02E9 COMMAND_HAS_CUTSCENE_FINISHED (reVC Script3.cpp:1984)
+	lua_register(L, "shut_player_up", shut_player_up); // 1787 0x04E2 COMMAND_SHUT_PLAYER_UP (reVC Script7.cpp:390)
+	lua_register(L, "is_char_health_greater", is_char_health_greater); // 1788 0x0184 COMMAND_IS_CHAR_HEALTH_GREATER (reVC Script2.cpp:605)
+	lua_register(L, "store_wanted_level", store_wanted_level); // 1789 0x01C0 COMMAND_STORE_WANTED_LEVEL (reVC Script2.cpp:1028)
+	lua_register(L, "is_char_in_players_group", is_char_in_players_group); // 1790 0x0320 COMMAND_IS_CHAR_IN_PLAYERS_GROUP (reVC Script4.cpp:65)
+	lua_register(L, "make_player_safe_for_cutscene", make_player_safe_for_cutscene); // 1791 0x03EF COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE (reVC Script6.cpp:125)
+	lua_register(L, "create_protection_pickup", create_protection_pickup); // 1792 0x04A6 COMMAND_CREATE_PROTECTION_PICKUP (reVC Script6.cpp:1719)
+	lua_register(L, "locate_stopped_player_any_means_3d", locate_stopped_player_any_means_3d); // 1793 0x00F8 COMMAND_LOCATE_STOPPED_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4451)
+	lua_register(L, "char_look_at_player_always", char_look_at_player_always); // 1794 0x022D COMMAND_CHAR_LOOK_AT_PLAYER_ALWAYS (reVC Script3.cpp:526)
+	lua_register(L, "stop_player_looking", stop_player_looking); // 1795 0x0230 COMMAND_STOP_PLAYER_LOOKING (reVC Script3.cpp:559)
+	lua_register(L, "store_car_player_is_in_no_save", store_car_player_is_in_no_save); // 1796 0x03C1 COMMAND_STORE_CAR_PLAYER_IS_IN_NO_SAVE (reVC Script4.cpp:1770)
+	lua_register(L, "get_offset_from_car_in_world_coords", get_offset_from_car_in_world_coords); // 1797 0x0407 COMMAND_GET_OFFSET_FROM_CAR_IN_WORLD_COORDS (reVC Script6.cpp:286)
+	lua_register(L, "shut_char_up", shut_char_up); // 1798 0x0489 COMMAND_SHUT_CHAR_UP (reVC Script6.cpp:1524)
+	lua_register(L, "draw_weaponshop_corona", draw_weaponshop_corona); // 1799 0x04D5 COMMAND_DRAW_WEAPONSHOP_CORONA (reVC Script7.cpp:302)
+	lua_register(L, "does_char_exist", does_char_exist); // 1800 0x056D COMMAND_DOES_CHAR_EXIST (reVC Script7.cpp:1328)
+	lua_register(L, "point_camera_at_player", point_camera_at_player); // 1801 0x0157 COMMAND_POINT_CAMERA_AT_PLAYER (reVC Script2.cpp:244)
+	lua_register(L, "mark_object_as_no_longer_needed", mark_object_as_no_longer_needed); // 1802 0x01C4 COMMAND_MARK_OBJECT_AS_NO_LONGER_NEEDED (reVC Script2.cpp:1063)
+	lua_register(L, "get_player_char", get_player_char); // 1803 0x01F5 COMMAND_GET_PLAYER_CHAR (reVC Script3.cpp:50)
+	lua_register(L, "get_ground_z_for_3d_coord", get_ground_z_for_3d_coord); // 1804 0x02CE COMMAND_GET_GROUND_Z_FOR_3D_COORD (reVC Script3.cpp:1654)
+	lua_register(L, "place_object_relative_to_car", place_object_relative_to_car); // 1805 0x035C COMMAND_PLACE_OBJECT_RELATIVE_TO_CAR (reVC Script4.cpp:726)
+	lua_register(L, "add_moving_particle_effect", add_moving_particle_effect); // 1806 0x039D COMMAND_ADD_MOVING_PARTICLE_EFFECT (reVC Script4.cpp:1464)
+	lua_register(L, "change_garage_type", change_garage_type); // 1807 0x02FA COMMAND_CHANGE_GARAGE_TYPE (reVC Script3.cpp:2127)
+	lua_register(L, "has_object_been_damaged", has_object_been_damaged); // 1808 0x0366 COMMAND_HAS_OBJECT_BEEN_DAMAGED (reVC Script4.cpp:899)
+	lua_register(L, "is_player_sitting_in_car", is_player_sitting_in_car); // 1809 0x0442 COMMAND_IS_PLAYER_SITTING_IN_CAR (reVC Script6.cpp:775)
+	lua_register(L, "is_char_on_foot", is_char_on_foot); // 1810 0x044B COMMAND_IS_CHAR_ON_FOOT (reVC Script6.cpp:846)
+	lua_register(L, "is_car_in_area_2d", is_car_in_area_2d); // 1811 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC Script.cpp:4084)
+	lua_register(L, "locate_player_on_foot_2d", locate_player_on_foot_2d); // 1812 0x00E4 COMMAND_LOCATE_PLAYER_ON_FOOT_2D (reVC Script.cpp:4423)
+	lua_register(L, "locate_stopped_char_any_means_3d", locate_stopped_char_any_means_3d); // 1813 0x0101 COMMAND_LOCATE_STOPPED_CHAR_ANY_MEANS_3D (reVC Script.cpp:4464)
+	lua_register(L, "set_char_as_leader", set_char_as_leader); // 1814 0x01DE COMMAND_SET_CHAR_AS_LEADER (reVC Script2.cpp:1348)
+	lua_register(L, "locate_char_any_means_car_2d", locate_char_any_means_car_2d); // 1815 0x0202 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_2D (reVC Script3.cpp:116)
+	lua_register(L, "generate_random_float_in_range", generate_random_float_in_range); // 1816 0x0208 COMMAND_GENERATE_RANDOM_FLOAT_IN_RANGE (reVC Script3.cpp:124)
+	lua_register(L, "get_char_health", get_char_health); // 1817 0x0226 COMMAND_GET_CHAR_HEALTH (reVC Script3.cpp:428)
+	lua_register(L, "char_look_at_char_always", char_look_at_char_always); // 1818 0x022C COMMAND_CHAR_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:515)
+	lua_register(L, "player_look_at_char_always", player_look_at_char_always); // 1819 0x022E COMMAND_PLAYER_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:537)
+	lua_register(L, "is_player_in_angled_area_3d", is_player_in_angled_area_3d); // 1820 0x02B3 COMMAND_IS_PLAYER_IN_ANGLED_AREA_3D (reVC Script3.cpp:1494)
+	lua_register(L, "get_closest_char_node", get_closest_char_node); // 1821 0x02C0 COMMAND_GET_CLOSEST_CHAR_NODE (reVC Script3.cpp:1547)
+	lua_register(L, "add_to_object_velocity", add_to_object_velocity); // 1822 0x038C COMMAND_ADD_TO_OBJECT_VELOCITY (reVC Script4.cpp:1304)
+	lua_register(L, "is_player_sitting_in_any_car", is_player_sitting_in_any_car); // 1823 0x0443 COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR (reVC Script6.cpp:784)
+	lua_register(L, "is_char_sitting_in_any_car", is_char_sitting_in_any_car); // 1824 0x0449 COMMAND_IS_CHAR_SITTING_IN_ANY_CAR (reVC Script6.cpp:829)
+	lua_register(L, "disable_cutscene_shadows", disable_cutscene_shadows); // 1825 0x0522 COMMAND_DISABLE_CUTSCENE_SHADOWS (reVC Script7.cpp:830)
+	lua_register(L, "add_number_of_assassinations", add_number_of_assassinations); // 1826 0x0533 COMMAND_ADD_NUMBER_OF_ASSASSINATIONS (reVC Script7.cpp:912)
+	lua_register(L, "load_uncompressed_anim", load_uncompressed_anim); // 1827 0x0569 COMMAND_LOAD_UNCOMPRESSED_ANIM (reVC Script7.cpp:1297)
+	lua_register(L, "locate_stopped_char_on_foot_2d", locate_stopped_char_on_foot_2d); // 1828 0x00F0 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_2D (reVC Script.cpp:4439)
+	lua_register(L, "locate_char_any_means_char_2d", locate_char_any_means_char_2d); // 1829 0x00F2 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_2D (reVC Script.cpp:4443)
+	lua_register(L, "is_player_dead", is_player_dead); // 1830 0x0117 COMMAND_IS_PLAYER_DEAD (reVC Script.cpp:4577)
+	lua_register(L, "set_char_obj_wait_on_foot", set_char_obj_wait_on_foot); // 1831 0x0192 COMMAND_SET_CHAR_OBJ_WAIT_ON_FOOT (reVC Script2.cpp:786)
+	lua_register(L, "add_route_point", add_route_point); // 1832 0x01E2 COMMAND_ADD_ROUTE_POINT (reVC Script2.cpp:1383)
+	lua_register(L, "get_maximum_number_of_passengers", get_maximum_number_of_passengers); // 1833 0x01EA COMMAND_GET_MAXIMUM_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1468)
+	lua_register(L, "get_random_car_of_type_in_area", get_random_car_of_type_in_area); // 1834 0x0327 COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA (reVC Script4.cpp:134)
+	lua_register(L, "remove_route", remove_route); // 1835 0x03AC COMMAND_REMOVE_ROUTE (reVC Script4.cpp:1583)
+	lua_register(L, "set_interpolation_parameters", set_interpolation_parameters); // 1836 0x0460 COMMAND_SET_INTERPOLATION_PARAMETERS (reVC Script6.cpp:1149)
+	lua_register(L, "has_animation_loaded", has_animation_loaded); // 1837 0x04EE COMMAND_HAS_ANIMATION_LOADED (reVC Script7.cpp:476)
+	lua_register(L, "display_nth_onscreen_counter_with_string", display_nth_onscreen_counter_with_string); // 1838 0x04F7 COMMAND_DISPLAY_NTH_ONSCREEN_COUNTER_WITH_STRING (reVC Script7.cpp:540)
+	lua_register(L, "is_char_obj_no_obj", is_char_obj_no_obj); // 1839 0x04FF COMMAND_IS_CHAR_OBJ_NO_OBJ (reVC Script7.cpp:610)
+	lua_register(L, "get_distance_between_coords_2d", get_distance_between_coords_2d); // 1840 0x0509 COMMAND_GET_DISTANCE_BETWEEN_COORDS_2D (reVC Script7.cpp:679)
+	lua_register(L, "shake_cam", shake_cam); // 1841 0x0003 COMMAND_SHAKE_CAM (reVC Script.cpp:2629)
+	lua_register(L, "is_char_in_area_2d", is_char_in_area_2d); // 1842 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reVC Script.cpp:3821)
+	lua_register(L, "set_zone_car_info", set_zone_car_info); // 1843 0x0152 COMMAND_SET_ZONE_CAR_INFO (reVC Script2.cpp:201)
+	lua_register(L, "add_blip_for_car_old", add_blip_for_car_old); // 1844 0x0161 COMMAND_ADD_BLIP_FOR_CAR_OLD (reVC Script2.cpp:325)
+	lua_register(L, "add_blip_for_char_old", add_blip_for_char_old); // 1845 0x0162 COMMAND_ADD_BLIP_FOR_CHAR_OLD (reVC Script2.cpp:335)
+	lua_register(L, "set_char_obj_flee_on_foot_till_safe", set_char_obj_flee_on_foot_till_safe); // 1846 0x0193 COMMAND_SET_CHAR_OBJ_FLEE_ON_FOOT_TILL_SAFE (reVC Script2.cpp:795)
+	lua_register(L, "locate_stopped_car_3d", locate_stopped_car_3d); // 1847 0x01B0 COMMAND_LOCATE_STOPPED_CAR_3D (reVC Script2.cpp:884)
+	lua_register(L, "print_with_number", print_with_number); // 1848 0x01E4 COMMAND_PRINT_WITH_NUMBER (reVC Script2.cpp:1396)
+	lua_register(L, "get_number_of_passengers", get_number_of_passengers); // 1849 0x01E9 COMMAND_GET_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1459)
+	lua_register(L, "set_player_health", set_player_health); // 1850 0x0222 COMMAND_SET_PLAYER_HEALTH (reVC Script3.cpp:385)
+	lua_register(L, "get_player_health", get_player_health); // 1851 0x0225 COMMAND_GET_PLAYER_HEALTH (reVC Script3.cpp:419)
+	lua_register(L, "sin", sin); // 1852 0x02F6 COMMAND_SIN (reVC Script3.cpp:2099)
+	lua_register(L, "cos", cos); // 1853 0x02F7 COMMAND_COS (reVC Script3.cpp:2104)
+	lua_register(L, "explode_player_head", explode_player_head); // 1854 0x0322 COMMAND_EXPLODE_PLAYER_HEAD (reVC Script4.cpp:83)
+	lua_register(L, "is_area_occupied", is_area_occupied); // 1855 0x0339 COMMAND_IS_AREA_OCCUPIED (reVC Script4.cpp:340)
+	lua_register(L, "swap_nearest_building_model", swap_nearest_building_model); // 1856 0x03B6 COMMAND_SWAP_NEAREST_BUILDING_MODEL (reVC Script4.cpp:1642)
+	lua_register(L, "store_car_char_is_in_no_save", store_car_char_is_in_no_save); // 1857 0x03C0 COMMAND_STORE_CAR_CHAR_IS_IN_NO_SAVE (reVC Script4.cpp:1760)
+	lua_register(L, "get_closest_car_node_with_heading", get_closest_car_node_with_heading); // 1858 0x03D3 COMMAND_GET_CLOSEST_CAR_NODE_WITH_HEADING (reVC Script4.cpp:2061)
+	lua_register(L, "set_mission_audio_position", set_mission_audio_position); // 1859 0x03D7 COMMAND_SET_MISSION_AUDIO_POSITION (reVC Script4.cpp:2091)
+	lua_register(L, "get_ammo_in_player_weapon", get_ammo_in_player_weapon); // 1860 0x0419 COMMAND_GET_AMMO_IN_PLAYER_WEAPON (reVC Script6.cpp:413)
+	lua_register(L, "freeze_char_position", freeze_char_position); // 1861 0x04D7 COMMAND_FREEZE_CHAR_POSITION (reVC Script7.cpp:318)
+	lua_register(L, "add_big_gun_flash", add_big_gun_flash); // 1862 0x058A COMMAND_ADD_BIG_GUN_FLASH (reVC Script8.cpp:210)
+	lua_register(L, "is_player_pressing_horn", is_player_pressing_horn); // 1863 0x0122 COMMAND_IS_PLAYER_PRESSING_HORN (reVC Script.cpp:4631)
+	lua_register(L, "point_camera_at_char", point_camera_at_char); // 1864 0x0159 COMMAND_POINT_CAMERA_AT_CHAR (reVC Script2.cpp:259)
+	lua_register(L, "set_player_ammo", set_player_ammo); // 1865 0x017A COMMAND_SET_PLAYER_AMMO (reVC Script2.cpp:573)
+	lua_register(L, "is_player_health_greater", is_player_health_greater); // 1866 0x0183 COMMAND_IS_PLAYER_HEALTH_GREATER (reVC Script2.cpp:598)
+	lua_register(L, "locate_player_any_means_car_3d", locate_player_any_means_car_3d); // 1867 0x01FF COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_3D (reVC Script3.cpp:111)
+	lua_register(L, "set_gang_weapons", set_gang_weapons); // 1868 0x0237 COMMAND_SET_GANG_WEAPONS (reVC Script3.cpp:587)
+	lua_register(L, "is_player_stopped", is_player_stopped); // 1869 0x029F COMMAND_IS_PLAYER_STOPPED (reVC Script3.cpp:1345)
+	lua_register(L, "is_char_in_chars_group", is_char_in_chars_group); // 1870 0x031F COMMAND_IS_CHAR_IN_CHARS_GROUP (reVC Script3.cpp:2398)
+	lua_register(L, "set_camera_zoom", set_camera_zoom); // 1871 0x032A COMMAND_SET_CAMERA_ZOOM (reVC Script4.cpp:208)
+	lua_register(L, "set_text_scale", set_text_scale); // 1872 0x033F COMMAND_SET_TEXT_SCALE (reVC Script4.cpp:396)
+	lua_register(L, "set_text_colour", set_text_colour); // 1873 0x0340 COMMAND_SET_TEXT_COLOUR (reVC Script4.cpp:403)
+	lua_register(L, "set_text_justify", set_text_justify); // 1874 0x0341 COMMAND_SET_TEXT_JUSTIFY (reVC Script4.cpp:410)
+	lua_register(L, "set_text_centre", set_text_centre); // 1875 0x0342 COMMAND_SET_TEXT_CENTRE (reVC Script4.cpp:416)
+	lua_register(L, "set_text_wrapx", set_text_wrapx); // 1876 0x0343 COMMAND_SET_TEXT_WRAPX (reVC Script4.cpp:422)
+	lua_register(L, "set_text_background", set_text_background); // 1877 0x0345 COMMAND_SET_TEXT_BACKGROUND (reVC Script4.cpp:436)
+	lua_register(L, "set_text_proportional", set_text_proportional); // 1878 0x0348 COMMAND_SET_TEXT_PROPORTIONAL (reVC Script4.cpp:457)
+	lua_register(L, "freeze_onscreen_timer", freeze_onscreen_timer); // 1879 0x0396 COMMAND_FREEZE_ONSCREEN_TIMER (reVC Script4.cpp:1413)
+	lua_register(L, "draw_sphere", draw_sphere); // 1880 0x03A1 COMMAND_DRAW_SPHERE (reVC Script4.cpp:1514)
+	lua_register(L, "set_text_right_justify", set_text_right_justify); // 1881 0x03E4 COMMAND_SET_TEXT_RIGHT_JUSTIFY (reVC Script4.cpp:2179)
+	lua_register(L, "set_generate_cars_around_camera", set_generate_cars_around_camera); // 1882 0x03EA COMMAND_SET_GENERATE_CARS_AROUND_CAMERA (reVC Script6.cpp:95)
+	lua_register(L, "use_text_commands", use_text_commands); // 1883 0x03F0 COMMAND_USE_TEXT_COMMANDS (reVC Script6.cpp:138)
+	lua_register(L, "set_car_can_be_damaged", set_car_can_be_damaged); // 1884 0x03F5 COMMAND_SET_CAR_CAN_BE_DAMAGED (reVC Script6.cpp:166)
+	lua_register(L, "get_offset_from_object_in_world_coords", get_offset_from_object_in_world_coords); // 1885 0x0400 COMMAND_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS (reVC Script6.cpp:253)
+	lua_register(L, "register_highest_score", register_highest_score); // 1886 0x042F COMMAND_REGISTER_HIGHEST_SCORE (reVC Script6.cpp:639)
+	lua_register(L, "create_single_particle", create_single_particle); // 1887 0x0437 COMMAND_CREATE_SINGLE_PARTICLE (reVC Script6.cpp:682)
+	lua_register(L, "is_player_on_foot", is_player_on_foot); // 1888 0x044A COMMAND_IS_PLAYER_ON_FOOT (reVC Script6.cpp:837)
+	lua_register(L, "set_object_rotation", set_object_rotation); // 1889 0x0453 COMMAND_SET_OBJECT_ROTATION (reVC Script6.cpp:951)
+	lua_register(L, "display_text_with_number", display_text_with_number); // 1890 0x045A COMMAND_DISPLAY_TEXT_WITH_NUMBER (reVC Script6.cpp:1054)
+	lua_register(L, "get_random_cop_in_area", get_random_cop_in_area); // 1891 0x0469 COMMAND_GET_RANDOM_COP_IN_AREA (reVC Script6.cpp:1233)
+	lua_register(L, "get_offset_from_char_in_world_coords", get_offset_from_char_in_world_coords); // 1892 0x04C4 COMMAND_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS (reVC Script7.cpp:191)
+	lua_register(L, "switch_security_camera", switch_security_camera); // 1893 0x04C7 COMMAND_SWITCH_SECURITY_CAMERA (reVC Script7.cpp:225)
+	lua_register(L, "set_zone_civilian_car_info", set_zone_civilian_car_info); // 1894 0x04EC COMMAND_SET_ZONE_CIVILIAN_CAR_INFO (reVC Script7.cpp:443)
+	lua_register(L, "is_char_waiting_for_world_collision", is_char_waiting_for_world_collision); // 1895 0x04F0 COMMAND_IS_CHAR_WAITING_FOR_WORLD_COLLISION (reVC Script7.cpp:492)
+	lua_register(L, "attach_char_to_object", attach_char_to_object); // 1896 0x04F4 COMMAND_ATTACH_CHAR_TO_OBJECT (reVC Script7.cpp:523)
+	lua_register(L, "is_player_wearing", is_player_wearing); // 1897 0x0500 COMMAND_IS_PLAYER_WEARING (reVC Script7.cpp:618)
+	lua_register(L, "attach_cutscene_object_to_bone", attach_cutscene_object_to_bone); // 1898 0x0524 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_BONE (reVC Script7.cpp:846)
+	lua_register(L, "set_player_is_in_stadium", set_player_is_in_stadium); // 1899 0x057E COMMAND_SET_PLAYER_IS_IN_STADIUM (reVC Script8.cpp:83)
+	lua_register(L, "char_wander_dir", char_wander_dir); // 1900 0x009C COMMAND_CHAR_WANDER_DIR (reVC Script.cpp:3709)
+	lua_register(L, "get_time_of_day", get_time_of_day); // 1901 0x00BF COMMAND_GET_TIME_OF_DAY (reVC Script.cpp:4165)
+	lua_register(L, "locate_player_in_car_2d", locate_player_in_car_2d); // 1902 0x00E5 COMMAND_LOCATE_PLAYER_IN_CAR_2D (reVC Script.cpp:4424)
+	lua_register(L, "locate_stopped_player_on_foot_2d", locate_stopped_player_on_foot_2d); // 1903 0x00E7 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_2D (reVC Script.cpp:4426)
+	lua_register(L, "locate_player_on_foot_char_2d", locate_player_on_foot_char_2d); // 1904 0x00EA COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_2D (reVC Script.cpp:4431)
+	lua_register(L, "locate_player_in_car_char_2d", locate_player_in_car_char_2d); // 1905 0x00EB COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_2D (reVC Script.cpp:4432)
+	lua_register(L, "locate_char_in_car_2d", locate_char_in_car_2d); // 1906 0x00EE COMMAND_LOCATE_CHAR_IN_CAR_2D (reVC Script.cpp:4437)
+	lua_register(L, "locate_player_on_foot_char_3d", locate_player_on_foot_char_3d); // 1907 0x00FC COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_3D (reVC Script.cpp:4457)
+	lua_register(L, "locate_player_in_car_char_3d", locate_player_in_car_char_3d); // 1908 0x00FD COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_3D (reVC Script.cpp:4458)
+	lua_register(L, "is_score_greater", is_score_greater); // 1909 0x010A COMMAND_IS_SCORE_GREATER (reVC Script.cpp:4518)
+	lua_register(L, "store_score", store_score); // 1910 0x010B COMMAND_STORE_SCORE (reVC Script.cpp:4522)
+	lua_register(L, "set_deatharrest_state", set_deatharrest_state); // 1911 0x0111 COMMAND_SET_DEATHARREST_STATE (reVC Script.cpp:4552)
+	lua_register(L, "create_car_generator", create_car_generator); // 1912 0x014B COMMAND_CREATE_CAR_GENERATOR (reVC Script2.cpp:133)
+	lua_register(L, "add_hospital_restart", add_hospital_restart); // 1913 0x016C COMMAND_ADD_HOSPITAL_RESTART (reVC Script2.cpp:395)
+	lua_register(L, "add_police_restart", add_police_restart); // 1914 0x016D COMMAND_ADD_POLICE_RESTART (reVC Script2.cpp:405)
+	lua_register(L, "add_blip_for_contact_point", add_blip_for_contact_point); // 1915 0x0189 COMMAND_ADD_BLIP_FOR_CONTACT_POINT (reVC Script2.cpp:657)
+	lua_register(L, "locate_player_in_car_car_2d", locate_player_in_car_car_2d); // 1916 0x01FE COMMAND_LOCATE_PLAYER_IN_CAR_CAR_2D (reVC Script3.cpp:110)
+	lua_register(L, "locate_char_on_foot_car_2d", locate_char_on_foot_car_2d); // 1917 0x0203 COMMAND_LOCATE_CHAR_ON_FOOT_CAR_2D (reVC Script3.cpp:117)
+	lua_register(L, "locate_char_any_means_car_3d", locate_char_any_means_car_3d); // 1918 0x0205 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_3D (reVC Script3.cpp:119)
+	lua_register(L, "set_gang_ped_models", set_gang_ped_models); // 1919 0x0235 COMMAND_SET_GANG_PED_MODELS (reVC Script3.cpp:579)
+	lua_register(L, "is_player_in_angled_area_2d", is_player_in_angled_area_2d); // 1920 0x02AD COMMAND_IS_PLAYER_IN_ANGLED_AREA_2D (reVC Script3.cpp:1488)
+	lua_register(L, "set_zone_group", set_zone_group); // 1921 0x0324 COMMAND_SET_ZONE_GROUP (reVC Script4.cpp:99)
+	lua_register(L, "display_text", display_text); // 1922 0x033E COMMAND_DISPLAY_TEXT (reVC Script4.cpp:382)
+	lua_register(L, "open_garage", open_garage); // 1923 0x0360 COMMAND_OPEN_GARAGE (reVC Script4.cpp:763)
+	lua_register(L, "is_sniper_bullet_in_area", is_sniper_bullet_in_area); // 1924 0x037E COMMAND_IS_SNIPER_BULLET_IN_AREA (reVC Script4.cpp:1131)
+	lua_register(L, "print_string_in_string_now", print_string_in_string_now); // 1925 0x0384 COMMAND_PRINT_STRING_IN_STRING_NOW (reVC Script4.cpp:1205)
+	lua_register(L, "remove_particle_effects_in_area", remove_particle_effects_in_area); // 1926 0x03AE COMMAND_REMOVE_PARTICLE_EFFECTS_IN_AREA (reVC Script4.cpp:1591)
+	lua_register(L, "is_garage_closed", is_garage_closed); // 1927 0x03B1 COMMAND_IS_GARAGE_CLOSED (reVC Script4.cpp:1624)
+	lua_register(L, "does_object_exist", does_object_exist); // 1928 0x03CA COMMAND_DOES_OBJECT_EXIST (reVC Script4.cpp:1996)
+	lua_register(L, "clear_this_big_print", clear_this_big_print); // 1929 0x03D6 COMMAND_CLEAR_THIS_BIG_PRINT (reVC Script4.cpp:2085)
+	lua_register(L, "no_special_camera_for_this_garage", no_special_camera_for_this_garage); // 1930 0x03DA COMMAND_NO_SPECIAL_CAMERA_FOR_THIS_GARAGE (reVC Script4.cpp:2109)
+	lua_register(L, "set_car_avoid_level_transitions", set_car_avoid_level_transitions); // 1931 0x0428 COMMAND_SET_CAR_AVOID_LEVEL_TRANSITIONS (reVC Script6.cpp:580)
+	lua_register(L, "get_car_model", get_car_model); // 1932 0x0441 COMMAND_GET_CAR_MODEL (reVC Script6.cpp:766)
+	lua_register(L, "display_text_with_2_numbers", display_text_with_2_numbers); // 1933 0x045B COMMAND_DISPLAY_TEXT_WITH_2_NUMBERS (reVC Script6.cpp:1065)
+	lua_register(L, "get_number_of_followers", get_number_of_followers); // 1934 0x046D COMMAND_GET_NUMBER_OF_FOLLOWERS (reVC Script6.cpp:1354)
+	lua_register(L, "get_current_char_weapon", get_current_char_weapon); // 1935 0x0470 COMMAND_GET_CURRENT_CHAR_WEAPON (reVC Script6.cpp:1390)
+	lua_register(L, "remove_all_char_weapons", remove_all_char_weapons); // 1936 0x048F COMMAND_REMOVE_ALL_CHAR_WEAPONS (reVC Script6.cpp:1549)
+	lua_register(L, "has_player_got_weapon", has_player_got_weapon); // 1937 0x0490 COMMAND_HAS_PLAYER_GOT_WEAPON (reVC Script6.cpp:1557)
+	lua_register(L, "get_position_of_analogue_sticks", get_position_of_analogue_sticks); // 1938 0x0494 COMMAND_GET_POSITION_OF_ANALOGUE_STICKS (reVC Script6.cpp:1582)
+	lua_register(L, "set_object_path_speed", set_object_path_speed); // 1939 0x049E COMMAND_SET_OBJECT_PATH_SPEED (reVC Script6.cpp:1668)
+	lua_register(L, "get_closest_straight_road", get_closest_straight_road); // 1940 0x04B9 COMMAND_GET_CLOSEST_STRAIGHT_ROAD (reVC Script7.cpp:104)
+	lua_register(L, "get_nth_closest_car_node", get_nth_closest_car_node); // 1941 0x04D3 COMMAND_GET_NTH_CLOSEST_CAR_NODE (reVC Script7.cpp:291)
+	lua_register(L, "set_object_records_collisions", set_object_records_collisions); // 1942 0x04D9 COMMAND_SET_OBJECT_RECORDS_COLLISIONS (reVC Script7.cpp:334)
+	lua_register(L, "has_object_collided_with_anything", has_object_collided_with_anything); // 1943 0x04DA COMMAND_HAS_OBJECT_COLLIDED_WITH_ANYTHING (reVC Script7.cpp:342)
+	lua_register(L, "set_heli_stabiliser", set_heli_stabiliser); // 1944 0x04DF COMMAND_SET_HELI_STABILISER (reVC Script7.cpp:366)
+	lua_register(L, "is_object_in_water", is_object_in_water); // 1945 0x04E7 COMMAND_IS_OBJECT_IN_WATER (reVC Script7.cpp:415)
+	lua_register(L, "set_player_can_do_drive_by", set_player_can_do_drive_by); // 1946 0x0501 COMMAND_SET_PLAYER_CAN_DO_DRIVE_BY (reVC Script7.cpp:631)
+	lua_register(L, "sort_out_object_collision_with_car", sort_out_object_collision_with_car); // 1947 0x050E COMMAND_SORT_OUT_OBJECT_COLLISION_WITH_CAR (reVC Script7.cpp:710)
+	lua_register(L, "print_help_forever", print_help_forever); // 1948 0x0512 COMMAND_PRINT_HELP_FOREVER (reVC Script7.cpp:728)
+	lua_register(L, "create_forsale_property_pickup", create_forsale_property_pickup); // 1949 0x0518 COMMAND_CREATE_FORSALE_PROPERTY_PICKUP (reVC Script7.cpp:775)
+	lua_register(L, "increase_player_max_health", increase_player_max_health); // 1950 0x055E COMMAND_INCREASE_PLAYER_MAX_HEALTH (reVC Script7.cpp:1162)
+	lua_register(L, "increase_player_max_armour", increase_player_max_armour); // 1951 0x055F COMMAND_INCREASE_PLAYER_MAX_ARMOUR (reVC Script7.cpp:1170)
+	lua_register(L, "create_random_char_as_passenger", create_random_char_as_passenger); // 1952 0x0561 COMMAND_CREATE_RANDOM_CHAR_AS_PASSENGER (reVC Script7.cpp:1209)
+	lua_register(L, "set_object_area_visible", set_object_area_visible); // 1953 0x0566 COMMAND_SET_OBJECT_AREA_VISIBLE (reVC Script7.cpp:1280)
+	lua_register(L, "set_char_crouch_when_threatened", set_char_crouch_when_threatened); // 1954 0x056B COMMAND_SET_CHAR_CROUCH_WHEN_THREATENED (reVC Script7.cpp:1310)
+	lua_register(L, "set_allow_hurricanes", set_allow_hurricanes); // 1955 0x057C COMMAND_SET_ALLOW_HURRICANES (reVC Script8.cpp:73)
+	lua_register(L, "play_announcement", play_announcement); // 1956 0x057D COMMAND_PLAY_ANNOUNCEMENT (reVC Script8.cpp:77)
+	lua_register(L, "create_player", create_player); // 1957 0x0053 COMMAND_CREATE_PLAYER (reVC Script.cpp:3159)
+	lua_register(L, "generate_random_int", generate_random_int); // 1958 0x0099 COMMAND_GENERATE_RANDOM_INT (reVC Script.cpp:3637)
+	lua_register(L, "is_car_in_area_3d", is_car_in_area_3d); // 1959 0x00B1 COMMAND_IS_CAR_IN_AREA_3D (reVC Script.cpp:4100)
+	lua_register(L, "get_minutes_to_time_of_day", get_minutes_to_time_of_day); // 1960 0x00C1 COMMAND_GET_MINUTES_TO_TIME_OF_DAY (reVC Script.cpp:4174)
+	lua_register(L, "is_char_in_model", is_char_in_model); // 1961 0x00DD COMMAND_IS_CHAR_IN_MODEL (reVC Script.cpp:4378)
+	lua_register(L, "locate_char_on_foot_char_2d", locate_char_on_foot_char_2d); // 1962 0x00F3 COMMAND_LOCATE_CHAR_ON_FOOT_CHAR_2D (reVC Script.cpp:4444)
+	lua_register(L, "locate_char_in_car_3d", locate_char_in_car_3d); // 1963 0x0100 COMMAND_LOCATE_CHAR_IN_CAR_3D (reVC Script.cpp:4463)
+	lua_register(L, "locate_stopped_char_on_foot_3d", locate_stopped_char_on_foot_3d); // 1964 0x0102 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_3D (reVC Script.cpp:4465)
+	lua_register(L, "locate_char_any_means_char_3d", locate_char_any_means_char_3d); // 1965 0x0104 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_3D (reVC Script.cpp:4469)
+	lua_register(L, "override_next_restart", override_next_restart); // 1966 0x016E COMMAND_OVERRIDE_NEXT_RESTART (reVC Script2.cpp:415)
+	lua_register(L, "declare_mission_flag", declare_mission_flag); // 1967 0x0180 COMMAND_DECLARE_MISSION_FLAG (reVC Script2.cpp:592)
+	lua_register(L, "dont_remove_char", dont_remove_char); // 1968 0x01C5 COMMAND_DONT_REMOVE_CHAR (reVC Script2.cpp:1072)
+	lua_register(L, "cancel_override_restart", cancel_override_restart); // 1969 0x01F6 COMMAND_CANCEL_OVERRIDE_RESTART (reVC Script3.cpp:59)
+	lua_register(L, "start_kill_frenzy", start_kill_frenzy); // 1970 0x01F9 COMMAND_START_KILL_FRENZY (reVC Script3.cpp:86)
+	lua_register(L, "read_kill_frenzy_status", read_kill_frenzy_status); // 1971 0x01FA COMMAND_READ_KILL_FRENZY_STATUS (reVC Script3.cpp:95)
+	lua_register(L, "set_taxi_lights", set_taxi_lights); // 1972 0x0216 COMMAND_SET_TAXI_LIGHTS (reVC Script3.cpp:253)
+	lua_register(L, "print_big_q", print_big_q); // 1973 0x0217 COMMAND_PRINT_BIG_Q (reVC Script3.cpp:262)
+	lua_register(L, "set_garage", set_garage); // 1974 0x0219 COMMAND_SET_GARAGE (reVC Script3.cpp:279)
+	lua_register(L, "set_target_car_for_mission_garage", set_target_car_for_mission_garage); // 1975 0x021B COMMAND_SET_TARGET_CAR_FOR_MISSION_GARAGE (reVC Script3.cpp:311)
+	lua_register(L, "set_gang_car_model", set_gang_car_model); // 1976 0x0236 COMMAND_SET_GANG_CAR_MODEL (reVC Script3.cpp:583)
+	lua_register(L, "store_clock", store_clock); // 1977 0x0253 COMMAND_STORE_CLOCK (reVC Script3.cpp:834)
+	lua_register(L, "reset_num_of_models_killed_by_player", reset_num_of_models_killed_by_player); // 1978 0x0297 COMMAND_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1235)
+	lua_register(L, "get_num_of_models_killed_by_player", get_num_of_models_killed_by_player); // 1979 0x0298 COMMAND_GET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1238)
+	lua_register(L, "is_player_in_angled_area_on_foot_3d", is_player_in_angled_area_on_foot_3d); // 1980 0x02B4 COMMAND_IS_PLAYER_IN_ANGLED_AREA_ON_FOOT_3D (reVC Script3.cpp:1495)
+	lua_register(L, "is_player_in_angled_area_in_car_3d", is_player_in_angled_area_in_car_3d); // 1981 0x02B5 COMMAND_IS_PLAYER_IN_ANGLED_AREA_IN_CAR_3D (reVC Script3.cpp:1496)
+	lua_register(L, "is_player_shooting_in_area", is_player_shooting_in_area); // 1982 0x02D5 COMMAND_IS_PLAYER_SHOOTING_IN_AREA (reVC Script3.cpp:1722)
+	lua_register(L, "get_random_char_in_zone", get_random_char_in_zone); // 1983 0x02DD COMMAND_GET_RANDOM_CHAR_IN_ZONE (reVC Script3.cpp:1844)
+	lua_register(L, "is_player_in_taxi", is_player_in_taxi); // 1984 0x02DE COMMAND_IS_PLAYER_IN_TAXI (reVC Script3.cpp:1898)
+	lua_register(L, "create_collectable1", create_collectable1); // 1985 0x02EC COMMAND_CREATE_COLLECTABLE1 (reVC Script3.cpp:1993)
+	lua_register(L, "set_collectable1_total", set_collectable1_total); // 1986 0x02ED COMMAND_SET_COLLECTABLE1_TOTAL (reVC Script3.cpp:2002)
+	lua_register(L, "is_char_model", is_char_model); // 1987 0x02F2 COMMAND_IS_CHAR_MODEL (reVC Script3.cpp:2078)
+	lua_register(L, "print_with_3_numbers", print_with_3_numbers); // 1988 0x02FF COMMAND_PRINT_WITH_3_NUMBERS (reVC Script3.cpp:2177)
+	lua_register(L, "print_with_4_numbers", print_with_4_numbers); // 1989 0x0302 COMMAND_PRINT_WITH_4_NUMBERS (reVC Script3.cpp:2200)
+	lua_register(L, "print_with_6_numbers", print_with_6_numbers); // 1990 0x0308 COMMAND_PRINT_WITH_6_NUMBERS (reVC Script3.cpp:2244)
+	lua_register(L, "set_progress_total", set_progress_total); // 1991 0x030D COMMAND_SET_PROGRESS_TOTAL (reVC Script3.cpp:2282)
+	lua_register(L, "register_jump_distance", register_jump_distance); // 1992 0x030E COMMAND_REGISTER_JUMP_DISTANCE (reVC Script3.cpp:2288)
+	lua_register(L, "register_jump_height", register_jump_height); // 1993 0x030F COMMAND_REGISTER_JUMP_HEIGHT (reVC Script3.cpp:2292)
+	lua_register(L, "register_jump_flips", register_jump_flips); // 1994 0x0310 COMMAND_REGISTER_JUMP_FLIPS (reVC Script3.cpp:2296)
+	lua_register(L, "register_jump_spins", register_jump_spins); // 1995 0x0311 COMMAND_REGISTER_JUMP_SPINS (reVC Script3.cpp:2300)
+	lua_register(L, "register_jump_stunt", register_jump_stunt); // 1996 0x0312 COMMAND_REGISTER_JUMP_STUNT (reVC Script3.cpp:2304)
+	lua_register(L, "register_unique_jump_found", register_unique_jump_found); // 1997 0x0313 COMMAND_REGISTER_UNIQUE_JUMP_FOUND (reVC Script3.cpp:2308)
+	lua_register(L, "set_unique_jumps_total", set_unique_jumps_total); // 1998 0x0314 COMMAND_SET_UNIQUE_JUMPS_TOTAL (reVC Script3.cpp:2311)
+	lua_register(L, "register_passenger_dropped_off_taxi", register_passenger_dropped_off_taxi); // 1999 0x0315 COMMAND_REGISTER_PASSENGER_DROPPED_OFF_TAXI (reVC Script3.cpp:2315)
+	lua_register(L, "register_money_made_taxi", register_money_made_taxi); // 2000 0x0316 COMMAND_REGISTER_MONEY_MADE_TAXI (reVC Script3.cpp:2318)
+	lua_register(L, "set_player_never_gets_tired", set_player_never_gets_tired); // 2001 0x0330 COMMAND_SET_PLAYER_NEVER_GETS_TIRED (reVC Script4.cpp:268)
+	lua_register(L, "close_garage", close_garage); // 2002 0x0361 COMMAND_CLOSE_GARAGE (reVC Script4.cpp:769)
+	lua_register(L, "print_with_2_numbers_big", print_with_2_numbers_big); // 2003 0x036D COMMAND_PRINT_WITH_2_NUMBERS_BIG (reVC Script4.cpp:963)
+	lua_register(L, "is_icecream_jingle_on", is_icecream_jingle_on); // 2004 0x0383 COMMAND_IS_ICECREAM_JINGLE_ON (reVC Script4.cpp:1182)
+	lua_register(L, "is_char_male", is_char_male); // 2005 0x03A3 COMMAND_IS_CHAR_MALE (reVC Script4.cpp:1533)
+	lua_register(L, "is_garage_open", is_garage_open); // 2006 0x03B0 COMMAND_IS_GARAGE_OPEN (reVC Script4.cpp:1620)
+	lua_register(L, "switch_world_processing", switch_world_processing); // 2007 0x03B7 COMMAND_SWITCH_WORLD_PROCESSING (reVC Script4.cpp:1676)
+	lua_register(L, "remove_all_player_weapons", remove_all_player_weapons); // 2008 0x03B8 COMMAND_REMOVE_ALL_PLAYER_WEAPONS (reVC Script4.cpp:1680)
+	lua_register(L, "set_rotating_garage_door", set_rotating_garage_door); // 2009 0x03BB COMMAND_SET_ROTATING_GARAGE_DOOR (reVC Script4.cpp:1721)
+	lua_register(L, "create_random_car_for_car_park", create_random_car_for_car_park); // 2010 0x03C5 COMMAND_CREATE_RANDOM_CAR_FOR_CAR_PARK (reVC Script4.cpp:1808)
+	lua_register(L, "has_import_garage_slot_been_filled", has_import_garage_slot_been_filled); // 2011 0x03D4 COMMAND_HAS_IMPORT_GARAGE_SLOT_BEEN_FILLED (reVC Script4.cpp:2073)
+	lua_register(L, "has_save_game_finished", has_save_game_finished); // 2012 0x03D9 COMMAND_HAS_SAVE_GAME_FINISHED (reVC Script4.cpp:2106)
+	lua_register(L, "force_random_ped_type", force_random_ped_type); // 2013 0x03DF COMMAND_FORCE_RANDOM_PED_TYPE (reVC Script4.cpp:2152)
+	lua_register(L, "get_collectable1s_collected", get_collectable1s_collected); // 2014 0x03E1 COMMAND_GET_COLLECTABLE1S_COLLECTED (reVC Script4.cpp:2162)
+	lua_register(L, "get_car_colours", get_car_colours); // 2015 0x03F3 COMMAND_GET_CAR_COLOURS (reVC Script6.cpp:150)
+	lua_register(L, "set_drunk_input_delay", set_drunk_input_delay); // 2016 0x03FD COMMAND_SET_DRUNK_INPUT_DELAY (reVC Script6.cpp:236)
+	lua_register(L, "register_life_saved", register_life_saved); // 2017 0x0401 COMMAND_REGISTER_LIFE_SAVED (reVC Script6.cpp:263)
+	lua_register(L, "register_criminal_caught", register_criminal_caught); // 2018 0x0402 COMMAND_REGISTER_CRIMINAL_CAUGHT (reVC Script6.cpp:266)
+	lua_register(L, "register_ambulance_level", register_ambulance_level); // 2019 0x0403 COMMAND_REGISTER_AMBULANCE_LEVEL (reVC Script6.cpp:269)
+	lua_register(L, "register_fire_extinguished", register_fire_extinguished); // 2020 0x0404 COMMAND_REGISTER_FIRE_EXTINGUISHED (reVC Script6.cpp:273)
+	lua_register(L, "set_total_number_of_kill_frenzies", set_total_number_of_kill_frenzies); // 2021 0x0408 COMMAND_SET_TOTAL_NUMBER_OF_KILL_FRENZIES (reVC Script6.cpp:296)
+	lua_register(L, "set_free_health_care", set_free_health_care); // 2022 0x0414 COMMAND_SET_FREE_HEALTH_CARE (reVC Script6.cpp:357)
+	lua_register(L, "load_and_launch_mission_internal", load_and_launch_mission_internal); // 2023 0x0417 COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL (reVC Script6.cpp:373)
+	lua_register(L, "set_object_draw_last", set_object_draw_last); // 2024 0x0418 COMMAND_SET_OBJECT_DRAW_LAST (reVC Script6.cpp:405)
+	lua_register(L, "convert_metres_to_feet", convert_metres_to_feet); // 2025 0x0425 COMMAND_CONVERT_METRES_TO_FEET (reVC Script6.cpp:521)
+	lua_register(L, "set_total_number_of_missions", set_total_number_of_missions); // 2026 0x042C COMMAND_SET_TOTAL_NUMBER_OF_MISSIONS (reVC Script6.cpp:626)
+	lua_register(L, "convert_metres_to_feet_int", convert_metres_to_feet_int); // 2027 0x042D COMMAND_CONVERT_METRES_TO_FEET_INT (reVC Script6.cpp:630)
+	lua_register(L, "set_char_is_chris_criminal", set_char_is_chris_criminal); // 2028 0x0433 COMMAND_SET_CHAR_IS_CHRIS_CRIMINAL (reVC Script6.cpp:665)
+	lua_register(L, "start_credits", start_credits); // 2029 0x0434 COMMAND_START_CREDITS (reVC Script6.cpp:673)
+	lua_register(L, "stop_credits", stop_credits); // 2030 0x0435 COMMAND_STOP_CREDITS (reVC Script6.cpp:676)
+	lua_register(L, "are_credits_finished", are_credits_finished); // 2031 0x0436 COMMAND_ARE_CREDITS_FINISHED (reVC Script6.cpp:679)
+	lua_register(L, "play_end_of_game_tune", play_end_of_game_tune); // 2032 0x043F COMMAND_PLAY_END_OF_GAME_TUNE (reVC Script6.cpp:759)
+	lua_register(L, "stop_end_of_game_tune", stop_end_of_game_tune); // 2033 0x0440 COMMAND_STOP_END_OF_GAME_TUNE (reVC Script6.cpp:762)
+	lua_register(L, "are_any_car_cheats_activated", are_any_car_cheats_activated); // 2034 0x0445 COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED (reVC Script6.cpp:798)
+	lua_register(L, "load_splash_screen", load_splash_screen); // 2035 0x044D COMMAND_LOAD_SPLASH_SCREEN (reVC Script6.cpp:902)
+	lua_register(L, "load_end_of_game_tune", load_end_of_game_tune); // 2036 0x0451 COMMAND_LOAD_END_OF_GAME_TUNE (reVC Script6.cpp:940)
+	lua_register(L, "terminate_all_scripts_with_this_name", terminate_all_scripts_with_this_name); // 2037 0x0459 COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME (reVC Script6.cpp:1037)
+	lua_register(L, "get_current_player_weapon", get_current_player_weapon); // 2038 0x046F COMMAND_GET_CURRENT_PLAYER_WEAPON (reVC Script6.cpp:1381)
+	lua_register(L, "locate_char_any_means_object_2d", locate_char_any_means_object_2d); // 2039 0x0471 COMMAND_LOCATE_CHAR_ANY_MEANS_OBJECT_2D (reVC Script6.cpp:1399)
+	lua_register(L, "locate_char_on_foot_object_2d", locate_char_on_foot_object_2d); // 2040 0x0472 COMMAND_LOCATE_CHAR_ON_FOOT_OBJECT_2D (reVC Script6.cpp:1400)
+	lua_register(L, "can_char_see_dead_char", can_char_see_dead_char); // 2041 0x0480 COMMAND_CAN_CHAR_SEE_DEAD_CHAR (reVC Script6.cpp:1473)
+	lua_register(L, "is_any_pickup_at_coords", is_any_pickup_at_coords); // 2042 0x048C COMMAND_IS_ANY_PICKUP_AT_COORDS (reVC Script6.cpp:1540)
+	lua_register(L, "initialise_object_path", initialise_object_path); // 2043 0x049C COMMAND_INITIALISE_OBJECT_PATH (reVC Script6.cpp:1649)
+	lua_register(L, "start_object_on_path", start_object_on_path); // 2044 0x049D COMMAND_START_OBJECT_ON_PATH (reVC Script6.cpp:1660)
+	lua_register(L, "set_object_path_position", set_object_path_position); // 2045 0x049F COMMAND_SET_OBJECT_PATH_POSITION (reVC Script6.cpp:1674)
+	lua_register(L, "clear_object_path", clear_object_path); // 2046 0x04A1 COMMAND_CLEAR_OBJECT_PATH (reVC Script6.cpp:1681)
+	lua_register(L, "reset_havoc_caused_by_player", reset_havoc_caused_by_player); // 2047 0x04BE COMMAND_RESET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:155)
+	lua_register(L, "get_havoc_caused_by_player", get_havoc_caused_by_player); // 2048 0x04BF COMMAND_GET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:161)
+	lua_register(L, "create_script_roadblock", create_script_roadblock); // 2049 0x04C0 COMMAND_CREATE_SCRIPT_ROADBLOCK (reVC Script7.cpp:168)
+	lua_register(L, "clear_all_script_roadblocks", clear_all_script_roadblocks); // 2050 0x04C1 COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS (reVC Script7.cpp:174)
+	lua_register(L, "has_char_been_photographed", has_char_been_photographed); // 2051 0x04C5 COMMAND_HAS_CHAR_BEEN_PHOTOGRAPHED (reVC Script7.cpp:201)
+	lua_register(L, "add_money_spent_on_clothes", add_money_spent_on_clothes); // 2052 0x04CF COMMAND_ADD_MONEY_SPENT_ON_CLOTHES (reVC Script7.cpp:257)
+	lua_register(L, "set_heli_orientation", set_heli_orientation); // 2053 0x04D0 COMMAND_SET_HELI_ORIENTATION (reVC Script7.cpp:262)
+	lua_register(L, "clear_heli_orientation", clear_heli_orientation); // 2054 0x04D1 COMMAND_CLEAR_HELI_ORIENTATION (reVC Script7.cpp:275)
+	lua_register(L, "set_char_drowns_in_water", set_char_drowns_in_water); // 2055 0x04D8 COMMAND_SET_CHAR_DROWNS_IN_WATER (reVC Script7.cpp:326)
+	lua_register(L, "get_char_armour", get_char_armour); // 2056 0x04DD COMMAND_GET_CHAR_ARMOUR (reVC Script7.cpp:356)
+	lua_register(L, "locate_object_2d", locate_object_2d); // 2057 0x04E5 COMMAND_LOCATE_OBJECT_2D (reVC Script7.cpp:411)
+	lua_register(L, "locate_object_3d", locate_object_3d); // 2058 0x04E6 COMMAND_LOCATE_OBJECT_3D (reVC Script5.cpp:740)
+	lua_register(L, "is_object_in_area_3d", is_object_in_area_3d); // 2059 0x04EA COMMAND_IS_OBJECT_IN_AREA_3D (reVC Script5.cpp:1295)
+	lua_register(L, "add_set_piece", add_set_piece); // 2060 0x04F8 COMMAND_ADD_SET_PIECE (reVC Script7.cpp:552)
+	lua_register(L, "get_wheelie_stats", get_wheelie_stats); // 2061 0x04FC COMMAND_GET_WHEELIE_STATS (reVC Script7.cpp:574)
+	lua_register(L, "switch_lift_camera", switch_lift_camera); // 2062 0x0507 COMMAND_SWITCH_LIFT_CAMERA (reVC Script7.cpp:665)
+	lua_register(L, "create_locked_property_pickup", create_locked_property_pickup); // 2063 0x0517 COMMAND_CREATE_LOCKED_PROPERTY_PICKUP (reVC Script7.cpp:760)
+	lua_register(L, "has_glass_been_shattered_nearby", has_glass_been_shattered_nearby); // 2064 0x0523 COMMAND_HAS_GLASS_BEEN_SHATTERED_NEARBY (reVC Script7.cpp:835)
+	lua_register(L, "attach_cutscene_object_to_component", attach_cutscene_object_to_component); // 2065 0x0525 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_COMPONENT (reVC Script7.cpp:852)
+	lua_register(L, "add_money_spent_on_weapons", add_money_spent_on_weapons); // 2066 0x0528 COMMAND_ADD_MONEY_SPENT_ON_WEAPONS (reVC Script7.cpp:874)
+	lua_register(L, "set_player_drunkenness", set_player_drunkenness); // 2067 0x052C COMMAND_SET_PLAYER_DRUNKENNESS (reVC Script7.cpp:893)
+	lua_register(L, "add_stores_knocked_off", add_stores_knocked_off); // 2068 0x0531 COMMAND_ADD_STORES_KNOCKED_OFF (reVC Script7.cpp:907)
+	lua_register(L, "add_pizzas_delivered", add_pizzas_delivered); // 2069 0x0534 COMMAND_ADD_PIZZAS_DELIVERED (reVC Script7.cpp:916)
+	lua_register(L, "add_ice_creams_sold", add_ice_creams_sold); // 2070 0x0536 COMMAND_ADD_ICE_CREAMS_SOLD (reVC Script7.cpp:921)
+	lua_register(L, "set_char_in_players_group_can_fight", set_char_in_players_group_can_fight); // 2071 0x053C COMMAND_SET_CHAR_IN_PLAYERS_GROUP_CAN_FIGHT (reVC Script7.cpp:930)
+	lua_register(L, "get_random_car_of_type_in_area_no_save", get_random_car_of_type_in_area_no_save); // 2072 0x053E COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA_NO_SAVE (reVC Script7.cpp:946)
+	lua_register(L, "set_player_auto_aim", set_player_auto_aim); // 2073 0x0540 COMMAND_SET_PLAYER_AUTO_AIM (reVC Script7.cpp:981)
+	lua_register(L, "add_blood_ring_kills", add_blood_ring_kills); // 2074 0x0543 COMMAND_ADD_BLOOD_RING_KILLS (reVC Script7.cpp:1007)
+	lua_register(L, "set_longest_time_in_blood_ring", set_longest_time_in_blood_ring); // 2075 0x0544 COMMAND_SET_LONGEST_TIME_IN_BLOOD_RING (reVC Script7.cpp:1011)
+	lua_register(L, "remove_everything_for_huge_cutscene", remove_everything_for_huge_cutscene); // 2076 0x0545 COMMAND_REMOVE_EVERYTHING_FOR_HUGE_CUTSCENE (reVC Script7.cpp:1015)
+	lua_register(L, "is_player_touching_vehicle", is_player_touching_vehicle); // 2077 0x0546 COMMAND_IS_PLAYER_TOUCHING_VEHICLE (reVC Script7.cpp:1020)
+	lua_register(L, "check_for_ped_model_around_player", check_for_ped_model_around_player); // 2078 0x0548 COMMAND_CHECK_FOR_PED_MODEL_AROUND_PLAYER (reVC Script7.cpp:1033)
+	lua_register(L, "attach_cutscene_object_to_vehicle", attach_cutscene_object_to_vehicle); // 2079 0x054B COMMAND_ATTACH_CUTSCENE_OBJECT_TO_VEHICLE (reVC Script7.cpp:1071)
+	lua_register(L, "set_tonights_event", set_tonights_event); // 2080 0x054D COMMAND_SET_TONIGHTS_EVENT (reVC Script7.cpp:1085)
+	lua_register(L, "freeze_object_position", freeze_object_position); // 2081 0x0550 COMMAND_FREEZE_OBJECT_POSITION (reVC Script7.cpp:1102)
+	lua_register(L, "set_player_has_met_debbie_harry", set_player_has_met_debbie_harry); // 2082 0x0551 COMMAND_SET_PLAYER_HAS_MET_DEBBIE_HARRY (reVC Script7.cpp:1111)
+	lua_register(L, "set_up_taxi_shortcut", set_up_taxi_shortcut); // 2083 0x0556 COMMAND_SET_UP_TAXI_SHORTCUT (reVC Script7.cpp:1126)
+	lua_register(L, "clear_taxi_shortcut", clear_taxi_shortcut); // 2084 0x0557 COMMAND_CLEAR_TAXI_SHORTCUT (reVC Script7.cpp:1134)
+	lua_register(L, "add_porn_leaflet_to_rubbish", add_porn_leaflet_to_rubbish); // 2085 0x055A COMMAND_ADD_PORN_LEAFLET_TO_RUBBISH (reVC Script7.cpp:1139)
+	lua_register(L, "make_player_fire_proof", make_player_fire_proof); // 2086 0x055D COMMAND_MAKE_PLAYER_FIRE_PROOF (reVC Script7.cpp:1155)
+	lua_register(L, "create_random_char_as_driver", create_random_char_as_driver); // 2087 0x0560 COMMAND_CREATE_RANDOM_CHAR_AS_DRIVER (reVC Script7.cpp:1178)
+	lua_register(L, "set_char_ignore_threats_behind_objects", set_char_ignore_threats_behind_objects); // 2088 0x0562 COMMAND_SET_CHAR_IGNORE_THREATS_BEHIND_OBJECTS (reVC Script7.cpp:1239)
+	lua_register(L, "make_heli_come_crashing_down", make_heli_come_crashing_down); // 2089 0x0564 COMMAND_MAKE_HELI_COME_CRASHING_DOWN (reVC Script7.cpp:1266)
+	lua_register(L, "is_char_stuck", is_char_stuck); // 2090 0x0571 COMMAND_IS_CHAR_STUCK (reVC Script7.cpp:1347)
+	lua_register(L, "set_all_taxis_have_nitro", set_all_taxis_have_nitro); // 2091 0x0572 COMMAND_SET_ALL_TAXIS_HAVE_NITRO (reVC Script7.cpp:1355)
+	lua_register(L, "register_vigilante_level", register_vigilante_level); // 2092 0x0578 COMMAND_REGISTER_VIGILANTE_LEVEL (reVC Script8.cpp:35)
+	lua_register(L, "set_maximum_number_of_cars_in_garage", set_maximum_number_of_cars_in_garage); // 2093 0x057A COMMAND_SET_MAXIMUM_NUMBER_OF_CARS_IN_GARAGE (reVC Script8.cpp:63)
+	lua_register(L, "wanted_stars_are_flashing", wanted_stars_are_flashing); // 2094 0x057B COMMAND_WANTED_STARS_ARE_FLASHING (reVC Script8.cpp:67)
+	lua_register(L, "get_bus_fares_collected_by_player", get_bus_fares_collected_by_player); // 2095 0x057F COMMAND_GET_BUS_FARES_COLLECTED_BY_PLAYER (reVC Script8.cpp:89)
+	lua_register(L, "register_best_position", register_best_position); // 2096 0x0582 COMMAND_REGISTER_BEST_POSITION (reVC Script8.cpp:126)
+	lua_register(L, "is_player_in_info_zone", is_player_in_info_zone); // 2097 0x0583 COMMAND_IS_PLAYER_IN_INFO_ZONE (reVC Script8.cpp:130)
+	lua_register(L, "has_char_attempted_attractor", has_char_attempted_attractor); // 2098 0x0586 COMMAND_HAS_CHAR_ATTEMPTED_ATTRACTOR (reVC Script8.cpp:155)
+	lua_register(L, "set_load_collision_for_char_flag", set_load_collision_for_char_flag); // 2099 0x0588 COMMAND_SET_LOAD_COLLISION_FOR_CHAR_FLAG (reVC Script8.cpp:186)
+	lua_register(L, "has_char_bought_ice_cream", has_char_bought_ice_cream); // 2100 0x058B COMMAND_HAS_CHAR_BOUGHT_ICE_CREAM (reVC Script8.cpp:216)
+	lua_register(L, "get_progress_percentage", get_progress_percentage); // 2101 0x058C COMMAND_GET_PROGRESS_PERCENTAGE (reVC Script8.cpp:224)
+	lua_register(L, "set_shortcut_pickup_point", set_shortcut_pickup_point); // 2102 0x058D COMMAND_SET_SHORTCUT_PICKUP_POINT (reVC Script8.cpp:228)
+	lua_register(L, "get_random_ice_cream_customer_in_area", get_random_ice_cream_customer_in_area); // 2103 0x058F COMMAND_GET_RANDOM_ICE_CREAM_CUSTOMER_IN_AREA (reVC Script8.cpp:240)
+	lua_register(L, "set_char_frightened_in_jacked_car", set_char_frightened_in_jacked_car); // 2104 0x0593 COMMAND_SET_CHAR_FRIGHTENED_IN_JACKED_CAR (reVC Script8.cpp:314)
+	lua_register(L, "is_player_in_shortcut_taxi", is_player_in_shortcut_taxi); // 2105 0x0596 COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI (reVC Script8.cpp:336)
+	lua_register(L, "register_fire_level", register_fire_level); // 2106 0x0599 COMMAND_REGISTER_FIRE_LEVEL (reVC Script8.cpp:370)
 
 
 	// === COMMUNITY ADDRESSES + HEADLIGHTS (20.11) ===
-	lua_register(L, "patch_headlights", patch_headlights); // GTAForums 0x58CD4E
-	lua_register(L, "set_headlights_on", set_headlights_on);
-	lua_register(L, "set_headlights_off", set_headlights_off);
-	lua_register(L, "is_headlights_on", is_headlights_on);
-	lua_register(L, "get_m_timepassingmeby_faster_time", get_m_timepassingmeby_faster_time); // 0xA10B87 TIMEPASSINGMEBY faster time
-	lua_register(L, "set_m_timepassingmeby_faster_time", set_m_timepassingmeby_faster_time);
-	lua_register(L, "get_m_youwonttakemealive_wanted_level", get_m_youwonttakemealive_wanted_level); // 0x4ABF4C YOUWONTTAKEMEALIVE set wanted level
-	lua_register(L, "set_m_youwonttakemealive_wanted_level", set_m_youwonttakemealive_wanted_level);
-	lua_register(L, "get_m_leavemealone_wanted_level", get_m_leavemealone_wanted_level); // 0x4ABFC4 LEAVEMEALONE set wanted level
-	lua_register(L, "set_m_leavemealone_wanted_level", set_m_leavemealone_wanted_level);
-	lua_register(L, "get_m_apleasantday_weather", get_m_apleasantday_weather); // 0x4AC009 APLEASANTDAY set weather
-	lua_register(L, "set_m_apleasantday_weather", set_m_apleasantday_weather);
-	lua_register(L, "get_m_alovelyday_weather", get_m_alovelyday_weather); // 0x4AC04E ALOVELYDAY set weather
-	lua_register(L, "set_m_alovelyday_weather", set_m_alovelyday_weather);
-	lua_register(L, "get_m_abitdrieg_weather", get_m_abitdrieg_weather); // 0x4AC099 ABITDRIEG set weather
-	lua_register(L, "set_m_abitdrieg_weather", set_m_abitdrieg_weather);
-	lua_register(L, "get_m_catsanddogs_weather", get_m_catsanddogs_weather); // 0x4AC0DE CATSANDDOGS set weather
-	lua_register(L, "set_m_catsanddogs_weather", set_m_catsanddogs_weather);
-	lua_register(L, "get_m_cantseeathing_weather", get_m_cantseeathing_weather); // 0x4AC129 CANTSEEATHING set weather
-	lua_register(L, "set_m_cantseeathing_weather", set_m_cantseeathing_weather);
-	lua_register(L, "get_m_panzer_rhino_model", get_m_panzer_rhino_model); // 0x4AC14B PANZER Rhino model
-	lua_register(L, "set_m_panzer_rhino_model", set_m_panzer_rhino_model);
-	lua_register(L, "get_m_travelinstyle_bloodring_a_model", get_m_travelinstyle_bloodring_a_model); // 0x4AC946 TRAVELINSTYLE Bloodring A model
-	lua_register(L, "set_m_travelinstyle_bloodring_a_model", set_m_travelinstyle_bloodring_a_model);
-	lua_register(L, "get_m_thelastride_romero_hearse_model", get_m_thelastride_romero_hearse_model); // 0x4AC976 THELASTRIDE Romero's Hearse model
-	lua_register(L, "set_m_thelastride_romero_hearse_model", set_m_thelastride_romero_hearse_model);
-	lua_register(L, "get_m_rockandrollcar_love_fist_model", get_m_rockandrollcar_love_fist_model); // 0x4AC9A6 ROCKANDROLLCAR Love Fist model
-	lua_register(L, "set_m_rockandrollcar_love_fist_model", set_m_rockandrollcar_love_fist_model);
-	lua_register(L, "get_m_rubbishcar_trashmaster_model", get_m_rubbishcar_trashmaster_model); // 0x4AC9D6 RUBBISHCAR Trashmaster model
-	lua_register(L, "set_m_rubbishcar_trashmaster_model", set_m_rubbishcar_trashmaster_model);
-	lua_register(L, "get_m_gettherefast_sabre_turbo_model", get_m_gettherefast_sabre_turbo_model); // 0x4ACA06 GETTHEREFAST Sabre Turbo model
-	lua_register(L, "set_m_gettherefast_sabre_turbo_model", set_m_gettherefast_sabre_turbo_model);
-	lua_register(L, "get_m_betterthanwalking_caddy_model", get_m_betterthanwalking_caddy_model); // 0x4ACA36 BETTERTHANWALKING Caddy model
-	lua_register(L, "set_m_betterthanwalking_caddy_model", set_m_betterthanwalking_caddy_model);
-	lua_register(L, "get_m_gettherequickly_bloodring_b_model", get_m_gettherequickly_bloodring_b_model); // 0x4ACDD6 GETTHEREQUICKLY Bloodring B model
-	lua_register(L, "set_m_gettherequickly_bloodring_b_model", set_m_gettherequickly_bloodring_b_model);
-	lua_register(L, "get_m_getthereveryfastindeed_hotring_a_model", get_m_getthereveryfastindeed_hotring_a_model); // 0x4ACE06 GETTHEREVERYFASTINDEED Hotring A model
-	lua_register(L, "set_m_getthereveryfastindeed_hotring_a_model", set_m_getthereveryfastindeed_hotring_a_model);
-	lua_register(L, "get_m_getthereamazinglyfast_hotring_b_model", get_m_getthereamazinglyfast_hotring_b_model); // 0x4ACE36 GETTHEREAMAZINGLYFAST Hotring B model
-	lua_register(L, "set_m_getthereamazinglyfast_hotring_b_model", set_m_getthereamazinglyfast_hotring_b_model);
-	lua_register(L, "get_m_nuttertools_chainsaw_model", get_m_nuttertools_chainsaw_model); // 0x4AEAEF NUTTERTOOLS Chainsaw model
-	lua_register(L, "set_m_nuttertools_chainsaw_model", set_m_nuttertools_chainsaw_model);
-	lua_register(L, "get_m_nuttertools_chainsaw_weapon_note", get_m_nuttertools_chainsaw_weapon_note); // 0x4AEB77 NUTTERTOOLS Chainsaw weapon number (NOTE: Model needs to be 
-	lua_register(L, "set_m_nuttertools_chainsaw_weapon_note", set_m_nuttertools_chainsaw_weapon_note);
-	lua_register(L, "get_m_nuttertools_m4_weapon_note", get_m_nuttertools_m4_weapon_note); // 0x4AEBD4 NUTTERTOOLS M4 weapon number (NOTE: Model needs to be loaded
-	lua_register(L, "set_m_nuttertools_m4_weapon_note", set_m_nuttertools_m4_weapon_note);
-	lua_register(L, "get_m_nuttertools_sniper_weapon_note", get_m_nuttertools_sniper_weapon_note); // 0x4AEBE6 NUTTERTOOLS .308 Sniper weapon number (NOTE: Model needs to 
-	lua_register(L, "set_m_nuttertools_sniper_weapon_note", set_m_nuttertools_sniper_weapon_note);
-	lua_register(L, "get_m_nuttertools_minigun_weapon_note", get_m_nuttertools_minigun_weapon_note); // 0x4AEBFB NUTTERTOOLS Minigun weapon number (NOTE: Model needs to be l
-	lua_register(L, "set_m_nuttertools_minigun_weapon_note", set_m_nuttertools_minigun_weapon_note);
-	lua_register(L, "get_m_professionaltools_katana_model", get_m_professionaltools_katana_model); // 0x4AEC8F PROFESSIONALTOOLS Katana model
-	lua_register(L, "set_m_professionaltools_katana_model", set_m_professionaltools_katana_model);
-	lua_register(L, "get_m_professionaltools_katana_weapon_note", get_m_professionaltools_katana_weapon_note); // 0x4AED17 PROFESSIONALTOOLS Katana weapon number (NOTE: Model needs to
-	lua_register(L, "set_m_professionaltools_katana_weapon_note", set_m_professionaltools_katana_weapon_note);
-	lua_register(L, "get_m_professionaltools_m4_weapon_note", get_m_professionaltools_m4_weapon_note); // 0x4AED74 PROFESSIONALTOOLS M4 weapon number (NOTE: Model needs to be 
-	lua_register(L, "set_m_professionaltools_m4_weapon_note", set_m_professionaltools_m4_weapon_note);
-	lua_register(L, "get_m_professionaltools_sniper_weapon_note", get_m_professionaltools_sniper_weapon_note); // 0x4AED86 PROFESSIONALTOOLS .308 Sniper weapon number (NOTE: Model nee
-	lua_register(L, "set_m_professionaltools_sniper_weapon_note", set_m_professionaltools_sniper_weapon_note);
-	lua_register(L, "get_m_professionaltools_rocket_launcher_weapon", get_m_professionaltools_rocket_launcher_weapon); // 0x4AED98 PROFESSIONALTOOLS Rocket Launcher weapon number (NOTE: Model
-	lua_register(L, "set_m_professionaltools_rocket_launcher_weapon", set_m_professionaltools_rocket_launcher_weapon);
-	lua_register(L, "get_m_thugstools_brass_knuckles_model", get_m_thugstools_brass_knuckles_model); // 0x4AEE1F THUGSTOOLS Brass Knuckles model
-	lua_register(L, "set_m_thugstools_brass_knuckles_model", set_m_thugstools_brass_knuckles_model);
-	lua_register(L, "get_m_thugstools_brass_knuckles_weapon", get_m_thugstools_brass_knuckles_weapon); // 0x4AEEA7 THUGSTOOLS Brass Knuckles weapon number (NOTE: Model needs t
-	lua_register(L, "set_m_thugstools_brass_knuckles_weapon", set_m_thugstools_brass_knuckles_weapon);
-	lua_register(L, "get_m_thugstools_tec_weapon_note", get_m_thugstools_tec_weapon_note); // 0x4AEF04 THUGSTOOLS Tec 9 weapon number (NOTE: Model needs to be load
-	lua_register(L, "set_m_thugstools_tec_weapon_note", set_m_thugstools_tec_weapon_note);
-	lua_register(L, "get_m_thugstools_kruger_weapon_note", get_m_thugstools_kruger_weapon_note); // 0x4AEF16 THUGSTOOLS Kruger weapon number (NOTE: Model needs to be loa
-	lua_register(L, "set_m_thugstools_kruger_weapon_note", set_m_thugstools_kruger_weapon_note);
-	lua_register(L, "get_m_thugstools_sniper_rifle_weapon", get_m_thugstools_sniper_rifle_weapon); // 0x4AEF28 THUGSTOOLS Sniper Rifle weapon number (NOTE: Model needs to 
-	lua_register(L, "set_m_thugstools_sniper_rifle_weapon", set_m_thugstools_sniper_rifle_weapon);
-	lua_register(L, "get_m_thugstools_flame_thrower_weapon", get_m_thugstools_flame_thrower_weapon); // 0x4AEF38 THUGSTOOLS Flame Thrower weapon number (NOTE: Model needs to
-	lua_register(L, "set_m_thugstools_flame_thrower_weapon", set_m_thugstools_flame_thrower_weapon);
-	lua_register(L, "get_m_deepfriedmarsbars_programmer_tommy_body", get_m_deepfriedmarsbars_programmer_tommy_body); // 0x68E058 DEEPFRIEDMARSBARS/PROGRAMMER Tommy's body width
-	lua_register(L, "set_m_deepfriedmarsbars_programmer_tommy_body", set_m_deepfriedmarsbars_programmer_tommy_body);
-	lua_register(L, "get_m_onspeed_game_speed", get_m_onspeed_game_speed); // 0x68F1F0 ONSPEED set game speed
-	lua_register(L, "set_m_onspeed_game_speed", set_m_onspeed_game_speed);
-	lua_register(L, "get_m_onspeed_game_speed_multiplier", get_m_onspeed_game_speed_multiplier); // 0x68F1F4 ONSPEED game speed multiplier
-	lua_register(L, "set_m_onspeed_game_speed_multiplier", set_m_onspeed_game_speed_multiplier);
-	lua_register(L, "get_m_booooooring_game_speed", get_m_booooooring_game_speed); // 0x68F1F8 BOOOOOORING set game speed
-	lua_register(L, "set_m_booooooring_game_speed", set_m_booooooring_game_speed);
-	lua_register(L, "get_m_booooooring_game_speed_multiplier", get_m_booooooring_game_speed_multiplier); // 0x68F1FC BOOOOOORING game speed multiplier
-	lua_register(L, "set_m_booooooring_game_speed_multiplier", set_m_booooooring_game_speed_multiplier);
-	lua_register(L, "get_m_chasestat", get_m_chasestat); // 0x97F2C4 CHASESTAT cheat switch
-	lua_register(L, "set_m_chasestat", set_m_chasestat);
-	lua_register(L, "get_m_ourgodgivenrighttobeararms", get_m_ourgodgivenrighttobeararms); // 0xA10AB3 OURGODGIVENRIGHTTOBEARARMS cheat switch
-	lua_register(L, "set_m_ourgodgivenrighttobeararms", set_m_ourgodgivenrighttobeararms);
-	lua_register(L, "get_m_greenlight", get_m_greenlight); // 0xA10ADC GREENLIGHT cheat switch
-	lua_register(L, "set_m_greenlight", set_m_greenlight);
-	lua_register(L, "get_m_gripiseverything", get_m_gripiseverything); // 0xA10B0F GRIPISEVERYTHING cheat switch
-	lua_register(L, "set_m_gripiseverything", set_m_gripiseverything);
-	lua_register(L, "get_m_airship", get_m_airship); // 0xA10B11 AIRSHIP cheat switch
-	lua_register(L, "set_m_airship", set_m_airship);
-	lua_register(L, "get_m_certaindeath", get_m_certaindeath); // 0xA10B23 CERTAINDEATH cheat switch
-	lua_register(L, "set_m_certaindeath", set_m_certaindeath);
-	lua_register(L, "get_m_ahairdresserscar", get_m_ahairdresserscar); // 0xA10B26 AHAIRDRESSERSCAR cheat switch
-	lua_register(L, "set_m_ahairdresserscar", set_m_ahairdresserscar);
-	lua_register(L, "get_m_comeflywithme", get_m_comeflywithme); // 0xA10B28 COMEFLYWITHME cheat switch
-	lua_register(L, "set_m_comeflywithme", set_m_comeflywithme);
-	lua_register(L, "get_m_used_flag", get_m_used_flag); // 0xA10B2E Cheat is used flag
-	lua_register(L, "set_m_used_flag", set_m_used_flag);
-	lua_register(L, "get_m_wheelsareallineed", get_m_wheelsareallineed); // 0xA10B30 WHEELSAREALLINEED cheat switch
-	lua_register(L, "set_m_wheelsareallineed", set_m_wheelsareallineed);
-	lua_register(L, "get_m_miamitraffic", get_m_miamitraffic); // 0xA10B47 MIAMITRAFFIC cheat switch
-	lua_register(L, "set_m_miamitraffic", set_m_miamitraffic);
-	lua_register(L, "get_m_fannymagnet", get_m_fannymagnet); // 0xA10B5F FANNYMAGNET cheat switch
-	lua_register(L, "set_m_fannymagnet", set_m_fannymagnet);
-	lua_register(L, "get_m_seaways", get_m_seaways); // 0xA10B81 SEAWAYS cheat switch
-	lua_register(L, "set_m_seaways", set_m_seaways);
-	lua_register(L, "get_m_iwantitpaintedblack", get_m_iwantitpaintedblack); // 0xA10B82 IWANTITPAINTEDBLACK cheat switch
-	lua_register(L, "set_m_iwantitpaintedblack", set_m_iwantitpaintedblack);
-	lua_register(L, "get_m_lifeispassingmeby", get_m_lifeispassingmeby); // 0xA10B87 LIFEISPASSINGMEBY cheat
-	lua_register(L, "set_m_lifeispassingmeby", set_m_lifeispassingmeby);
-	lua_register(L, "get_m_opcode_de_check_if", get_m_opcode_de_check_if); // 0x456046 Opcode 02DE check if player is in a Taxi
-	lua_register(L, "set_m_opcode_de_check_if", set_m_opcode_de_check_if);
-	lua_register(L, "get_m_cash_when_entering_a", get_m_cash_when_entering_a); // 0x5B8AB6 Cash when entering a taxi (set to 12 by default)
-	lua_register(L, "set_m_cash_when_entering_a", set_m_cash_when_entering_a);
-	lua_register(L, "get_m_kaufman_cabs_radio_flag", get_m_kaufman_cabs_radio_flag); // 0xA10B7F Kaufman Cabs' radio flag
-	lua_register(L, "set_m_kaufman_cabs_radio_flag", set_m_kaufman_cabs_radio_flag);
-	lua_register(L, "get_m_kaufman_cabs_spawn_note", get_m_kaufman_cabs_spawn_note); // 0x42AEAC Kaufman Cabs spawn (NOTE: Model needs to be loaded through 0
-	lua_register(L, "set_m_kaufman_cabs_spawn_note", set_m_kaufman_cabs_spawn_note);
-	lua_register(L, "get_m_kaufman_cabs_model_load", get_m_kaufman_cabs_model_load); // 0x42AFB3 Kaufman Cabs model load
-	lua_register(L, "set_m_kaufman_cabs_model_load", set_m_kaufman_cabs_model_load);
-	lua_register(L, "get_m_blue_fade_in_color", get_m_blue_fade_in_color); // 0x42B219 Blue fade in color
-	lua_register(L, "set_m_blue_fade_in_color", set_m_blue_fade_in_color);
-	lua_register(L, "get_m_taxi_text_duration", get_m_taxi_text_duration); // 0x42B24E TAXI text duration
-	lua_register(L, "set_m_taxi_text_duration", set_m_taxi_text_duration);
-	lua_register(L, "get_m_x_coord_taxi_destination", get_m_x_coord_taxi_destination); // 0x94DD94 X-coord taxi destination (updated by opcode 058E)
-	lua_register(L, "set_m_x_coord_taxi_destination", set_m_x_coord_taxi_destination);
-	lua_register(L, "get_m_taxi_spawn", get_m_taxi_spawn); // 0x94EEB8 Set taxi to spawn
-	lua_register(L, "set_m_taxi_spawn", set_m_taxi_spawn);
-	lua_register(L, "get_m_angle_taxi_destination", get_m_angle_taxi_destination); // 0xA0D378 Angle taxi destination
-	lua_register(L, "set_m_angle_taxi_destination", set_m_angle_taxi_destination);
-	lua_register(L, "get_m_activate_mission_restart_taxi", get_m_activate_mission_restart_taxi); // 0xA10B6D Activate mission restart taxi
-	lua_register(L, "set_m_activate_mission_restart_taxi", set_m_activate_mission_restart_taxi);
-	lua_register(L, "get_m_camera_move_when_entering", get_m_camera_move_when_entering); // 0x46B389 camera move when entering/exiting car
-	lua_register(L, "set_m_camera_move_when_entering", set_m_camera_move_when_entering);
-	lua_register(L, "get_m_same", get_m_same); // 0x46B58F same [5]
-	lua_register(L, "set_m_same", set_m_same);
-	lua_register(L, "get_m_camera_distance_from_only", get_m_camera_distance_from_only); // 0x68AE2E camera distance from player (set only lower, higher bugs the
-	lua_register(L, "set_m_camera_distance_from_only", set_m_camera_distance_from_only);
-	lua_register(L, "get_m_cinema_top_border_height", get_m_cinema_top_border_height); // 0x68AEE0 cinema top border height
-	lua_register(L, "set_m_cinema_top_border_height", set_m_cinema_top_border_height);
-	lua_register(L, "get_m_cinema_bottom_border_height", get_m_cinema_bottom_border_height); // 0x68AEE4 cinema bottom border height
-	lua_register(L, "set_m_cinema_bottom_border_height", set_m_cinema_bottom_border_height);
-	lua_register(L, "get_m_controls_radar_map", get_m_controls_radar_map); // 0x68FD02 controls radar map [6]
-	lua_register(L, "set_m_controls_radar_map", set_m_controls_radar_map);
-	lua_register(L, "get_m_radar_width", get_m_radar_width); // 0x68FD16 radar width
-	lua_register(L, "set_m_radar_width", set_m_radar_width);
-	lua_register(L, "get_m_only_radar_ring_visible", get_m_only_radar_ring_visible); // 0x68FD17 only radar ring visible [6]
-	lua_register(L, "set_m_only_radar_ring_visible", set_m_only_radar_ring_visible);
-	lua_register(L, "get_m_radar_size_xy", get_m_radar_size_xy); // 0x68FD28 Radar Size (XY)
-	lua_register(L, "set_m_radar_size_xy", set_m_radar_size_xy);
-	lua_register(L, "get_m_radar_x_position", get_m_radar_x_position); // 0x68FD2C Radar X Position
-	lua_register(L, "set_m_radar_x_position", set_m_radar_x_position);
-	lua_register(L, "get_m_radar_y_position", get_m_radar_y_position); // 0x68FD34 Radar Y Position
-	lua_register(L, "set_m_radar_y_position", set_m_radar_y_position);
-	lua_register(L, "get_m_radar_shape", get_m_radar_shape); // 0x68FD38 Radar Shape
-	lua_register(L, "set_m_radar_shape", set_m_radar_shape);
-	lua_register(L, "get_m_addr_68FD3C", get_m_addr_68FD3C); // 0x68FD3C Radar Shape
-	lua_register(L, "set_m_addr_68FD3C", set_m_addr_68FD3C);
-	lua_register(L, "get_m_ambient_lighting", get_m_ambient_lighting); // 0x698A8C ambient lighting
-	lua_register(L, "set_m_ambient_lighting", set_m_ambient_lighting);
-	lua_register(L, "get_m_camera_x_position", get_m_camera_x_position); // 0x7E46B8 camera X position
-	lua_register(L, "set_m_camera_x_position", set_m_camera_x_position);
-	lua_register(L, "get_m_camera_y_position", get_m_camera_y_position); // 0x7E46BC camera Y position
-	lua_register(L, "set_m_camera_y_position", set_m_camera_y_position);
-	lua_register(L, "get_m_camera_z_position", get_m_camera_z_position); // 0x7E46C0 camera Z position
-	lua_register(L, "set_m_camera_z_position", set_m_camera_z_position);
-	lua_register(L, "get_m_wide_screen_borders", get_m_wide_screen_borders); // 0x7E46F5 wide screen borders
-	lua_register(L, "set_m_wide_screen_borders", set_m_wide_screen_borders);
-	lua_register(L, "get_m_car_camera", get_m_car_camera); // 0x7E4764 car camera
-	lua_register(L, "set_m_car_camera", set_m_car_camera);
-	lua_register(L, "get_m_camera", get_m_camera); // 0x7E47EC player camera
-	lua_register(L, "set_m_camera", set_m_camera);
-	lua_register(L, "get_m_frame_limiter", get_m_frame_limiter); // 0x869655 frame limiter
-	lua_register(L, "set_m_frame_limiter", set_m_frame_limiter);
-	lua_register(L, "get_m_subtitles", get_m_subtitles); // 0x869650 subtitles
-	lua_register(L, "set_m_subtitles", set_m_subtitles);
-	lua_register(L, "get_m_widescreen", get_m_widescreen); // 0x869652 widescreen
-	lua_register(L, "set_m_widescreen", set_m_widescreen);
-	lua_register(L, "get_m_hud_display", get_m_hud_display); // 0x86963A hud display
-	lua_register(L, "set_m_hud_display", set_m_hud_display);
-	lua_register(L, "get_m_replay_display", get_m_replay_display); // 0xA10AF6 replay display on/off
-	lua_register(L, "set_m_replay_display", set_m_replay_display);
-	lua_register(L, "get_m_white_scanlines", get_m_white_scanlines); // 0xA10B68 white scanlines
-	lua_register(L, "set_m_white_scanlines", set_m_white_scanlines);
-	lua_register(L, "get_m_green_scanlines", get_m_green_scanlines); // 0xA10B69 green scanlines
-	lua_register(L, "set_m_green_scanlines", set_m_green_scanlines);
-	lua_register(L, "get_m_resolution_width", get_m_resolution_width); // 0xA0FD04 resolution Width
-	lua_register(L, "set_m_resolution_width", set_m_resolution_width);
-	lua_register(L, "get_m_resolution_height", get_m_resolution_height); // 0xA0FD08 resolution height
-	lua_register(L, "set_m_resolution_height", set_m_resolution_height);
-	lua_register(L, "get_m_color_bit", get_m_color_bit); // 0xA0FD00 Color bit.
-	lua_register(L, "set_m_color_bit", set_m_color_bit);
-	lua_register(L, "get_m_mouse_x_movement", get_m_mouse_x_movement); // 0x936910 Mouse X movement
-	lua_register(L, "set_m_mouse_x_movement", set_m_mouse_x_movement);
-	lua_register(L, "get_m_mouse_y_movement", get_m_mouse_y_movement); // 0x936914 Mouse Y movement
-	lua_register(L, "set_m_mouse_y_movement", set_m_mouse_y_movement);
-	lua_register(L, "get_m_total_stores_knock", get_m_total_stores_knock); // 0x4CC102 Total number of stores to knock off (default is 15)
-	lua_register(L, "set_m_total_stores_knock", set_m_total_stores_knock);
-	lua_register(L, "get_m_total_assassination_contracts_complete", get_m_total_assassination_contracts_complete); // 0x4CC1CD Total number of assassination contracts to complete (default
-	lua_register(L, "set_m_total_assassination_contracts_complete", set_m_total_assassination_contracts_complete);
-	lua_register(L, "get_m_police_helicopter_state", get_m_police_helicopter_state); // 0xA10ADB Police helicopter state
-	lua_register(L, "set_m_police_helicopter_state", set_m_police_helicopter_state);
-	lua_register(L, "get_m_size_police_em_lights", get_m_size_police_em_lights); // 0x69A633 size of Police EM lights
-	lua_register(L, "set_m_size_police_em_lights", set_m_size_police_em_lights);
-	lua_register(L, "get_m_first_police_car", get_m_first_police_car); // 0x426A21 first police car
-	lua_register(L, "set_m_first_police_car", set_m_first_police_car);
-	lua_register(L, "get_m_second_police_car", get_m_second_police_car); // 0x426987 second police car
-	lua_register(L, "set_m_second_police_car", set_m_second_police_car);
-	lua_register(L, "get_m_enforcer", get_m_enforcer); // 0x42697E Enforcer
-	lua_register(L, "set_m_enforcer", set_m_enforcer);
-	lua_register(L, "get_m_vicechee", get_m_vicechee); // 0x4268B8 Vicechee 1
-	lua_register(L, "set_m_vicechee", set_m_vicechee);
-	lua_register(L, "get_m_addr_4268D3", get_m_addr_4268D3); // 0x4268D3 Vicechee 2
-	lua_register(L, "set_m_addr_4268D3", set_m_addr_4268D3);
-	lua_register(L, "get_m_addr_4268EE", get_m_addr_4268EE); // 0x4268EE Vicechee 3
-	lua_register(L, "set_m_addr_4268EE", set_m_addr_4268EE);
-	lua_register(L, "get_m_addr_426909", get_m_addr_426909); // 0x426909 Vicechee 4
-	lua_register(L, "set_m_addr_426909", set_m_addr_426909);
-	lua_register(L, "get_m_fbi_rancher", get_m_fbi_rancher); // 0x4269BA FBI Rancher
-	lua_register(L, "set_m_fbi_rancher", set_m_fbi_rancher);
-	lua_register(L, "get_m_barracks_ol", get_m_barracks_ol); // 0x426A0A Barracks Ol
-	lua_register(L, "set_m_barracks_ol", set_m_barracks_ol);
+	lua_register(L, "patch_headlights", patch_headlights); // 2107 GTAForums 0x58CD4E
+	lua_register(L, "set_headlights_on", set_headlights_on); // 2108 обёртка: set headlights on
+	lua_register(L, "set_headlights_off", set_headlights_off); // 2109 обёртка: set headlights off
+	lua_register(L, "is_headlights_on", is_headlights_on); // 2110 обёртка: is headlights on
+	lua_register(L, "get_m_timepassingmeby_faster_time", get_m_timepassingmeby_faster_time); // 2111 0xA10B87 TIMEPASSINGMEBY faster time
+	lua_register(L, "set_m_timepassingmeby_faster_time", set_m_timepassingmeby_faster_time); // 2112 обёртка: set m timepassingmeby faster time
+	lua_register(L, "get_m_youwonttakemealive_wanted_level", get_m_youwonttakemealive_wanted_level); // 2113 0x4ABF4C YOUWONTTAKEMEALIVE set wanted level
+	lua_register(L, "set_m_youwonttakemealive_wanted_level", set_m_youwonttakemealive_wanted_level); // 2114 обёртка: set m youwonttakemealive wanted level
+	lua_register(L, "get_m_leavemealone_wanted_level", get_m_leavemealone_wanted_level); // 2115 0x4ABFC4 LEAVEMEALONE set wanted level
+	lua_register(L, "set_m_leavemealone_wanted_level", set_m_leavemealone_wanted_level); // 2116 обёртка: set m leavemealone wanted level
+	lua_register(L, "get_m_apleasantday_weather", get_m_apleasantday_weather); // 2117 0x4AC009 APLEASANTDAY set weather
+	lua_register(L, "set_m_apleasantday_weather", set_m_apleasantday_weather); // 2118 обёртка: set m apleasantday weather
+	lua_register(L, "get_m_alovelyday_weather", get_m_alovelyday_weather); // 2119 0x4AC04E ALOVELYDAY set weather
+	lua_register(L, "set_m_alovelyday_weather", set_m_alovelyday_weather); // 2120 обёртка: set m alovelyday weather
+	lua_register(L, "get_m_abitdrieg_weather", get_m_abitdrieg_weather); // 2121 0x4AC099 ABITDRIEG set weather
+	lua_register(L, "set_m_abitdrieg_weather", set_m_abitdrieg_weather); // 2122 обёртка: set m abitdrieg weather
+	lua_register(L, "get_m_catsanddogs_weather", get_m_catsanddogs_weather); // 2123 0x4AC0DE CATSANDDOGS set weather
+	lua_register(L, "set_m_catsanddogs_weather", set_m_catsanddogs_weather); // 2124 обёртка: set m catsanddogs weather
+	lua_register(L, "get_m_cantseeathing_weather", get_m_cantseeathing_weather); // 2125 0x4AC129 CANTSEEATHING set weather
+	lua_register(L, "set_m_cantseeathing_weather", set_m_cantseeathing_weather); // 2126 обёртка: set m cantseeathing weather
+	lua_register(L, "get_m_panzer_rhino_model", get_m_panzer_rhino_model); // 2127 0x4AC14B PANZER Rhino model
+	lua_register(L, "set_m_panzer_rhino_model", set_m_panzer_rhino_model); // 2128 обёртка: set m panzer rhino model
+	lua_register(L, "get_m_travelinstyle_bloodring_a_model", get_m_travelinstyle_bloodring_a_model); // 2129 0x4AC946 TRAVELINSTYLE Bloodring A model
+	lua_register(L, "set_m_travelinstyle_bloodring_a_model", set_m_travelinstyle_bloodring_a_model); // 2130 обёртка: set m travelinstyle bloodring a model
+	lua_register(L, "get_m_thelastride_romero_hearse_model", get_m_thelastride_romero_hearse_model); // 2131 0x4AC976 THELASTRIDE Romero's Hearse model
+	lua_register(L, "set_m_thelastride_romero_hearse_model", set_m_thelastride_romero_hearse_model); // 2132 обёртка: set m thelastride romero hearse model
+	lua_register(L, "get_m_rockandrollcar_love_fist_model", get_m_rockandrollcar_love_fist_model); // 2133 0x4AC9A6 ROCKANDROLLCAR Love Fist model
+	lua_register(L, "set_m_rockandrollcar_love_fist_model", set_m_rockandrollcar_love_fist_model); // 2134 обёртка: set m rockandrollcar love fist model
+	lua_register(L, "get_m_rubbishcar_trashmaster_model", get_m_rubbishcar_trashmaster_model); // 2135 0x4AC9D6 RUBBISHCAR Trashmaster model
+	lua_register(L, "set_m_rubbishcar_trashmaster_model", set_m_rubbishcar_trashmaster_model); // 2136 обёртка: set m rubbishcar trashmaster model
+	lua_register(L, "get_m_gettherefast_sabre_turbo_model", get_m_gettherefast_sabre_turbo_model); // 2137 0x4ACA06 GETTHEREFAST Sabre Turbo model
+	lua_register(L, "set_m_gettherefast_sabre_turbo_model", set_m_gettherefast_sabre_turbo_model); // 2138 обёртка: set m gettherefast sabre turbo model
+	lua_register(L, "get_m_betterthanwalking_caddy_model", get_m_betterthanwalking_caddy_model); // 2139 0x4ACA36 BETTERTHANWALKING Caddy model
+	lua_register(L, "set_m_betterthanwalking_caddy_model", set_m_betterthanwalking_caddy_model); // 2140 обёртка: set m betterthanwalking caddy model
+	lua_register(L, "get_m_gettherequickly_bloodring_b_model", get_m_gettherequickly_bloodring_b_model); // 2141 0x4ACDD6 GETTHEREQUICKLY Bloodring B model
+	lua_register(L, "set_m_gettherequickly_bloodring_b_model", set_m_gettherequickly_bloodring_b_model); // 2142 обёртка: set m gettherequickly bloodring b model
+	lua_register(L, "get_m_getthereveryfastindeed_hotring_a_model", get_m_getthereveryfastindeed_hotring_a_model); // 2143 0x4ACE06 GETTHEREVERYFASTINDEED Hotring A model
+	lua_register(L, "set_m_getthereveryfastindeed_hotring_a_model", set_m_getthereveryfastindeed_hotring_a_model); // 2144 обёртка: set m getthereveryfastindeed hotring a model
+	lua_register(L, "get_m_getthereamazinglyfast_hotring_b_model", get_m_getthereamazinglyfast_hotring_b_model); // 2145 0x4ACE36 GETTHEREAMAZINGLYFAST Hotring B model
+	lua_register(L, "set_m_getthereamazinglyfast_hotring_b_model", set_m_getthereamazinglyfast_hotring_b_model); // 2146 обёртка: set m getthereamazinglyfast hotring b model
+	lua_register(L, "get_m_nuttertools_chainsaw_model", get_m_nuttertools_chainsaw_model); // 2147 0x4AEAEF NUTTERTOOLS Chainsaw model
+	lua_register(L, "set_m_nuttertools_chainsaw_model", set_m_nuttertools_chainsaw_model); // 2148 обёртка: set m nuttertools chainsaw model
+	lua_register(L, "get_m_nuttertools_chainsaw_weapon_note", get_m_nuttertools_chainsaw_weapon_note); // 2149 0x4AEB77 NUTTERTOOLS Chainsaw weapon number (NOTE: Model needs to be
+	lua_register(L, "set_m_nuttertools_chainsaw_weapon_note", set_m_nuttertools_chainsaw_weapon_note); // 2150 обёртка: set m nuttertools chainsaw weapon note
+	lua_register(L, "get_m_nuttertools_m4_weapon_note", get_m_nuttertools_m4_weapon_note); // 2151 0x4AEBD4 NUTTERTOOLS M4 weapon number (NOTE: Model needs to be loaded
+	lua_register(L, "set_m_nuttertools_m4_weapon_note", set_m_nuttertools_m4_weapon_note); // 2152 обёртка: set m nuttertools m4 weapon note
+	lua_register(L, "get_m_nuttertools_sniper_weapon_note", get_m_nuttertools_sniper_weapon_note); // 2153 0x4AEBE6 NUTTERTOOLS .308 Sniper weapon number (NOTE: Model needs to
+	lua_register(L, "set_m_nuttertools_sniper_weapon_note", set_m_nuttertools_sniper_weapon_note); // 2154 обёртка: set m nuttertools sniper weapon note
+	lua_register(L, "get_m_nuttertools_minigun_weapon_note", get_m_nuttertools_minigun_weapon_note); // 2155 0x4AEBFB NUTTERTOOLS Minigun weapon number (NOTE: Model needs to be l
+	lua_register(L, "set_m_nuttertools_minigun_weapon_note", set_m_nuttertools_minigun_weapon_note); // 2156 обёртка: set m nuttertools minigun weapon note
+	lua_register(L, "get_m_professionaltools_katana_model", get_m_professionaltools_katana_model); // 2157 0x4AEC8F PROFESSIONALTOOLS Katana model
+	lua_register(L, "set_m_professionaltools_katana_model", set_m_professionaltools_katana_model); // 2158 обёртка: set m professionaltools katana model
+	lua_register(L, "get_m_professionaltools_katana_weapon_note", get_m_professionaltools_katana_weapon_note); // 2159 0x4AED17 PROFESSIONALTOOLS Katana weapon number (NOTE: Model needs to
+	lua_register(L, "set_m_professionaltools_katana_weapon_note", set_m_professionaltools_katana_weapon_note); // 2160 обёртка: set m professionaltools katana weapon note
+	lua_register(L, "get_m_professionaltools_m4_weapon_note", get_m_professionaltools_m4_weapon_note); // 2161 0x4AED74 PROFESSIONALTOOLS M4 weapon number (NOTE: Model needs to be
+	lua_register(L, "set_m_professionaltools_m4_weapon_note", set_m_professionaltools_m4_weapon_note); // 2162 обёртка: set m professionaltools m4 weapon note
+	lua_register(L, "get_m_professionaltools_sniper_weapon_note", get_m_professionaltools_sniper_weapon_note); // 2163 0x4AED86 PROFESSIONALTOOLS .308 Sniper weapon number (NOTE: Model nee
+	lua_register(L, "set_m_professionaltools_sniper_weapon_note", set_m_professionaltools_sniper_weapon_note); // 2164 обёртка: set m professionaltools sniper weapon note
+	lua_register(L, "get_m_professionaltools_rocket_launcher_weapon", get_m_professionaltools_rocket_launcher_weapon); // 2165 0x4AED98 PROFESSIONALTOOLS Rocket Launcher weapon number (NOTE: Model
+	lua_register(L, "set_m_professionaltools_rocket_launcher_weapon", set_m_professionaltools_rocket_launcher_weapon); // 2166 обёртка: set m professionaltools rocket launcher weapon
+	lua_register(L, "get_m_thugstools_brass_knuckles_model", get_m_thugstools_brass_knuckles_model); // 2167 0x4AEE1F THUGSTOOLS Brass Knuckles model
+	lua_register(L, "set_m_thugstools_brass_knuckles_model", set_m_thugstools_brass_knuckles_model); // 2168 обёртка: set m thugstools brass knuckles model
+	lua_register(L, "get_m_thugstools_brass_knuckles_weapon", get_m_thugstools_brass_knuckles_weapon); // 2169 0x4AEEA7 THUGSTOOLS Brass Knuckles weapon number (NOTE: Model needs t
+	lua_register(L, "set_m_thugstools_brass_knuckles_weapon", set_m_thugstools_brass_knuckles_weapon); // 2170 обёртка: set m thugstools brass knuckles weapon
+	lua_register(L, "get_m_thugstools_tec_weapon_note", get_m_thugstools_tec_weapon_note); // 2171 0x4AEF04 THUGSTOOLS Tec 9 weapon number (NOTE: Model needs to be load
+	lua_register(L, "set_m_thugstools_tec_weapon_note", set_m_thugstools_tec_weapon_note); // 2172 обёртка: set m thugstools tec weapon note
+	lua_register(L, "get_m_thugstools_kruger_weapon_note", get_m_thugstools_kruger_weapon_note); // 2173 0x4AEF16 THUGSTOOLS Kruger weapon number (NOTE: Model needs to be loa
+	lua_register(L, "set_m_thugstools_kruger_weapon_note", set_m_thugstools_kruger_weapon_note); // 2174 обёртка: set m thugstools kruger weapon note
+	lua_register(L, "get_m_thugstools_sniper_rifle_weapon", get_m_thugstools_sniper_rifle_weapon); // 2175 0x4AEF28 THUGSTOOLS Sniper Rifle weapon number (NOTE: Model needs to
+	lua_register(L, "set_m_thugstools_sniper_rifle_weapon", set_m_thugstools_sniper_rifle_weapon); // 2176 обёртка: set m thugstools sniper rifle weapon
+	lua_register(L, "get_m_thugstools_flame_thrower_weapon", get_m_thugstools_flame_thrower_weapon); // 2177 0x4AEF38 THUGSTOOLS Flame Thrower weapon number (NOTE: Model needs to
+	lua_register(L, "set_m_thugstools_flame_thrower_weapon", set_m_thugstools_flame_thrower_weapon); // 2178 обёртка: set m thugstools flame thrower weapon
+	lua_register(L, "get_m_deepfriedmarsbars_programmer_tommy_body", get_m_deepfriedmarsbars_programmer_tommy_body); // 2179 0x68E058 DEEPFRIEDMARSBARS/PROGRAMMER Tommy's body width
+	lua_register(L, "set_m_deepfriedmarsbars_programmer_tommy_body", set_m_deepfriedmarsbars_programmer_tommy_body); // 2180 обёртка: set m deepfriedmarsbars programmer tommy body
+	lua_register(L, "get_m_onspeed_game_speed", get_m_onspeed_game_speed); // 2181 0x68F1F0 ONSPEED set game speed
+	lua_register(L, "set_m_onspeed_game_speed", set_m_onspeed_game_speed); // 2182 обёртка: set m onspeed game speed
+	lua_register(L, "get_m_onspeed_game_speed_multiplier", get_m_onspeed_game_speed_multiplier); // 2183 0x68F1F4 ONSPEED game speed multiplier
+	lua_register(L, "set_m_onspeed_game_speed_multiplier", set_m_onspeed_game_speed_multiplier); // 2184 обёртка: set m onspeed game speed multiplier
+	lua_register(L, "get_m_booooooring_game_speed", get_m_booooooring_game_speed); // 2185 0x68F1F8 BOOOOOORING set game speed
+	lua_register(L, "set_m_booooooring_game_speed", set_m_booooooring_game_speed); // 2186 обёртка: set m booooooring game speed
+	lua_register(L, "get_m_booooooring_game_speed_multiplier", get_m_booooooring_game_speed_multiplier); // 2187 0x68F1FC BOOOOOORING game speed multiplier
+	lua_register(L, "set_m_booooooring_game_speed_multiplier", set_m_booooooring_game_speed_multiplier); // 2188 обёртка: set m booooooring game speed multiplier
+	lua_register(L, "get_m_chasestat", get_m_chasestat); // 2189 0x97F2C4 CHASESTAT cheat switch
+	lua_register(L, "set_m_chasestat", set_m_chasestat); // 2190 обёртка: set m chasestat
+	lua_register(L, "get_m_ourgodgivenrighttobeararms", get_m_ourgodgivenrighttobeararms); // 2191 0xA10AB3 OURGODGIVENRIGHTTOBEARARMS cheat switch
+	lua_register(L, "set_m_ourgodgivenrighttobeararms", set_m_ourgodgivenrighttobeararms); // 2192 обёртка: set m ourgodgivenrighttobeararms
+	lua_register(L, "get_m_greenlight", get_m_greenlight); // 2193 0xA10ADC GREENLIGHT cheat switch
+	lua_register(L, "set_m_greenlight", set_m_greenlight); // 2194 обёртка: set m greenlight
+	lua_register(L, "get_m_gripiseverything", get_m_gripiseverything); // 2195 0xA10B0F GRIPISEVERYTHING cheat switch
+	lua_register(L, "set_m_gripiseverything", set_m_gripiseverything); // 2196 обёртка: set m gripiseverything
+	lua_register(L, "get_m_airship", get_m_airship); // 2197 0xA10B11 AIRSHIP cheat switch
+	lua_register(L, "set_m_airship", set_m_airship); // 2198 обёртка: set m airship
+	lua_register(L, "get_m_certaindeath", get_m_certaindeath); // 2199 0xA10B23 CERTAINDEATH cheat switch
+	lua_register(L, "set_m_certaindeath", set_m_certaindeath); // 2200 обёртка: set m certaindeath
+	lua_register(L, "get_m_ahairdresserscar", get_m_ahairdresserscar); // 2201 0xA10B26 AHAIRDRESSERSCAR cheat switch
+	lua_register(L, "set_m_ahairdresserscar", set_m_ahairdresserscar); // 2202 обёртка: set m ahairdresserscar
+	lua_register(L, "get_m_comeflywithme", get_m_comeflywithme); // 2203 0xA10B28 COMEFLYWITHME cheat switch
+	lua_register(L, "set_m_comeflywithme", set_m_comeflywithme); // 2204 обёртка: set m comeflywithme
+	lua_register(L, "get_m_used_flag", get_m_used_flag); // 2205 0xA10B2E Cheat is used flag
+	lua_register(L, "set_m_used_flag", set_m_used_flag); // 2206 обёртка: set m used flag
+	lua_register(L, "get_m_wheelsareallineed", get_m_wheelsareallineed); // 2207 0xA10B30 WHEELSAREALLINEED cheat switch
+	lua_register(L, "set_m_wheelsareallineed", set_m_wheelsareallineed); // 2208 обёртка: set m wheelsareallineed
+	lua_register(L, "get_m_miamitraffic", get_m_miamitraffic); // 2209 0xA10B47 MIAMITRAFFIC cheat switch
+	lua_register(L, "set_m_miamitraffic", set_m_miamitraffic); // 2210 обёртка: set m miamitraffic
+	lua_register(L, "get_m_fannymagnet", get_m_fannymagnet); // 2211 0xA10B5F FANNYMAGNET cheat switch
+	lua_register(L, "set_m_fannymagnet", set_m_fannymagnet); // 2212 обёртка: set m fannymagnet
+	lua_register(L, "get_m_seaways", get_m_seaways); // 2213 0xA10B81 SEAWAYS cheat switch
+	lua_register(L, "set_m_seaways", set_m_seaways); // 2214 обёртка: set m seaways
+	lua_register(L, "get_m_iwantitpaintedblack", get_m_iwantitpaintedblack); // 2215 0xA10B82 IWANTITPAINTEDBLACK cheat switch
+	lua_register(L, "set_m_iwantitpaintedblack", set_m_iwantitpaintedblack); // 2216 обёртка: set m iwantitpaintedblack
+	lua_register(L, "get_m_lifeispassingmeby", get_m_lifeispassingmeby); // 2217 0xA10B87 LIFEISPASSINGMEBY cheat
+	lua_register(L, "set_m_lifeispassingmeby", set_m_lifeispassingmeby); // 2218 обёртка: set m lifeispassingmeby
+	lua_register(L, "get_m_opcode_de_check_if", get_m_opcode_de_check_if); // 2219 0x456046 Opcode 02DE check if player is in a Taxi
+	lua_register(L, "set_m_opcode_de_check_if", set_m_opcode_de_check_if); // 2220 обёртка: set m opcode de check if
+	lua_register(L, "get_m_cash_when_entering_a", get_m_cash_when_entering_a); // 2221 0x5B8AB6 Cash when entering a taxi (set to 12 by default)
+	lua_register(L, "set_m_cash_when_entering_a", set_m_cash_when_entering_a); // 2222 обёртка: set m cash when entering a
+	lua_register(L, "get_m_kaufman_cabs_radio_flag", get_m_kaufman_cabs_radio_flag); // 2223 0xA10B7F Kaufman Cabs' radio flag
+	lua_register(L, "set_m_kaufman_cabs_radio_flag", set_m_kaufman_cabs_radio_flag); // 2224 обёртка: set m kaufman cabs radio flag
+	lua_register(L, "get_m_kaufman_cabs_spawn_note", get_m_kaufman_cabs_spawn_note); // 2225 0x42AEAC Kaufman Cabs spawn (NOTE: Model needs to be loaded through 0
+	lua_register(L, "set_m_kaufman_cabs_spawn_note", set_m_kaufman_cabs_spawn_note); // 2226 обёртка: set m kaufman cabs spawn note
+	lua_register(L, "get_m_kaufman_cabs_model_load", get_m_kaufman_cabs_model_load); // 2227 0x42AFB3 Kaufman Cabs model load
+	lua_register(L, "set_m_kaufman_cabs_model_load", set_m_kaufman_cabs_model_load); // 2228 обёртка: set m kaufman cabs model load
+	lua_register(L, "get_m_blue_fade_in_color", get_m_blue_fade_in_color); // 2229 0x42B219 Blue fade in color
+	lua_register(L, "set_m_blue_fade_in_color", set_m_blue_fade_in_color); // 2230 обёртка: set m blue fade in color
+	lua_register(L, "get_m_taxi_text_duration", get_m_taxi_text_duration); // 2231 0x42B24E TAXI text duration
+	lua_register(L, "set_m_taxi_text_duration", set_m_taxi_text_duration); // 2232 обёртка: set m taxi text duration
+	lua_register(L, "get_m_x_coord_taxi_destination", get_m_x_coord_taxi_destination); // 2233 0x94DD94 X-coord taxi destination (updated by opcode 058E)
+	lua_register(L, "set_m_x_coord_taxi_destination", set_m_x_coord_taxi_destination); // 2234 обёртка: set m x coord taxi destination
+	lua_register(L, "get_m_taxi_spawn", get_m_taxi_spawn); // 2235 0x94EEB8 Set taxi to spawn
+	lua_register(L, "set_m_taxi_spawn", set_m_taxi_spawn); // 2236 обёртка: set m taxi spawn
+	lua_register(L, "get_m_angle_taxi_destination", get_m_angle_taxi_destination); // 2237 0xA0D378 Angle taxi destination
+	lua_register(L, "set_m_angle_taxi_destination", set_m_angle_taxi_destination); // 2238 обёртка: set m angle taxi destination
+	lua_register(L, "get_m_activate_mission_restart_taxi", get_m_activate_mission_restart_taxi); // 2239 0xA10B6D Activate mission restart taxi
+	lua_register(L, "set_m_activate_mission_restart_taxi", set_m_activate_mission_restart_taxi); // 2240 обёртка: set m activate mission restart taxi
+	lua_register(L, "get_m_camera_move_when_entering", get_m_camera_move_when_entering); // 2241 0x46B389 camera move when entering/exiting car
+	lua_register(L, "set_m_camera_move_when_entering", set_m_camera_move_when_entering); // 2242 обёртка: set m camera move when entering
+	lua_register(L, "get_m_same", get_m_same); // 2243 0x46B58F same [5]
+	lua_register(L, "set_m_same", set_m_same); // 2244 обёртка: set m same
+	lua_register(L, "get_m_camera_distance_from_only", get_m_camera_distance_from_only); // 2245 0x68AE2E camera distance from player (set only lower, higher bugs the
+	lua_register(L, "set_m_camera_distance_from_only", set_m_camera_distance_from_only); // 2246 обёртка: set m camera distance from only
+	lua_register(L, "get_m_cinema_top_border_height", get_m_cinema_top_border_height); // 2247 0x68AEE0 cinema top border height
+	lua_register(L, "set_m_cinema_top_border_height", set_m_cinema_top_border_height); // 2248 обёртка: set m cinema top border height
+	lua_register(L, "get_m_cinema_bottom_border_height", get_m_cinema_bottom_border_height); // 2249 0x68AEE4 cinema bottom border height
+	lua_register(L, "set_m_cinema_bottom_border_height", set_m_cinema_bottom_border_height); // 2250 обёртка: set m cinema bottom border height
+	lua_register(L, "get_m_controls_radar_map", get_m_controls_radar_map); // 2251 0x68FD02 controls radar map [6]
+	lua_register(L, "set_m_controls_radar_map", set_m_controls_radar_map); // 2252 обёртка: set m controls radar map
+	lua_register(L, "get_m_radar_width", get_m_radar_width); // 2253 0x68FD16 radar width
+	lua_register(L, "set_m_radar_width", set_m_radar_width); // 2254 обёртка: set m radar width
+	lua_register(L, "get_m_only_radar_ring_visible", get_m_only_radar_ring_visible); // 2255 0x68FD17 only radar ring visible [6]
+	lua_register(L, "set_m_only_radar_ring_visible", set_m_only_radar_ring_visible); // 2256 обёртка: set m only radar ring visible
+	lua_register(L, "get_m_radar_size_xy", get_m_radar_size_xy); // 2257 0x68FD28 Radar Size (XY)
+	lua_register(L, "set_m_radar_size_xy", set_m_radar_size_xy); // 2258 обёртка: set m radar size xy
+	lua_register(L, "get_m_radar_x_position", get_m_radar_x_position); // 2259 0x68FD2C Radar X Position
+	lua_register(L, "set_m_radar_x_position", set_m_radar_x_position); // 2260 обёртка: set m radar x position
+	lua_register(L, "get_m_radar_y_position", get_m_radar_y_position); // 2261 0x68FD34 Radar Y Position
+	lua_register(L, "set_m_radar_y_position", set_m_radar_y_position); // 2262 обёртка: set m radar y position
+	lua_register(L, "get_m_radar_shape", get_m_radar_shape); // 2263 0x68FD38 Radar Shape
+	lua_register(L, "set_m_radar_shape", set_m_radar_shape); // 2264 обёртка: set m radar shape
+	lua_register(L, "get_m_addr_68FD3C", get_m_addr_68FD3C); // 2265 0x68FD3C Radar Shape
+	lua_register(L, "set_m_addr_68FD3C", set_m_addr_68FD3C); // 2266 обёртка: set m addr 68FD3C
+	lua_register(L, "get_m_ambient_lighting", get_m_ambient_lighting); // 2267 0x698A8C ambient lighting
+	lua_register(L, "set_m_ambient_lighting", set_m_ambient_lighting); // 2268 обёртка: set m ambient lighting
+	lua_register(L, "get_m_camera_x_position", get_m_camera_x_position); // 2269 0x7E46B8 camera X position
+	lua_register(L, "set_m_camera_x_position", set_m_camera_x_position); // 2270 обёртка: set m camera x position
+	lua_register(L, "get_m_camera_y_position", get_m_camera_y_position); // 2271 0x7E46BC camera Y position
+	lua_register(L, "set_m_camera_y_position", set_m_camera_y_position); // 2272 обёртка: set m camera y position
+	lua_register(L, "get_m_camera_z_position", get_m_camera_z_position); // 2273 0x7E46C0 camera Z position
+	lua_register(L, "set_m_camera_z_position", set_m_camera_z_position); // 2274 обёртка: set m camera z position
+	lua_register(L, "get_m_wide_screen_borders", get_m_wide_screen_borders); // 2275 0x7E46F5 wide screen borders
+	lua_register(L, "set_m_wide_screen_borders", set_m_wide_screen_borders); // 2276 обёртка: set m wide screen borders
+	lua_register(L, "get_m_car_camera", get_m_car_camera); // 2277 0x7E4764 car camera
+	lua_register(L, "set_m_car_camera", set_m_car_camera); // 2278 обёртка: set m car camera
+	lua_register(L, "get_m_camera", get_m_camera); // 2279 0x7E47EC player camera
+	lua_register(L, "set_m_camera", set_m_camera); // 2280 обёртка: set m camera
+	lua_register(L, "get_m_frame_limiter", get_m_frame_limiter); // 2281 0x869655 frame limiter
+	lua_register(L, "set_m_frame_limiter", set_m_frame_limiter); // 2282 обёртка: set m frame limiter
+	lua_register(L, "get_m_subtitles", get_m_subtitles); // 2283 0x869650 subtitles
+	lua_register(L, "set_m_subtitles", set_m_subtitles); // 2284 обёртка: set m subtitles
+	lua_register(L, "get_m_widescreen", get_m_widescreen); // 2285 0x869652 widescreen
+	lua_register(L, "set_m_widescreen", set_m_widescreen); // 2286 обёртка: set m widescreen
+	lua_register(L, "get_m_hud_display", get_m_hud_display); // 2287 0x86963A hud display
+	lua_register(L, "set_m_hud_display", set_m_hud_display); // 2288 обёртка: set m hud display
+	lua_register(L, "get_m_replay_display", get_m_replay_display); // 2289 0xA10AF6 replay display on/off
+	lua_register(L, "set_m_replay_display", set_m_replay_display); // 2290 обёртка: set m replay display
+	lua_register(L, "get_m_white_scanlines", get_m_white_scanlines); // 2291 0xA10B68 white scanlines
+	lua_register(L, "set_m_white_scanlines", set_m_white_scanlines); // 2292 обёртка: set m white scanlines
+	lua_register(L, "get_m_green_scanlines", get_m_green_scanlines); // 2293 0xA10B69 green scanlines
+	lua_register(L, "set_m_green_scanlines", set_m_green_scanlines); // 2294 обёртка: set m green scanlines
+	lua_register(L, "get_m_resolution_width", get_m_resolution_width); // 2295 0xA0FD04 resolution Width
+	lua_register(L, "set_m_resolution_width", set_m_resolution_width); // 2296 обёртка: set m resolution width
+	lua_register(L, "get_m_resolution_height", get_m_resolution_height); // 2297 0xA0FD08 resolution height
+	lua_register(L, "set_m_resolution_height", set_m_resolution_height); // 2298 обёртка: set m resolution height
+	lua_register(L, "get_m_color_bit", get_m_color_bit); // 2299 0xA0FD00 Color bit.
+	lua_register(L, "set_m_color_bit", set_m_color_bit); // 2300 обёртка: set m color bit
+	lua_register(L, "get_m_mouse_x_movement", get_m_mouse_x_movement); // 2301 0x936910 Mouse X movement
+	lua_register(L, "set_m_mouse_x_movement", set_m_mouse_x_movement); // 2302 обёртка: set m mouse x movement
+	lua_register(L, "get_m_mouse_y_movement", get_m_mouse_y_movement); // 2303 0x936914 Mouse Y movement
+	lua_register(L, "set_m_mouse_y_movement", set_m_mouse_y_movement); // 2304 обёртка: set m mouse y movement
+	lua_register(L, "get_m_total_stores_knock", get_m_total_stores_knock); // 2305 0x4CC102 Total number of stores to knock off (default is 15)
+	lua_register(L, "set_m_total_stores_knock", set_m_total_stores_knock); // 2306 обёртка: set m total stores knock
+	lua_register(L, "get_m_total_assassination_contracts_complete", get_m_total_assassination_contracts_complete); // 2307 0x4CC1CD Total number of assassination contracts to complete (default
+	lua_register(L, "set_m_total_assassination_contracts_complete", set_m_total_assassination_contracts_complete); // 2308 обёртка: set m total assassination contracts complete
+	lua_register(L, "get_m_police_helicopter_state", get_m_police_helicopter_state); // 2309 0xA10ADB Police helicopter state
+	lua_register(L, "set_m_police_helicopter_state", set_m_police_helicopter_state); // 2310 обёртка: set m police helicopter state
+	lua_register(L, "get_m_size_police_em_lights", get_m_size_police_em_lights); // 2311 0x69A633 size of Police EM lights
+	lua_register(L, "set_m_size_police_em_lights", set_m_size_police_em_lights); // 2312 обёртка: set m size police em lights
+	lua_register(L, "get_m_first_police_car", get_m_first_police_car); // 2313 0x426A21 first police car
+	lua_register(L, "set_m_first_police_car", set_m_first_police_car); // 2314 обёртка: set m first police car
+	lua_register(L, "get_m_second_police_car", get_m_second_police_car); // 2315 0x426987 second police car
+	lua_register(L, "set_m_second_police_car", set_m_second_police_car); // 2316 обёртка: set m second police car
+	lua_register(L, "get_m_enforcer", get_m_enforcer); // 2317 0x42697E Enforcer
+	lua_register(L, "set_m_enforcer", set_m_enforcer); // 2318 обёртка: set m enforcer
+	lua_register(L, "get_m_vicechee", get_m_vicechee); // 2319 0x4268B8 Vicechee 1
+	lua_register(L, "set_m_vicechee", set_m_vicechee); // 2320 обёртка: set m vicechee
+	lua_register(L, "get_m_addr_4268D3", get_m_addr_4268D3); // 2321 0x4268D3 Vicechee 2
+	lua_register(L, "set_m_addr_4268D3", set_m_addr_4268D3); // 2322 обёртка: set m addr 4268D3
+	lua_register(L, "get_m_addr_4268EE", get_m_addr_4268EE); // 2323 0x4268EE Vicechee 3
+	lua_register(L, "set_m_addr_4268EE", set_m_addr_4268EE); // 2324 обёртка: set m addr 4268EE
+	lua_register(L, "get_m_addr_426909", get_m_addr_426909); // 2325 0x426909 Vicechee 4
+	lua_register(L, "set_m_addr_426909", set_m_addr_426909); // 2326 обёртка: set m addr 426909
+	lua_register(L, "get_m_fbi_rancher", get_m_fbi_rancher); // 2327 0x4269BA FBI Rancher
+	lua_register(L, "set_m_fbi_rancher", set_m_fbi_rancher); // 2328 обёртка: set m fbi rancher
+	lua_register(L, "get_m_barracks_ol", get_m_barracks_ol); // 2329 0x426A0A Barracks Ol
+	lua_register(L, "set_m_barracks_ol", set_m_barracks_ol); // 2330 обёртка: set m barracks ol
 
 
 	// === ENGINE / LUA INTROSPECTION (21.11) ===
-	lua_register(L, "get_lua_version", get_lua_version); // 21.11: из папки «движок»
-	lua_register(L, "lua_memory_used", lua_memory_used); // 21.11: из папки «движок»
-	lua_register(L, "lua_gc_collect", lua_gc_collect); // 21.11: из папки «движок»
-	lua_register(L, "lua_gc_stop", lua_gc_stop); // 21.11: из папки «движок»
-	lua_register(L, "lua_gc_restart", lua_gc_restart); // 21.11: из папки «движок»
-	lua_register(L, "lua_gc_step", lua_gc_step); // 21.11: из папки «движок»
-	lua_register(L, "lua_is_yieldable", lua_is_yieldable); // 21.11: из папки «движок»
-	lua_register(L, "lua_stack_top", lua_stack_top); // 21.11: из папки «движок»
-	lua_register(L, "get_current_script_name", get_current_script_name); // 21.11: из папки «движок»
-	lua_register(L, "get_game_speed", get_game_speed); // 21.11: из папки «движок»
-	lua_register(L, "set_gamespeed", set_gamespeed); // 21.11: из папки «движок»
-	lua_register(L, "get_actor_health", get_actor_health); // 21.11: из папки «движок»
-	lua_register(L, "set_actor_health", set_actor_health); // 21.11: из папки «движок»
+	lua_register(L, "get_lua_version", get_lua_version); // 2331 21.11: из папки «движок»
+	lua_register(L, "lua_memory_used", lua_memory_used); // 2332 21.11: из папки «движок»
+	lua_register(L, "lua_gc_collect", lua_gc_collect); // 2333 21.11: из папки «движок»
+	lua_register(L, "lua_gc_stop", lua_gc_stop); // 2334 21.11: из папки «движок»
+	lua_register(L, "lua_gc_restart", lua_gc_restart); // 2335 21.11: из папки «движок»
+	lua_register(L, "lua_gc_step", lua_gc_step); // 2336 21.11: из папки «движок»
+	lua_register(L, "lua_is_yieldable", lua_is_yieldable); // 2337 21.11: из папки «движок»
+	lua_register(L, "lua_stack_top", lua_stack_top); // 2338 21.11: из папки «движок»
+	lua_register(L, "get_current_script_name", get_current_script_name); // 2339 21.11: из папки «движок»
+	lua_register(L, "get_game_speed", get_game_speed); // 2340 21.11: из папки «движок»
+	lua_register(L, "set_gamespeed", set_gamespeed); // 2341 21.11: из папки «движок»
+	lua_register(L, "get_actor_health", get_actor_health); // 2342 21.11: из папки «движок»
+	lua_register(L, "set_actor_health", set_actor_health); // 2343 21.11: из папки «движок»
 
 	// === LOG LINE (21.11) ===
-	lua_register(L, "log_line", log_line); // 21.11: строка в lualoader/log.txt
+	lua_register(L, "log_line", log_line); // 2344 21.11: строка в lualoader/log.txt
 
 	// === AIRSHIP FLIGHT FLAG (21.11) ===
-	lua_register(L, "set_airship_cheat", set_airship_cheat); // 21.11: 0xA10B11 флаг полёта AIRSHIP
-	lua_register(L, "is_airship_cheat", is_airship_cheat); // 21.11: 0xA10B11 флаг полёта AIRSHIP
+	lua_register(L, "set_airship_cheat", set_airship_cheat); // 2345 21.11: 0xA10B11 флаг полёта AIRSHIP
+	lua_register(L, "is_airship_cheat", is_airship_cheat); // 2346 21.11: 0xA10B11 флаг полёта AIRSHIP
 
 	// === CAR GAS PEDAL (21.11) ===
-	lua_register(L, "set_car_gas", set_car_gas); // 21.11: m_fGasPedal +0x1F0 (тяга полёта)
+	lua_register(L, "set_car_gas", set_car_gas); // 2347 21.11: m_fGasPedal +0x1F0 (тяга полёта)
 
 	// === MISSION LAUNCH (21.11) ===
-	lua_register(L, "start_mission", start_mission); // 21.11: запуск миссии (0417)
-	lua_register(L, "start_mission_orig", start_mission_orig); // 21.11: запуск миссии (0417) с подготовкой
+	lua_register(L, "start_mission", start_mission); // 2348 21.11: запуск миссии (0417)
+	lua_register(L, "start_mission_orig", start_mission_orig); // 2349 21.11: запуск миссии (0417) с подготовкой
 
 	// === ORIGINAL MISSION NAMES (21.11) ===
-	lua_register(L, "get_original_mission_name", get_original_mission_name); // 21.11: оригинальные миссии
-	lua_register(L, "get_original_mission_script", get_original_mission_script); // 21.11: оригинальные миссии
-	lua_register(L, "show_original_mission", show_original_mission); // 21.11: оригинальные миссии
-	lua_register(L, "show_original_missions", show_original_missions); // 21.11: оригинальные миссии
-	lua_register(L, "hide_original_missions", hide_original_missions); // 21.11: закрыть список миссий
-	lua_register(L, "start_mission_original", start_mission_original); // 21.11: оригинальные миссии
-	lua_register(L, "get_model_id_by_name", get_model_id_by_name); // получить id модели по имени
-	lua_register(L, "check_studio_gates", check_studio_gates); // диагностика ворот киностудии
-	lua_register(L, "open_studio_gates", open_studio_gates); // убрать закрытые ворота и поставить открытые
-	lua_register(L, "get_flag", get_flag);
-	lua_register(L, "set_flag", set_flag);
-	lua_register(L, "flag_addr", flag_addr);
-	lua_register(L, "get_flag_airship", get_flag_airship);
-	lua_register(L, "set_flag_airship", set_flag_airship);
-	lua_register(L, "get_flag_rc_zone", get_flag_rc_zone);
-	lua_register(L, "set_flag_rc_zone", set_flag_rc_zone);
-	lua_register(L, "get_flag_rc_mode", get_flag_rc_mode);
-	lua_register(L, "set_flag_rc_mode", set_flag_rc_mode);
-	lua_register(L, "get_flag_airship2", get_flag_airship2);
-	lua_register(L, "set_flag_airship2", set_flag_airship2);
-	lua_register(L, "get_flag_cheat82", get_flag_cheat82);
-	lua_register(L, "set_flag_cheat82", set_flag_cheat82);
-	lua_register(L, "get_flag_cheat26", get_flag_cheat26);
-	lua_register(L, "set_flag_cheat26", set_flag_cheat26);
-	lua_register(L, "get_flag_cheatadc", get_flag_cheatadc);
-	lua_register(L, "set_flag_cheatadc", set_flag_cheatadc);
-	lua_register(L, "get_flag_cheat23", get_flag_cheat23);
-	lua_register(L, "set_flag_cheat23", set_flag_cheat23);
-	lua_register(L, "get_flag_cheat47", get_flag_cheat47);
-	lua_register(L, "set_flag_cheat47", set_flag_cheat47);
-	lua_register(L, "get_flag_cheat5f", get_flag_cheat5f);
-	lua_register(L, "set_flag_cheat5f", set_flag_cheat5f);
-	lua_register(L, "get_flag_cheatstate", get_flag_cheatstate);
-	lua_register(L, "set_flag_cheatstate", set_flag_cheatstate);
-	lua_register(L, "get_flag_named", get_flag_named);
-	lua_register(L, "set_flag_named", set_flag_named);
-	lua_register(L, "list_flags", list_flags);
-	lua_register(L, "keep_rc", keep_rc);
-	lua_register(L, "get_mem_addr", get_mem_addr);
-	lua_register(L, "force_rc_autopilot", force_rc_autopilot);
-	lua_register(L, "press_fire", press_fire);
-	lua_register(L, "release_fire", release_fire);
-	lua_register(L, "set_script_int", set_script_int);
-	lua_register(L, "get_script_int", get_script_int);
-	lua_register(L, "set_all_timers_99", set_all_timers_99);    // 23.11: все убывающие таймеры -> 99 мин
-	lua_register(L, "restore_all_timers", restore_all_timers);  // 23.11: вернуть исходные значения таймеров
-	lua_register(L, "map_overlay_on", map_overlay_on);          // 23.11: показать карту меню
-	lua_register(L, "map_overlay_off", map_overlay_off);        // 23.11: скрыть карту меню
-	lua_register(L, "map_overlay_toggle", map_overlay_toggle);  // 23.11: переключить карту меню
-	lua_register(L, "map_overlay_is_on", map_overlay_is_on);    // 23.11: статус карты
-	lua_register(L, "map_crosshair_world", map_crosshair_world); // 23.11: точка карты -> мир
-	lua_register(L, "map_coords_diag", map_coords_diag);         // 23.11: диагностика полей карты
-	lua_register(L, "map_cross_set", map_cross_set);             // 23.11: перекрестие (u,v)
-	lua_register(L, "map_cross_get", map_cross_get);             // 23.11: перекрестие + мир
-	lua_register(L, "play_wav_file", play_wav_file);             // 23.11: WAV из Audio/
-	lua_register(L, "stop_wav_file", stop_wav_file);             // 23.11: остановить WAV
-	lua_register(L, "set_pad_controls", set_pad_controls);
-	lua_register(L, "sys_key_down", sys_key_down);
-	lua_register(L, "sys_key_up", sys_key_up);
-	lua_register(L, "sys_mouse_down", sys_mouse_down);
-	lua_register(L, "sys_mouse_up", sys_mouse_up);
-	lua_register(L, "find_all_peds_by_model", find_all_peds_by_model);
+	lua_register(L, "get_original_mission_name", get_original_mission_name); // 2350 21.11: оригинальные миссии
+	lua_register(L, "get_original_mission_script", get_original_mission_script); // 2351 21.11: оригинальные миссии
+	lua_register(L, "show_original_mission", show_original_mission); // 2352 21.11: оригинальные миссии
+	lua_register(L, "show_original_missions", show_original_missions); // 2353 21.11: оригинальные миссии
+	lua_register(L, "hide_original_missions", hide_original_missions); // 2354 21.11: закрыть список миссий
+	lua_register(L, "start_mission_original", start_mission_original); // 2355 21.11: оригинальные миссии
+	lua_register(L, "get_model_id_by_name", get_model_id_by_name); // 2356 получить id модели по имени
+	lua_register(L, "check_studio_gates", check_studio_gates); // 2357 диагностика ворот киностудии
+	lua_register(L, "open_studio_gates", open_studio_gates); // 2358 убрать закрытые ворота и поставить открытые
+	lua_register(L, "get_flag", get_flag); // 2359 обёртка: get flag
+	lua_register(L, "set_flag", set_flag); // 2360 обёртка: set flag
+	lua_register(L, "flag_addr", flag_addr); // 2361 обёртка: flag addr
+	lua_register(L, "get_flag_airship", get_flag_airship); // 2362 обёртка: get flag airship
+	lua_register(L, "set_flag_airship", set_flag_airship); // 2363 обёртка: set flag airship
+	lua_register(L, "get_flag_rc_zone", get_flag_rc_zone); // 2364 обёртка: get flag rc zone
+	lua_register(L, "set_flag_rc_zone", set_flag_rc_zone); // 2365 обёртка: set flag rc zone
+	lua_register(L, "get_flag_rc_mode", get_flag_rc_mode); // 2366 обёртка: get flag rc mode
+	lua_register(L, "set_flag_rc_mode", set_flag_rc_mode); // 2367 обёртка: set flag rc mode
+	lua_register(L, "get_flag_airship2", get_flag_airship2); // 2368 обёртка: get flag airship2
+	lua_register(L, "set_flag_airship2", set_flag_airship2); // 2369 обёртка: set flag airship2
+	lua_register(L, "get_flag_cheat82", get_flag_cheat82); // 2370 обёртка: get flag cheat82
+	lua_register(L, "set_flag_cheat82", set_flag_cheat82); // 2371 обёртка: set flag cheat82
+	lua_register(L, "get_flag_cheat26", get_flag_cheat26); // 2372 обёртка: get flag cheat26
+	lua_register(L, "set_flag_cheat26", set_flag_cheat26); // 2373 обёртка: set flag cheat26
+	lua_register(L, "get_flag_cheatadc", get_flag_cheatadc); // 2374 обёртка: get flag cheatadc
+	lua_register(L, "set_flag_cheatadc", set_flag_cheatadc); // 2375 обёртка: set flag cheatadc
+	lua_register(L, "get_flag_cheat23", get_flag_cheat23); // 2376 обёртка: get flag cheat23
+	lua_register(L, "set_flag_cheat23", set_flag_cheat23); // 2377 обёртка: set flag cheat23
+	lua_register(L, "get_flag_cheat47", get_flag_cheat47); // 2378 обёртка: get flag cheat47
+	lua_register(L, "set_flag_cheat47", set_flag_cheat47); // 2379 обёртка: set flag cheat47
+	lua_register(L, "get_flag_cheat5f", get_flag_cheat5f); // 2380 обёртка: get flag cheat5f
+	lua_register(L, "set_flag_cheat5f", set_flag_cheat5f); // 2381 обёртка: set flag cheat5f
+	lua_register(L, "get_flag_cheatstate", get_flag_cheatstate); // 2382 обёртка: get flag cheatstate
+	lua_register(L, "set_flag_cheatstate", set_flag_cheatstate); // 2383 обёртка: set flag cheatstate
+	lua_register(L, "get_flag_named", get_flag_named); // 2384 обёртка: get flag named
+	lua_register(L, "set_flag_named", set_flag_named); // 2385 обёртка: set flag named
+	lua_register(L, "list_flags", list_flags); // 2386 обёртка: list flags
+	lua_register(L, "keep_rc", keep_rc); // 2387 обёртка: keep rc
+	lua_register(L, "get_mem_addr", get_mem_addr); // 2388 обёртка: get mem addr
+	lua_register(L, "force_rc_autopilot", force_rc_autopilot); // 2389 обёртка: force rc autopilot
+	lua_register(L, "press_fire", press_fire); // 2390 обёртка: press fire
+	lua_register(L, "release_fire", release_fire); // 2391 обёртка: release fire
+	lua_register(L, "set_script_int", set_script_int); // 2392 обёртка: set script int
+	lua_register(L, "get_script_int", get_script_int); // 2393 обёртка: get script int
+	lua_register(L, "set_all_timers_99", set_all_timers_99); // 2394 23.11: все убывающие таймеры -> 99 мин
+	lua_register(L, "restore_all_timers", restore_all_timers); // 2395 23.11: вернуть исходные значения таймеров
+	lua_register(L, "map_overlay_on", map_overlay_on); // 2396 23.11: показать карту меню
+	lua_register(L, "map_overlay_off", map_overlay_off); // 2397 23.11: скрыть карту меню
+	lua_register(L, "map_overlay_toggle", map_overlay_toggle); // 2398 23.11: переключить карту меню
+	lua_register(L, "map_overlay_is_on", map_overlay_is_on); // 2399 23.11: статус карты
+	lua_register(L, "map_crosshair_world", map_crosshair_world); // 2400 23.11: точка карты -> мир
+	lua_register(L, "map_coords_diag", map_coords_diag); // 2401 23.11: диагностика полей карты
+	lua_register(L, "map_cross_set", map_cross_set); // 2402 23.11: перекрестие (u,v)
+	lua_register(L, "map_cross_get", map_cross_get); // 2403 23.11: перекрестие + мир
+	lua_register(L, "play_wav_file", play_wav_file); // 2404 23.11: WAV из Audio/
+	lua_register(L, "stop_wav_file", stop_wav_file); // 2405 23.11: остановить WAV
+	lua_register(L, "set_pad_controls", set_pad_controls); // 2406 обёртка: set pad controls
+	lua_register(L, "sys_key_down", sys_key_down); // 2407 обёртка: sys key down
+	lua_register(L, "sys_key_up", sys_key_up); // 2408 обёртка: sys key up
+	lua_register(L, "sys_mouse_down", sys_mouse_down); // 2409 обёртка: sys mouse down
+	lua_register(L, "sys_mouse_up", sys_mouse_up); // 2410 обёртка: sys mouse up
+	lua_register(L, "find_all_peds_by_model", find_all_peds_by_model); // 2411 обёртка: find all peds by model
 return 0;
 };
 
