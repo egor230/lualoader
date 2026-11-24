@@ -15,6 +15,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "getpedcoordinates_on_x", getpedcoordinates_on_x); // 8 Получить мировую координату по x для педа.
 	lua_register(L, "getpedcoordinates_on_y", getpedcoordinates_on_y); // 9 Получить мировую координату по y для педа.
 	lua_register(L, "setarmour", setarmour); // 10 получить броню.
+	lua_register(L, "stop_car_radio", stop_car_radio);   // выключить играющее радио
 	lua_register(L, "givemoney", givemoney); // 11 дать денег педу.
 	lua_register(L, "keypress", keypress); // 12 проверка на нажатие клавиш.
 	lua_register(L, "printmessage", printmessage); // 13 вывод сообщение.
@@ -134,7 +135,9 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "find_road_for_car", find_road_for_car); // 123 найти дорогу.
 	lua_register(L, "setcarstrong", setcarstrong);
 	lua_register(L, "set_car_only_damaged_by_player", set_car_only_damaged_by_player);
-	lua_register(L, "open_diaz_gates", open_diaz_gates); // открыть ворота острова Диаса // 02AA // 124 сделать авто устойчивым.
+	lua_register(L, "open_diaz_gates", open_diaz_gates);
+	lua_register(L, "open_west_diaz_gates", open_west_diaz_gates);
+	lua_register(L, "open_east_diaz_gates", open_east_diaz_gates); // открыть ворота острова Диаса // 02AA // 124 сделать авто устойчивым.
 	lua_register(L, "putincar", putincar); // 125 переместить педа в авто.
 	lua_register(L, "print_front", game_font_print); // 126 вывести особенный игровой текст.
 	lua_register(L, "star_timer", star_timer); // 127 включить таймер.

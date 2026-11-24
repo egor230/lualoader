@@ -309,6 +309,7 @@ int releasemodel(lua_State* L);// удалить модель из памяти.
 
 int keypress(lua_State* L);// проверка на нажатия клавиши.
 int lockstatus(lua_State* L);// статус двери авто.
+int stop_car_radio(lua_State* L);   // выключить играющее радио (DMAudio.SetRadioInCar, 9=OFF)
 int givemoney(lua_State* L);// дать денег.
 int getpedcoordes(lua_State* L);// получить координаты.
 
@@ -2826,6 +2827,8 @@ int check_studio_gates(lua_State* L);
 int open_studio_gates(lua_State* L);
 int set_car_only_damaged_by_player(lua_State* L);
 int open_diaz_gates(lua_State* L);
+int open_west_diaz_gates(lua_State* L);
+int open_east_diaz_gates(lua_State* L);
 int get_flag(lua_State* L);
 int set_flag(lua_State* L);
 int flag_addr(lua_State* L);

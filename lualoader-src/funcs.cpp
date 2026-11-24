@@ -1,6 +1,8 @@
 #include "funcs.h"
 #include "compat/ma_mapoverlay.h"
 #include "compat/ma_mapcoords.h"
+#include "cDMAudio.h"
+#include "CText.h"
 #include <mmsystem.h>   // PlaySoundA — WAV из Audio/
 
 // === НОРМАЛИЗАЦИЯ БУЛЕВЫХ АРГУМЕНТОВ (23.11.2026) ===
@@ -1445,6 +1447,28 @@ int lockstatus(lua_State* L) {// статус двери авто.
 	return 0;
 };
 
+// === ВЫКЛЮЧИТЬ РАДИО, ИГРАЮЩЕЕ В МАШИНЕ (23.11.2026) ===
+// set_car_radio_station() меняет только поле CVehicle::m_nRadioStation —
+// текущее воспроизведение это НЕ останавливает. Реально радио ставит
+// DMAudio.SetRadioInCar() (0x5F9730). Вызов с RADIO_OFF (9) глушит звук,
+// даже когда игрок — пассажир, а не водитель.
+int stop_car_radio(lua_State* L) {
+    std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+    try {
+        // Полное выключение радио в VC:
+        //  1) 041E SET_RADIO_CHANNEL(10) — station 10 = RADIO OFF по gtamods
+        //     (9 = MP3 Player, поэтому 9 включало плеер вместо тишины).
+        //  2) DMAudio.SetRadioInCar(10) — остановить уже играющий трек.
+        ma_cmdq_post([]() {
+            Command<COMMAND_SET_RADIO_CHANNEL>(10, -1);
+            DMAudio.SetRadioInCar(10u);
+            writelog("stop_car_radio: RADIO OFF (10)");
+        });
+        lua_pushboolean(L, true); return 1;
+    } catch (const char* x) { writelog(x); }
+    return 0;
+}
+
 int givemoney(lua_State* L) {// дать денег игроку.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
  	try {
@@ -2672,11 +2696,8 @@ static bool ma_run_label_command2(unsigned int commandId, int p1, int p2, const 
 	buf[0] = (unsigned char)(commandId & 0xFF);
 	buf[1] = (unsigned char)((commandId >> 8) & 0xFF);
 	int n = 2;
-	int vals[2] = { p1, p2 };
-	for (int v : vals) {
-		buf[n++] = 0x01;
-		for (int b = 0; b < 4; b++) buf[n++] = (unsigned char)(((unsigned int)v >> (8 * b)) & 0xFF);
-	}
+	// Оригинал: COMMAND_PRINT_NOW читает 8 байт GXT-ключа СНАЧАЛА,
+	// затем CollectParameters() для time и style. Ключ ПЕРВЫМ!
 	char key[8];
 	memset(key, 0, sizeof(key));
 	for (int k = 0; k < 7 && label[k] != '\0'; k++) {
@@ -2686,6 +2707,11 @@ static bool ma_run_label_command2(unsigned int commandId, int p1, int p2, const 
 	}
 	memcpy(buf + n, key, 8);
 	n += 8;
+	int vals[2] = { p1, p2 };
+	for (int v : vals) {
+		buf[n++] = 0x01;
+		for (int b = 0; b < 4; b++) buf[n++] = (unsigned char)(((unsigned int)v >> (8 * b)) & 0xFF);
+	}
 	script.m_nIp = (int)buf - (int)CRunningScript::GetScriptSpaceBase();
 	script.ProcessOneCommand();
 	return script.m_bCondResult ? true : false;
@@ -2722,6 +2748,10 @@ static bool ma_run_label_ex(unsigned int commandId, const MaRawParam* p, int n, 
 	}
 	script.m_nIp = (int)buf - (int)CRunningScript::GetScriptSpaceBase();
 	script.ProcessOneCommand();
+	{ char dbg[176]; _snprintf_s(dbg, sizeof(dbg), _TRUNCATE,
+	  "ma_run_label_ex: cmd=%04X label='%s' len=%d bytes=%02X%02X%02X%02X%02X%02X%02X%02X res=%d",
+	  commandId & 0xFFFF, label, m, buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7],
+	  script.m_bCondResult ? 1 : 0); writelog(dbg); }
 	return script.m_bCondResult ? true : false;
 }
 
@@ -4072,10 +4102,19 @@ int show_text_gtx(lua_State* L) {// вывести игровой текст.
 			&& LUA_TNUMBER == lua_type(L, 3)) {// значение число.
 			const char* text = lua_tostring(L, 1);// текст.
 			int time = lua_tointeger(L, 2);	int type = ma_clamp_big_style(lua_tointeger(L, 3));
-			Command<COMMAND_LOAD_MISSION_TEXT>("GENERA1");
 			std::string key(text);
+			// PRINT_NOW в SCM: [id][МЕТКА 8 байт][time][style] — метка ПЕРВАЯ.
+			// ma_run_label_command2 кладёт метку ПОСЛЕДНЕЙ, поэтому текст не выводился.
 			ma_cmdq_defer([time, type, key]() -> bool {
-				return ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
+				wchar_t* found = TheText.Get(key.c_str());
+				if (found == nullptr || found[0] == L'\0') {
+					Command<COMMAND_LOAD_MISSION_TEXT>("GENERA1");
+					writelog("GXT: show_text_gtx -> LOAD_MISSION_TEXT GENERA1");
+				} else {
+					writelog("GXT: show_text_gtx -> ключ в MAIN, GENERA1 не грузим");
+				}
+				ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
+				return true;
 			});
 			lua_settop(L, 0);// очистить стек.
 			return 0;
@@ -9605,26 +9644,26 @@ int is_car_damage_by_car(lua_State* L) {// Если авто получило у
 	return 0;
 };
 
-int show_text_gtx_table(lua_State* L) {// вывести текст из таблицы.
-	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
+int show_text_gtx_table(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TSTRING == lua_type(L, 1) && LUA_TSTRING == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)
-			&& LUA_TNUMBER == lua_type(L, 4)) {// значение число.
-			const char* table = lua_tostring(L, 1);// таблица.
-			const char* text = lua_tostring(L, 2);// текст.
-			int time = lua_tointeger(L, 3);	int type = ma_clamp_big_style(lua_tointeger(L, 4));
-			Command<COMMAND_LOAD_MISSION_TEXT>(table);
-			std::string key(text);
-			ma_cmdq_defer([time, type, key]() -> bool {
-				return ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
-			});
-			lua_settop(L, 0);// очистить стек.
-			return 0;
+		if (LUA_TSTRING != lua_type(L,1) || LUA_TSTRING != lua_type(L,2) ||
+			LUA_TNUMBER != lua_type(L,3) || LUA_TNUMBER != lua_type(L,4)) {
+			throw "bad argument in function show_text_gtx_table";
 		}
-
-		else { throw "bad argument in function show_text_gtx_table"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
+		std::string table(lua_tostring(L,1)), key(lua_tostring(L,2));
+		int time = (int)lua_tointeger(L,3);
+		int type = ma_clamp_big_style((int)lua_tointeger(L,4));
+		writelog(("GXT: show_text_gtx_table key=" + key + " table=" + table).c_str());
+		ma_cmdq_defer([table, key, time, type]() -> bool {
+			Command<COMMAND_LOAD_MISSION_TEXT>(table.c_str());
+			writelog("GXT: LOAD_MISSION_TEXT executed");
+			ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
+			writelog("GXT: PRINT_NOW command executed");
+			return true;
+		});
+		return 0;
+	} catch (const char* x) { writelog(x); }
 	return 0;
 };
 
@@ -9758,38 +9797,59 @@ static const std::map<std::string, const char*> g_gxt_prefix_table = {
 int show_text_key(lua_State* L) {
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
-		if (LUA_TSTRING == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {
-			std::string key(lua_tostring(L, 1));
-			int time = (int)lua_tointeger(L, 2);
-			int type = ma_clamp_big_style((int)lua_tointeger(L, 3));
-			std::string prefix = key.substr(0, key.find('_'));
-			auto it = g_gxt_prefix_table.find(prefix);
-			if (it != g_gxt_prefix_table.end()) {
-				Command<COMMAND_LOAD_MISSION_TEXT>(it->second);   // грузим нужную таблицу
-			}
-			ma_cmdq_defer([time, type, key]() -> bool {
-				return ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
-			});
-			return 0;
+		if (LUA_TSTRING != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2) || LUA_TNUMBER != lua_type(L, 3)) {
+			throw "bad argument in function show_text_key";
 		}
-		throw "bad argument in function show_text_key";
+		std::string key(lua_tostring(L, 1));
+		if (key.empty() || key.size() > 7) {          // 8 байт с нулём
+			writelog("GXT: ключ пустой или длиннее 7 символов");
+			lua_pushboolean(L, false); return 1;
+		}
+		int time = (int)lua_tointeger(L, 2);
+		int type = ma_clamp_big_style((int)lua_tointeger(L, 3));
+		std::string tbl = key.substr(0, key.find('_'));
+		auto it = g_gxt_prefix_table.find(tbl);
+		std::string missionTable = (it != g_gxt_prefix_table.end()) ? it->second : "";
+
+		writelog(("GXT: show_text_key called key=" + key).c_str());
+		// ВСЁ — включая проверку TheText.Get и загрузку таблицы — на игровом потоке.
+		ma_cmdq_defer([time, type, key, missionTable]() -> bool {
+			wchar_t* found = TheText.Get(key.c_str());
+			bool inMain = (found != nullptr && found[0] != L'\0');
+			if (inMain) {
+				writelog("GXT: source=MAIN — LOAD_MISSION_TEXT НЕ нужен");
+			} else {
+				writelog("GXT: source=MISSION — загружаем таблицу");
+				if (!missionTable.empty()) {
+					std::string lg = "GXT: table=" + missionTable;
+					writelog(lg.c_str());
+					Command<COMMAND_LOAD_MISSION_TEXT>(missionTable.c_str());
+					writelog("GXT: LOAD_MISSION_TEXT executed");
+				}
+			}
+			writelog("GXT: executing on game thread — PRINT_NOW");
+			ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
+			writelog("GXT: PRINT_NOW command executed");
+			return true;   // НЕ используем m_bCondResult как признак поиска ключа
+		});
+		lua_pushboolean(L, true); return 1;
 	} catch (const char* x) { writelog(x); }
-	return 0;
+	lua_pushboolean(L, false); return 1;
 }
 
-int load_gtx_table(lua_State* L) {// вывести текст из таблицы.
+int load_gtx_table(lua_State* L) {
 	try {
-		if (LUA_TSTRING == lua_type(L, 1)) {// значение число.
-			const char* table = lua_tostring(L, 1);// таблицу.
-			Command<COMMAND_LOAD_MISSION_TEXT>(table);
-			lua_settop(L, 0);// очистить стек.
-			return 0;
-		}
-
-		else { throw "bad argument in function load_gtx_table"; }
-	}
-	catch (const char* x) { writelog(x); }// записать ошибку в файл.
-	return 0;
+		if (LUA_TSTRING != lua_type(L,1)) { lua_pushboolean(L,false); return 1; }
+		std::string table(lua_tostring(L,1));
+		// Асинхронно: команда выполнится на игровом потоке в Events::gameProcessEvent.
+		ma_cmdq_defer([table]() -> bool {
+			Command<COMMAND_LOAD_MISSION_TEXT>(table.c_str());
+			writelog(("GXT: load_gtx_table executed " + table).c_str());
+			return true;
+		});
+		lua_pushboolean(L,true); return 1;
+	} catch (const char* x) { writelog(x); }
+	lua_pushboolean(L,false); return 1;
 };
 
 int ped_road_off (lua_State* L) {// выкл путь педов.
@@ -14522,6 +14582,8 @@ int radar_add_blip_for_coord(lua_State* L) {// 018A ADD_BLIP_FOR_COORD (x,y,z,&i
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) && LUA_TNUMBER == lua_type(L, 3)) {// три числа.
 			float x = lua_tonumber(L, 1); float y = lua_tonumber(L, 2); float z = lua_tonumber(L, 3);
+			{ char dbg[160]; _snprintf_s(dbg, sizeof(dbg), _TRUNCATE,
+			    "MAPBLIP: ADD_BLIP_FOR_COORD x=%.1f y=%.1f z=%.1f", x, y, z); writelog(dbg); }
 			int point;
 			Command<COMMAND_ADD_BLIP_FOR_COORD>(x, y, z, &point);// оригинальный opcode 018A (внутри colour=5, display=BOTH, scale=3).
 			{ std::lock_guard<std::mutex> lk(mtx_markeron); markeron.emplace(point, L); }
@@ -35272,19 +35334,74 @@ int set_car_only_damaged_by_player(lua_State* L) {
 
 // Открыть заграчения на острове Диаса (для тестов): снять SWITCH_ROADS/PED_OFF
 // зоны, которые миссия 16 "Rub Out" ставит вокруг особняка Диаса.
-int open_diaz_gates(lua_State* L) {
-    // std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
-    // зоны из миссии 16 (строки 247-248) и MAIN
-    static const float zones[][6] = {
-        {-396.4f,-583.6f,15.0f,-360.5f,-555.6f,33.0f},
-        {-271.6f,-504.3f,0.0f,-510.5f,-661.2f,55.0f},
-    };
-    for (const auto& z : zones) {
-        Command<COMMAND_SWITCH_ROADS_ON>(z[0],z[1],z[2],z[3],z[4],z[5]);
-        Command<COMMAND_SWITCH_PED_ROADS_ON>(z[0],z[1],z[2],z[3],z[4],z[5]);
+// === ВОРОТА ОСТРОВА ДИАСА — точная логика из lualoader/mod.lua ===
+// check_obj_in_cord -> get_obj_in_cord -> getmodelindex == N -> remove_obj
+// -> Createobj(openModel, ...) -> ped_road_on / car_road_on
+static int diaz_open_point(float bx, float by, float bz, int closedModel,
+                           float ox, float oy, float oz, int openModel,
+                           float px1,float py1,float pz1,float px2,float py2,float pz2,
+                           float cx1,float cy1,float cz1,float cx2,float cy2,float cz2,
+                           const char* label) {
+    const float radius = 4.0f;
+    const CVector chk = { bx, by, bz };
+    CObject* barr = nullptr;
+    for (auto obj : CPools::ms_pObjectPool) {
+        if (!obj) continue;
+        if (CVector::Distance(obj->GetPosition(), chk) < radius) { barr = obj; break; }
     }
-    writelog("open_diaz_gates: заграчения острова Диаса сняты");
-    lua_pushboolean(L, true); return 1;
+    if (!barr) {
+        char dbg[192]; _snprintf_s(dbg, sizeof(dbg), _TRUNCATE,
+            "diaz %s: объект НЕ найден у (%.1f %.1f %.1f) r=%.1f", label, bx, by, bz, radius);
+        writelog(dbg); return 0;
+    }
+    int mdl = barr->m_nModelIndex;
+    int ref = CPools::GetObjectRef(barr);
+    if (mdl != closedModel) {
+        char dbg[192]; _snprintf_s(dbg, sizeof(dbg), _TRUNCATE,
+            "diaz %s: найден model=%d (ожидалась %d) — пропуск", label, mdl, closedModel);
+        writelog(dbg); return 0;
+    }
+    ma_cmdq_post([ref, ox,oy,oz, openModel, closedModel, px1,py1,pz1,px2,py2,pz2, cx1,cy1,cz1,cx2,cy2,cz2, label]() {
+        Command<COMMAND_DELETE_OBJECT>(ref);
+        CObject* opened = nullptr;
+        Command<COMMAND_CREATE_OBJECT>(openModel, ox, oy, oz, &opened);
+        if (px2 != 0.0f || py2 != 0.0f || pz2 != 0.0f) {
+            Command<COMMAND_SWITCH_PED_ROADS_ON>(px1,py1,pz1, px2,py2,pz2);
+            Command<COMMAND_SWITCH_ROADS_ON>(cx1,cy1,cz1, cx2,cy2,cz2);
+        }
+        char dbg[192]; _snprintf_s(dbg, sizeof(dbg), _TRUNCATE,
+            "diaz %s: баррикада %d удалена, создана %d", label, closedModel, openModel);
+        writelog(dbg);
+    });
+    char dbg[192]; _snprintf_s(dbg, sizeof(dbg), _TRUNCATE,
+        "diaz %s: найдена баррикада model=%d ref=%d -> удаляем", label, mdl, ref);
+    writelog(dbg);
+    return 1;
+}
+int open_east_diaz_gates(lua_State* L) {
+    // ВОСТОЧНЫЕ (second bridge): 2447 (-181.5,-472.6,11.4) -> 2443 (-183.8,-473.2,10.15)
+    int n = diaz_open_point(-181.5f,-472.6f,11.4f, 2447,
+                            -183.8f,-473.2f,10.15f, 2443,
+                            -230.0f,-464.5f,10.0f, 56.85f,-459.8f,20.0f,
+                            -230.0f,-464.5f,10.0f, 165.85f,-459.8f,20.0f,
+                            "ВОСТОЧНЫЕ");
+    lua_pushinteger(L, n); return 1;
+}
+int open_west_diaz_gates(lua_State* L) {
+    // ЗАПАДНЫЕ (на выходе): 2446 (-712.5,-489.4,12.5) -> 2444 (-712.5,-489.4,10.15)
+    // в mod.lua у этих ворот НЕТ вызовов road_on — только удаление/создание
+    int n = diaz_open_point(-712.5f,-489.4f,12.5f, 2446,
+                            -712.5f,-489.4f,10.15f, 2444,
+                            0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,
+                            0.0f,0.0f,0.0f, 0.0f,0.0f,0.0f,
+                            "ЗАПАДНЫЕ");
+    lua_pushinteger(L, n); return 1;
+}
+int open_diaz_gates(lua_State* L) {
+    int n = 0;
+    n += open_east_diaz_gates(L); lua_pop(L, 1);
+    n += open_west_diaz_gates(L); lua_pop(L, 1);
+    lua_pushinteger(L, n); return 1;
 }
 
 // === ЧАСТЬ XIII: УНИВЕРСАЛЬНЫЙ ДОСТУП К ФЛАГАМ ИГРЫ (22.11.2026) ===
@@ -35812,9 +35929,28 @@ int stop_wav_file(lua_State* L) {
 }
 
 int map_cross_get(lua_State* L) {
+    // Разница контрольных точек (приехали -401.1,-383.6 ; надо -446.2,-474.3):
+    //   dx = need - arrived = -45.1 ; dy = -90.7
+    // Добавляем её к результату ПЕРЕД выводом, как просил пользователь.
+    static const float CORR_X = -45.1f;
+    static const float CORR_Y = -90.7f;
+
     float u, v, wx, wy;
     ma_map_cross_get(u, v);
     bool ok = ma_map_uv_world(u, v, wx, wy);
+    wx += CORR_X;
+    wy += CORR_Y;
+    // закрываем карту этим же действием (раньше вызывали отдельно в Lua)
+    ma_mapoverlay_set(false);
+    {
+        char dbg[320];
+        _snprintf_s(dbg, sizeof(dbg), _TRUNCATE,
+            "MAPCROSS: u=%.4f v=%.4f -> wx=%.1f wy=%.1f (+corr %.1f %.1f) ok=%d",
+            u, v, wx, wy, CORR_X, CORR_Y, ok ? 1 : 0);
+        writelog(dbg);
+        ma_map_diag_uv(u, v, wx, wy);
+        writelog("MAPCROSS: map_overlay_off() выполнено внутри map_cross_get");
+    }
     lua_pushnumber(L, u); lua_pushnumber(L, v);
     lua_pushnumber(L, wx); lua_pushnumber(L, wy);
     lua_pushboolean(L, ok);

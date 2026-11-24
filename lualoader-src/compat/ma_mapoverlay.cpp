@@ -23,6 +23,8 @@ static bool       g_diagDone = false;
 
 // положение перекрестия в нормализованных координатах карты 0..1
 static float g_curU = 0.5f, g_curV = 0.5f;
+// зум вокруг перекрестия: 1 = вся карта, больше = приближение
+static float g_zoom = 1.0f;
 
 static const char* k_tileNames[9] = {
     "mapTop01", "mapTop02", "mapTop03",
@@ -105,8 +107,27 @@ void ma_mapoverlay_frame() {
 
     if (!g_enabled) return;
 
-    // стрелки двигают перекрестие (плавно при удержании)
-    const float step = 0.0035f;
+    // зум вокруг перекрестия: '+' / '=' приблизить, '-' отдалить, '0' сбросить
+    static bool prevPlus = false, prevMinus = false, prevZero = false;
+    bool nowPlus  = (GetAsyncKeyState(VK_ADD) & 0x8000) || (GetAsyncKeyState(0xBB) & 0x8000);
+    bool nowMinus = (GetAsyncKeyState(VK_SUBTRACT) & 0x8000) || (GetAsyncKeyState(0xBD) & 0x8000);
+    bool nowZero  = (GetAsyncKeyState(0x30) & 0x8000);
+    if (nowPlus && !prevPlus) {
+        g_zoom *= 1.5f;
+        if (g_zoom > 16.0f) g_zoom = 16.0f;
+        char dbg[96]; _snprintf_s(dbg, sizeof(dbg), _TRUNCATE,
+            "MAPOVERLAY: зум x%.2f вокруг перекрестия (%.3f %.3f)", g_zoom, g_curU, g_curV);
+        writelog(dbg);
+    }
+    if (nowMinus && !prevMinus) {
+        g_zoom /= 1.5f;
+        if (g_zoom < 1.0f) g_zoom = 1.0f;
+    }
+    if (nowZero && !prevZero) g_zoom = 1.0f;
+    prevPlus = nowPlus; prevMinus = nowMinus; prevZero = nowZero;
+
+    // стрелки двигают перекрестие (шаг делится на зум — точнее при приближении)
+    const float step = 0.0035f / g_zoom;
     if (GetAsyncKeyState(VK_LEFT)  & 0x8000) g_curU -= step;
     if (GetAsyncKeyState(VK_RIGHT) & 0x8000) g_curU += step;
     if (GetAsyncKeyState(VK_UP)    & 0x8000) g_curV -= step;
@@ -141,21 +162,29 @@ static void draw_map() {
     float left = (W - size) * 0.5f;
     float top  = (H - size) * 0.5f;
     float tile = size / 3.0f;
+    // экранная позиция перекрестия — центр зумирования
+    float cx = left + g_curU * size;
+    float cy = top  + g_curV * size;
 
     CSprite2d::DrawRect(CRect(left - 6, top - 6, left + size + 6, top + size + 6),
                         CRGBA(0, 0, 0, 200));
+    // каждый тайл имеет uv-прямоугольник [col/3..(col+1)/3] x [row/3..(row+1)/3]
+    // экран = cx + (u - curU) * size * zoom  (перекрестие остаётся на месте)
     for (int row = 0; row < 3; ++row) {
         for (int col = 0; col < 3; ++col) {
             int i = row * 3 + col;
             if (!g_tiles[i].m_pTexture) continue;
-            float x0 = left + col * tile, y0 = top + row * tile;
-            g_tiles[i].Draw(CRect(x0, y0, x0 + tile, y0 + tile), CRGBA(255, 255, 255, 255));
+            float u0 = col / 3.0f, u1 = (col + 1) / 3.0f;
+            float v0 = row / 3.0f, v1 = (row + 1) / 3.0f;
+            float x0 = cx + (u0 - g_curU) * size * g_zoom;
+            float x1 = cx + (u1 - g_curU) * size * g_zoom;
+            float y0 = cy + (v0 - g_curV) * size * g_zoom;
+            float y1 = cy + (v1 - g_curV) * size * g_zoom;
+            g_tiles[i].Draw(CRect(x0, y0, x1, y1), CRGBA(255, 255, 255, 255));
         }
     }
 
     // === ПЕРЕКРЕСТИЕ: две линии ===
-    float cx = left + g_curU * size;
-    float cy = top  + g_curV * size;
     CSprite2d::DrawRect(CRect(left, cy - 1, left + size, cy + 1), CRGBA(255, 40, 40, 220)); // горизонталь
     CSprite2d::DrawRect(CRect(cx - 1, top, cx + 1, top + size), CRGBA(255, 40, 40, 220)); // вертикаль
     CSprite2d::DrawRect(CRect(cx - 4, cy - 4, cx + 4, cy + 4), CRGBA(255, 255, 0, 255));  // точка
