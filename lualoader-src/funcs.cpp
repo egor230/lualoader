@@ -1559,6 +1559,15 @@ namespace ma_msgpool {
 		dst[kChars - 1] = 0;
 		return dst;
 	}
+	// Строка уже в UTF-16 (например, из TheText.Get) — копируем без конверсии.
+	wchar_t* putw(const wchar_t* src) {
+		LONG n = InterlockedIncrement(&g_next) - 1;
+		wchar_t* dst = g_pool[n % kSlots];
+		if (src) wcsncpy_s(dst, kChars, src, kChars - 1);
+		else dst[0] = 0;
+		dst[kChars - 1] = 0;
+		return dst;
+	}
 } // namespace ma_msgpool
 
 int printmessage(lua_State* L) {// аргументы текст и и время вывода на экран.
@@ -8447,11 +8456,126 @@ int clean_leader(lua_State* L) {// перестать следовать за л
  	return 0;
  };
 
+// === УСЛОВИЯ БЕЗОПАСНОЙ РАБОТЫ С СОХРАНЕНИЯМИ (директива 25.11.2026) ===
+// Меню сохранения и функции save/load должны срабатывать ТОЛЬКО когда:
+//   1) игрок не находится в миссии ($ONMISSION == 0, нет активной mission-скрипты,
+//      CTheScripts::IsPlayerOnAMission() == false);
+//   2) игрок жив (не PEDSTATE_DIE / PEDSTATE_DEAD);
+//   3) игрок не в машине (m_pVehicle == nullptr).
+// Все проверки и сами команды выполняются на ИГРОВОМ ПОТОКЕ через ma_cmdq_defer —
+// из Lua-потоков вызывать игровые функции нельзя (это роняет игру).
+static bool ma_mission_script_active();   // определена ниже (глобальная защита миссий)
+
+// Нативные функции сохранения (1.0 EN). НЕ включаем C_PcSave.cpp /
+// GenericGameStorage.cpp: их PLUGIN_VARIABLE дают лишний _GLOBAL__sub_I
+// и ломают BUILD-GATE (ожидается ровно 30). Вызываем по адресам из SDK:
+//   C_PcSave::SaveSlot @0x61D8B0 (thiscall, this = PcSaveHelper @0x9753C4)
+//   CheckSlotDataValid  @0x61A6C0 (cdecl)
+typedef char (__thiscall *ma_SaveSlot_t)(void*, int);
+typedef bool (__cdecl   *ma_CheckSlot_t)(int);
+static inline char ma_save_slot_native(int index) {
+	return ((ma_SaveSlot_t)0x61D8B0)((void*)0x9753C4, index);
+}
+static inline bool ma_check_slot_native(int index) {
+	return ((ma_CheckSlot_t)0x61A6C0)(index);
+}
+static inline int ma_save_error_code() { return *reinterpret_cast<int*>(0x9753C4); }
+
+static bool ma_save_load_state_ok(const char* who) {
+	char msg[256];
+	CPed* player = FindPlayerPed();
+	if (!player) { writelog("save/load: ОТКАЗ — игрок не найден"); return false; }
+	// живой?
+	if (player->m_ePedState == PEDSTATE_DIE || player->m_ePedState == PEDSTATE_DEAD) {
+		_snprintf_s(msg, sizeof(msg), _TRUNCATE, "%s: ОТКАЗ — игрок мёртв", who);
+		writelog(msg); return false;
+	}
+	// не в машине?
+	if (player->m_pVehicle) {
+		_snprintf_s(msg, sizeof(msg), _TRUNCATE, "%s: ОТКАЗ — игрок в машине", who);
+		writelog(msg); return false;
+	}
+	// не в миссии?
+	{
+		unsigned int& onFlag = *(unsigned int*)0x978748;
+		if (CTheScripts::ScriptSpace[onFlag] != 0) {
+			_snprintf_s(msg, sizeof(msg), _TRUNCATE, "%s: ОТКАЗ — флаг $ONMISSION поднят", who);
+			writelog(msg); return false;
+		}
+	}
+	if (ma_mission_script_active()) {
+		_snprintf_s(msg, sizeof(msg), _TRUNCATE, "%s: ОТКАЗ — активна mission-скрипта", who);
+		writelog(msg); return false;
+	}
+	if (CTheScripts::IsPlayerOnAMission()) {
+		_snprintf_s(msg, sizeof(msg), _TRUNCATE, "%s: ОТКАЗ — IsPlayerOnAMission()", who);
+		writelog(msg); return false;
+	}
+	return true;
+}
+
 int show_save_menu(lua_State* L) {// показать меню сохранения.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 
-	Command<COMMAND_ACTIVATE_SAVE_MENU>();
+	ma_cmdq_defer([]() -> bool {
+		if (!ma_save_load_state_ok("show_save_menu")) return false;
+		Command<COMMAND_ACTIVATE_SAVE_MENU>();
+		return true;
+	});
+	return 0;
+};
 
+int save_game_slot(lua_State* L) {// сохранить игру в слот 1..8.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function save_game_slot"; }
+		int slot = (int)lua_tointeger(L, 1);
+		if (slot < 1 || slot > 8) { writelog("save_game_slot: ОТКАЗ — слот вне диапазона 1..8"); return 0; }
+		ma_cmdq_defer([slot]() -> bool {
+			if (!ma_save_load_state_ok("save_game_slot")) return false;
+			// C_PcSave::SaveSlot(int) индексирует слоты с нуля: 1 -> 0.
+			char res = ma_save_slot_native(slot - 1);
+			char msg[128];
+			_snprintf_s(msg, sizeof(msg), _TRUNCATE, "save_game_slot: слот %d -> код %d", slot, (int)res);
+			writelog(msg);
+			return res == 0;   // eSaveSlot::SLOT_OK
+		});
+		return 0;
+	}
+	catch (const char* x) { writelog(x); }
+	return 0;
+};
+
+int load_game_slot(lua_State* L) {// загрузить игру из слота 1..8.
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function load_game_slot"; }
+		int slot = (int)lua_tointeger(L, 1);
+		if (slot < 1 || slot > 8) { writelog("load_game_slot: ОТКАЗ — слот вне диапазона 1..8"); return 0; }
+		ma_cmdq_defer([slot]() -> bool {
+			if (!ma_save_load_state_ok("load_game_slot")) return false;
+			int index = slot - 1;   // игра индексирует слоты с нуля
+			bool ok = ma_check_slot_native(index);
+			char msg[160];
+			_snprintf_s(msg, sizeof(msg), _TRUNCATE,
+				"load_game_slot: слот %d, CheckSlotDataValid=%d, err=%d",
+				slot, ok ? 1 : 0, ma_save_error_code());
+			writelog(msg);
+			if (!ok) return false;
+			// Штатные флаги загрузки (тот же путь, что и в fastloadsave):
+			// CheckSlotDataValid уже занёс имя файла в 0xA0CE9C.
+			FrontEndMenuManager.m_bShutDownFrontEndRequested = true;
+			FrontEndMenuManager.m_bWantToRestart = true;
+			FrontEndMenuManager.m_bWantToLoad = true;
+			// убрать затемнение, доставшееся от меню
+			*reinterpret_cast<int*>(0x869738) = 0;
+			*reinterpret_cast<int*>(0x8696B0) = 0;
+			*reinterpret_cast<unsigned char*>(0x869740) = 0;
+			return true;
+		});
+		return 0;
+	}
+	catch (const char* x) { writelog(x); }
 	return 0;
 };
 
@@ -9812,7 +9936,12 @@ int show_text_key(lua_State* L) {
 		std::string missionTable = (it != g_gxt_prefix_table.end()) ? it->second : "";
 
 		writelog(("GXT: show_text_key called key=" + key).c_str());
-		// ВСЁ — включая проверку TheText.Get и загрузку таблицы — на игровом потоке.
+		// ВСЁ на игровом потоке. ВАЖНО (25.11): CText::Get использует обычный
+		// strcmp (0x642620) — ключ ЧУВСТВИТЕЛЕН К РЕГИСТРУ. Поддельный
+		// CRunningScript в ma_run_label_command2 переводил ключ в нижний регистр,
+		// поэтому PRINT_NOW «выполнялся», но текст не находился и не показывался.
+		// Берём готовую UTF-16 строку из TheText.Get и выводим через проверенный
+		// CMessages::AddMessageJumpQ — тот же путь, что и в printmessage().
 		ma_cmdq_defer([time, type, key, missionTable]() -> bool {
 			wchar_t* found = TheText.Get(key.c_str());
 			bool inMain = (found != nullptr && found[0] != L'\0');
@@ -9825,12 +9954,18 @@ int show_text_key(lua_State* L) {
 					writelog(lg.c_str());
 					Command<COMMAND_LOAD_MISSION_TEXT>(missionTable.c_str());
 					writelog("GXT: LOAD_MISSION_TEXT executed");
+					found = TheText.Get(key.c_str());
 				}
 			}
-			writelog("GXT: executing on game thread — PRINT_NOW");
-			ma_run_label_command2((unsigned int)COMMAND_PRINT_NOW - 0x10000, time, type, key.c_str());
-			writelog("GXT: PRINT_NOW command executed");
-			return true;   // НЕ используем m_bCondResult как признак поиска ключа
+			if (!found || found[0] == L'\0') {
+				writelog("GXT: ключ НЕ найден — текст не выведен");
+				return false;
+			}
+			wchar_t* w = ma_msgpool::putw(found);   // движок не копирует строку
+			CMessages::AddMessageJumpQ(w, (unsigned int)time, (unsigned short)type);
+			std::string ok = "GXT: AddMessageJumpQ выполнен, time=" + std::to_string(time);
+			writelog(ok.c_str());
+			return true;
 		});
 		lua_pushboolean(L, true); return 1;
 	} catch (const char* x) { writelog(x); }

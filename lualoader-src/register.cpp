@@ -1423,6 +1423,10 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "delete_entity", delete_entity); // 1400 удалить сущность сразу.
 	lua_register(L, "clean_leader", clean_leader); // 1401 перестать следовать за лидером.
 	lua_register(L, "show_save_menu", show_save_menu); // 1402 показать меню сохранения.
+	lua_register(L, "save_game_slot", save_game_slot); // сохранить игру в слот 1..8.
+	lua_register(L, "save_to_slot", save_game_slot);   // псевдоним save_game_slot.
+	lua_register(L, "load_game_slot", load_game_slot); // загрузить игру из слота 1..8.
+	lua_register(L, "load_from_slot", load_game_slot); // псевдоним load_game_slot.
 	lua_register(L, "is_ped_shooting", is_ped_shooting); // 1403 пед стреляет?.
 	lua_register(L, "set_ped_visible", set_ped_visible); // 1404 уст невидимость педу.
 	lua_register(L, "set_player_mod", set_player_mod); // 1405 уст настроения игрока.

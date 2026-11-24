@@ -46866,3 +46866,103 @@ local u, v, wx, wy, ok = map_cross_get()
 **Важно:** первые два значения (`u,v`) — это координаты **на изображении карты**, последние два (`wx,wy`) — **игровые координаты** для `radar_add_blip_for_coord(wx, wy, 10)`. Пятый (`ok`) — просто флаг. Не подставляйте `u,v` в blip и не складывайте их с `wx,wy`.
 
 Побочное действие: `map_cross_get()` теперь сама закрывает карту (`map_overlay_off()` внутри).
+
+---
+
+## XXIX.11. Работа с сохранениями: слоты 1..8 (25.11.2026)
+
+### `show_save_menu()`
+
+Показать меню сохранения. **С 25.11.2026 функция срабатывает только при выполнении всех условий:**
+
+1. игрок не находится в миссии (`$ONMISSION == 0`, нет активной mission-скрипты, `CTheScripts::IsPlayerOnAMission() == false`);
+2. игрок жив (не `PEDSTATE_DIE` / `PEDSTATE_DEAD`);
+3. игрок не в машине (`m_pVehicle == nullptr`).
+
+При невыполнении условия в `lualoader/log.txt` пишется причина, меню не открывается.
+Проверки и команда выполняются на игровом потоке через `ma_cmdq_defer`.
+
+### `save_game_slot(slot)` / `save_to_slot(slot)`
+
+Сохранить игру в указанный слот. `slot` — число **1..8** (один параметр).
+Внутри вызывается нативный `C_PcSave::SaveSlot` по адресу `0x61D8B0`
+(`this = PcSaveHelper @0x9753C4`), внутренний индекс слота = `slot-1`.
+Условия те же, что у `show_save_menu()` (не в миссии, жив, не в машине).
+Результат пишется в лог: `save_game_slot: слот N -> код M` (0 = `SLOT_OK`).
+
+Пример:
+```lua
+save_game_slot(1)   -- сохранить в GTAVCsf1.b (с portablegta — userfiles/GTAVCsf1.b)
+save_to_slot(3)     -- то же для слота 3
+```
+
+### `load_game_slot(slot)` / `load_from_slot(slot)`
+
+Загрузить игру из указанного слота. `slot` — число **1..8** (один параметр).
+Выполняется на игровом потоке:
+
+```cpp
+CheckSlotDataValid(slot-1)           // 0x61A6C0 — проверка + имя файла в 0xA0CE9C
+FrontEndMenuManager.m_bShutDownFrontEndRequested = true;
+FrontEndMenuManager.m_bWantToRestart = true;
+FrontEndMenuManager.m_bWantToLoad = true;
+// сброс затемнения: m_nMenuFadeAlpha=0, m_nMenuFadeAlpha2=0, m_bMenuChangeOngoing=0
+```
+
+Если слота нет/повреждён (`nErrorCode != 0`), загрузка не запускается, причина пишется в лог.
+
+Пример:
+```lua
+load_game_slot(1)   -- загрузить GTAVCsf1.b
+load_from_slot(8)   -- загрузить GTAVCsf8.b
+```
+
+### Важные замечания
+
+- Файлы сохранений: `GTAVCsf<N>.b`; с `portablegta.asi` — `userfiles/GTAVCsf<N>.b`.
+  Имя строится самой игрой (`"%s%i%s"`, префикс из `0x97509C`), плагин не парсит файл.
+- Адреса приведены для GTA Vice City **1.0 EN**.
+- `C_PcSave.cpp` / `GenericGameStorage.cpp` намеренно **не линкуются**: их
+  `PLUGIN_VARIABLE` добавляют глобальный конструктор и ломают BUILD-GATE
+  (`_GLOBAL__sub_I` должно остаться 30). Функции вызываются по адресам.
+- BUILD-GATE после изменений: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.
+
+---
+
+## XXX. ИСПРАВЛЕНИЕ `show_text_key()`: ПОЧЕМУ РЕПЛИКА НЕ ПОЯВЛЯЛАСЬ (25.11.2026)
+
+**Симптом:** в логе `PRINT_NOW command executed`, но текста на экране нет.
+
+**Причина 1 — регистр GXT-ключа.** `CText::Get` @ `0x584F30` ищет ключ через
+`CKeyArray::BinarySearch` @ `0x585A80` → `strcmp` @ `0x642620` — сравнение
+**регистрозависимое**, ключи в GXT хранятся в верхнем регистре (`COK1_6`).
+Старый помощник `ma_run_label_command2()` переводил ключ в нижний регистр
+(`cok1_6`), поэтому игра его не находила. Реальный байткод `main.scm` содержит
+ключи в верхнем регистре (`GOAWAY1`, `NOTAXI`), значит комментарий про
+«нижний регистр reVC» был неверным.
+
+**Причина 2 — формат параметров PRINT_NOW.** В SCM после 8 байт ключа идут
+`05` + 2-байтовое время и `04` + 1-байтовый стиль; помощник писал `01` +
+4-байтовые int.
+
+**Что изменено в `funcs.cpp`:**
+- `show_text_key()` больше не подделывает `CRunningScript`/PRINT_NOW. На игровом
+  потоке он берёт строку через `TheText.Get(key)`, при необходимости грузит
+  миссионную таблицу через `LOAD_MISSION_TEXT`, копирует UTF-16 в
+  `ma_msgpool::putw()` и вызывает `CMessages::AddMessageJumpQ(w, time, style)`.
+- Добавлен `ma_msgpool::putw(const wchar_t*)` — копирование готовой UTF-16 строки
+  без конверсии (движок не копирует переданный `wchar_t*`).
+
+**Как выглядит успешный лог:**
+```
+GXT: show_text_key called key=COK1_6
+GXT: source=MAIN — LOAD_MISSION_TEXT НЕ нужен
+GXT: AddMessageJumpQ выполнен, time=3000
+```
+
+**Проверено:** `show_text_key("COK1_6", 3000, 1)` выводит реплику
+«I'm sick of these pricks.»; `show_text_key("BNK4_3J", 3500, 1)` — через
+`LOAD_MISSION_TEXT BANKJ4` — тоже работает. BUILD-GATE:
+`_GLOBAL__sub_I=30, .tls=0x24`.
+
+Подробный разбор — в `GTAMODS_ВЫВОД_ТЕКСТА_ИССЛЕДОВАНИЕ.md`, раздел 7.

@@ -1450,7 +1450,9 @@ int is_ped_incar(lua_State* L);  // пед в авто или нет?
 int delete_entity(lua_State* L); // удалить сущность сразу.
 int clean_leader(lua_State* L); // перестать следовать за лидером.
 
-int show_save_menu(lua_State* L); // показать меню сохранения.
+int show_save_menu(lua_State* L); // показать меню сохранения (только если игрок жив, не в миссии, не в машине).
+int save_game_slot(lua_State* L); // сохранить игру в слот 1..8 (1 параметр).
+int load_game_slot(lua_State* L); // загрузить игру из слота 1..8 (1 параметр).
 int is_ped_shooting(lua_State* L); // пед стреляет?.
 int set_ped_visible(lua_State* L); // уст невидимость педу.
 int set_player_mod(lua_State* L); // уст настроения игрока.

@@ -1,6 +1,8 @@
 # Исключения: кэш/мусор сборки, бэкапы, сторонние исходники Lua, локальный лог
 lualoader-src/obj/
 lualoader-src/lua/
+fastloadsave-src/obj/
+fastloadsave.log
 *.bak*
 lualoader/log.txt
 lualoader/lualoader.tar
