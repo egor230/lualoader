@@ -152,6 +152,7 @@ function main()                                             -- главная ф
       -- file:write(cord)
       -- file:close()
       radar_change_blip_colour(blip, 4)
+      local gx, gy, gz = find_road_for_car(wx, wy, 10)
       car_to_point(driver, taxi, wx, wy, 10)
       wait(4000)                                   -- пауза перед фразой 1
       show_text_key("COK1_6", 3500, 1) -- фраза cok1_6 по GXT-ключу
@@ -161,7 +162,7 @@ function main()                                             -- главная ф
       while true do wait(10)                                    -- ждём до 60 секунд
        if not isvehicle(taxi) then break end             -- машина исчезла — выходим
         -- команда ехать даётся один раз перед циклом (см. ниже)
-        if  car_in_point_in_radius(taxi, wx, wy, 2.0)  then -- доехали
+        if  car_in_point_in_radius(taxi, wx, wy, 10, 18.0)  then -- доехали
           remove_blip(blip)
           set_car_forward_speed(taxi, 0)                        -- ОСТАНАВЛИВАЕМ такси
           showtext("~b~we're here, boss. / Мы на месте, босс.", 3000, 1) -- финальная фраза
