@@ -47034,6 +47034,12 @@ BUILD-GATE после изменения: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tl
 `setcarcoordes(bike, x, y, waterZ + 0.45)` — это не даёт мотоциклу провалиться
 сквозь дверь. В логе: `WATER_BRIDGE: толчок вверх bikeZ ... -> ...`.
 
+**Коллизия:** у модели `hav_garagedoor1` во встроенном DFF есть `hav_garagedoor1- ColBox`,
+то есть геометрия коллизии существует. Но объект, созданный скриптом через
+`COMMAND_CREATE_OBJECT`, приходит без `bUsesCollision` — поэтому байк проходил
+насквозь. В `make_door` обязательно вызывается `set_object_collision(d, true)`
+(опкод 0382, `pObject->bUsesCollision = true`).
+
 **Поворот:** модель двери по умолчанию стоит вертикально и «разрезает» байк
 вдоль. Правильная ось — **вторая (Y)**: `set_object_rotation(obj, 0, 90, 0)`.
 `SET_OBJECT_ROTATION` принимает **градусы** (в движке `DEGTORAD`).
