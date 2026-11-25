@@ -46999,3 +46999,40 @@ GXT: AddMessageJumpQ выполнен, time=3000
 - `true` возвращается в тот же вызов, в котором слово обнаружено.
 
 BUILD-GATE после изменения: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.
+
+---
+
+## XXXII. МОТОЦИКЛ-ПЛОТ НА ВОДЕ И `get_water_level()` (25.11.2026)
+
+### `get_water_level(x, y)`
+
+Возвращает **Z поверхности воды** в точке `(x, y)` или `nil`, если воды там нет.
+Нативная функция `CWaterLevel::GetWaterLevel` по адресу **`0x5C2C80`**
+(VC 1.0 EN): `bool __cdecl GetWaterLevel(float x, float y, float z, float* out, bool dontCheckZ)`.
+Адрес подтверждён в проекте Vice-City-Rainbomizer (`Functions::GetWaterLevel`).
+Вызывается с `dontCheckZ = true`, поэтому высота точки не влияет на поиск воды.
+
+### Скрипт `lualoader/write_coordinate.lua`
+
+По клавише **B**:
+1. `Createcar(191, x, y, z+1)` — мотоцикл `MODEL_PCJ600`;
+2. `putincar(player, bike)` — пересадка игрока водителем;
+3. `newthread(water_bridge, bike)` — отдельный поток плота.
+
+`water_bridge()` каждый кадр получает `get_water_level(x, y)`. Если вода есть,
+под байком держится **одна** плита модели `1569` (`pw_groundplane`, см.
+`data/maps/haiti/haiti.ide:101`) с Z на 0.25 ниже поверхности воды — байк
+остаётся чуть-чуть в воде, но не тонет. Плита перемещается через
+`setobjcoordes`, при выходе на сушу или из байка удаляется через `remove_obj`.
+
+**Логи в `lualoader/log.txt`:**
+- `VK_B: игрок x=... y=... z=..., создаю байк ...`
+- `VK_B: посадка выполнена, запускаю water_bridge`
+- `VK_B: Createcar вернул nil — байк НЕ создан`
+- `WATER_BRIDGE: поток запущен, байк=...`
+- `WATER_BRIDGE: tick=... x=... y=... bikeZ=... waterZ=... plat=... inWater=...` (каждые 20 кадров)
+- `WATER_BRIDGE: плита СОЗДАНА x=... y=... z=... -> ...`
+- `WATER_BRIDGE: суша — плита удалена`
+- `WATER_BRIDGE: игрок вышел из байка — удаляем плиту`
+
+BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.

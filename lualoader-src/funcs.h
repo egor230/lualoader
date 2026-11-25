@@ -357,6 +357,7 @@ int remove_sphere(lua_State* L); // удалить сферу.
 int remove_ped(lua_State* L); // удалить педа.
 int remove_car(lua_State* L); // удалить авто.
 
+int get_water_level(lua_State* L); // (25.11) Z поверхности воды в точке (x,y) или nil (0x5C2C80).
 int iscar_in_water(lua_State* L); // проверка авто в воде.
 int set_wanted(lua_State* L); // уcтановить уровень розыска.
 int clear_wanted(lua_State* L);// убрать уровень розыска.

@@ -3016,6 +3016,29 @@ int remove_obj(lua_State* L) {// удалить объект.
 	return 0;
 };
 
+// (25.11) Уровень воды в точке. Нативный CWaterLevel::GetWaterLevel @0x5C2C80 (VC 1.0 EN):
+//   bool __cdecl GetWaterLevel(float x, float y, float z, float* out, bool bDontCheckZ)
+// bDontCheckZ = true —высота точки не влияет на поиск воды. Возвращает Z поверхности
+// или nil, если в этой точке воды нет. Адрес подтверждён в Vice-City-Rainbomizer
+// (Functions::GetWaterLevel) и работает на 1.0 EN.
+typedef bool (__cdecl *ma_GetWaterLevel_t)(float, float, float, float*, bool);
+int get_water_level(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {
+			float x = (float)lua_tonumber(L, 1);
+			float y = (float)lua_tonumber(L, 2);
+			float level = -9999.f;
+			bool ok = ((ma_GetWaterLevel_t)0x5C2C80)(x, y, 0.f, &level, true);
+			if (ok) { lua_pushnumber(L, level); return 1; }
+			lua_pushnil(L); return 1;
+		}
+		throw "bad argument in function get_water_level";
+	}
+	catch (const char* x) { writelog(x); }
+	lua_pushnil(L); return 1;
+}
+
 int iscar_in_water(lua_State* L) {// проверка авто в воде.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
