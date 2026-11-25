@@ -4636,16 +4636,25 @@ int checkcheat(lua_State* L) {//чит код введен?.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TSTRING == lua_type(L, 1)) {// если строка
-			string cheat = lua_tostring(L, 1);//
-			if (-1 != cheatstr.find(cheat)) {
-				cheatstr.clear();
-				lua_pushboolean(L, true); cheatstr.erase(0, 1);
+			string cheat = lua_tostring(L, 1);
+			// Клавиатурная задача пишет в cheatstr СТРОЧНЫЕ буквы (getkey),
+			// поэтому запрос тоже приводим к нижнему регистру.
+			for (char& c : cheat) c = (char)tolower((unsigned char)c);
+			// Диагностика: видно, что реально накоплено на момент вызова.
+			string dbg = "cheat: запрос '" + cheat + "', буфер '" + cheatstr + "'";
+			writelog(dbg.c_str());
+			size_t pos = cheatstr.find(cheat);
+			if (pos != string::npos) {
+				// Убираем только совпавшее слово (и всё, что перед ним).
+				// Старый код делал cheatstr.clear() + erase(0,1) по пустой
+				// строке — буфер полностью терялся и следующая проверка
+				// требовала вводить ещё одну букву, чтобы слово появилось снова.
+				cheatstr.erase(0, pos + cheat.size());
+				lua_pushboolean(L, true);
 				return 1;
 			}
-			else {
-				lua_pushboolean(L, false);
-				return 1;
-			}
+			lua_pushboolean(L, false);
+			return 1;
 		}
 		else { throw "bad argument in function getpedarmour option of the player"; }
 	}
