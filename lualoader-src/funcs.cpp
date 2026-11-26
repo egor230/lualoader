@@ -1893,8 +1893,10 @@ int create_door_object_no_offset(lua_State* L) {
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
-			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)
+			&& LUA_TNUMBER == lua_type(L, 5)) {
 			int model = (int)lua_tointeger(L, 1);
+			float rotY = (float)lua_tonumber(L, 5);
 			CVector pos = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
 			if (!ma_model_requestable(model) || !load_model_before_avalible(model)) {
 				writelog("create_door_object_no_offset: модель не загрузилась");
@@ -1911,7 +1913,8 @@ int create_door_object_no_offset(lua_State* L) {
 			CWorld::Remove(obj);
 			// CObject::Init уже ставит bIsStatic=true; SetIsStatic в VC SDK нет.
 			obj->bUsesCollision = true;
-			obj->SetOrientation(0.0f, 3.14159265358979323846f / 2.0f, 0.0f);
+			// rotY в ГРАДУСАХ (0453 внутри DEGTORAD), 0 = модель уже горизонтальная.
+			obj->SetOrientation(0.0f, rotY * 3.14159265358979323846f / 180.0f, 0.0f);
 			obj->GetMatrix().UpdateRW();
 			obj->UpdateRwFrame();
 			CWorld::Add(obj);

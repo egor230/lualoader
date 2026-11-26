@@ -21,21 +21,22 @@ local lift_at        = nil        -- время подъёма (get_timer_ms)
 local lift_z         = 0
 
 local function make_door(x, y, H, tag)
-  -- H = желаемая высота ВЕРХНЕЙ поверхности двери под колёсами.
-  -- CREATE_OBJECT (0107) прячет поправку по boundingBox.min.z, поэтому
-  -- создаём через 029B и считаем origin сами по COL-габаритам модели.
+  -- H = желаемая высота ВЕРХНЕЙ поверхности плиты под колёсами.
+  -- 1569 (pw_groundplane) УЖЕ горизонтальна: rotY=0, верх = max.z.
+  -- 826 (dk_camjonesdoor) — вертикальная плоскость: rotY=90, верх = -min.x,
+  -- но её COL имеет нулевую толщину, поэтому как плот она не годится.
+  local ROT_Y = 0.0
   local mnx, mny, mnz, mxx, mxy, mxz = get_model_col_bounds(PLATFORM_MODEL)
   local oz = H
   if mnx ~= nil then
-    -- Поворот Y=90°: world_z = -local_x => верх = -min(x)
-    local ztop = -math.min(mnx, mxx)
+    local ztop = mxz                         -- rotY=0: верх локального bounding box
     oz = H - ztop
-    log_line(string.format("WATER_BRIDGE: COL 826 min=(%.2f,%.2f,%.2f) max=(%.2f,%.2f,%.2f) ztop=%.2f",
-                           mnx, mny, mnz, mxx, mxy, mxz, ztop))
+    log_line(string.format("WATER_BRIDGE: COL %d min=(%.2f,%.2f,%.2f) max=(%.2f,%.2f,%.2f) ztop=%.2f rotY=%.0f",
+                           PLATFORM_MODEL, mnx, mny, mnz, mxx, mxy, mxz, ztop, ROT_Y))
   else
-    log_line("WATER_BRIDGE: COL нет — origin = H (без поправки)")
+    log_line("WATER_BRIDGE: COL нет — origin = H")
   end
-  local d = create_door_object_no_offset(PLATFORM_MODEL, x, y, oz)
+  local d = create_door_object_no_offset(PLATFORM_MODEL, x, y, oz, ROT_Y)
   if d ~= nil then
     -- Поворот уже применён в native (CWorld::Remove/SetOrientation/Add).
     set_object_collision(d, true)     -- bUsesCollision = true

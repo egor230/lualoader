@@ -47004,7 +47004,7 @@ BUILD-GATE после изменения: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tl
 
 ## XXXII. МОТОЦИКЛ-ПЛОТ НА ВОДЕ И `get_water_level()` (25.11.2026)
 
-### `get_model_col_bounds(model)` / `create_door_object_no_offset(model,x,y,z)` (26.11)
+### `get_model_col_bounds(model)` / `create_door_object_no_offset(model,x,y,z,rotY)` (26.11)
 
 `get_model_col_bounds` возвращает 6 чисел — `min.x,min.y,min.z,max.x,max.y,max.z`
 COL-модели (`CColModel::m_boundBox`) или `nil`, если COL нет.
@@ -47020,10 +47020,14 @@ COL-модели (`CColModel::m_boundBox`) или `nil`, если COL нет.
 После поворота двери на 90° эта поправка уже не соответствует её новой нижней
 грани. С 029B Z задаёт origin модели напрямую.
 
-**Расчёт Z:** при повороте Y=90° из `SetRotate` reVC следует `world_z = -local_x`,
-поэтому верхняя поверхность повёрнутой двери:
-`z_top = -min(x)` (по локальному bounding box). Тогда
-`originZ = H - z_top`, где `H` — нужная высота верха плиты под колёсами.
+**Расчёт Z:**
+- модель 1569 `pw_groundplane` УЖЕ горизонтальна (`min.z≈-0.23, max.z≈1.49`):
+  `rotY = 0`, верх = `max.z`, `originZ = H - max.z`;
+- модель 826 — вертикальная плоскость с нулевой толщиной по X (`rotY=90`,
+  верх = `-min.x`), как плот НЕ работает — байк проходит сквозь неё.
+
+Ошибка предыдущей сборки: 1569 дополнительно повернули на 90°, из-за чего
+ COL стал вертикальным блоком толщиной ~139 м и байк проваливался внутрь.
 
 ### `get_water_level(x, y)`
 
