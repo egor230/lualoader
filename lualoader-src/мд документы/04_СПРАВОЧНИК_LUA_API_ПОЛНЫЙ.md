@@ -47045,6 +47045,13 @@ BUILD-GATE после изменения: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tl
 В `make_door` вызываются `set_object_collision(d, true)` (0382) и
 `dont_remove_object(d)` (01C7 — аналог `RemoveFromMissionCleanupList`).
 
+**Отдельный Lua API `create_door_object(model,x,y,z)` (2413):** обычный
+`Createobj` выгружает модель сразу после CREATE_OBJECT (`release_model`), а
+`Object.Init` в main.scm её удерживает. Если выгрузить модель вместе с её
+коллизией, объект остаётся без коллизии — байк проходит насквозь. Новый API
+вызывает `hold_model(L, model)` вместо `release_model`, поэтому модель и
+коллизия живут, пока живёт скрипт.
+
 **Поворот:** модель двери по умолчанию стоит вертикально и «разрезает» байк
 вдоль. Правильная ось — **вторая (Y)**: `set_object_rotation(obj, 0, 90, 0)`.
 `SET_OBJECT_ROTATION` принимает **градусы** (в движке `DEGTORAD`).

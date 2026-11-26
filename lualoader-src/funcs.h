@@ -302,6 +302,7 @@ int setarmour(lua_State* L);// установить броню педа.
 int getcarhealth(lua_State* L); // получить кол-во здоровья авто.
 int setcarhealth(lua_State* L); // установить здоровье авто.
 
+int create_door_object(lua_State* L); // (26.11) создать объект-дверь с удержанием модели/коллизии.
 int loadmodel(lua_State* L);// загрузить модель.
 int createcar(lua_State* L);// создать авто на координатах на координатах.
 int availablemodel(lua_State* L);// проверка на загруженность модели.

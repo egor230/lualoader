@@ -1829,6 +1829,40 @@ static void hold_model(lua_State* L, int model) {
 	ma_stream_release(model);
 }
 
+// (26.11) Создание objects-двери с УДЕРЖАНИЕМ модели. Обычный Createobj выгружает
+// модель сразу после CREATE_OBJECT (release_model), а main.scm держит её всё время
+// (`Object.Init(#DK_CAMJONESDOOR, ...)` + RemoveFromMissionCleanupList).
+// Если модель с коллизией выгрузить, объект остаётся без коллизии — байк проходит
+// насквозь. Здесь модель держится до конца скрипта (как у педов).
+int create_door_object(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
+			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+			int model = (int)lua_tointeger(L, 1);
+			CVector pos = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
+			if (!ma_model_requestable(model) || !load_model_before_avalible(model)) {
+				writelog("create_door_object: модель не загрузилась");
+				lua_pushnil(L); return 1;
+			}
+			CObject* obj = NULL;
+			Command<COMMAND_CREATE_OBJECT>(model, pos.x, pos.y, pos.z, &obj);
+			if (obj == NULL) {
+				writelog("create_door_object: CREATE_OBJECT вернул NULL");
+				release_model(model);
+				lua_pushnil(L); return 1;
+			}
+			hold_model(L, model);   // НЕ выгружаем: коллизия живёт вместе с моделью
+			{ std::lock_guard<std::mutex> lk(mtx); mapobjs.emplace(obj, L); }
+			lua_pushlightuserdata(L, obj);
+			return 1;
+		}
+		throw "bad argument in function create_door_object";
+	}
+	catch (const char* x) { writelog(x); }
+	lua_pushnil(L); return 1;
+}
+
 // (27.10/04.11) Держание СПЕЦ-МОДЕЛИ (108+slot, 109..116) тем же механизмом: «массив»
 // держаний — owners-карта менеджера стриминга (владелец lua_State* → модель).
 // destroy(L) → ma_stream_let_go_all(L) и cleanstl() → ma_stream_let_go_everything()

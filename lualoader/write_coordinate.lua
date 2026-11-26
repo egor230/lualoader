@@ -20,7 +20,7 @@ local lift_at        = nil        -- время подъёма (get_timer_ms)
 local lift_z         = 0
 
 local function make_door(x, y, z, tag)
-  local d = Createobj(PLATFORM_MODEL, x, y, z)
+  local d = create_door_object(PLATFORM_MODEL, x, y, z)
   if d ~= nil then
     -- модель стоит вертикально: кладём её горизонтально по оси Y (градусы)
     set_object_rotation(d, 0.0, 90.0, 0.0)
@@ -31,7 +31,7 @@ local function make_door(x, y, z, tag)
     log_line(string.format("WATER_BRIDGE: %s дверь x=%.1f y=%.1f z=%.1f -> %s",
                            tag, x, y, z, tostring(d)))
   else
-    log_line("WATER_BRIDGE: " .. tag .. " дверь НЕ создана (Createobj nil)")
+    log_line("WATER_BRIDGE: " .. tag .. " дверь НЕ создана (create_door_object nil)")
   end
   return d
 end
