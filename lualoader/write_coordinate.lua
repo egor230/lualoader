@@ -9,9 +9,10 @@ local door_cur       = nil        -- дверь под байком
 local door_next      = nil        -- дверь впереди по вектору движения
 local bridge_bike    = nil
 local bridge_tick    = 0
-local PLATFORM_MODEL = 826        -- dk_camjonesdoor (docks.ide:188)
--- Именно эту дверь использует main.txt:29495 и рабочий скрипт
--- "Гараж тюннига Кема Джонса" — у неё есть коллизия.
+local PLATFORM_MODEL = 1569       -- pw_groundplane (haiti.ide:101)
+-- Модель 826 (dk_camjonesdoor) имеет COL-плоскость с ТОЛЩИНОЙ X = 0:
+-- она блокирует пешехода вертикально, но НЕ имеет верхней поверхности —
+-- мотоцикл сквозь неё проваливается. 1569 — плоская плита с реальным объёмом.
 local BIKE_MODEL     = 191        -- MODEL_PCJ600
 local SPACING        = 3.0        -- шаг между дверями
 local RELEASE        = 2.5        -- байк ушёл с задней двери
