@@ -47034,11 +47034,16 @@ BUILD-GATE после изменения: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tl
 `setcarcoordes(bike, x, y, waterZ + 0.45)` — это не даёт мотоциклу провалиться
 сквозь дверь. В логе: `WATER_BRIDGE: толчок вверх bikeZ ... -> ...`.
 
-**Коллизия:** у модели `hav_garagedoor1` во встроенном DFF есть `hav_garagedoor1- ColBox`,
-то есть геометрия коллизии существует. Но объект, созданный скриптом через
-`COMMAND_CREATE_OBJECT`, приходит без `bUsesCollision` — поэтому байк проходил
-насквозь. В `make_door` обязательно вызывается `set_object_collision(d, true)`
-(опкод 0382, `pObject->bUsesCollision = true`).
+**Модель взята из рабочего скрипта пользователя** `Гараж тюннига Кема Джонса.cs`
+(из архива «Гараж тюннига Кема Джонса.rar»): там дверь находится через
+`0AE3: random_object_near_point`, а в `data/main.txt:29495` она создаётся как
+`$1438 = Object.Init(#DK_CAMJONESDOOR, -837.134, -901.672, 12.03)`, затем
+`Object.RemoveFromMissionCleanupList($1438)`. ID модели — **826**
+(`dk_camjonesdoor`, `data/maps/docks/docks.ide:188`). У неё работает коллизия,
+в отличие отранее использовавшейся 1388.
+
+В `make_door` вызываются `set_object_collision(d, true)` (0382) и
+`dont_remove_object(d)` (01C7 — аналог `RemoveFromMissionCleanupList`).
 
 **Поворот:** модель двери по умолчанию стоит вертикально и «разрезает» байк
 вдоль. Правильная ось — **вторая (Y)**: `set_object_rotation(obj, 0, 90, 0)`.

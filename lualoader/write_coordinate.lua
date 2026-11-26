@@ -9,7 +9,9 @@ local door_cur       = nil        -- дверь под байком
 local door_next      = nil        -- дверь впереди по вектору движения
 local bridge_bike    = nil
 local bridge_tick    = 0
-local PLATFORM_MODEL = 1388       -- hav_garagedoor1 (littleha.ide:180)
+local PLATFORM_MODEL = 826        -- dk_camjonesdoor (docks.ide:188)
+-- Именно эту дверь использует main.txt:29495 и рабочий скрипт
+-- "Гараж тюннига Кема Джонса" — у неё есть коллизия.
 local BIKE_MODEL     = 191        -- MODEL_PCJ600
 local SPACING        = 3.0        -- шаг между дверями
 local RELEASE        = 2.5        -- байк ушёл с задней двери
@@ -22,9 +24,10 @@ local function make_door(x, y, z, tag)
   if d ~= nil then
     -- модель стоит вертикально: кладём её горизонтально по оси Y (градусы)
     set_object_rotation(d, 0.0, 90.0, 0.0)
-    -- У модели ЕСТЬ ColBox, но скриптовый объект создаётся без collide —
-    -- включаем его, иначе байк проходит насквозь (0382 SET_OBJECT_COLLISION).
+    -- Как в main.scm: объект двери не должен удаляться движком и должен
+    -- сталкиваться (0382 SET_OBJECT_COLLISION / 01C7 DONT_REMOVE_OBJECT).
     set_object_collision(d, true)
+    dont_remove_object(d)
     log_line(string.format("WATER_BRIDGE: %s дверь x=%.1f y=%.1f z=%.1f -> %s",
                            tag, x, y, z, tostring(d)))
   else
