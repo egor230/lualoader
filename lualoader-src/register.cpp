@@ -2479,6 +2479,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "find_all_peds_by_model", find_all_peds_by_model); // 2411 обёртка: find all peds by model
 	lua_register(L, "get_water_level", get_water_level); // 2412 0x5C2C80 уровень воды в точке (x,y) или nil
 	lua_register(L, "create_door_object", create_door_object); // 2413 объект-дверь с удержанием модели/коллизии
+	lua_register(L, "get_model_col_bounds", get_model_col_bounds); // 2414 COL min/max модели (6 чисел или nil)
+	lua_register(L, "create_door_object_no_offset", create_door_object_no_offset); // 2415 дверь через 029B (Z=origin)
 return 0;
 };
 

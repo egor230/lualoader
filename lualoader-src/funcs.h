@@ -303,6 +303,8 @@ int getcarhealth(lua_State* L); // получить кол-во здоровья
 int setcarhealth(lua_State* L); // установить здоровье авто.
 
 int create_door_object(lua_State* L); // (26.11) создать объект-дверь с удержанием модели/коллизии.
+int get_model_col_bounds(lua_State* L); // (26.11) min/max COL boundingBox модели (6 чисел или nil).
+int create_door_object_no_offset(lua_State* L); // (26.11) дверь через 029B, Z = origin, статичная, collide.
 int loadmodel(lua_State* L);// загрузить модель.
 int createcar(lua_State* L);// создать авто на координатах на координатах.
 int availablemodel(lua_State* L);// проверка на загруженность модели.

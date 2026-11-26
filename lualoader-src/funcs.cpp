@@ -3,6 +3,8 @@
 #include "compat/ma_mapcoords.h"
 #include "cDMAudio.h"
 #include "CText.h"
+#include "CColModel.h"      // (26.11) COL boundingBox моделей дверей
+#include "CBox.h"
 #include <mmsystem.h>   // PlaySoundA — WAV из Audio/
 
 // === НОРМАЛИЗАЦИЯ БУЛЕВЫХ АРГУМЕНТОВ (23.11.2026) ===
@@ -1858,6 +1860,66 @@ int create_door_object(lua_State* L) {
 			return 1;
 		}
 		throw "bad argument in function create_door_object";
+	}
+	catch (const char* x) { writelog(x); }
+	lua_pushnil(L); return 1;
+}
+
+// (26.11) COL-габариты модели: min/max условий boxes. Нужны, чтобы посчитать
+// настоящий Z origin для двери, повёрнутой горизонтально (0107 прячет поправку).
+int get_model_col_bounds(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushnil(L); return 1; }
+	int model = (int)lua_tointeger(L, 1);
+	CBaseModelInfo* mi = CModelInfo::GetModelInfo(model);
+	CColModel* col = mi ? mi->GetColModel() : nullptr;
+	if (!col) {
+		writelog("get_model_col_bounds: COL модели нет");
+		lua_pushnil(L); return 1;
+	}
+	lua_pushnumber(L, col->m_boundBox.m_vecMin.x);
+	lua_pushnumber(L, col->m_boundBox.m_vecMin.y);
+	lua_pushnumber(L, col->m_boundBox.m_vecMin.z);
+	lua_pushnumber(L, col->m_boundBox.m_vecMax.x);
+	lua_pushnumber(L, col->m_boundBox.m_vecMax.y);
+	lua_pushnumber(L, col->m_boundBox.m_vecMax.z);
+	return 6;
+}
+
+// (26.11) Дверь-платформа через CREATE_OBJECT_NO_OFFSET (029B): Z = origin модели,
+// без скрытой поправки 0107 по boundingBox.min.z. Модель удерживается, объект
+// статический, collide включён, поворот 90° по Y применяется через CWorld.
+int create_door_object_no_offset(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	try {
+		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
+			&& LUA_TNUMBER == lua_type(L, 3) && LUA_TNUMBER == lua_type(L, 4)) {
+			int model = (int)lua_tointeger(L, 1);
+			CVector pos = { (float)lua_tonumber(L, 2), (float)lua_tonumber(L, 3), (float)lua_tonumber(L, 4) };
+			if (!ma_model_requestable(model) || !load_model_before_avalible(model)) {
+				writelog("create_door_object_no_offset: модель не загрузилась");
+				lua_pushnil(L); return 1;
+			}
+			CObject* obj = NULL;
+			Command<COMMAND_CREATE_OBJECT_NO_OFFSET>(model, pos.x, pos.y, pos.z, &obj);
+			if (obj == NULL) {
+				writelog("create_door_object_no_offset: CREATE_OBJECT_NO_OFFSET вернул NULL");
+				release_model(model);
+				lua_pushnil(L); return 1;
+			}
+			hold_model(L, model);   // COL живёт вместе с моделью
+			CWorld::Remove(obj);
+			// CObject::Init уже ставит bIsStatic=true; SetIsStatic в VC SDK нет.
+			obj->bUsesCollision = true;
+			obj->SetOrientation(0.0f, 3.14159265358979323846f / 2.0f, 0.0f);
+			obj->GetMatrix().UpdateRW();
+			obj->UpdateRwFrame();
+			CWorld::Add(obj);
+			{ std::lock_guard<std::mutex> lk(mtx); mapobjs.emplace(obj, L); }
+			lua_pushlightuserdata(L, obj);
+			return 1;
+		}
+		throw "bad argument in function create_door_object_no_offset";
 	}
 	catch (const char* x) { writelog(x); }
 	lua_pushnil(L); return 1;

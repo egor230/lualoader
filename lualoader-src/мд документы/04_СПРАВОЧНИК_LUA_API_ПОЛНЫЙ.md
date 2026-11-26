@@ -47004,6 +47004,27 @@ BUILD-GATE после изменения: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tl
 
 ## XXXII. МОТОЦИКЛ-ПЛОТ НА ВОДЕ И `get_water_level()` (25.11.2026)
 
+### `get_model_col_bounds(model)` / `create_door_object_no_offset(model,x,y,z)` (26.11)
+
+`get_model_col_bounds` возвращает 6 чисел — `min.x,min.y,min.z,max.x,max.y,max.z`
+COL-модели (`CColModel::m_boundBox`) или `nil`, если COL нет.
+
+`create_door_object_no_offset` создаёт объект через `COMMAND_CREATE_OBJECT_NO_OFFSET`
+(029B), удерживает модель через `hold_model`, оставляет объект `MISSION_OBJECT`
+и статичным, включает `bUsesCollision`, применяет поворот 90° по Y через
+`CWorld::Remove / SetOrientation / UpdateRW / UpdateRwFrame / CWorld::Add`
+(та же последовательность, что в обработчике 0453).
+
+**Почему 029B, а не 0107:** `CREATE_OBJECT` (0107) прибавляет к переданному Z
+скрытую поправку `GetDistanceFromCentreOfMassToBaseOfModel()` = `-boundingBox.min.z`.
+После поворота двери на 90° эта поправка уже не соответствует её новой нижней
+грани. С 029B Z задаёт origin модели напрямую.
+
+**Расчёт Z:** при повороте Y=90° из `SetRotate` reVC следует `world_z = -local_x`,
+поэтому верхняя поверхность повёрнутой двери:
+`z_top = -min(x)` (по локальному bounding box). Тогда
+`originZ = H - z_top`, где `H` — нужная высота верха плиты под колёсами.
+
 ### `get_water_level(x, y)`
 
 Возвращает **Z поверхности воды** в точке `(x, y)` или `nil`, если воды там нет.

@@ -19,19 +19,31 @@ local lift_bike      = nil        -- байк, который надо прип�
 local lift_at        = nil        -- время подъёма (get_timer_ms)
 local lift_z         = 0
 
-local function make_door(x, y, z, tag)
-  local d = create_door_object(PLATFORM_MODEL, x, y, z)
-  if d ~= nil then
-    -- модель стоит вертикально: кладём её горизонтально по оси Y (градусы)
-    set_object_rotation(d, 0.0, 90.0, 0.0)
-    -- Как в main.scm: объект двери не должен удаляться движком и должен
-    -- сталкиваться (0382 SET_OBJECT_COLLISION / 01C7 DONT_REMOVE_OBJECT).
-    set_object_collision(d, true)
-    dont_remove_object(d)
-    log_line(string.format("WATER_BRIDGE: %s дверь x=%.1f y=%.1f z=%.1f -> %s",
-                           tag, x, y, z, tostring(d)))
+local function make_door(x, y, H, tag)
+  -- H = желаемая высота ВЕРХНЕЙ поверхности двери под колёсами.
+  -- CREATE_OBJECT (0107) прячет поправку по boundingBox.min.z, поэтому
+  -- создаём через 029B и считаем origin сами по COL-габаритам модели.
+  local mnx, mny, mnz, mxx, mxy, mxz = get_model_col_bounds(PLATFORM_MODEL)
+  local oz = H
+  if mnx ~= nil then
+    -- Поворот Y=90°: world_z = -local_x => верх = -min(x)
+    local ztop = -math.min(mnx, mxx)
+    oz = H - ztop
+    log_line(string.format("WATER_BRIDGE: COL 826 min=(%.2f,%.2f,%.2f) max=(%.2f,%.2f,%.2f) ztop=%.2f",
+                           mnx, mny, mnz, mxx, mxy, mxz, ztop))
   else
-    log_line("WATER_BRIDGE: " .. tag .. " дверь НЕ создана (create_door_object nil)")
+    log_line("WATER_BRIDGE: COL нет — origin = H (без поправки)")
+  end
+  local d = create_door_object_no_offset(PLATFORM_MODEL, x, y, oz)
+  if d ~= nil then
+    -- Поворот уже применён в native (CWorld::Remove/SetOrientation/Add).
+    set_object_collision(d, true)     -- bUsesCollision = true
+    set_object_dynamic(d, false)      -- застраховать статичность
+    dont_remove_object(d)             -- как RemoveFromMissionCleanupList в main.scm
+    log_line(string.format("WATER_BRIDGE: %s дверь H=%.1f originZ=%.2f x=%.1f y=%.1f -> %s",
+                           tag, H, oz, x, y, tostring(d)))
+  else
+    log_line("WATER_BRIDGE: " .. tag .. " дверь НЕ создана (create_door_object_no_offset nil)")
   end
   return d
 end
@@ -78,7 +90,7 @@ function water_bridge_step()
   -- Цепочка работает и на суше, и на воде: двери НЕ двигаются за байком.
   local dx, dy = getobjcoordes(door_cur)
   if dx == nil or dy == nil then
-    door_cur = make_door(x, y, (wz or z) - 0.25, "под байком (заново)")
+    door_cur = make_door(x, y, (wz or z) - 0.1, "под байком (заново)")
   else
     local dist = math.sqrt((x - dx) ^ 2 + (y - dy) ^ 2)
     if dist > RELEASE then
@@ -91,7 +103,7 @@ function water_bridge_step()
       local fx, fy = forward_vec()
       local nx, ny = x + fx * SPACING, y + fy * SPACING
       local nwz = get_water_level(nx, ny)
-      door_next = make_door(nx, ny, (nwz or wz or z) - 0.25, "впереди")
+      door_next = make_door(nx, ny, (nwz or wz or z) - 0.1, "впереди")
     end
   end
   -- гарантированно ДВЕ двери: если впереди нет — создаём
@@ -99,7 +111,7 @@ function water_bridge_step()
     local fx, fy = forward_vec()
     local nx, ny = x + fx * SPACING, y + fy * SPACING
     local nwz = get_water_level(nx, ny)
-    door_next = make_door(nx, ny, (nwz or wz or z) - 0.25, "впереди")
+    door_next = make_door(nx, ny, (nwz or wz or z) - 0.1, "впереди")
   end
 
 end
@@ -135,10 +147,10 @@ while true do wait()
       bridge_bike = bike
       bridge_tick = 0
       -- СНАЧАЛА мотоцикл, ПОТОМ ДВЕ двери: одна под ним, вторая впереди.
-      door_cur = make_door(x, y, z - 0.5, "под байком")
+      door_cur = make_door(x, y, z - 0.1, "под байком")
       local h = math.rad(get_car_heading(bike) or 0)
       local nx, ny = x + math.sin(h) * SPACING, y + math.cos(h) * SPACING
-      door_next = make_door(nx, ny, z - 0.5, "впереди")
+      door_next = make_door(nx, ny, z - 0.1, "впереди")
       -- Байк чуть ВЫШЕ дверей, чтобы упасть на них (не проходить сквозь).
       -- СНАЧАЛА дверь создана, и только ЧЕРЕЗ 1 СЕКУНДУ поднимаем байк:
       -- за это время объект успевает зарегистрировать коллизию.
