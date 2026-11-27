@@ -37,11 +37,14 @@ local MODEL_INTACT    = -127
 local MODEL_DESTROYED = -126
 
 local busy = false
+local mission_done = false   -- миссия пройдена: после этого здание НЕ восстанавливаем
 
 -- Восстановить здание, если оно уже разрушено (второй запуск миссии).
 -- Нативная команда 03B6 меняет модель ближайшего здания; если модель уже
 -- целая, вызов ничего не портит (идемпотентно).
 local function ensure_building_intact()
+  -- После прохождения миссии здание НЕ восстанавливаем — только перед запуском.
+  if mission_done then return false end
   loadmodel(MODEL_INTACT)
   local tries = 0
   while not availablemodel(MODEL_INTACT) and tries < 200 do
@@ -289,6 +292,8 @@ function main()
 
         -- log_line("======== DEMOLITION END: все 4 бомбы обработаны ========")
         dump_states("финал")
+        -- миссия пройдена: дальше ensure_building_intact() заблокирован
+        mission_done = true
         -- airship cheat НЕ выключаем
       end
       busy = false
