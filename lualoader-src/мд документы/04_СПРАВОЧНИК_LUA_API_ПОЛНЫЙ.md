@@ -47108,3 +47108,26 @@ COL-модели (`CColModel::m_boundBox`) или `nil`, если COL нет.
 `байк ушёл на ... м — удаляем прежнюю дверь`, `толчок вверх bikeZ ... -> ...`.
 
 BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.
+
+---
+
+## XXXIII. ПОВТОРНЫЙ ЗАПУСК МИССИИ 19 «DEMOLITION MAN» (27.11.2026)
+
+В `lualoader/Автопрохождение_Demolition Man.lua` добавлен запуск миссии через
+`start_mission_restored(MISSION_ID)`: перед `start_mission_original(19)` вызывается
+`ensure_building_intact()`.
+
+По исходнику `Source missions/Оригинал игры (97 миссий)/19 - Demolition Man.txt`
+здание миссии меняется опкодом `03B6 SWAP_NEAREST_BUILDING_MODEL`:
+
+```
+117.991, -362.461, 10.179, радиус 80
+целое       = модель -127
+разрушенное = модель -126
+```
+
+`ensure_building_intact()` грузит модель `-127` через `loadmodel`, ждёт
+`availablemodel`, вызывает
+`swap_nearest_building_model(117.991, -362.461, 10.179, 80, -126, -127)`
+и освобождает модель. Вызов идемпотентен: если здание уже целое, модель не меняется.
+В лог пишется `STEP2a: здание восстановлено (-126 -> -127) ...`.

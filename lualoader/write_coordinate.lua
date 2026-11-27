@@ -166,9 +166,9 @@ while true do wait()
       printmessage("bike creation failed", 2500, 1)
     end
   end
- if Keypress("VK_S")
- then show_save_menu()
- end
+ -- if Keypress("VK_S")
+ -- then show_save_menu()
+ -- end
  end
 end
 
