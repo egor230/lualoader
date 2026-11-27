@@ -2481,6 +2481,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "create_door_object", create_door_object); // 2413 объект-дверь с удержанием модели/коллизии
 	lua_register(L, "get_model_col_bounds", get_model_col_bounds); // 2414 COL min/max модели (6 чисел или nil)
 	lua_register(L, "create_door_object_no_offset", create_door_object_no_offset); // 2415 дверь через 029B (Z=origin)
+	lua_register(L, "reset_cheat", reset_cheat); // 2416 обнулить строку набранного чит-кода (пробел)
 return 0;
 };
 

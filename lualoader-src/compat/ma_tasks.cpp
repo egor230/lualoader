@@ -382,6 +382,16 @@ bool ma_task_keyboard::step() {
     // в пути Lua (прежние ~183 GetAsyncKeyState/кадр на чек-стринг сняты).
     ma_keys_poll();
 
+    // ---- ПРОБЕЛ сбрасывает набранный чит-код ----
+    // (28.11, директива юзера) по краю нажатия: пробел НЕ добавляется в cheatstr,
+    // а обнуляет всю строку — можно заново набирать слово.
+    {
+        static bool last_space = false;
+        bool space = ma_keys().held[VK_SPACE] != 0;
+        if (space && !last_space) cheatstr.clear();
+        last_space = space;
+    }
+
     // ---- Ctrl-фаза: аналогия reload() ----
     // Фазовая машина: «был отжат -> нажат» = одно нажатие = один teardown_all(true)
     // (вызовет plugin.cpp по флагу ctrl_req). Пока Ctrl удерживаем, ждём отпускания.

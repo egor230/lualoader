@@ -4754,6 +4754,15 @@ int ped_attack_car(lua_State* L) {// пед атакует авто.
 	return 0;
 };
 
+// (28.11) Сброс набранного чит-кода: Lua-вызов и то же, что делает пробел
+// в клавиатурной задаче (compat/ma_tasks.cpp).
+int reset_cheat(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
+	cheatstr.clear();
+	lua_pushboolean(L, true);
+	return 1;
+}
+
 int checkcheat(lua_State* L) {//чит код введен?.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {

@@ -410,6 +410,7 @@ int setcarangle(lua_State* L); // установить угол авто.
 
 int createmarker(lua_State* L); // создать маркер на карте.
 int setsizemarker(lua_State* L); // установить размер отображение маркера на карте.
+int reset_cheat(lua_State* L); // (28.11) обнулить строку ввода чит-кода (пробел).
 int checkcheat(lua_State* L); // чит код введен?.
 int destroy(lua_State* L); // удаления объектов из памяти при перезагрузки скрипта.
 

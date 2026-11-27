@@ -138,34 +138,34 @@ while true do wait()
  i=i+1
  end
 
-  if Keypress("VK_B")
-  then
-    local x, y, z = getpedcoordes(player)
-    log_line(string.format("VK_B: игрок x=%.1f y=%.1f z=%.1f, создаю байк %d",
-                           x, y, z, BIKE_MODEL))
-    local bike = Createcar(BIKE_MODEL, x, y, z + 1.0)
-    if bike ~= nil then
-      putincar(player, bike)
-      bridge_bike = bike
-      bridge_tick = 0
-      -- СНАЧАЛА мотоцикл, ПОТОМ ДВЕ двери: одна под ним, вторая впереди.
-      door_cur = make_door(x, y, z - 0.1, "под байком")
-      local h = math.rad(get_car_heading(bike) or 0)
-      local nx, ny = x + math.sin(h) * SPACING, y + math.cos(h) * SPACING
-      door_next = make_door(nx, ny, z - 0.1, "впереди")
-      -- Байк чуть ВЫШЕ дверей, чтобы упасть на них (не проходить сквозь).
-      -- СНАЧАЛА дверь создана, и только ЧЕРЕЗ 1 СЕКУНДУ поднимаем байк:
-      -- за это время объект успевает зарегистрировать коллизию.
-      lift_bike = bike
-      lift_z = z + 4.0
-      lift_at = get_timer_ms() + 1000
-      log_line(string.format("VK_B: двери созданы; байк поднимется через 1 сек до z=%.1f", lift_z))
-      printmessage("bike + 2 garage doors", 2500, 1)
-    else
-      log_line("VK_B: Createcar вернул nil — байк НЕ создан")
-      printmessage("bike creation failed", 2500, 1)
-    end
-  end
+  -- if Keypress("VK_B")
+  -- then
+  --   local x, y, z = getpedcoordes(player)
+  --   log_line(string.format("VK_B: игрок x=%.1f y=%.1f z=%.1f, создаю байк %d",
+  --                          x, y, z, BIKE_MODEL))
+  --   local bike = Createcar(BIKE_MODEL, x, y, z + 1.0)
+  --   if bike ~= nil then
+  --     putincar(player, bike)
+  --     bridge_bike = bike
+  --     bridge_tick = 0
+  --     -- СНАЧАЛА мотоцикл, ПОТОМ ДВЕ двери: одна под ним, вторая впереди.
+  --     door_cur = make_door(x, y, z - 0.1, "под байком")
+  --     local h = math.rad(get_car_heading(bike) or 0)
+  --     local nx, ny = x + math.sin(h) * SPACING, y + math.cos(h) * SPACING
+  --     door_next = make_door(nx, ny, z - 0.1, "впереди")
+  --     -- Байк чуть ВЫШЕ дверей, чтобы упасть на них (не проходить сквозь).
+  --     -- СНАЧАЛА дверь создана, и только ЧЕРЕЗ 1 СЕКУНДУ поднимаем байк:
+  --     -- за это время объект успевает зарегистрировать коллизию.
+  --     lift_bike = bike
+  --     lift_z = z + 4.0
+  --     lift_at = get_timer_ms() + 1000
+  --     log_line(string.format("VK_B: двери созданы; байк поднимется через 1 сек до z=%.1f", lift_z))
+  --     printmessage("bike + 2 garage doors", 2500, 1)
+  --   else
+  --     log_line("VK_B: Createcar вернул nil — байк НЕ создан")
+  --     printmessage("bike creation failed", 2500, 1)
+  --   end
+  -- end
  -- if Keypress("VK_S")
  -- then show_save_menu()
  -- end
