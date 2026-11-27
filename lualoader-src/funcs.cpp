@@ -35289,6 +35289,34 @@ int start_mission_orig(lua_State* L) {
         Command<COMMAND_SWITCH_ROADS_ON>(b[0], b[1], b[2], b[3], b[4], b[5]);
         Command<COMMAND_SWITCH_PED_ROADS_ON>(b[0], b[1], b[2], b[3], b[4], b[5]);
     }
+
+    // (27.11) Миссия 19 «Demolition Man»: перед запуском здание должно быть целым.
+    // Проверка и восстановление делаются ЗДЕСЬ, в C++, чтобы работало при любом
+    // вызове start_mission_original(19) — из любого Lua-скрипта.
+    // Значения взяты из исходника миссии (19 - Demolition Man.txt):
+    //   03B6: SWAP_NEAREST_BUILDING_MODEL 117.991 -362.461 10.179 80 -127 -126
+    //   -127 = целое здание, -126 = разрушенное.
+    if (index == 19) {
+        const int modelIntact = -127;
+        Command<COMMAND_REQUEST_MODEL>(modelIntact);
+        Command<COMMAND_LOAD_ALL_MODELS_NOW>(false);
+        int tries = 0;
+        while (!Command<COMMAND_HAS_MODEL_LOADED>(modelIntact) && tries < 2000) {
+            this_thread::sleep_for(chrono::milliseconds(1));
+            Command<COMMAND_REQUEST_MODEL>(modelIntact);
+            ++tries;
+        }
+        if (Command<COMMAND_HAS_MODEL_LOADED>(modelIntact)) {
+            Command<COMMAND_SWAP_NEAREST_BUILDING_MODEL>(
+                117.991f, -362.461f, 10.179f, 80.0f, -126, -127);
+            writelog("start_mission_orig: миссия 19 — здание восстановлено (-126 -> -127)");
+        }
+        else {
+            writelog("start_mission_orig: миссия 19 — модель -127 не загрузилась");
+        }
+        release_model(modelIntact);
+    }
+
     Command<COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL>(index);
     lua_pushboolean(L, true); return 1;
 }

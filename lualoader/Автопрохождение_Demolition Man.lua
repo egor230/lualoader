@@ -27,46 +27,6 @@ local PLANT_POINT = {
 local PLANT_Z_ADD = 2.0
 local BOMB_STATE = {3392, 3393, 3394, 3395}
 
--- Здание из миссии 19 (SWAP_NEAREST_BUILDING_MODEL в исходнике):
--- целое = -127, разрушенное = -126, координаты и радиус — из main.scm.
-local BUILDING_X     = 117.991
-local BUILDING_Y     = -362.461
-local BUILDING_Z     = 10.179
-local BUILDING_RADIUS = 80
-local MODEL_INTACT    = -127
-local MODEL_DESTROYED = -126
-
-local busy = false
-
--- Восстановить здание, если оно уже разрушено (второй запуск миссии).
--- Нативная команда 03B6 меняет модель ближайшего здания; если модель уже
--- целая, вызов ничего не портит (идемпотентно).
-local function ensure_building_intact()
-  -- Вызывается только перед запуском миссии: если здание разрушено — чиним.
-  loadmodel(MODEL_INTACT)
-  local tries = 0
-  while not availablemodel(MODEL_INTACT) and tries < 200 do
-    wait(10)
-    tries = tries + 1
-  end
-  if not availablemodel(MODEL_INTACT) then
-    -- log_line("STEP2a: модель -127 НЕ загрузилась — здание не восстанавливалось")
-    return false
-  end
-  swap_nearest_building_model(BUILDING_X, BUILDING_Y, BUILDING_Z,
-                              BUILDING_RADIUS, MODEL_DESTROYED, MODEL_INTACT)
-  releasemodel(MODEL_INTACT)
-  -- log_line(string.format("STEP2a: здание восстановлено (-126 -> -127) x=%.3f y=%.3f r=%d",
-                         -- BUILDING_X, BUILDING_Y, BUILDING_RADIUS))
-  return true
-end
-
--- Запуск миссии с гарантией, что здание целое.
-local function start_mission_restored(missionId)
-  ensure_building_intact()
-  start_mission_original(missionId)
-end
-
 -- подробная строка состояния всех счётчиков
 local function dump_states(label)
   -- log_line(string.format("STATE [%s]: $3391=%s $3392=%s $3393=%s $3394=%s $3395=%s remote=%s",
@@ -94,9 +54,9 @@ function main()
       cleanarea(fx, fy, fz, 3, 1)
       -- log_line("STEP1: Томми у фургона")
 
-      -- 2) миссия (сначала восстанавливаем здание, если оно разрушено)
-      start_mission_restored(MISSION_ID)
-      -- log_line("STEP2: миссия 19 запущена (здание целое)")
+      -- 2) миссия (проверка/восстановление здания — внутри C++ start_mission_original)
+      start_mission_original(MISSION_ID)
+      -- log_line("STEP2: миссия 19 запущена")
       dump_states("после старта миссии")
 
       -- 3) сесть в фургон
