@@ -7467,6 +7467,111 @@ int setstamina_ped(lua_State* L) { // установить выносливос�
 	return 0;
 };
 
+// === (28.11) ВЫНОСЛИВОСТЬ ИГРОКА / УЛИЧНОЕ ОСВЕЩЕНИЕ / ТИПЫ АВТО ===
+// Смещения CPed подтверждены GTAMods Memory Addresses (VC):
+//   +0x600 float stamina, +0x604 float max stamina, +0x608 float stamina duration.
+static CPed* ma_stamina_ped() { return FindPlayerPed(); }
+
+int get_stamina(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	CPed* p = ma_stamina_ped();
+	lua_pushnumber(L, p ? *reinterpret_cast<float*>((char*)p + 0x600) : 0.f);
+	return 1;
+}
+int set_stamina(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
+	CPed* p = ma_stamina_ped();
+	if (!p) { lua_pushboolean(L, false); return 1; }
+	*reinterpret_cast<float*>((char*)p + 0x600) = (float)lua_tonumber(L, 1);
+	lua_pushboolean(L, true); return 1;
+}
+int get_max_stamina(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	CPed* p = ma_stamina_ped();
+	lua_pushnumber(L, p ? *reinterpret_cast<float*>((char*)p + 0x604) : 0.f);
+	return 1;
+}
+int set_max_stamina(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
+	CPed* p = ma_stamina_ped();
+	if (!p) { lua_pushboolean(L, false); return 1; }
+	*reinterpret_cast<float*>((char*)p + 0x604) = (float)lua_tonumber(L, 1);
+	lua_pushboolean(L, true); return 1;
+}
+int get_stamina_duration(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	CPed* p = ma_stamina_ped();
+	lua_pushnumber(L, p ? *reinterpret_cast<float*>((char*)p + 0x608) : 0.f);
+	return 1;
+}
+int set_stamina_duration(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
+	CPed* p = ma_stamina_ped();
+	if (!p) { lua_pushboolean(L, false); return 1; }
+	*reinterpret_cast<float*>((char*)p + 0x608) = (float)lua_tonumber(L, 1);
+	lua_pushboolean(L, true); return 1;
+}
+
+// Уличные фонари в VC включаются по времени суток — отдельного флага в
+// GTAMods Memory Addresses (VC) нет. Проверка по игровым часам: 19:00..06:00.
+int are_street_lights_on(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	int h = (int)CClock::ms_nGameClockHours;
+	bool on = (h >= 19 || h < 6);
+	lua_pushboolean(L, on); return 1;
+}
+
+// Тип шин / двигателя — поля CVehicleModelInfo (Plugin-SDK, VC):
+//   +0x40 float m_fWheelSize, +0x44 short m_nWheelModelIndex,
+//   +0x46 short m_nHandlingId.
+static CVehicleModelInfo* ma_vehicle_model(int model) {
+	CBaseModelInfo* mi = CModelInfo::GetModelInfo(model);
+	if (!mi || mi->m_nType != MODEL_INFO_VEHICLE) return nullptr;
+	return static_cast<CVehicleModelInfo*>(mi);
+}
+int get_vehicle_wheel_size(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushnil(L); return 1; }
+	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
+	lua_pushnumber(L, v ? v->m_fWheelSize : 0.f); return 1;
+}
+int set_vehicle_wheel_size(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
+	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
+	if (!v) { lua_pushboolean(L, false); return 1; }
+	v->m_fWheelSize = (float)lua_tonumber(L, 2); lua_pushboolean(L, true); return 1;
+}
+int get_vehicle_wheel_type(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushnil(L); return 1; }
+	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
+	lua_pushinteger(L, v ? v->m_nWheelModelIndex : -1); return 1;
+}
+int set_vehicle_wheel_type(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
+	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
+	if (!v) { lua_pushboolean(L, false); return 1; }
+	v->m_nWheelModelIndex = (short)lua_tointeger(L, 2); lua_pushboolean(L, true); return 1;
+}
+int get_vehicle_engine_type(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushnil(L); return 1; }
+	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
+	lua_pushinteger(L, v ? v->m_nHandlingId : -1); return 1;
+}
+int set_vehicle_engine_type(lua_State* L) {
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
+	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
+	if (!v) { lua_pushboolean(L, false); return 1; }
+	v->m_nHandlingId = (short)lua_tointeger(L, 2); lua_pushboolean(L, true); return 1;
+}
+
 int get_radio_car(lua_State* L) { // получить текущую радиостанцию авто.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {

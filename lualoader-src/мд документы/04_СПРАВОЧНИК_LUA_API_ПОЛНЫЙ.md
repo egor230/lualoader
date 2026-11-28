@@ -47152,3 +47152,38 @@ BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.
   очистки `cheatstr.clear()` из скрипта.
 
 BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.
+
+---
+
+## XXXV. СВЕТ, ВЫНОСЛИВОСТЬ, УЛИЧНОЕ ОСВЕЩЕНИЕ И ТИПЫ АВТО (28.11.2026)
+
+### Уже было в плагине
+- `get_car_lights_on(car)` / `set_car_lights_on(car, bool)` — фары конкретного авто (`CVehicle::bLightsOn`).
+- `set_headlights_on()` / `set_headlights_off()` / `is_headlights_on()` — фары авто игрока
+  через `0x7E49C0 + 0x1F9` и патч `0x58CD4E`.
+- `getstamina_ped(ped)` / `setstamina_ped(ped, v)` — выносливость по указателю педа (`+0x600`).
+- `get_m_ambient_lighting()` / `set_m_ambient_lighting(v)` — `0x698A8C`.
+- `get_game_hours()` / `set_game_hours()` / `set_time_of_day()` и др. — время суток.
+
+### Добавлено (2417–2429)
+| Функция | Что делает |
+|---|---|
+| `get_stamina()` / `set_stamina(v)` | выносливость игрока, `CPed + 0x600` |
+| `get_max_stamina()` / `set_max_stamina(v)` | максимум, `+0x604` (по умолчанию 150.0) |
+| `get_stamina_duration()` / `set_stamina_duration(v)` | длительность, `+0x608` (рост макс. на 10 при 500.0) |
+| `are_street_lights_on()` | `true` в 19:00–06:00 по `CClock::ms_nGameClockHours` |
+| `get_vehicle_wheel_size(model)` / `set_...` | `CVehicleModelInfo + 0x40` (`m_fWheelSize`) |
+| `get_vehicle_wheel_type(model)` / `set_...` | `+0x44` (`m_nWheelModelIndex`) |
+| `get_vehicle_engine_type(model)` / `set_...` | `+0x46` (`m_nHandlingId`) |
+
+Смещения выносливости подтверждены GTAMods Memory Addresses (VC), поля
+`CVehicleModelInfo` — Plugin-SDK (`VALIDATE_OFFSET`: 0x40, 0x44, 0x46).
+
+**Про уличное освещение:** ни в GTAMods Memory Addresses (VC), ни в найденных
+исходниках reVC нет отдельного флага «street lights on/off» — в Vice City фонари
+привязаны ко времени суток. Поэтому `are_street_lights_on()` — проверка по игровым
+часам, а не чтение invent адреса. Управлять временем можно через
+`set_time_of_day(h, m)` / `set_game_hours(h)`; яркость окружения — через
+`set_m_ambient_lighting(v)`.
+
+BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.

@@ -1397,6 +1397,20 @@ int set_time_scale(lua_State* L); // установить ход времени 
 int is_ped_in_air(lua_State* L); // если пед в воздухе.
 
 int kill_peds_in_car(lua_State* L); // убить педов в авто.
+// (28.11) Выносливость игрока, уличное освещение, типы шин/двигателя
+int get_stamina(lua_State* L);
+int set_stamina(lua_State* L);
+int get_max_stamina(lua_State* L);
+int set_max_stamina(lua_State* L);
+int get_stamina_duration(lua_State* L);
+int set_stamina_duration(lua_State* L);
+int are_street_lights_on(lua_State* L);
+int get_vehicle_wheel_size(lua_State* L);
+int set_vehicle_wheel_size(lua_State* L);
+int get_vehicle_wheel_type(lua_State* L);
+int set_vehicle_wheel_type(lua_State* L);
+int get_vehicle_engine_type(lua_State* L);
+int set_vehicle_engine_type(lua_State* L);
 int getstamina_ped(lua_State* L); // получить выносливость педа.
 int setstamina_ped(lua_State* L); // установить выносливость педа.
 int get_radio_car(lua_State* L); // получить текущую радиостанцию авто.

@@ -2482,6 +2482,19 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_model_col_bounds", get_model_col_bounds); // 2414 COL min/max модели (6 чисел или nil)
 	lua_register(L, "create_door_object_no_offset", create_door_object_no_offset); // 2415 дверь через 029B (Z=origin)
 	lua_register(L, "reset_cheat", reset_cheat); // 2416 обнулить строку набранного чит-кода (пробел)
+	lua_register(L, "get_stamina", get_stamina); // 2417 текущая выносливость игрока (+0x600)
+	lua_register(L, "set_stamina", set_stamina); // 2418 установить выносливость
+	lua_register(L, "get_max_stamina", get_max_stamina); // 2419 макс. выносливость (+0x604)
+	lua_register(L, "set_max_stamina", set_max_stamina); // 2420 установить макс. выносливость
+	lua_register(L, "get_stamina_duration", get_stamina_duration); // 2421 длительность (+0x608)
+	lua_register(L, "set_stamina_duration", set_stamina_duration); // 2422 установить длительность
+	lua_register(L, "are_street_lights_on", are_street_lights_on); // 2423 уличные фонари (по времени суток)
+	lua_register(L, "get_vehicle_wheel_size", get_vehicle_wheel_size); // 2424 размер колёс модели (+0x40)
+	lua_register(L, "set_vehicle_wheel_size", set_vehicle_wheel_size); // 2425 уст. размер колёс
+	lua_register(L, "get_vehicle_wheel_type", get_vehicle_wheel_type); // 2426 тип колёс/модель (+0x44)
+	lua_register(L, "set_vehicle_wheel_type", set_vehicle_wheel_type); // 2427 уст. тип колёс
+	lua_register(L, "get_vehicle_engine_type", get_vehicle_engine_type); // 2428 handling id (+0x46)
+	lua_register(L, "set_vehicle_engine_type", set_vehicle_engine_type); // 2429 уст. handling id
 return 0;
 };
 
