@@ -137,8 +137,8 @@ int funs(lua_State* L) {// список функций.
 
 	lua_register(L, "remove_obj", remove_obj); // 107 удалить объект.
 	lua_register(L, "setobjоcoordes", setobjocoordes); // 108 установить координаты для объект.
-	lua_register(L, "setobjocoordes", setobjocoordes);
-	lua_register(L, "setobjcoordes", setobjocoordes);
+	lua_register(L, "setobjocoordes", setobjocoordes); // Задать координаты объекта
+	lua_register(L, "setobjcoordes", setobjocoordes); // Задать координаты объекта
 	lua_register(L, "getobjcoordes", getobjcoordes); // 109 получить координаты объекта.
 	lua_register(L, "create_marker_obj", create_marker_obj); // 110 создать маркер над объектом.
 	lua_register(L, "isobject", isobject); // 111 проверка это объект?.
@@ -159,10 +159,10 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "find_road_for_car", find_road_for_car); // 123 найти дорогу.
 
 
-	lua_register(L, "setcarstrong", setcarstrong);
-	lua_register(L, "set_car_only_damaged_by_player", set_car_only_damaged_by_player);
-	lua_register(L, "open_diaz_gates", open_diaz_gates);
-	lua_register(L, "open_west_diaz_gates", open_west_diaz_gates);
+	lua_register(L, "setcarstrong", setcarstrong); // Сделать авто прочным
+	lua_register(L, "set_car_only_damaged_by_player", set_car_only_damaged_by_player); // установить авто только повреждён игрок
+	lua_register(L, "open_diaz_gates", open_diaz_gates); // открыть Diaz ворота
+	lua_register(L, "open_west_diaz_gates", open_west_diaz_gates); // открыть запад Diaz ворота
 	lua_register(L, "open_east_diaz_gates", open_east_diaz_gates); // открыть ворота острова Диаса // 02AA // 124 сделать авто устойчивым.
 	lua_register(L, "putincar", putincar); // 125 переместить педа в авто.
 	lua_register(L, "print_front", game_font_print); // 126 вывести особенный игровой текст.
@@ -223,13 +223,13 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "createfireoncar", createfireoncar); // 172 создать огонь на авто.
 	lua_register(L, "createfireoncords", createfireoncords); // 173 создать огонь на координатах.
 	lua_register(L, "remove_fire", remove_fire); // 174 удалить огонь.
-	lua_register(L, "ped_shutdown", ped_shutdown); // 175
+	lua_register(L, "ped_shutdown", ped_shutdown); // 175 — завершить пешеход
 
 
 	lua_register(L, "is_ped_damage_from_ped", is_ped_damage_from_ped); // 176 получил ли пед урон от педа.
 	lua_register(L, "is_targetting_in_ped", is_targetting_in_ped); // 177 игрок целиться в педа.
 	lua_register(L, "Remove_weapon_model", Remove_weapon_model); // 178 удалить оружие у педа.
-	lua_register(L, "Createped", Createped);
+	lua_register(L, "Createped", Createped); // создать пешехода
 	lua_register(L, "CreateSpecialActor", CreateSpecialActor); // 23.11: спец-актёр: сам грузит/создаёт/выгружает
 	lua_register(L, "Createcar", Createcar); // 180 макрос создать авто на координатах.
 	lua_register(L, "Giveweaponped", Giveweaponped); // 181 макрос дать педу оружие и патроны.
@@ -617,8 +617,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "world_clear_scan_codes", world_clear_scan_codes); // 497 сбросить коды сканирования.
 	lua_register(L, "general_atan_of_xy", general_atan_of_xy); // 498 арктангенс от x,y.
 	lua_register(L, "angle_entity_to_entity", angle_entity_to_entity); // 23.11: угол 2-й сущности к 1-й
-	lua_register(L, "angle_to_entity", angle_to_entity);
-	lua_register(L, "get_angle_to_target", get_angle_to_target);
+	lua_register(L, "angle_to_entity", angle_to_entity); // Угол сущность
+	lua_register(L, "get_angle_to_target", get_angle_to_target); // получить угол цель
 	lua_register(L, "general_angle_between_points", general_angle_between_points); // 499 угол между точками.
 
 
@@ -1163,443 +1163,443 @@ int funs(lua_State* L) {// список функций.
 
 
 	lua_register(L, "get_num_bright_lights", get_num_bright_lights); // 950 число ярких огней
-	lua_register(L, "get_car_m_nPrimaryColor", get_car_m_nPrimaryColor); // 951 m_nPrimaryColor (CVehicle)
+	lua_register(L, "get_car_m_nPrimaryColor", get_car_m_nPrimaryColor); // 951 m_nPrimaryColor (CVehicle) — получить поле nPrimaryColor (основной, цвет) (CVehicle)
 	lua_register(L, "set_car_m_nPrimaryColor", set_car_m_nPrimaryColor); // 952 уст. m_nPrimaryColor (CVehicle)
-	lua_register(L, "get_car_m_nSecondaryColor", get_car_m_nSecondaryColor); // 953 m_nSecondaryColor (CVehicle)
+	lua_register(L, "get_car_m_nSecondaryColor", get_car_m_nSecondaryColor); // 953 m_nSecondaryColor (CVehicle) — получить поле nSecondaryColor (дополнительный, цвет) (CVehicle)
 	lua_register(L, "set_car_m_nSecondaryColor", set_car_m_nSecondaryColor); // 954 уст. m_nSecondaryColor (CVehicle)
-	lua_register(L, "get_car_m_wWantedStarsOnEnter", get_car_m_wWantedStarsOnEnter); // 955 m_wWantedStarsOnEnter (CVehicle)
+	lua_register(L, "get_car_m_wWantedStarsOnEnter", get_car_m_wWantedStarsOnEnter); // 955 m_wWantedStarsOnEnter (CVehicle) — получить поле wWantedStarsOnEnter (розыск, звёзды розыска, войти) (CVehicle)
 	lua_register(L, "set_car_m_wWantedStarsOnEnter", set_car_m_wWantedStarsOnEnter); // 956 уст. m_wWantedStarsOnEnter (CVehicle)
-	lua_register(L, "get_car_m_wMissionValue", get_car_m_wMissionValue); // 957 m_wMissionValue (CVehicle)
+	lua_register(L, "get_car_m_wMissionValue", get_car_m_wMissionValue); // 957 m_wMissionValue (CVehicle) — получить поле wMissionValue (миссия, значение) (CVehicle)
 	lua_register(L, "set_car_m_wMissionValue", set_car_m_wMissionValue); // 958 уст. m_wMissionValue (CVehicle)
-	lua_register(L, "get_car_m_nNumPassengers", get_car_m_nNumPassengers); // 959 m_nNumPassengers (CVehicle)
+	lua_register(L, "get_car_m_nNumPassengers", get_car_m_nNumPassengers); // 959 m_nNumPassengers (CVehicle) — получить поле nNumPassengers (пассажиры) (CVehicle)
 
 
 	lua_register(L, "set_car_m_nNumPassengers", set_car_m_nNumPassengers); // 960 уст. m_nNumPassengers (CVehicle)
-	lua_register(L, "get_car_m_nNumGettingIn", get_car_m_nNumGettingIn); // 961 m_nNumGettingIn (CVehicle)
+	lua_register(L, "get_car_m_nNumGettingIn", get_car_m_nNumGettingIn); // 961 m_nNumGettingIn (CVehicle) — получить поле nNumGettingIn (получение) (CVehicle)
 	lua_register(L, "set_car_m_nNumGettingIn", set_car_m_nNumGettingIn); // 962 уст. m_nNumGettingIn (CVehicle)
-	lua_register(L, "get_car_m_nGettingInFlags", get_car_m_nGettingInFlags); // 963 m_nGettingInFlags (CVehicle)
+	lua_register(L, "get_car_m_nGettingInFlags", get_car_m_nGettingInFlags); // 963 m_nGettingInFlags (CVehicle) — получить поле nGettingInFlags (получение, флаги) (CVehicle)
 	lua_register(L, "set_car_m_nGettingInFlags", set_car_m_nGettingInFlags); // 964 уст. m_nGettingInFlags (CVehicle)
-	lua_register(L, "get_car_m_nGettingOutFlags", get_car_m_nGettingOutFlags); // 965 m_nGettingOutFlags (CVehicle)
+	lua_register(L, "get_car_m_nGettingOutFlags", get_car_m_nGettingOutFlags); // 965 m_nGettingOutFlags (CVehicle) — получить поле nGettingOutFlags (получение, снаружи, флаги) (CVehicle)
 	lua_register(L, "set_car_m_nGettingOutFlags", set_car_m_nGettingOutFlags); // 966 уст. m_nGettingOutFlags (CVehicle)
-	lua_register(L, "get_car_m_nMaxPassengers", get_car_m_nMaxPassengers); // 967 m_nMaxPassengers (CVehicle)
+	lua_register(L, "get_car_m_nMaxPassengers", get_car_m_nMaxPassengers); // 967 m_nMaxPassengers (CVehicle) — получить поле nMaxPassengers (максимум, пассажиры) (CVehicle)
 	lua_register(L, "set_car_m_nMaxPassengers", set_car_m_nMaxPassengers); // 968 уст. m_nMaxPassengers (CVehicle)
-	lua_register(L, "get_car_m_fSteerAngle", get_car_m_fSteerAngle); // 969 m_fSteerAngle (CVehicle)
+	lua_register(L, "get_car_m_fSteerAngle", get_car_m_fSteerAngle); // 969 m_fSteerAngle (CVehicle) — получить поле fSteerAngle (руль, угол) (CVehicle)
 
 
 	lua_register(L, "set_car_m_fSteerAngle", set_car_m_fSteerAngle); // 970 уст. m_fSteerAngle (CVehicle)
-	lua_register(L, "get_car_m_fGasPedal", get_car_m_fGasPedal); // 971 m_fGasPedal (CVehicle)
+	lua_register(L, "get_car_m_fGasPedal", get_car_m_fGasPedal); // 971 m_fGasPedal (CVehicle) — получить поле fGasPedal (газ, педаль) (CVehicle)
 	lua_register(L, "set_car_m_fGasPedal", set_car_m_fGasPedal); // 972 уст. m_fGasPedal (CVehicle)
-	lua_register(L, "get_car_m_fBreakPedal", get_car_m_fBreakPedal); // 973 m_fBreakPedal (CVehicle)
+	lua_register(L, "get_car_m_fBreakPedal", get_car_m_fBreakPedal); // 973 m_fBreakPedal (CVehicle) — получить поле fBreakPedal (тормоз, педаль) (CVehicle)
 	lua_register(L, "set_car_m_fBreakPedal", set_car_m_fBreakPedal); // 974 уст. m_fBreakPedal (CVehicle)
-	lua_register(L, "get_car_m_nCreatedBy", get_car_m_nCreatedBy); // 975 m_nCreatedBy (CVehicle)
+	lua_register(L, "get_car_m_nCreatedBy", get_car_m_nCreatedBy); // 975 m_nCreatedBy (CVehicle) — получить поле nCreatedBy (создано) (CVehicle)
 	lua_register(L, "set_car_m_nCreatedBy", set_car_m_nCreatedBy); // 976 уст. m_nCreatedBy (CVehicle)
-	lua_register(L, "get_car_m_nAmmoInClip", get_car_m_nAmmoInClip); // 977 m_nAmmoInClip (CVehicle)
+	lua_register(L, "get_car_m_nAmmoInClip", get_car_m_nAmmoInClip); // 977 m_nAmmoInClip (CVehicle) — получить поле nAmmoInClip (патроны, обойма) (CVehicle)
 	lua_register(L, "set_car_m_nAmmoInClip", set_car_m_nAmmoInClip); // 978 уст. m_nAmmoInClip (CVehicle)
-	lua_register(L, "get_car_m_fHealth", get_car_m_fHealth); // 979 m_fHealth (CVehicle)
+	lua_register(L, "get_car_m_fHealth", get_car_m_fHealth); // 979 m_fHealth (CVehicle) — получить поле fHealth (здоровье) (CVehicle)
 
 
 	lua_register(L, "set_car_m_fHealth", set_car_m_fHealth); // 980 уст. m_fHealth (CVehicle)
-	lua_register(L, "get_car_m_nCurrentGear", get_car_m_nCurrentGear); // 981 m_nCurrentGear (CVehicle)
+	lua_register(L, "get_car_m_nCurrentGear", get_car_m_nCurrentGear); // 981 m_nCurrentGear (CVehicle) — получить поле nCurrentGear (текущий, передача) (CVehicle)
 	lua_register(L, "set_car_m_nCurrentGear", set_car_m_nCurrentGear); // 982 уст. m_nCurrentGear (CVehicle)
-	lua_register(L, "get_car_m_nTimeTillWeNeedThisCar", get_car_m_nTimeTillWeNeedThisCar); // 983 m_nTimeTillWeNeedThisCar (CVehicle)
+	lua_register(L, "get_car_m_nTimeTillWeNeedThisCar", get_car_m_nTimeTillWeNeedThisCar); // 983 m_nTimeTillWeNeedThisCar (CVehicle) — получить поле nTimeTillWeNeedThisCar (время, до, мы, нужно, авто) (CVehicle)
 	lua_register(L, "set_car_m_nTimeTillWeNeedThisCar", set_car_m_nTimeTillWeNeedThisCar); // 984 уст. m_nTimeTillWeNeedThisCar (CVehicle)
-	lua_register(L, "get_car_m_nTimeOfDeath", get_car_m_nTimeOfDeath); // 985 m_nTimeOfDeath (CVehicle)
+	lua_register(L, "get_car_m_nTimeOfDeath", get_car_m_nTimeOfDeath); // 985 m_nTimeOfDeath (CVehicle) — получить поле nTimeOfDeath (время, смерть) (CVehicle)
 	lua_register(L, "set_car_m_nTimeOfDeath", set_car_m_nTimeOfDeath); // 986 уст. m_nTimeOfDeath (CVehicle)
-	lua_register(L, "get_car_m_wBombTimer", get_car_m_wBombTimer); // 987 m_wBombTimer (CVehicle)
+	lua_register(L, "get_car_m_wBombTimer", get_car_m_wBombTimer); // 987 m_wBombTimer (CVehicle) — получить поле wBombTimer (бомба, таймер) (CVehicle)
 	lua_register(L, "set_car_m_wBombTimer", set_car_m_wBombTimer); // 988 уст. m_wBombTimer (CVehicle)
-	lua_register(L, "get_car_m_nLastWeaponDamage", get_car_m_nLastWeaponDamage); // 989 m_nLastWeaponDamage (CVehicle)
+	lua_register(L, "get_car_m_nLastWeaponDamage", get_car_m_nLastWeaponDamage); // 989 m_nLastWeaponDamage (CVehicle) — получить поле nLastWeaponDamage (последний, оружие, повреждение) (CVehicle)
 
 
 	lua_register(L, "set_car_m_nLastWeaponDamage", set_car_m_nLastWeaponDamage); // 990 уст. m_nLastWeaponDamage (CVehicle)
-	lua_register(L, "get_car_m_nRadioStation", get_car_m_nRadioStation); // 991 m_nRadioStation (CVehicle)
+	lua_register(L, "get_car_m_nRadioStation", get_car_m_nRadioStation); // 991 m_nRadioStation (CVehicle) — получить поле nRadioStation (радио, станция) (CVehicle)
 	lua_register(L, "set_car_m_nRadioStation", set_car_m_nRadioStation); // 992 уст. m_nRadioStation (CVehicle)
-	lua_register(L, "get_car_m_bHornEnabled", get_car_m_bHornEnabled); // 993 m_bHornEnabled (CVehicle)
+	lua_register(L, "get_car_m_bHornEnabled", get_car_m_bHornEnabled); // 993 m_bHornEnabled (CVehicle) — получить поле bHornEnabled (гудок, включено) (CVehicle)
 	lua_register(L, "set_car_m_bHornEnabled", set_car_m_bHornEnabled); // 994 уст. m_bHornEnabled (CVehicle)
-	lua_register(L, "get_car_m_nSirenOrAlarm", get_car_m_nSirenOrAlarm); // 995 m_nSirenOrAlarm (CVehicle)
+	lua_register(L, "get_car_m_nSirenOrAlarm", get_car_m_nSirenOrAlarm); // 995 m_nSirenOrAlarm (CVehicle) — получить поле nSirenOrAlarm (сирена, сигнализация) (CVehicle)
 	lua_register(L, "set_car_m_nSirenOrAlarm", set_car_m_nSirenOrAlarm); // 996 уст. m_nSirenOrAlarm (CVehicle)
-	lua_register(L, "get_car_m_nSirenExtra", get_car_m_nSirenExtra); // 997 m_nSirenExtra (CVehicle)
+	lua_register(L, "get_car_m_nSirenExtra", get_car_m_nSirenExtra); // 997 m_nSirenExtra (CVehicle) — получить поле nSirenExtra (сирена, дополнительный) (CVehicle)
 	lua_register(L, "set_car_m_nSirenExtra", set_car_m_nSirenExtra); // 998 уст. m_nSirenExtra (CVehicle)
-	lua_register(L, "get_car_m_fSteerRatio", get_car_m_fSteerRatio); // 999 m_fSteerRatio (CVehicle)
+	lua_register(L, "get_car_m_fSteerRatio", get_car_m_fSteerRatio); // 999 m_fSteerRatio (CVehicle) — получить поле fSteerRatio (руль, коэффициент) (CVehicle)
 
 
 	lua_register(L, "set_car_m_fSteerRatio", set_car_m_fSteerRatio); // 1000 уст. m_fSteerRatio (CVehicle)
-	lua_register(L, "get_car_m_nVehicleClass", get_car_m_nVehicleClass); // 1001 m_nVehicleClass (CVehicle)
+	lua_register(L, "get_car_m_nVehicleClass", get_car_m_nVehicleClass); // 1001 m_nVehicleClass (CVehicle) — получить поле nVehicleClass (автомобиль, класс) (CVehicle)
 	lua_register(L, "set_car_m_nVehicleClass", set_car_m_nVehicleClass); // 1002 уст. m_nVehicleClass (CVehicle)
-	lua_register(L, "get_ped_m_fCollisionSpeed", get_ped_m_fCollisionSpeed); // 1003 m_fCollisionSpeed (CPed)
+	lua_register(L, "get_ped_m_fCollisionSpeed", get_ped_m_fCollisionSpeed); // 1003 m_fCollisionSpeed (CPed) — получить поле fCollisionSpeed (столкновение, скорость) (CPed)
 	lua_register(L, "set_ped_m_fCollisionSpeed", set_ped_m_fCollisionSpeed); // 1004 уст. m_fCollisionSpeed (CPed)
-	lua_register(L, "get_ped_m_nGangFlags", get_ped_m_nGangFlags); // 1005 m_nGangFlags (CPed)
+	lua_register(L, "get_ped_m_nGangFlags", get_ped_m_nGangFlags); // 1005 m_nGangFlags (CPed) — получить поле nGangFlags (банда, флаги) (CPed)
 	lua_register(L, "set_ped_m_nGangFlags", set_ped_m_nGangFlags); // 1006 уст. m_nGangFlags (CPed)
-	lua_register(L, "get_ped_m_nPedStatus", get_ped_m_nPedStatus); // 1007 m_nPedStatus (CPed)
+	lua_register(L, "get_ped_m_nPedStatus", get_ped_m_nPedStatus); // 1007 m_nPedStatus (CPed) — получить поле nPedStatus (пешеход, статус) (CPed)
 	lua_register(L, "set_ped_m_nPedStatus", set_ped_m_nPedStatus); // 1008 уст. m_nPedStatus (CPed)
-	lua_register(L, "get_ped_m_vecObjective", get_ped_m_vecObjective); // 1009 m_vecObjective (CPed)
+	lua_register(L, "get_ped_m_vecObjective", get_ped_m_vecObjective); // 1009 m_vecObjective (CPed) — получить поле vecObjective (цель) (CPed)
 
 
 	lua_register(L, "set_ped_m_vecObjective", set_ped_m_vecObjective); // 1010 уст. m_vecObjective (CPed)
-	lua_register(L, "get_ped_m_fObjectiveAngle", get_ped_m_fObjectiveAngle); // 1011 m_fObjectiveAngle (CPed)
+	lua_register(L, "get_ped_m_fObjectiveAngle", get_ped_m_fObjectiveAngle); // 1011 m_fObjectiveAngle (CPed) — получить поле fObjectiveAngle (цель, угол) (CPed)
 	lua_register(L, "set_ped_m_fObjectiveAngle", set_ped_m_fObjectiveAngle); // 1012 уст. m_fObjectiveAngle (CPed)
-	lua_register(L, "get_ped_m_nPedFormation", get_ped_m_nPedFormation); // 1013 m_nPedFormation (CPed)
+	lua_register(L, "get_ped_m_nPedFormation", get_ped_m_nPedFormation); // 1013 m_nPedFormation (CPed) — получить поле nPedFormation (пешеход, формация) (CPed)
 	lua_register(L, "set_ped_m_nPedFormation", set_ped_m_nPedFormation); // 1014 уст. m_nPedFormation (CPed)
-	lua_register(L, "get_ped_m_nFearFlags", get_ped_m_nFearFlags); // 1015 m_nFearFlags (CPed)
+	lua_register(L, "get_ped_m_nFearFlags", get_ped_m_nFearFlags); // 1015 m_nFearFlags (CPed) — получить поле nFearFlags (страх, флаги) (CPed)
 	lua_register(L, "set_ped_m_nFearFlags", set_ped_m_nFearFlags); // 1016 уст. m_nFearFlags (CPed)
-	lua_register(L, "get_ped_m_nEventType", get_ped_m_nEventType); // 1017 m_nEventType (CPed)
+	lua_register(L, "get_ped_m_nEventType", get_ped_m_nEventType); // 1017 m_nEventType (CPed) — получить поле nEventType (событие, тип) (CPed)
 	lua_register(L, "set_ped_m_nEventType", set_ped_m_nEventType); // 1018 уст. m_nEventType (CPed)
-	lua_register(L, "get_ped_m_fAngleToEvent", get_ped_m_fAngleToEvent); // 1019 m_fAngleToEvent (CPed)
+	lua_register(L, "get_ped_m_fAngleToEvent", get_ped_m_fAngleToEvent); // 1019 m_fAngleToEvent (CPed) — получить поле fAngleToEvent (угол, событие) (CPed)
 
 
 	lua_register(L, "set_ped_m_fAngleToEvent", set_ped_m_fAngleToEvent); // 1020 уст. m_fAngleToEvent (CPed)
-	lua_register(L, "get_ped_m_nAnimGroupId", get_ped_m_nAnimGroupId); // 1021 m_nAnimGroupId (CPed)
+	lua_register(L, "get_ped_m_nAnimGroupId", get_ped_m_nAnimGroupId); // 1021 m_nAnimGroupId (CPed) — получить поле nAnimGroupId (анимация, группа) (CPed)
 	lua_register(L, "set_ped_m_nAnimGroupId", set_ped_m_nAnimGroupId); // 1022 уст. m_nAnimGroupId (CPed)
-	lua_register(L, "get_ped_m_vecOffsetSeek", get_ped_m_vecOffsetSeek); // 1023 m_vecOffsetSeek (CPed)
+	lua_register(L, "get_ped_m_vecOffsetSeek", get_ped_m_vecOffsetSeek); // 1023 m_vecOffsetSeek (CPed) — получить поле vecOffsetSeek (смещение, искать) (CPed)
 	lua_register(L, "set_ped_m_vecOffsetSeek", set_ped_m_vecOffsetSeek); // 1024 уст. m_vecOffsetSeek (CPed)
-	lua_register(L, "get_ped_m_nActionTimer", get_ped_m_nActionTimer); // 1025 m_nActionTimer (CPed)
+	lua_register(L, "get_ped_m_nActionTimer", get_ped_m_nActionTimer); // 1025 m_nActionTimer (CPed) — получить поле nActionTimer (действие, таймер) (CPed)
 	lua_register(L, "set_ped_m_nActionTimer", set_ped_m_nActionTimer); // 1026 уст. m_nActionTimer (CPed)
-	lua_register(L, "get_ped_m_nWaitState", get_ped_m_nWaitState); // 1027 m_nWaitState (CPed)
+	lua_register(L, "get_ped_m_nWaitState", get_ped_m_nWaitState); // 1027 m_nWaitState (CPed) — получить поле nWaitState (ждать, состояние) (CPed)
 	lua_register(L, "set_ped_m_nWaitState", set_ped_m_nWaitState); // 1028 уст. m_nWaitState (CPed)
-	lua_register(L, "get_ped_m_nWaitTimer", get_ped_m_nWaitTimer); // 1029 m_nWaitTimer (CPed)
+	lua_register(L, "get_ped_m_nWaitTimer", get_ped_m_nWaitTimer); // 1029 m_nWaitTimer (CPed) — получить поле nWaitTimer (ждать, таймер) (CPed)
 
 
 	lua_register(L, "set_ped_m_nWaitTimer", set_ped_m_nWaitTimer); // 1030 уст. m_nWaitTimer (CPed)
-	lua_register(L, "get_ped_m_wPathNodes", get_ped_m_wPathNodes); // 1031 m_wPathNodes (CPed)
+	lua_register(L, "get_ped_m_wPathNodes", get_ped_m_wPathNodes); // 1031 m_wPathNodes (CPed) — получить поле wPathNodes (путь, узлы) (CPed)
 	lua_register(L, "set_ped_m_wPathNodes", set_ped_m_wPathNodes); // 1032 уст. m_wPathNodes (CPed)
-	lua_register(L, "get_ped_m_wCurPathNode", get_ped_m_wCurPathNode); // 1033 m_wCurPathNode (CPed)
+	lua_register(L, "get_ped_m_wCurPathNode", get_ped_m_wCurPathNode); // 1033 m_wCurPathNode (CPed) — получить поле wCurPathNode (текущий, путь, узел) (CPed)
 	lua_register(L, "set_ped_m_wCurPathNode", set_ped_m_wCurPathNode); // 1034 уст. m_wCurPathNode (CPed)
-	lua_register(L, "get_ped_m_nPathNodeTimer", get_ped_m_nPathNodeTimer); // 1035 m_nPathNodeTimer (CPed)
+	lua_register(L, "get_ped_m_nPathNodeTimer", get_ped_m_nPathNodeTimer); // 1035 m_nPathNodeTimer (CPed) — получить поле nPathNodeTimer (путь, узел, таймер) (CPed)
 	lua_register(L, "set_ped_m_nPathNodeTimer", set_ped_m_nPathNodeTimer); // 1036 уст. m_nPathNodeTimer (CPed)
-	lua_register(L, "get_ped_m_vecPathNextNode", get_ped_m_vecPathNextNode); // 1037 m_vecPathNextNode (CPed)
+	lua_register(L, "get_ped_m_vecPathNextNode", get_ped_m_vecPathNextNode); // 1037 m_vecPathNextNode (CPed) — получить поле vecPathNextNode (путь, следующий, узел) (CPed)
 	lua_register(L, "set_ped_m_vecPathNextNode", set_ped_m_vecPathNextNode); // 1038 уст. m_vecPathNextNode (CPed)
-	lua_register(L, "get_ped_m_fPathNextNodeDir", get_ped_m_fPathNextNodeDir); // 1039 m_fPathNextNodeDir (CPed)
+	lua_register(L, "get_ped_m_fPathNextNodeDir", get_ped_m_fPathNextNodeDir); // 1039 m_fPathNextNodeDir (CPed) — получить поле fPathNextNodeDir (путь, следующий, узел, направление) (CPed)
 
 
 	lua_register(L, "set_ped_m_fPathNextNodeDir", set_ped_m_fPathNextNodeDir); // 1040 уст. m_fPathNextNodeDir (CPed)
-	lua_register(L, "get_ped_m_nPathNodeType", get_ped_m_nPathNodeType); // 1041 m_nPathNodeType (CPed)
+	lua_register(L, "get_ped_m_nPathNodeType", get_ped_m_nPathNodeType); // 1041 m_nPathNodeType (CPed) — получить поле nPathNodeType (путь, узел, тип) (CPed)
 	lua_register(L, "set_ped_m_nPathNodeType", set_ped_m_nPathNodeType); // 1042 уст. m_nPathNodeType (CPed)
-	lua_register(L, "get_ped_m_fHealth", get_ped_m_fHealth); // 1043 m_fHealth (CPed)
+	lua_register(L, "get_ped_m_fHealth", get_ped_m_fHealth); // 1043 m_fHealth (CPed) — получить поле fHealth (здоровье) (CPed)
 	lua_register(L, "set_ped_m_fHealth", set_ped_m_fHealth); // 1044 уст. m_fHealth (CPed)
-	lua_register(L, "get_ped_m_fArmour", get_ped_m_fArmour); // 1045 m_fArmour (CPed)
+	lua_register(L, "get_ped_m_fArmour", get_ped_m_fArmour); // 1045 m_fArmour (CPed) — получить поле fArmour (броня) (CPed)
 	lua_register(L, "set_ped_m_fArmour", set_ped_m_fArmour); // 1046 уст. m_fArmour (CPed)
-	lua_register(L, "get_ped_m_nShadowUpdateTimer", get_ped_m_nShadowUpdateTimer); // 1047 m_nShadowUpdateTimer (CPed)
+	lua_register(L, "get_ped_m_nShadowUpdateTimer", get_ped_m_nShadowUpdateTimer); // 1047 m_nShadowUpdateTimer (CPed) — получить поле nShadowUpdateTimer (тень, обновить, таймер) (CPed)
 	lua_register(L, "set_ped_m_nShadowUpdateTimer", set_ped_m_nShadowUpdateTimer); // 1048 уст. m_nShadowUpdateTimer (CPed)
-	lua_register(L, "get_ped_wRouteLastPoint", get_ped_wRouteLastPoint); // 1049 wRouteLastPoint (CPed)
+	lua_register(L, "get_ped_wRouteLastPoint", get_ped_wRouteLastPoint); // 1049 wRouteLastPoint (CPed) — получить поле wRouteLastPoint (маршрут, последний, точка) (CPed)
 
 
 	lua_register(L, "set_ped_wRouteLastPoint", set_ped_wRouteLastPoint); // 1050 уст. wRouteLastPoint (CPed)
-	lua_register(L, "get_ped_wRoutePoints", get_ped_wRoutePoints); // 1051 wRoutePoints (CPed)
+	lua_register(L, "get_ped_wRoutePoints", get_ped_wRoutePoints); // 1051 wRoutePoints (CPed) — получить поле wRoutePoints (маршрут, очки) (CPed)
 	lua_register(L, "set_ped_wRoutePoints", set_ped_wRoutePoints); // 1052 уст. wRoutePoints (CPed)
-	lua_register(L, "get_ped_wRoutePos", get_ped_wRoutePos); // 1053 wRoutePos (CPed)
+	lua_register(L, "get_ped_wRoutePos", get_ped_wRoutePos); // 1053 wRoutePos (CPed) — получить поле wRoutePos (маршрут, позиция) (CPed)
 	lua_register(L, "set_ped_wRoutePos", set_ped_wRoutePos); // 1054 уст. wRoutePos (CPed)
-	lua_register(L, "get_ped_wRouteType", get_ped_wRouteType); // 1055 wRouteType (CPed)
+	lua_register(L, "get_ped_wRouteType", get_ped_wRouteType); // 1055 wRouteType (CPed) — получить поле wRouteType (маршрут, тип) (CPed)
 	lua_register(L, "set_ped_wRouteType", set_ped_wRouteType); // 1056 уст. wRouteType (CPed)
-	lua_register(L, "get_ped_wRouteCurDir", get_ped_wRouteCurDir); // 1057 wRouteCurDir (CPed)
+	lua_register(L, "get_ped_wRouteCurDir", get_ped_wRouteCurDir); // 1057 wRouteCurDir (CPed) — получить поле wRouteCurDir (маршрут, текущий, направление) (CPed)
 	lua_register(L, "set_ped_wRouteCurDir", set_ped_wRouteCurDir); // 1058 уст. wRouteCurDir (CPed)
-	lua_register(L, "get_ped_m_fHeadingCurrent", get_ped_m_fHeadingCurrent); // 1059 m_fHeadingCurrent (CPed)
+	lua_register(L, "get_ped_m_fHeadingCurrent", get_ped_m_fHeadingCurrent); // 1059 m_fHeadingCurrent (CPed) — получить поле fHeadingCurrent (курс, текущий) (CPed)
 
 
 	lua_register(L, "set_ped_m_fHeadingCurrent", set_ped_m_fHeadingCurrent); // 1060 уст. m_fHeadingCurrent (CPed)
-	lua_register(L, "get_ped_m_fHeadingGoal", get_ped_m_fHeadingGoal); // 1061 m_fHeadingGoal (CPed)
+	lua_register(L, "get_ped_m_fHeadingGoal", get_ped_m_fHeadingGoal); // 1061 m_fHeadingGoal (CPed) — получить поле fHeadingGoal (курс, цель) (CPed)
 	lua_register(L, "set_ped_m_fHeadingGoal", set_ped_m_fHeadingGoal); // 1062 уст. m_fHeadingGoal (CPed)
-	lua_register(L, "get_ped_m_fHeadingChangeRate", get_ped_m_fHeadingChangeRate); // 1063 m_fHeadingChangeRate (CPed)
+	lua_register(L, "get_ped_m_fHeadingChangeRate", get_ped_m_fHeadingChangeRate); // 1063 m_fHeadingChangeRate (CPed) — получить поле fHeadingChangeRate (курс, изменить, частота) (CPed)
 	lua_register(L, "set_ped_m_fHeadingChangeRate", set_ped_m_fHeadingChangeRate); // 1064 уст. m_fHeadingChangeRate (CPed)
-	lua_register(L, "get_ped_m_nEnterType", get_ped_m_nEnterType); // 1065 m_nEnterType (CPed)
+	lua_register(L, "get_ped_m_nEnterType", get_ped_m_nEnterType); // 1065 m_nEnterType (CPed) — получить поле nEnterType (войти, тип) (CPed)
 	lua_register(L, "set_ped_m_nEnterType", set_ped_m_nEnterType); // 1066 уст. m_nEnterType (CPed)
-	lua_register(L, "get_ped_m_nWalkAroundType", get_ped_m_nWalkAroundType); // 1067 m_nWalkAroundType (CPed)
+	lua_register(L, "get_ped_m_nWalkAroundType", get_ped_m_nWalkAroundType); // 1067 m_nWalkAroundType (CPed) — получить поле nWalkAroundType (ходить, вокруг, тип) (CPed)
 	lua_register(L, "set_ped_m_nWalkAroundType", set_ped_m_nWalkAroundType); // 1068 уст. m_nWalkAroundType (CPed)
-	lua_register(L, "get_ped_m_vecOffsetFromPhysSurface", get_ped_m_vecOffsetFromPhysSurface); // 1069 m_vecOffsetFromPhysSurface (CPed)
+	lua_register(L, "get_ped_m_vecOffsetFromPhysSurface", get_ped_m_vecOffsetFromPhysSurface); // 1069 m_vecOffsetFromPhysSurface (CPed) — получить поле vecOffsetFromPhysSurface (смещение, физика, поверхность) (CPed)
 
 
 	lua_register(L, "set_ped_m_vecOffsetFromPhysSurface", set_ped_m_vecOffsetFromPhysSurface); // 1070 уст. m_vecOffsetFromPhysSurface (CPed)
-	lua_register(L, "get_ped_vecSeekVehicle", get_ped_vecSeekVehicle); // 1071 vecSeekVehicle (CPed)
+	lua_register(L, "get_ped_vecSeekVehicle", get_ped_vecSeekVehicle); // 1071 vecSeekVehicle (CPed) — получить поле vecSeekVehicle (искать, автомобиль) (CPed)
 	lua_register(L, "set_ped_vecSeekVehicle", set_ped_vecSeekVehicle); // 1072 уст. vecSeekVehicle (CPed)
-	lua_register(L, "get_ped_m_bInVehicle", get_ped_m_bInVehicle); // 1073 m_bInVehicle (CPed)
+	lua_register(L, "get_ped_m_bInVehicle", get_ped_m_bInVehicle); // 1073 m_bInVehicle (CPed) — получить поле bInVehicle (автомобиль) (CPed)
 	lua_register(L, "set_ped_m_bInVehicle", set_ped_m_bInVehicle); // 1074 уст. m_bInVehicle (CPed)
-	lua_register(L, "get_ped_m_fSeatPrecisionX", get_ped_m_fSeatPrecisionX); // 1075 m_fSeatPrecisionX (CPed)
+	lua_register(L, "get_ped_m_fSeatPrecisionX", get_ped_m_fSeatPrecisionX); // 1075 m_fSeatPrecisionX (CPed) — получить поле fSeatPrecisionX (сиденье, точность, X) (CPed)
 	lua_register(L, "set_ped_m_fSeatPrecisionX", set_ped_m_fSeatPrecisionX); // 1076 уст. m_fSeatPrecisionX (CPed)
-	lua_register(L, "get_ped_m_fSeatPrecisionY", get_ped_m_fSeatPrecisionY); // 1077 m_fSeatPrecisionY (CPed)
+	lua_register(L, "get_ped_m_fSeatPrecisionY", get_ped_m_fSeatPrecisionY); // 1077 m_fSeatPrecisionY (CPed) — получить поле fSeatPrecisionY (сиденье, точность, Y) (CPed)
 	lua_register(L, "set_ped_m_fSeatPrecisionY", set_ped_m_fSeatPrecisionY); // 1078 уст. m_fSeatPrecisionY (CPed)
-	lua_register(L, "get_ped_m_nSeatType", get_ped_m_nSeatType); // 1079 m_nSeatType (CPed)
+	lua_register(L, "get_ped_m_nSeatType", get_ped_m_nSeatType); // 1079 m_nSeatType (CPed) — получить поле nSeatType (сиденье, тип) (CPed)
 
 
 	lua_register(L, "set_ped_m_nSeatType", set_ped_m_nSeatType); // 1080 уст. m_nSeatType (CPed)
-	lua_register(L, "get_ped_m_bHasPhone", get_ped_m_bHasPhone); // 1081 m_bHasPhone (CPed)
+	lua_register(L, "get_ped_m_bHasPhone", get_ped_m_bHasPhone); // 1081 m_bHasPhone (CPed) — получить поле bHasPhone (имеет, телефон) (CPed)
 	lua_register(L, "set_ped_m_bHasPhone", set_ped_m_bHasPhone); // 1082 уст. m_bHasPhone (CPed)
-	lua_register(L, "get_ped_m_wPhoneId", get_ped_m_wPhoneId); // 1083 m_wPhoneId (CPed)
+	lua_register(L, "get_ped_m_wPhoneId", get_ped_m_wPhoneId); // 1083 m_wPhoneId (CPed) — получить поле wPhoneId (телефон) (CPed)
 	lua_register(L, "set_ped_m_wPhoneId", set_ped_m_wPhoneId); // 1084 уст. m_wPhoneId (CPed)
-	lua_register(L, "get_ped_m_nLookingForPhone", get_ped_m_nLookingForPhone); // 1085 m_nLookingForPhone (CPed)
+	lua_register(L, "get_ped_m_nLookingForPhone", get_ped_m_nLookingForPhone); // 1085 m_nLookingForPhone (CPed) — получить поле nLookingForPhone (смотрит, телефон) (CPed)
 	lua_register(L, "set_ped_m_nLookingForPhone", set_ped_m_nLookingForPhone); // 1086 уст. m_nLookingForPhone (CPed)
-	lua_register(L, "get_ped_m_nPhoneTalkTimer", get_ped_m_nPhoneTalkTimer); // 1087 m_nPhoneTalkTimer (CPed)
+	lua_register(L, "get_ped_m_nPhoneTalkTimer", get_ped_m_nPhoneTalkTimer); // 1087 m_nPhoneTalkTimer (CPed) — получить поле nPhoneTalkTimer (телефон, разговор, таймер) (CPed)
 	lua_register(L, "set_ped_m_nPhoneTalkTimer", set_ped_m_nPhoneTalkTimer); // 1088 уст. m_nPhoneTalkTimer (CPed)
-	lua_register(L, "get_ped_m_fFleeFromPosX", get_ped_m_fFleeFromPosX); // 1089 m_fFleeFromPosX (CPed)
+	lua_register(L, "get_ped_m_fFleeFromPosX", get_ped_m_fFleeFromPosX); // 1089 m_fFleeFromPosX (CPed) — получить поле fFleeFromPosX (побег, позиция, X) (CPed)
 
 
 	lua_register(L, "set_ped_m_fFleeFromPosX", set_ped_m_fFleeFromPosX); // 1090 уст. m_fFleeFromPosX (CPed)
-	lua_register(L, "get_ped_m_fFleeFromPosY", get_ped_m_fFleeFromPosY); // 1091 m_fFleeFromPosY (CPed)
+	lua_register(L, "get_ped_m_fFleeFromPosY", get_ped_m_fFleeFromPosY); // 1091 m_fFleeFromPosY (CPed) — получить поле fFleeFromPosY (побег, позиция, Y) (CPed)
 	lua_register(L, "set_ped_m_fFleeFromPosY", set_ped_m_fFleeFromPosY); // 1092 уст. m_fFleeFromPosY (CPed)
-	lua_register(L, "get_ped_m_nFleeTimer", get_ped_m_nFleeTimer); // 1093 m_nFleeTimer (CPed)
+	lua_register(L, "get_ped_m_nFleeTimer", get_ped_m_nFleeTimer); // 1093 m_nFleeTimer (CPed) — получить поле nFleeTimer (побег, таймер) (CPed)
 	lua_register(L, "set_ped_m_nFleeTimer", set_ped_m_nFleeTimer); // 1094 уст. m_nFleeTimer (CPed)
-	lua_register(L, "get_ped_m_nLastThreatTimer", get_ped_m_nLastThreatTimer); // 1095 m_nLastThreatTimer (CPed)
+	lua_register(L, "get_ped_m_nLastThreatTimer", get_ped_m_nLastThreatTimer); // 1095 m_nLastThreatTimer (CPed) — получить поле nLastThreatTimer (последний, угроза, таймер) (CPed)
 	lua_register(L, "set_ped_m_nLastThreatTimer", set_ped_m_nLastThreatTimer); // 1096 уст. m_nLastThreatTimer (CPed)
-	lua_register(L, "get_ped_m_nStateUnused", get_ped_m_nStateUnused); // 1097 m_nStateUnused (CPed)
+	lua_register(L, "get_ped_m_nStateUnused", get_ped_m_nStateUnused); // 1097 m_nStateUnused (CPed) — получить поле nStateUnused (состояние, неиспользуемый) (CPed)
 	lua_register(L, "set_ped_m_nStateUnused", set_ped_m_nStateUnused); // 1098 уст. m_nStateUnused (CPed)
-	lua_register(L, "get_ped_m_nTimerUnused", get_ped_m_nTimerUnused); // 1099 m_nTimerUnused (CPed)
+	lua_register(L, "get_ped_m_nTimerUnused", get_ped_m_nTimerUnused); // 1099 m_nTimerUnused (CPed) — получить поле nTimerUnused (таймер, неиспользуемый) (CPed)
 
 
 	lua_register(L, "set_ped_m_nTimerUnused", set_ped_m_nTimerUnused); // 1100 уст. m_nTimerUnused (CPed)
-	lua_register(L, "get_ped_m_nAtchStoredWep", get_ped_m_nAtchStoredWep); // 1101 m_nAtchStoredWep (CPed)
+	lua_register(L, "get_ped_m_nAtchStoredWep", get_ped_m_nAtchStoredWep); // 1101 m_nAtchStoredWep (CPed) — получить поле nAtchStoredWep (прикрепить, сохранено, оружие) (CPed)
 	lua_register(L, "set_ped_m_nAtchStoredWep", set_ped_m_nAtchStoredWep); // 1102 уст. m_nAtchStoredWep (CPed)
-	lua_register(L, "get_ped_m_nStoredGiveWep", get_ped_m_nStoredGiveWep); // 1103 m_nStoredGiveWep (CPed)
+	lua_register(L, "get_ped_m_nStoredGiveWep", get_ped_m_nStoredGiveWep); // 1103 m_nStoredGiveWep (CPed) — получить поле nStoredGiveWep (сохранено, дать, оружие) (CPed)
 	lua_register(L, "set_ped_m_nStoredGiveWep", set_ped_m_nStoredGiveWep); // 1104 уст. m_nStoredGiveWep (CPed)
-	lua_register(L, "get_ped_m_nStoredGiveAmmo", get_ped_m_nStoredGiveAmmo); // 1105 m_nStoredGiveAmmo (CPed)
+	lua_register(L, "get_ped_m_nStoredGiveAmmo", get_ped_m_nStoredGiveAmmo); // 1105 m_nStoredGiveAmmo (CPed) — получить поле nStoredGiveAmmo (сохранено, дать, патроны) (CPed)
 	lua_register(L, "set_ped_m_nStoredGiveAmmo", set_ped_m_nStoredGiveAmmo); // 1106 уст. m_nStoredGiveAmmo (CPed)
-	lua_register(L, "get_ped_m_nCurrentWeapon", get_ped_m_nCurrentWeapon); // 1107 m_nCurrentWeapon (CPed)
+	lua_register(L, "get_ped_m_nCurrentWeapon", get_ped_m_nCurrentWeapon); // 1107 m_nCurrentWeapon (CPed) — получить поле nCurrentWeapon (текущий, оружие) (CPed)
 	lua_register(L, "set_ped_m_nCurrentWeapon", set_ped_m_nCurrentWeapon); // 1108 уст. m_nCurrentWeapon (CPed)
-	lua_register(L, "get_ped_m_nWepSkills", get_ped_m_nWepSkills); // 1109 m_nWepSkills (CPed)
+	lua_register(L, "get_ped_m_nWepSkills", get_ped_m_nWepSkills); // 1109 m_nWepSkills (CPed) — получить поле nWepSkills (оружие, навыки) (CPed)
 
 
 	lua_register(L, "set_ped_m_nWepSkills", set_ped_m_nWepSkills); // 1110 уст. m_nWepSkills (CPed)
-	lua_register(L, "get_ped_m_nWeaponAccuracy", get_ped_m_nWeaponAccuracy); // 1111 m_nWeaponAccuracy (CPed)
+	lua_register(L, "get_ped_m_nWeaponAccuracy", get_ped_m_nWeaponAccuracy); // 1111 m_nWeaponAccuracy (CPed) — получить поле nWeaponAccuracy (оружие, точность) (CPed)
 	lua_register(L, "set_ped_m_nWeaponAccuracy", set_ped_m_nWeaponAccuracy); // 1112 уст. m_nWeaponAccuracy (CPed)
-	lua_register(L, "get_ped_m_nBodyPart", get_ped_m_nBodyPart); // 1113 m_nBodyPart (CPed)
+	lua_register(L, "get_ped_m_nBodyPart", get_ped_m_nBodyPart); // 1113 m_nBodyPart (CPed) — получить поле nBodyPart (кузов, часть) (CPed)
 	lua_register(L, "set_ped_m_nBodyPart", set_ped_m_nBodyPart); // 1114 уст. m_nBodyPart (CPed)
-	lua_register(L, "get_ped_m_vecHitLastPos", get_ped_m_vecHitLastPos); // 1115 m_vecHitLastPos (CPed)
+	lua_register(L, "get_ped_m_vecHitLastPos", get_ped_m_vecHitLastPos); // 1115 m_vecHitLastPos (CPed) — получить поле vecHitLastPos (попадание, последний, позиция) (CPed)
 	lua_register(L, "set_ped_m_vecHitLastPos", set_ped_m_vecHitLastPos); // 1116 уст. m_vecHitLastPos (CPed)
-	lua_register(L, "get_ped_m_nHitCounter", get_ped_m_nHitCounter); // 1117 m_nHitCounter (CPed)
+	lua_register(L, "get_ped_m_nHitCounter", get_ped_m_nHitCounter); // 1117 m_nHitCounter (CPed) — получить поле nHitCounter (попадание, счётчик) (CPed)
 	lua_register(L, "set_ped_m_nHitCounter", set_ped_m_nHitCounter); // 1118 уст. m_nHitCounter (CPed)
-	lua_register(L, "get_ped_m_nLastHitState", get_ped_m_nLastHitState); // 1119 m_nLastHitState (CPed)
+	lua_register(L, "get_ped_m_nLastHitState", get_ped_m_nLastHitState); // 1119 m_nLastHitState (CPed) — получить поле nLastHitState (последний, попадание, состояние) (CPed)
 
 
 	lua_register(L, "set_ped_m_nLastHitState", set_ped_m_nLastHitState); // 1120 уст. m_nLastHitState (CPed)
-	lua_register(L, "get_ped_m_nFightFlags1", get_ped_m_nFightFlags1); // 1121 m_nFightFlags1 (CPed)
+	lua_register(L, "get_ped_m_nFightFlags1", get_ped_m_nFightFlags1); // 1121 m_nFightFlags1 (CPed) — получить поле nFightFlags1 (драка, флаги 1) (CPed)
 	lua_register(L, "set_ped_m_nFightFlags1", set_ped_m_nFightFlags1); // 1122 уст. m_nFightFlags1 (CPed)
-	lua_register(L, "get_ped_m_nFightFlags2", get_ped_m_nFightFlags2); // 1123 m_nFightFlags2 (CPed)
+	lua_register(L, "get_ped_m_nFightFlags2", get_ped_m_nFightFlags2); // 1123 m_nFightFlags2 (CPed) — получить поле nFightFlags2 (драка, флаги 2) (CPed)
 	lua_register(L, "set_ped_m_nFightFlags2", set_ped_m_nFightFlags2); // 1124 уст. m_nFightFlags2 (CPed)
-	lua_register(L, "get_ped_m_nFightFlags3", get_ped_m_nFightFlags3); // 1125 m_nFightFlags3 (CPed)
+	lua_register(L, "get_ped_m_nFightFlags3", get_ped_m_nFightFlags3); // 1125 m_nFightFlags3 (CPed) — получить поле nFightFlags3 (драка, флаги 3) (CPed)
 	lua_register(L, "set_ped_m_nFightFlags3", set_ped_m_nFightFlags3); // 1126 уст. m_nFightFlags3 (CPed)
-	lua_register(L, "get_ped_m_nBleedCounter", get_ped_m_nBleedCounter); // 1127 m_nBleedCounter (CPed)
+	lua_register(L, "get_ped_m_nBleedCounter", get_ped_m_nBleedCounter); // 1127 m_nBleedCounter (CPed) — получить поле nBleedCounter (кровотечение, счётчик) (CPed)
 	lua_register(L, "set_ped_m_nBleedCounter", set_ped_m_nBleedCounter); // 1128 уст. m_nBleedCounter (CPed)
-	lua_register(L, "get_ped_m_fLookDirection", get_ped_m_fLookDirection); // 1129 m_fLookDirection (CPed)
+	lua_register(L, "get_ped_m_fLookDirection", get_ped_m_fLookDirection); // 1129 m_fLookDirection (CPed) — получить поле fLookDirection (смотреть, направление) (CPed)
 
 
 	lua_register(L, "set_ped_m_fLookDirection", set_ped_m_fLookDirection); // 1130 уст. m_fLookDirection (CPed)
-	lua_register(L, "get_ped_m_nWepModelID", get_ped_m_nWepModelID); // 1131 m_nWepModelID (CPed)
+	lua_register(L, "get_ped_m_nWepModelID", get_ped_m_nWepModelID); // 1131 m_nWepModelID (CPed) — получить поле nWepModelID (оружие, модель) (CPed)
 	lua_register(L, "set_ped_m_nWepModelID", set_ped_m_nWepModelID); // 1132 уст. m_nWepModelID (CPed)
-	lua_register(L, "get_ped_m_nLeaveCarTimer", get_ped_m_nLeaveCarTimer); // 1133 m_nLeaveCarTimer (CPed)
+	lua_register(L, "get_ped_m_nLeaveCarTimer", get_ped_m_nLeaveCarTimer); // 1133 m_nLeaveCarTimer (CPed) — получить поле nLeaveCarTimer (оставить, авто, таймер) (CPed)
 	lua_register(L, "set_ped_m_nLeaveCarTimer", set_ped_m_nLeaveCarTimer); // 1134 уст. m_nLeaveCarTimer (CPed)
-	lua_register(L, "get_ped_m_nGetUpTimer", get_ped_m_nGetUpTimer); // 1135 m_nGetUpTimer (CPed)
+	lua_register(L, "get_ped_m_nGetUpTimer", get_ped_m_nGetUpTimer); // 1135 m_nGetUpTimer (CPed) — получить поле nGetUpTimer (получить, таймер) (CPed)
 	lua_register(L, "set_ped_m_nGetUpTimer", set_ped_m_nGetUpTimer); // 1136 уст. m_nGetUpTimer (CPed)
-	lua_register(L, "get_ped_m_nLookTimer", get_ped_m_nLookTimer); // 1137 m_nLookTimer (CPed)
+	lua_register(L, "get_ped_m_nLookTimer", get_ped_m_nLookTimer); // 1137 m_nLookTimer (CPed) — получить поле nLookTimer (смотреть, таймер) (CPed)
 	lua_register(L, "set_ped_m_nLookTimer", set_ped_m_nLookTimer); // 1138 уст. m_nLookTimer (CPed)
-	lua_register(L, "get_ped_m_nStandardTimer", get_ped_m_nStandardTimer); // 1139 m_nStandardTimer (CPed)
+	lua_register(L, "get_ped_m_nStandardTimer", get_ped_m_nStandardTimer); // 1139 m_nStandardTimer (CPed) — получить поле nStandardTimer (стандартный, таймер) (CPed)
 
 
 	lua_register(L, "set_ped_m_nStandardTimer", set_ped_m_nStandardTimer); // 1140 уст. m_nStandardTimer (CPed)
-	lua_register(L, "get_ped_m_nAttackTimer", get_ped_m_nAttackTimer); // 1141 m_nAttackTimer (CPed)
+	lua_register(L, "get_ped_m_nAttackTimer", get_ped_m_nAttackTimer); // 1141 m_nAttackTimer (CPed) — получить поле nAttackTimer (атака, таймер) (CPed)
 	lua_register(L, "set_ped_m_nAttackTimer", set_ped_m_nAttackTimer); // 1142 уст. m_nAttackTimer (CPed)
-	lua_register(L, "get_ped_m_nLastHitTime", get_ped_m_nLastHitTime); // 1143 m_nLastHitTime (CPed)
+	lua_register(L, "get_ped_m_nLastHitTime", get_ped_m_nLastHitTime); // 1143 m_nLastHitTime (CPed) — получить поле nLastHitTime (последний, попадание, время) (CPed)
 	lua_register(L, "set_ped_m_nLastHitTime", set_ped_m_nLastHitTime); // 1144 уст. m_nLastHitTime (CPed)
-	lua_register(L, "get_ped_m_nHitRecoverTimer", get_ped_m_nHitRecoverTimer); // 1145 m_nHitRecoverTimer (CPed)
+	lua_register(L, "get_ped_m_nHitRecoverTimer", get_ped_m_nHitRecoverTimer); // 1145 m_nHitRecoverTimer (CPed) — получить поле nHitRecoverTimer (попадание, восстановить, таймер) (CPed)
 	lua_register(L, "set_ped_m_nHitRecoverTimer", set_ped_m_nHitRecoverTimer); // 1146 уст. m_nHitRecoverTimer (CPed)
-	lua_register(L, "get_ped_m_nObjectiveTimer", get_ped_m_nObjectiveTimer); // 1147 m_nObjectiveTimer (CPed)
+	lua_register(L, "get_ped_m_nObjectiveTimer", get_ped_m_nObjectiveTimer); // 1147 m_nObjectiveTimer (CPed) — получить поле nObjectiveTimer (цель, таймер) (CPed)
 	lua_register(L, "set_ped_m_nObjectiveTimer", set_ped_m_nObjectiveTimer); // 1148 уст. m_nObjectiveTimer (CPed)
-	lua_register(L, "get_ped_m_nDuckTimer", get_ped_m_nDuckTimer); // 1149 m_nDuckTimer (CPed)
+	lua_register(L, "get_ped_m_nDuckTimer", get_ped_m_nDuckTimer); // 1149 m_nDuckTimer (CPed) — получить поле nDuckTimer (утка, таймер) (CPed)
 
 
 	lua_register(L, "set_ped_m_nDuckTimer", set_ped_m_nDuckTimer); // 1150 уст. m_nDuckTimer (CPed)
-	lua_register(L, "get_ped_m_nDuckAndCoverTimer", get_ped_m_nDuckAndCoverTimer); // 1151 m_nDuckAndCoverTimer (CPed)
+	lua_register(L, "get_ped_m_nDuckAndCoverTimer", get_ped_m_nDuckAndCoverTimer); // 1151 m_nDuckAndCoverTimer (CPed) — получить поле nDuckAndCoverTimer (утка, покрытие, таймер) (CPed)
 	lua_register(L, "set_ped_m_nDuckAndCoverTimer", set_ped_m_nDuckAndCoverTimer); // 1152 уст. m_nDuckAndCoverTimer (CPed)
-	lua_register(L, "get_ped_m_nBloodyTimer", get_ped_m_nBloodyTimer); // 1153 m_nBloodyTimer (CPed)
+	lua_register(L, "get_ped_m_nBloodyTimer", get_ped_m_nBloodyTimer); // 1153 m_nBloodyTimer (CPed) — получить поле nBloodyTimer (кровавый, таймер) (CPed)
 	lua_register(L, "set_ped_m_nBloodyTimer", set_ped_m_nBloodyTimer); // 1154 уст. m_nBloodyTimer (CPed)
-	lua_register(L, "get_ped_m_nShotTime", get_ped_m_nShotTime); // 1155 m_nShotTime (CPed)
+	lua_register(L, "get_ped_m_nShotTime", get_ped_m_nShotTime); // 1155 m_nShotTime (CPed) — получить поле nShotTime (выстрел, время) (CPed)
 	lua_register(L, "set_ped_m_nShotTime", set_ped_m_nShotTime); // 1156 уст. m_nShotTime (CPed)
-	lua_register(L, "get_ped_m_nShotTimeAdd", get_ped_m_nShotTimeAdd); // 1157 m_nShotTimeAdd (CPed)
+	lua_register(L, "get_ped_m_nShotTimeAdd", get_ped_m_nShotTimeAdd); // 1157 m_nShotTimeAdd (CPed) — получить поле nShotTimeAdd (выстрел, время, добавить) (CPed)
 	lua_register(L, "set_ped_m_nShotTimeAdd", set_ped_m_nShotTimeAdd); // 1158 уст. m_nShotTimeAdd (CPed)
-	lua_register(L, "get_ped_m_nPanicCounter", get_ped_m_nPanicCounter); // 1159 m_nPanicCounter (CPed)
+	lua_register(L, "get_ped_m_nPanicCounter", get_ped_m_nPanicCounter); // 1159 m_nPanicCounter (CPed) — получить поле nPanicCounter (паника, счётчик) (CPed)
 
 
 	lua_register(L, "set_ped_m_nPanicCounter", set_ped_m_nPanicCounter); // 1160 уст. m_nPanicCounter (CPed)
-	lua_register(L, "get_ped_m_nDeadBleeding", get_ped_m_nDeadBleeding); // 1161 m_nDeadBleeding (CPed)
+	lua_register(L, "get_ped_m_nDeadBleeding", get_ped_m_nDeadBleeding); // 1161 m_nDeadBleeding (CPed) — получить поле nDeadBleeding (мёртв, кровотечение) (CPed)
 	lua_register(L, "set_ped_m_nDeadBleeding", set_ped_m_nDeadBleeding); // 1162 уст. m_nDeadBleeding (CPed)
-	lua_register(L, "get_ped_m_nBodyPartBleeding", get_ped_m_nBodyPartBleeding); // 1163 m_nBodyPartBleeding (CPed)
+	lua_register(L, "get_ped_m_nBodyPartBleeding", get_ped_m_nBodyPartBleeding); // 1163 m_nBodyPartBleeding (CPed) — получить поле nBodyPartBleeding (кузов, часть, кровотечение) (CPed)
 	lua_register(L, "set_ped_m_nBodyPartBleeding", set_ped_m_nBodyPartBleeding); // 1164 уст. m_nBodyPartBleeding (CPed)
-	lua_register(L, "get_ped_m_nNumNearPeds", get_ped_m_nNumNearPeds); // 1165 m_nNumNearPeds (CPed)
+	lua_register(L, "get_ped_m_nNumNearPeds", get_ped_m_nNumNearPeds); // 1165 m_nNumNearPeds (CPed) — получить поле nNumNearPeds (около, пешеходы) (CPed)
 	lua_register(L, "set_ped_m_nNumNearPeds", set_ped_m_nNumNearPeds); // 1166 уст. m_nNumNearPeds (CPed)
-	lua_register(L, "get_ped_m_nPedMoney", get_ped_m_nPedMoney); // 1167 m_nPedMoney (CPed)
+	lua_register(L, "get_ped_m_nPedMoney", get_ped_m_nPedMoney); // 1167 m_nPedMoney (CPed) — получить поле nPedMoney (пешеход, деньги) (CPed)
 	lua_register(L, "set_ped_m_nPedMoney", set_ped_m_nPedMoney); // 1168 уст. m_nPedMoney (CPed)
-	lua_register(L, "get_ped_m_nLastDamWep", get_ped_m_nLastDamWep); // 1169 m_nLastDamWep (CPed)
+	lua_register(L, "get_ped_m_nLastDamWep", get_ped_m_nLastDamWep); // 1169 m_nLastDamWep (CPed) — получить поле nLastDamWep (последний, урон, оружие) (CPed)
 
 
 	lua_register(L, "set_ped_m_nLastDamWep", set_ped_m_nLastDamWep); // 1170 уст. m_nLastDamWep (CPed)
-	lua_register(L, "get_ped_m_vecAttachOffset", get_ped_m_vecAttachOffset); // 1171 m_vecAttachOffset (CPed)
+	lua_register(L, "get_ped_m_vecAttachOffset", get_ped_m_vecAttachOffset); // 1171 m_vecAttachOffset (CPed) — получить поле vecAttachOffset (прикрепить, смещение) (CPed)
 	lua_register(L, "set_ped_m_vecAttachOffset", set_ped_m_vecAttachOffset); // 1172 уст. m_vecAttachOffset (CPed)
-	lua_register(L, "get_ped_m_nAttachType", get_ped_m_nAttachType); // 1173 m_nAttachType (CPed)
+	lua_register(L, "get_ped_m_nAttachType", get_ped_m_nAttachType); // 1173 m_nAttachType (CPed) — получить поле nAttachType (прикрепить, тип) (CPed)
 	lua_register(L, "set_ped_m_nAttachType", set_ped_m_nAttachType); // 1174 уст. m_nAttachType (CPed)
-	lua_register(L, "get_ped_m_fAttachRot", get_ped_m_fAttachRot); // 1175 m_fAttachRot (CPed)
+	lua_register(L, "get_ped_m_fAttachRot", get_ped_m_fAttachRot); // 1175 m_fAttachRot (CPed) — получить поле fAttachRot (прикрепить, поворот) (CPed)
 	lua_register(L, "set_ped_m_fAttachRot", set_ped_m_fAttachRot); // 1176 уст. m_fAttachRot (CPed)
-	lua_register(L, "get_ped_m_nAttachWepAmmo", get_ped_m_nAttachWepAmmo); // 1177 m_nAttachWepAmmo (CPed)
+	lua_register(L, "get_ped_m_nAttachWepAmmo", get_ped_m_nAttachWepAmmo); // 1177 m_nAttachWepAmmo (CPed) — получить поле nAttachWepAmmo (прикрепить, оружие, патроны) (CPed)
 	lua_register(L, "set_ped_m_nAttachWepAmmo", set_ped_m_nAttachWepAmmo); // 1178 уст. m_nAttachWepAmmo (CPed)
-	lua_register(L, "get_ped_m_nThreatFlags", get_ped_m_nThreatFlags); // 1179 m_nThreatFlags (CPed)
+	lua_register(L, "get_ped_m_nThreatFlags", get_ped_m_nThreatFlags); // 1179 m_nThreatFlags (CPed) — получить поле nThreatFlags (угроза, флаги) (CPed)
 
 
 	lua_register(L, "set_ped_m_nThreatFlags", set_ped_m_nThreatFlags); // 1180 уст. m_nThreatFlags (CPed)
-	lua_register(L, "get_ped_m_nThreatCheck", get_ped_m_nThreatCheck); // 1181 m_nThreatCheck (CPed)
+	lua_register(L, "get_ped_m_nThreatCheck", get_ped_m_nThreatCheck); // 1181 m_nThreatCheck (CPed) — получить поле nThreatCheck (угроза, проверить) (CPed)
 	lua_register(L, "set_ped_m_nThreatCheck", set_ped_m_nThreatCheck); // 1182 уст. m_nThreatCheck (CPed)
-	lua_register(L, "get_ped_m_nLastThreatCheck", get_ped_m_nLastThreatCheck); // 1183 m_nLastThreatCheck (CPed)
+	lua_register(L, "get_ped_m_nLastThreatCheck", get_ped_m_nLastThreatCheck); // 1183 m_nLastThreatCheck (CPed) — получить поле nLastThreatCheck (последний, угроза, проверить) (CPed)
 	lua_register(L, "set_ped_m_nLastThreatCheck", set_ped_m_nLastThreatCheck); // 1184 уст. m_nLastThreatCheck (CPed)
-	lua_register(L, "get_ped_m_nSayType", get_ped_m_nSayType); // 1185 m_nSayType (CPed)
+	lua_register(L, "get_ped_m_nSayType", get_ped_m_nSayType); // 1185 m_nSayType (CPed) — получить поле nSayType (сказать, тип) (CPed)
 	lua_register(L, "set_ped_m_nSayType", set_ped_m_nSayType); // 1186 уст. m_nSayType (CPed)
-	lua_register(L, "get_ped_m_nSayTimer", get_ped_m_nSayTimer); // 1187 m_nSayTimer (CPed)
+	lua_register(L, "get_ped_m_nSayTimer", get_ped_m_nSayTimer); // 1187 m_nSayTimer (CPed) — получить поле nSayTimer (сказать, таймер) (CPed)
 	lua_register(L, "set_ped_m_nSayTimer", set_ped_m_nSayTimer); // 1188 уст. m_nSayTimer (CPed)
-	lua_register(L, "get_ped_m_nTalkTimerLast", get_ped_m_nTalkTimerLast); // 1189 m_nTalkTimerLast (CPed)
+	lua_register(L, "get_ped_m_nTalkTimerLast", get_ped_m_nTalkTimerLast); // 1189 m_nTalkTimerLast (CPed) — получить поле nTalkTimerLast (разговор, таймер, последний) (CPed)
 
 
 	lua_register(L, "set_ped_m_nTalkTimerLast", set_ped_m_nTalkTimerLast); // 1190 уст. m_nTalkTimerLast (CPed)
-	lua_register(L, "get_ped_m_nTalkTimer", get_ped_m_nTalkTimer); // 1191 m_nTalkTimer (CPed)
+	lua_register(L, "get_ped_m_nTalkTimer", get_ped_m_nTalkTimer); // 1191 m_nTalkTimer (CPed) — получить поле nTalkTimer (разговор, таймер) (CPed)
 	lua_register(L, "set_ped_m_nTalkTimer", set_ped_m_nTalkTimer); // 1192 уст. m_nTalkTimer (CPed)
-	lua_register(L, "get_ped_m_wTalkTypeLast", get_ped_m_wTalkTypeLast); // 1193 m_wTalkTypeLast (CPed)
+	lua_register(L, "get_ped_m_wTalkTypeLast", get_ped_m_wTalkTypeLast); // 1193 m_wTalkTypeLast (CPed) — получить поле wTalkTypeLast (разговор, тип, последний) (CPed)
 	lua_register(L, "set_ped_m_wTalkTypeLast", set_ped_m_wTalkTypeLast); // 1194 уст. m_wTalkTypeLast (CPed)
-	lua_register(L, "get_ped_m_wTalkType", get_ped_m_wTalkType); // 1195 m_wTalkType (CPed)
+	lua_register(L, "get_ped_m_wTalkType", get_ped_m_wTalkType); // 1195 m_wTalkType (CPed) — получить поле wTalkType (разговор, тип) (CPed)
 	lua_register(L, "set_ped_m_wTalkType", set_ped_m_wTalkType); // 1196 уст. m_wTalkType (CPed)
-	lua_register(L, "get_ped_m_bCanPedTalk", get_ped_m_bCanPedTalk); // 1197 m_bCanPedTalk (CPed)
+	lua_register(L, "get_ped_m_bCanPedTalk", get_ped_m_bCanPedTalk); // 1197 m_bCanPedTalk (CPed) — получить поле bCanPedTalk (может, пешеход, разговор) (CPed)
 	lua_register(L, "set_ped_m_bCanPedTalk", set_ped_m_bCanPedTalk); // 1198 уст. m_bCanPedTalk (CPed)
-	lua_register(L, "get_ped_m_nPedLastComment", get_ped_m_nPedLastComment); // 1199 m_nPedLastComment (CPed)
+	lua_register(L, "get_ped_m_nPedLastComment", get_ped_m_nPedLastComment); // 1199 m_nPedLastComment (CPed) — получить поле nPedLastComment (пешеход, последний, комментарий) (CPed)
 
 
 	lua_register(L, "set_ped_m_nPedLastComment", set_ped_m_nPedLastComment); // 1200 уст. m_nPedLastComment (CPed)
-	lua_register(L, "get_ped_m_vecSeekPosEx", get_ped_m_vecSeekPosEx); // 1201 m_vecSeekPosEx (CPed)
+	lua_register(L, "get_ped_m_vecSeekPosEx", get_ped_m_vecSeekPosEx); // 1201 m_vecSeekPosEx (CPed) — получить поле vecSeekPosEx (искать, позиция) (CPed)
 	lua_register(L, "set_ped_m_vecSeekPosEx", set_ped_m_vecSeekPosEx); // 1202 уст. m_vecSeekPosEx (CPed)
-	lua_register(L, "get_ped_m_fSeekExAngle", get_ped_m_fSeekExAngle); // 1203 m_fSeekExAngle (CPed)
+	lua_register(L, "get_ped_m_fSeekExAngle", get_ped_m_fSeekExAngle); // 1203 m_fSeekExAngle (CPed) — получить поле fSeekExAngle (искать, угол) (CPed)
 	lua_register(L, "set_ped_m_fSeekExAngle", set_ped_m_fSeekExAngle); // 1204 уст. m_fSeekExAngle (CPed)
-	lua_register(L, "get_obj_m_nObjectType", get_obj_m_nObjectType); // 1205 m_nObjectType (CObject)
+	lua_register(L, "get_obj_m_nObjectType", get_obj_m_nObjectType); // 1205 m_nObjectType (CObject) — получить поле nObjectType (объект, тип) (CObject)
 	lua_register(L, "set_obj_m_nObjectType", set_obj_m_nObjectType); // 1206 уст. m_nObjectType (CObject)
-	lua_register(L, "get_obj_m_nBonusValue", get_obj_m_nBonusValue); // 1207 m_nBonusValue (CObject)
+	lua_register(L, "get_obj_m_nBonusValue", get_obj_m_nBonusValue); // 1207 m_nBonusValue (CObject) — получить поле nBonusValue (бонус, значение) (CObject)
 	lua_register(L, "set_obj_m_nBonusValue", set_obj_m_nBonusValue); // 1208 уст. m_nBonusValue (CObject)
-	lua_register(L, "get_obj_m_wCostValue", get_obj_m_wCostValue); // 1209 m_wCostValue (CObject)
+	lua_register(L, "get_obj_m_wCostValue", get_obj_m_wCostValue); // 1209 m_wCostValue (CObject) — получить поле wCostValue (стоимость, значение) (CObject)
 
 
 	lua_register(L, "set_obj_m_wCostValue", set_obj_m_wCostValue); // 1210 уст. m_wCostValue (CObject)
-	lua_register(L, "get_obj_m_fDamageMultiplier", get_obj_m_fDamageMultiplier); // 1211 m_fDamageMultiplier (CObject)
+	lua_register(L, "get_obj_m_fDamageMultiplier", get_obj_m_fDamageMultiplier); // 1211 m_fDamageMultiplier (CObject) — получить поле fDamageMultiplier (повреждение, множитель) (CObject)
 	lua_register(L, "set_obj_m_fDamageMultiplier", set_obj_m_fDamageMultiplier); // 1212 уст. m_fDamageMultiplier (CObject)
-	lua_register(L, "get_obj_m_bCameraAvoids", get_obj_m_bCameraAvoids); // 1213 m_bCameraAvoids (CObject)
+	lua_register(L, "get_obj_m_bCameraAvoids", get_obj_m_bCameraAvoids); // 1213 m_bCameraAvoids (CObject) — получить поле bCameraAvoids (камера, избегает) (CObject)
 	lua_register(L, "set_obj_m_bCameraAvoids", set_obj_m_bCameraAvoids); // 1214 уст. m_bCameraAvoids (CObject)
-	lua_register(L, "get_obj_m_wRefModelId", get_obj_m_wRefModelId); // 1215 m_wRefModelId (CObject)
+	lua_register(L, "get_obj_m_wRefModelId", get_obj_m_wRefModelId); // 1215 m_wRefModelId (CObject) — получить поле wRefModelId (ссылка, модель) (CObject)
 	lua_register(L, "set_obj_m_wRefModelId", set_obj_m_wRefModelId); // 1216 уст. m_wRefModelId (CObject)
-	lua_register(L, "get_car_m_nAudioEntityId", get_car_m_nAudioEntityId); // 1217 m_nAudioEntityId (CPhysical)
+	lua_register(L, "get_car_m_nAudioEntityId", get_car_m_nAudioEntityId); // 1217 m_nAudioEntityId (CPhysical) — получить поле nAudioEntityId (звук, сущность) (CPhysical)
 	lua_register(L, "set_car_m_nAudioEntityId", set_car_m_nAudioEntityId); // 1218 уст. m_nAudioEntityId (CPhysical)
-	lua_register(L, "get_car_m_vecMoveSpeed", get_car_m_vecMoveSpeed); // 1219 m_vecMoveSpeed (CPhysical)
+	lua_register(L, "get_car_m_vecMoveSpeed", get_car_m_vecMoveSpeed); // 1219 m_vecMoveSpeed (CPhysical) — получить поле vecMoveSpeed (переместить, скорость) (CPhysical)
 
 
 	lua_register(L, "set_car_m_vecMoveSpeed", set_car_m_vecMoveSpeed); // 1220 уст. m_vecMoveSpeed (CPhysical)
-	lua_register(L, "get_car_m_vecTurnSpeed", get_car_m_vecTurnSpeed); // 1221 m_vecTurnSpeed (CPhysical)
+	lua_register(L, "get_car_m_vecTurnSpeed", get_car_m_vecTurnSpeed); // 1221 m_vecTurnSpeed (CPhysical) — получить поле vecTurnSpeed (повернуть, скорость) (CPhysical)
 	lua_register(L, "set_car_m_vecTurnSpeed", set_car_m_vecTurnSpeed); // 1222 уст. m_vecTurnSpeed (CPhysical)
-	lua_register(L, "get_car_m_vecFrictionMoveForce", get_car_m_vecFrictionMoveForce); // 1223 m_vecFrictionMoveForce (CPhysical)
+	lua_register(L, "get_car_m_vecFrictionMoveForce", get_car_m_vecFrictionMoveForce); // 1223 m_vecFrictionMoveForce (CPhysical) — получить поле vecFrictionMoveForce (трение, переместить, сила) (CPhysical)
 	lua_register(L, "set_car_m_vecFrictionMoveForce", set_car_m_vecFrictionMoveForce); // 1224 уст. m_vecFrictionMoveForce (CPhysical)
-	lua_register(L, "get_car_m_vecFrictionTurnForce", get_car_m_vecFrictionTurnForce); // 1225 m_vecFrictionTurnForce (CPhysical)
+	lua_register(L, "get_car_m_vecFrictionTurnForce", get_car_m_vecFrictionTurnForce); // 1225 m_vecFrictionTurnForce (CPhysical) — получить поле vecFrictionTurnForce (трение, повернуть, сила) (CPhysical)
 	lua_register(L, "set_car_m_vecFrictionTurnForce", set_car_m_vecFrictionTurnForce); // 1226 уст. m_vecFrictionTurnForce (CPhysical)
-	lua_register(L, "get_car_m_vecForce", get_car_m_vecForce); // 1227 m_vecForce (CPhysical)
+	lua_register(L, "get_car_m_vecForce", get_car_m_vecForce); // 1227 m_vecForce (CPhysical) — получить поле vecForce (сила) (CPhysical)
 	lua_register(L, "set_car_m_vecForce", set_car_m_vecForce); // 1228 уст. m_vecForce (CPhysical)
-	lua_register(L, "get_car_m_vecTorque", get_car_m_vecTorque); // 1229 m_vecTorque (CPhysical)
+	lua_register(L, "get_car_m_vecTorque", get_car_m_vecTorque); // 1229 m_vecTorque (CPhysical) — получить поле vecTorque (крутящий момент) (CPhysical)
 
 
 	lua_register(L, "set_car_m_vecTorque", set_car_m_vecTorque); // 1230 уст. m_vecTorque (CPhysical)
-	lua_register(L, "get_car_m_fMass", get_car_m_fMass); // 1231 m_fMass (CPhysical)
+	lua_register(L, "get_car_m_fMass", get_car_m_fMass); // 1231 m_fMass (CPhysical) — получить поле fMass (масса) (CPhysical)
 	lua_register(L, "set_car_m_fMass", set_car_m_fMass); // 1232 уст. m_fMass (CPhysical)
-	lua_register(L, "get_car_m_fTurnMass", get_car_m_fTurnMass); // 1233 m_fTurnMass (CPhysical)
+	lua_register(L, "get_car_m_fTurnMass", get_car_m_fTurnMass); // 1233 m_fTurnMass (CPhysical) — получить поле fTurnMass (повернуть, масса) (CPhysical)
 	lua_register(L, "set_car_m_fTurnMass", set_car_m_fTurnMass); // 1234 уст. m_fTurnMass (CPhysical)
-	lua_register(L, "get_car_m_fVelocityFrequency", get_car_m_fVelocityFrequency); // 1235 m_fVelocityFrequency (CPhysical)
+	lua_register(L, "get_car_m_fVelocityFrequency", get_car_m_fVelocityFrequency); // 1235 m_fVelocityFrequency (CPhysical) — получить поле fVelocityFrequency (скорость, частота) (CPhysical)
 	lua_register(L, "set_car_m_fVelocityFrequency", set_car_m_fVelocityFrequency); // 1236 уст. m_fVelocityFrequency (CPhysical)
-	lua_register(L, "get_car_m_fAirResistance", get_car_m_fAirResistance); // 1237 m_fAirResistance (CPhysical)
+	lua_register(L, "get_car_m_fAirResistance", get_car_m_fAirResistance); // 1237 m_fAirResistance (CPhysical) — получить поле fAirResistance (воздух, сопротивление) (CPhysical)
 	lua_register(L, "set_car_m_fAirResistance", set_car_m_fAirResistance); // 1238 уст. m_fAirResistance (CPhysical)
-	lua_register(L, "get_car_m_fElasticity", get_car_m_fElasticity); // 1239 m_fElasticity (CPhysical)
+	lua_register(L, "get_car_m_fElasticity", get_car_m_fElasticity); // 1239 m_fElasticity (CPhysical) — получить поле fElasticity (упругость) (CPhysical)
 
 
 	lua_register(L, "set_car_m_fElasticity", set_car_m_fElasticity); // 1240 уст. m_fElasticity (CPhysical)
-	lua_register(L, "get_car_m_fBuoyancyConstant", get_car_m_fBuoyancyConstant); // 1241 m_fBuoyancyConstant (CPhysical)
+	lua_register(L, "get_car_m_fBuoyancyConstant", get_car_m_fBuoyancyConstant); // 1241 m_fBuoyancyConstant (CPhysical) — получить поле fBuoyancyConstant (плавучесть, константа) (CPhysical)
 	lua_register(L, "set_car_m_fBuoyancyConstant", set_car_m_fBuoyancyConstant); // 1242 уст. m_fBuoyancyConstant (CPhysical)
-	lua_register(L, "get_car_m_vecCentreOfMass", get_car_m_vecCentreOfMass); // 1243 m_vecCentreOfMass (CPhysical)
+	lua_register(L, "get_car_m_vecCentreOfMass", get_car_m_vecCentreOfMass); // 1243 m_vecCentreOfMass (CPhysical) — получить поле vecCentreOfMass (центр, масса) (CPhysical)
 	lua_register(L, "set_car_m_vecCentreOfMass", set_car_m_vecCentreOfMass); // 1244 уст. m_vecCentreOfMass (CPhysical)
-	lua_register(L, "get_car_m_nNumCollisionRecords", get_car_m_nNumCollisionRecords); // 1245 m_nNumCollisionRecords (CPhysical)
+	lua_register(L, "get_car_m_nNumCollisionRecords", get_car_m_nNumCollisionRecords); // 1245 m_nNumCollisionRecords (CPhysical) — получить поле nNumCollisionRecords (столкновение, рекорды) (CPhysical)
 	lua_register(L, "set_car_m_nNumCollisionRecords", set_car_m_nNumCollisionRecords); // 1246 уст. m_nNumCollisionRecords (CPhysical)
-	lua_register(L, "get_car_m_fTotSpeed", get_car_m_fTotSpeed); // 1247 m_fTotSpeed (CPhysical)
+	lua_register(L, "get_car_m_fTotSpeed", get_car_m_fTotSpeed); // 1247 m_fTotSpeed (CPhysical) — получить поле fTotSpeed (всего, скорость) (CPhysical)
 	lua_register(L, "set_car_m_fTotSpeed", set_car_m_fTotSpeed); // 1248 уст. m_fTotSpeed (CPhysical)
-	lua_register(L, "get_car_m_fCollisionPower", get_car_m_fCollisionPower); // 1249 m_fCollisionPower (CPhysical)
+	lua_register(L, "get_car_m_fCollisionPower", get_car_m_fCollisionPower); // 1249 m_fCollisionPower (CPhysical) — получить поле fCollisionPower (столкновение, мощность) (CPhysical)
 
 
 	lua_register(L, "set_car_m_fCollisionPower", set_car_m_fCollisionPower); // 1250 уст. m_fCollisionPower (CPhysical)
-	lua_register(L, "get_car_m_vecCollisionPower", get_car_m_vecCollisionPower); // 1251 m_vecCollisionPower (CPhysical)
+	lua_register(L, "get_car_m_vecCollisionPower", get_car_m_vecCollisionPower); // 1251 m_vecCollisionPower (CPhysical) — получить поле vecCollisionPower (столкновение, мощность) (CPhysical)
 	lua_register(L, "set_car_m_vecCollisionPower", set_car_m_vecCollisionPower); // 1252 уст. m_vecCollisionPower (CPhysical)
-	lua_register(L, "get_car_m_wComponentCol", get_car_m_wComponentCol); // 1253 m_wComponentCol (CPhysical)
+	lua_register(L, "get_car_m_wComponentCol", get_car_m_wComponentCol); // 1253 m_wComponentCol (CPhysical) — получить поле wComponentCol (компонент, коллизия) (CPhysical)
 	lua_register(L, "set_car_m_wComponentCol", set_car_m_wComponentCol); // 1254 уст. m_wComponentCol (CPhysical)
-	lua_register(L, "get_car_m_nMoveFlags", get_car_m_nMoveFlags); // 1255 m_nMoveFlags (CPhysical)
+	lua_register(L, "get_car_m_nMoveFlags", get_car_m_nMoveFlags); // 1255 m_nMoveFlags (CPhysical) — получить поле nMoveFlags (переместить, флаги) (CPhysical)
 	lua_register(L, "set_car_m_nMoveFlags", set_car_m_nMoveFlags); // 1256 уст. m_nMoveFlags (CPhysical)
-	lua_register(L, "get_car_m_nCollFlags", get_car_m_nCollFlags); // 1257 m_nCollFlags (CPhysical)
+	lua_register(L, "get_car_m_nCollFlags", get_car_m_nCollFlags); // 1257 m_nCollFlags (CPhysical) — получить поле nCollFlags (коллизия, флаги) (CPhysical)
 	lua_register(L, "set_car_m_nCollFlags", set_car_m_nCollFlags); // 1258 уст. m_nCollFlags (CPhysical)
-	lua_register(L, "get_car_m_nLastCollType", get_car_m_nLastCollType); // 1259 m_nLastCollType (CPhysical)
+	lua_register(L, "get_car_m_nLastCollType", get_car_m_nLastCollType); // 1259 m_nLastCollType (CPhysical) — получить поле nLastCollType (последний, коллизия, тип) (CPhysical)
 
 
 	lua_register(L, "set_car_m_nLastCollType", set_car_m_nLastCollType); // 1260 уст. m_nLastCollType (CPhysical)
-	lua_register(L, "get_car_m_nZoneLevel", get_car_m_nZoneLevel); // 1261 m_nZoneLevel (CPhysical)
+	lua_register(L, "get_car_m_nZoneLevel", get_car_m_nZoneLevel); // 1261 m_nZoneLevel (CPhysical) — получить поле nZoneLevel (зона, уровень) (CPhysical)
 	lua_register(L, "set_car_m_nZoneLevel", set_car_m_nZoneLevel); // 1262 уст. m_nZoneLevel (CPhysical)
-	lua_register(L, "get_car_fNegSpeed", get_car_fNegSpeed); // 1263 fNegSpeed (CAutomobile)
+	lua_register(L, "get_car_fNegSpeed", get_car_fNegSpeed); // 1263 fNegSpeed (CAutomobile) — получить поле fNegSpeed (отрицательный, скорость) (CAutomobile)
 	lua_register(L, "set_car_fNegSpeed", set_car_fNegSpeed); // 1264 уст. fNegSpeed (CAutomobile)
-	lua_register(L, "get_car_fAIGripMultiplier", get_car_fAIGripMultiplier); // 1265 fAIGripMultiplier (CAutomobile)
+	lua_register(L, "get_car_fAIGripMultiplier", get_car_fAIGripMultiplier); // 1265 fAIGripMultiplier (CAutomobile) — получить поле fAIGripMultiplier (ИИ, сцепление, множитель) (CAutomobile)
 	lua_register(L, "set_car_fAIGripMultiplier", set_car_fAIGripMultiplier); // 1266 уст. fAIGripMultiplier (CAutomobile)
-	lua_register(L, "get_car_fSpecialWepRotH", get_car_fSpecialWepRotH); // 1267 fSpecialWepRotH (CAutomobile)
+	lua_register(L, "get_car_fSpecialWepRotH", get_car_fSpecialWepRotH); // 1267 fSpecialWepRotH (CAutomobile) — получить поле fSpecialWepRotH (специальный, оружие, поворот) (CAutomobile)
 	lua_register(L, "set_car_fSpecialWepRotH", set_car_fSpecialWepRotH); // 1268 уст. fSpecialWepRotH (CAutomobile)
-	lua_register(L, "get_car_fSpecialWepRotV", get_car_fSpecialWepRotV); // 1269 fSpecialWepRotV (CAutomobile)
+	lua_register(L, "get_car_fSpecialWepRotV", get_car_fSpecialWepRotV); // 1269 fSpecialWepRotV (CAutomobile) — получить поле fSpecialWepRotV (специальный, оружие, поворот) (CAutomobile)
 
 
 	lua_register(L, "set_car_fSpecialWepRotV", set_car_fSpecialWepRotV); // 1270 уст. fSpecialWepRotV (CAutomobile)
-	lua_register(L, "get_car_fSpecialSteering", get_car_fSpecialSteering); // 1271 fSpecialSteering (CAutomobile)
+	lua_register(L, "get_car_fSpecialSteering", get_car_fSpecialSteering); // 1271 fSpecialSteering (CAutomobile) — получить поле fSpecialSteering (специальный, рулевое управление) (CAutomobile)
 	lua_register(L, "set_car_fSpecialSteering", set_car_fSpecialSteering); // 1272 уст. fSpecialSteering (CAutomobile)
-	lua_register(L, "get_car_fSpecialMoveState", get_car_fSpecialMoveState); // 1273 fSpecialMoveState (CAutomobile)
+	lua_register(L, "get_car_fSpecialMoveState", get_car_fSpecialMoveState); // 1273 fSpecialMoveState (CAutomobile) — получить поле fSpecialMoveState (специальный, переместить, состояние) (CAutomobile)
 	lua_register(L, "set_car_fSpecialMoveState", set_car_fSpecialMoveState); // 1274 уст. fSpecialMoveState (CAutomobile)
-	lua_register(L, "get_car_fSkidMarkDensity", get_car_fSkidMarkDensity); // 1275 fSkidMarkDensity (CAutomobile)
+	lua_register(L, "get_car_fSkidMarkDensity", get_car_fSkidMarkDensity); // 1275 fSkidMarkDensity (CAutomobile) — получить поле fSkidMarkDensity (след шин, маркер, плотность) (CAutomobile)
 	lua_register(L, "set_car_fSkidMarkDensity", set_car_fSkidMarkDensity); // 1276 уст. fSkidMarkDensity (CAutomobile)
-	lua_register(L, "get_car_m_fPropRotation", get_car_m_fPropRotation); // 1277 m_fPropRotation (CBoat)
+	lua_register(L, "get_car_m_fPropRotation", get_car_m_fPropRotation); // 1277 m_fPropRotation (CBoat) — получить поле fPropRotation (реквизит, вращение) (CBoat)
 	lua_register(L, "set_car_m_fPropRotation", set_car_m_fPropRotation); // 1278 уст. m_fPropRotation (CBoat)
-	lua_register(L, "get_car_m_fPropSpeed", get_car_m_fPropSpeed); // 1279 m_fPropSpeed (CBoat)
+	lua_register(L, "get_car_m_fPropSpeed", get_car_m_fPropSpeed); // 1279 m_fPropSpeed (CBoat) — получить поле fPropSpeed (реквизит, скорость) (CBoat)
 
 
 	lua_register(L, "set_car_m_fPropSpeed", set_car_m_fPropSpeed); // 1280 уст. m_fPropSpeed (CBoat)
-	lua_register(L, "get_car_m_fForcedZRotation", get_car_m_fForcedZRotation); // 1281 m_fForcedZRotation (CBoat)
+	lua_register(L, "get_car_m_fForcedZRotation", get_car_m_fForcedZRotation); // 1281 m_fForcedZRotation (CBoat) — получить поле fForcedZRotation (принудительно, Z, вращение) (CBoat)
 	lua_register(L, "set_car_m_fForcedZRotation", set_car_m_fForcedZRotation); // 1282 уст. m_fForcedZRotation (CBoat)
-	lua_register(L, "get_car_m_nAttackPlayerTime", get_car_m_nAttackPlayerTime); // 1283 m_nAttackPlayerTime (CBoat)
+	lua_register(L, "get_car_m_nAttackPlayerTime", get_car_m_nAttackPlayerTime); // 1283 m_nAttackPlayerTime (CBoat) — получить поле nAttackPlayerTime (атака, игрок, время) (CBoat)
 	lua_register(L, "set_car_m_nAttackPlayerTime", set_car_m_nAttackPlayerTime); // 1284 уст. m_nAttackPlayerTime (CBoat)
-	lua_register(L, "get_car_m_fBurningTimer", get_car_m_fBurningTimer); // 1285 m_fBurningTimer (CBoat)
+	lua_register(L, "get_car_m_fBurningTimer", get_car_m_fBurningTimer); // 1285 m_fBurningTimer (CBoat) — получить поле fBurningTimer (горение, таймер) (CBoat)
 	lua_register(L, "set_car_m_fBurningTimer", set_car_m_fBurningTimer); // 1286 уст. m_fBurningTimer (CBoat)
-	lua_register(L, "get_car_m_fBoatGasPedal", get_car_m_fBoatGasPedal); // 1287 m_fBoatGasPedal (CBoat)
+	lua_register(L, "get_car_m_fBoatGasPedal", get_car_m_fBoatGasPedal); // 1287 m_fBoatGasPedal (CBoat) — получить поле fBoatGasPedal (лодка, газ, педаль) (CBoat)
 	lua_register(L, "set_car_m_fBoatGasPedal", set_car_m_fBoatGasPedal); // 1288 уст. m_fBoatGasPedal (CBoat)
-	lua_register(L, "get_car_m_fBoatBrakePedal", get_car_m_fBoatBrakePedal); // 1289 m_fBoatBrakePedal (CBoat)
+	lua_register(L, "get_car_m_fBoatBrakePedal", get_car_m_fBoatBrakePedal); // 1289 m_fBoatBrakePedal (CBoat) — получить поле fBoatBrakePedal (лодка, тормоз, педаль) (CBoat)
 
 
 	lua_register(L, "set_car_m_fBoatBrakePedal", set_car_m_fBoatBrakePedal); // 1290 уст. m_fBoatBrakePedal (CBoat)
-	lua_register(L, "get_car_m_fBoatSteeringLeftRight", get_car_m_fBoatSteeringLeftRight); // 1291 m_fBoatSteeringLeftRight (CBoat)
+	lua_register(L, "get_car_m_fBoatSteeringLeftRight", get_car_m_fBoatSteeringLeftRight); // 1291 m_fBoatSteeringLeftRight (CBoat) — получить поле fBoatSteeringLeftRight (лодка, рулевое управление, влево, вправо) (CBoat)
 	lua_register(L, "set_car_m_fBoatSteeringLeftRight", set_car_m_fBoatSteeringLeftRight); // 1292 уст. m_fBoatSteeringLeftRight (CBoat)
-	lua_register(L, "get_car_m_nPadNumber", get_car_m_nPadNumber); // 1293 m_nPadNumber (CBoat)
+	lua_register(L, "get_car_m_nPadNumber", get_car_m_nPadNumber); // 1293 m_nPadNumber (CBoat) — получить поле nPadNumber (панель) (CBoat)
 	lua_register(L, "set_car_m_nPadNumber", set_car_m_nPadNumber); // 1294 уст. m_nPadNumber (CBoat)
-	lua_register(L, "get_car_m_nNumWaterTrailPoints", get_car_m_nNumWaterTrailPoints); // 1295 m_nNumWaterTrailPoints (CBoat)
+	lua_register(L, "get_car_m_nNumWaterTrailPoints", get_car_m_nNumWaterTrailPoints); // 1295 m_nNumWaterTrailPoints (CBoat) — получить поле nNumWaterTrailPoints (вода, след, очки) (CBoat)
 	lua_register(L, "set_car_m_nNumWaterTrailPoints", set_car_m_nNumWaterTrailPoints); // 1296 уст. m_nNumWaterTrailPoints (CBoat)
-	lua_register(L, "get_car_nBikeAnimGroup", get_car_nBikeAnimGroup); // 1297 nBikeAnimGroup (CBike)
+	lua_register(L, "get_car_nBikeAnimGroup", get_car_nBikeAnimGroup); // 1297 nBikeAnimGroup (CBike) — получить поле nBikeAnimGroup (мотоцикл, анимация, группа) (CBike)
 	lua_register(L, "set_car_nBikeAnimGroup", set_car_nBikeAnimGroup); // 1298 уст. nBikeAnimGroup (CBike)
-	lua_register(L, "get_car_m_nDamageFlags", get_car_m_nDamageFlags); // 1299 m_nDamageFlags (CBike)
+	lua_register(L, "get_car_m_nDamageFlags", get_car_m_nDamageFlags); // 1299 m_nDamageFlags (CBike) — получить поле nDamageFlags (повреждение, флаги) (CBike)
 
 
 	lua_register(L, "set_car_m_nDamageFlags", set_car_m_nDamageFlags); // 1300 уст. m_nDamageFlags (CBike)
-	lua_register(L, "get_car_m_fSearchLightX", get_car_m_fSearchLightX); // 1301 m_fSearchLightX (CHeli)
+	lua_register(L, "get_car_m_fSearchLightX", get_car_m_fSearchLightX); // 1301 m_fSearchLightX (CHeli) — получить поле fSearchLightX (поиск, свет, X) (CHeli)
 	lua_register(L, "set_car_m_fSearchLightX", set_car_m_fSearchLightX); // 1302 уст. m_fSearchLightX (CHeli)
-	lua_register(L, "get_car_m_fSearchLightY", get_car_m_fSearchLightY); // 1303 m_fSearchLightY (CHeli)
+	lua_register(L, "get_car_m_fSearchLightY", get_car_m_fSearchLightY); // 1303 m_fSearchLightY (CHeli) — получить поле fSearchLightY (поиск, свет, Y) (CHeli)
 	lua_register(L, "set_car_m_fSearchLightY", set_car_m_fSearchLightY); // 1304 уст. m_fSearchLightY (CHeli)
-	lua_register(L, "get_car_m_nExplosionTime", get_car_m_nExplosionTime); // 1305 m_nExplosionTime (CHeli)
+	lua_register(L, "get_car_m_nExplosionTime", get_car_m_nExplosionTime); // 1305 m_nExplosionTime (CHeli) — получить поле nExplosionTime (взрыв, время) (CHeli)
 	lua_register(L, "set_car_m_nExplosionTime", set_car_m_nExplosionTime); // 1306 уст. m_nExplosionTime (CHeli)
-	lua_register(L, "get_car_m_fRotationX", get_car_m_fRotationX); // 1307 m_fRotationX (CHeli)
+	lua_register(L, "get_car_m_fRotationX", get_car_m_fRotationX); // 1307 m_fRotationX (CHeli) — получить поле fRotationX (вращение, X) (CHeli)
 	lua_register(L, "set_car_m_fRotationX", set_car_m_fRotationX); // 1308 уст. m_fRotationX (CHeli)
-	lua_register(L, "get_car_m_fHeliForcedZ", get_car_m_fHeliForcedZ); // 1309 m_fHeliForcedZ (CHeli)
+	lua_register(L, "get_car_m_fHeliForcedZ", get_car_m_fHeliForcedZ); // 1309 m_fHeliForcedZ (CHeli) — получить поле fHeliForcedZ (вертолёт, принудительно, Z) (CHeli)
 
 
 	lua_register(L, "set_car_m_fHeliForcedZ", set_car_m_fHeliForcedZ); // 1310 уст. m_fHeliForcedZ (CHeli)
-	lua_register(L, "get_car_m_fSearchLightIntensity", get_car_m_fSearchLightIntensity); // 1311 m_fSearchLightIntensity (CHeli)
+	lua_register(L, "get_car_m_fSearchLightIntensity", get_car_m_fSearchLightIntensity); // 1311 m_fSearchLightIntensity (CHeli) — получить поле fSearchLightIntensity (поиск, свет, интенсивность) (CHeli)
 	lua_register(L, "set_car_m_fSearchLightIntensity", set_car_m_fSearchLightIntensity); // 1312 уст. m_fSearchLightIntensity (CHeli)
-	lua_register(L, "get_car_m_nDamagePoints", get_car_m_nDamagePoints); // 1313 m_nDamagePoints (CHeli)
+	lua_register(L, "get_car_m_nDamagePoints", get_car_m_nDamagePoints); // 1313 m_nDamagePoints (CHeli) — получить поле nDamagePoints (повреждение, очки) (CHeli)
 	lua_register(L, "set_car_m_nDamagePoints", set_car_m_nDamagePoints); // 1314 уст. m_nDamagePoints (CHeli)
-	lua_register(L, "get_car_m_fRotorAngle", get_car_m_fRotorAngle); // 1315 m_fRotorAngle (CHeli)
+	lua_register(L, "get_car_m_fRotorAngle", get_car_m_fRotorAngle); // 1315 m_fRotorAngle (CHeli) — получить поле fRotorAngle (ротор, угол) (CHeli)
 	lua_register(L, "set_car_m_fRotorAngle", set_car_m_fRotorAngle); // 1316 уст. m_fRotorAngle (CHeli)
 	lua_register(L, "get_wanted_m_nLastTimeWantedDecreased", get_wanted_m_nLastTimeWantedDecreased); // 1317 последнее снижение розыска
 	lua_register(L, "get_wanted_m_nLastTimeWantedLevelChanged", get_wanted_m_nLastTimeWantedLevelChanged); // 1318 последняя смена уровня розыска
@@ -1764,7 +1764,7 @@ int funs(lua_State* L) {// список функций.
 
 	lua_register(L, "iscarfire", iscarfire); // 1450 авто горит?
 	lua_register(L, "is_car_damage_by_car", is_car_damage_by_car); // 1451 Если авто получило урон от другого авто.
-	lua_register(L, "show_text_gtx_table", show_text_gtx_table);
+	lua_register(L, "show_text_gtx_table", show_text_gtx_table); // показать текст GXT текст таблица
 	lua_register(L, "show_text_key", show_text_key); // 23.11: авто-таблица по GXT-ключу // 1452 вывести текст из таблицы.
 	lua_register(L, "ped_road_off", ped_road_off); // 1453 выкл путь педов.
 	lua_register(L, "ped_road_on", ped_road_on); // 1454 вкл путь педов.
@@ -2087,482 +2087,482 @@ int funs(lua_State* L) {// список функций.
 	
 	
 	// === AUTO-ADDED OPCODE WRAPPERS (20.11) ===
-	lua_register(L, "print_with_number_big", print_with_number_big); // 1713 0x01E3 COMMAND_PRINT_WITH_NUMBER_BIG (reVC Script2.cpp:1389)
-	lua_register(L, "add_score", add_score); // 1714 0x0109 COMMAND_ADD_SCORE (reVC Script.cpp:4512)
-	lua_register(L, "has_deatharrest_been_executed", has_deatharrest_been_executed); // 1715 0x0112 COMMAND_HAS_DEATHARREST_BEEN_EXECUTED (reVC Script.cpp:4556)
-	lua_register(L, "clear_prints", clear_prints); // 1716 0x00BE COMMAND_CLEAR_PRINTS (reVC Script.cpp:4162)
-	lua_register(L, "set_fading_colour", set_fading_colour); // 1717 0x0169 COMMAND_SET_FADING_COLOUR (reVC Script2.cpp:384)
-	lua_register(L, "load_special_character", load_special_character); // 1718 0x023C COMMAND_LOAD_SPECIAL_CHARACTER (reVC Script3.cpp:662)
-	lua_register(L, "has_special_character_loaded", has_special_character_loaded); // 1719 0x023D COMMAND_HAS_SPECIAL_CHARACTER_LOADED (reVC Script3.cpp:673)
-	lua_register(L, "set_cutscene_offset", set_cutscene_offset); // 1720 0x0244 COMMAND_SET_CUTSCENE_OFFSET (reVC Script3.cpp:729)
-	lua_register(L, "load_cutscene", load_cutscene); // 1721 0x02E4 COMMAND_LOAD_CUTSCENE (reVC Script3.cpp:1950)
-	lua_register(L, "create_cutscene_object", create_cutscene_object); // 1722 0x02E5 COMMAND_CREATE_CUTSCENE_OBJECT (reVC Script3.cpp:1958)
-
-
-	lua_register(L, "set_cutscene_anim", set_cutscene_anim); // 1723 0x02E6 COMMAND_SET_CUTSCENE_ANIM (reVC Script3.cpp:1966)
-	lua_register(L, "start_cutscene", start_cutscene); // 1724 0x02E7 COMMAND_START_CUTSCENE (reVC Script3.cpp:1977)
-	lua_register(L, "get_cutscene_time", get_cutscene_time); // 1725 0x02E8 COMMAND_GET_CUTSCENE_TIME (reVC Script3.cpp:1980)
-	lua_register(L, "clear_cutscene", clear_cutscene); // 1726 0x02EA COMMAND_CLEAR_CUTSCENE (reVC Script3.cpp:1987)
-	lua_register(L, "set_shortcut_dropoff_point_for_mission", set_shortcut_dropoff_point_for_mission); // 1727 0x058E COMMAND_SET_SHORTCUT_DROPOFF_POINT_FOR_MISSION (reVC Script8.cpp:234)
-	lua_register(L, "clear_this_print", clear_this_print); // 1728 0x03D5 COMMAND_CLEAR_THIS_PRINT (reVC Script4.cpp:2079)
-	lua_register(L, "is_player_in_any_car", is_player_in_any_car); // 1729 0x00E0 COMMAND_IS_PLAYER_IN_ANY_CAR (reVC Script.cpp:4400)
-	lua_register(L, "is_player_in_car", is_player_in_car); // 1730 0x00DC COMMAND_IS_PLAYER_IN_CAR (reVC Script.cpp:4370)
-	lua_register(L, "get_player_coordinates", get_player_coordinates); // 1731 0x0054 COMMAND_GET_PLAYER_COORDINATES (reVC Script.cpp:3183)
-	lua_register(L, "load_special_model", load_special_model); // 1732 0x02F3 COMMAND_LOAD_SPECIAL_MODEL (reVC Script3.cpp:2086)
-
-
-	lua_register(L, "is_char_in_car", is_char_in_car); // 1733 0x00DB COMMAND_IS_CHAR_IN_CAR (reVC Script.cpp:4361)
-	lua_register(L, "is_char_in_any_car", is_char_in_any_car); // 1734 0x00DF COMMAND_IS_CHAR_IN_ANY_CAR (reVC Script.cpp:4393)
-	lua_register(L, "locate_player_any_means_3d", locate_player_any_means_3d); // 1735 0x00F5 COMMAND_LOCATE_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4448)
-	lua_register(L, "get_car_coordinates", get_car_coordinates); // 1736 0x00AA COMMAND_GET_CAR_COORDINATES (reVC Script.cpp:3982)
-	lua_register(L, "store_car_player_is_in", store_car_player_is_in); // 1737 0x00DA COMMAND_STORE_CAR_PLAYER_IS_IN (reVC Script.cpp:4310)
-	lua_register(L, "clear_onscreen_counter", clear_onscreen_counter); // 1738 0x0151 COMMAND_CLEAR_ONSCREEN_COUNTER (reVC Script2.cpp:194)
-	lua_register(L, "clear_extra_colours", clear_extra_colours); // 1739 0x04FA COMMAND_CLEAR_EXTRA_COLOURS (reVC Script7.cpp:567)
-	lua_register(L, "register_oddjob_mission_passed", register_oddjob_mission_passed); // 1740 0x0595 COMMAND_REGISTER_ODDJOB_MISSION_PASSED (reVC Script8.cpp:330)
-	lua_register(L, "locate_char_on_foot_2d", locate_char_on_foot_2d); // 1741 0x00ED COMMAND_LOCATE_CHAR_ON_FOOT_2D (reVC Script.cpp:4436)
-	lua_register(L, "locate_car_2d", locate_car_2d); // 1742 0x01AD COMMAND_LOCATE_CAR_2D (reVC Script2.cpp:881)
-
-
-	lua_register(L, "display_onscreen_counter_with_string", display_onscreen_counter_with_string); // 1743 0x03C4 COMMAND_DISPLAY_ONSCREEN_COUNTER_WITH_STRING (reVC Script4.cpp:1797)
-	lua_register(L, "set_extra_colours", set_extra_colours); // 1744 0x04F9 COMMAND_SET_EXTRA_COLOURS (reVC Script7.cpp:561)
-	lua_register(L, "set_char_obj_enter_car_as_driver", set_char_obj_enter_car_as_driver); // 1745 0x01D5 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_DRIVER (reVC Script2.cpp:1285)
-	lua_register(L, "create_object_no_offset", create_object_no_offset); // 1746 0x029B COMMAND_CREATE_OBJECT_NO_OFFSET (reVC Script3.cpp:1260)
-	lua_register(L, "change_blip_display", change_blip_display); // 1747 0x018B COMMAND_CHANGE_BLIP_DISPLAY (reVC Script2.cpp:683)
-	lua_register(L, "set_char_health", set_char_health); // 1748 0x0223 COMMAND_SET_CHAR_HEALTH (reVC Script3.cpp:393)
-	lua_register(L, "locate_player_on_foot_3d", locate_player_on_foot_3d); // 1749 0x00F6 COMMAND_LOCATE_PLAYER_ON_FOOT_3D (reVC Script.cpp:4449)
-	lua_register(L, "get_char_coordinates", get_char_coordinates); // 1750 0x00A0 COMMAND_GET_CHAR_COORDINATES (reVC Script.cpp:3759)
-	lua_register(L, "register_fastest_time", register_fastest_time); // 1751 0x042E COMMAND_REGISTER_FASTEST_TIME (reVC Script6.cpp:635)
-	lua_register(L, "print", print); // 1752 0x00BB COMMAND_PRINT (reVC Script.cpp:4139)
-
-
-	lua_register(L, "display_onscreen_timer", display_onscreen_timer); // 1753 0x014E COMMAND_DISPLAY_ONSCREEN_TIMER (reVC Script2.cpp:169)
-	lua_register(L, "locate_player_in_car_3d", locate_player_in_car_3d); // 1754 0x00F7 COMMAND_LOCATE_PLAYER_IN_CAR_3D (reVC Script.cpp:4450)
-	lua_register(L, "locate_player_any_means_car_2d", locate_player_any_means_car_2d); // 1755 0x01FC COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_2D (reVC Script3.cpp:108)
-	lua_register(L, "print_with_2_numbers_now", print_with_2_numbers_now); // 1756 0x02FD COMMAND_PRINT_WITH_2_NUMBERS_NOW (reVC Script3.cpp:2161)
-	lua_register(L, "clear_small_prints", clear_small_prints); // 1757 0x03EB COMMAND_CLEAR_SMALL_PRINTS (reVC Script6.cpp:99)
-	lua_register(L, "is_player_in_model", is_player_in_model); // 1758 0x00DE COMMAND_IS_PLAYER_IN_MODEL (reVC Script.cpp:4386)
-	lua_register(L, "switch_car_generator", switch_car_generator); // 1759 0x014C COMMAND_SWITCH_CAR_GENERATOR (reVC Script2.cpp:146)
-	lua_register(L, "turn_char_to_face_char", turn_char_to_face_char); // 1760 0x020E COMMAND_TURN_CHAR_TO_FACE_CHAR (reVC Script3.cpp:163)
-	lua_register(L, "is_player_playing", is_player_playing); // 1761 0x0256 COMMAND_IS_PLAYER_PLAYING (reVC Script3.cpp:854)
-	lua_register(L, "is_point_obscured_by_a_mission_entity", is_point_obscured_by_a_mission_entity); // 1762 0x038A COMMAND_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY (reVC Script4.cpp:1262)
-
-
-	lua_register(L, "sqrt", sqrt); // 1763 0x01FB COMMAND_SQRT (reVC Script3.cpp:101)
-	lua_register(L, "set_camera_in_front_of_player", set_camera_in_front_of_player); // 1764 0x03C8 COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER (reVC Script4.cpp:1983)
-	lua_register(L, "locate_char_on_foot_3d", locate_char_on_foot_3d); // 1765 0x00FF COMMAND_LOCATE_CHAR_ON_FOOT_3D (reVC Script.cpp:4462)
-	lua_register(L, "print_with_number_now", print_with_number_now); // 1766 0x01E5 COMMAND_PRINT_WITH_NUMBER_NOW (reVC Script2.cpp:1403)
-	lua_register(L, "was_cutscene_skipped", was_cutscene_skipped); // 1767 0x056A COMMAND_WAS_CUTSCENE_SKIPPED (reVC Script7.cpp:1305)
-	lua_register(L, "set_zone_ped_info", set_zone_ped_info); // 1768 0x015C COMMAND_SET_ZONE_PED_INFO (reVC Script2.cpp:275)
-	lua_register(L, "add_money_spent_on_property", add_money_spent_on_property); // 1769 0x0529 COMMAND_ADD_MONEY_SPENT_ON_PROPERTY (reVC Script7.cpp:878)
-	lua_register(L, "set_property_as_owned", set_property_as_owned); // 1770 0x0542 COMMAND_SET_PROPERTY_AS_OWNED (reVC Script7.cpp:1003)
-	lua_register(L, "get_object_coordinates", get_object_coordinates); // 1771 0x01BB COMMAND_GET_OBJECT_COORDINATES (reVC Script2.cpp:951)
-	lua_register(L, "generate_random_int_in_range", generate_random_int_in_range); // 1772 0x0209 COMMAND_GENERATE_RANDOM_INT_IN_RANGE (reVC Script3.cpp:129)
-
-
-	lua_register(L, "set_char_cant_be_dragged_out", set_char_cant_be_dragged_out); // 1773 0x039E COMMAND_SET_CHAR_CANT_BE_DRAGGED_OUT (reVC Script4.cpp:1485)
-	lua_register(L, "set_cutscene_anim_to_loop", set_cutscene_anim_to_loop); // 1774 0x04BC COMMAND_SET_CUTSCENE_ANIM_TO_LOOP (reVC Script7.cpp:139)
-	lua_register(L, "is_player_in_area_2d", is_player_in_area_2d); // 1775 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D (reVC Script.cpp:3248)
-	lua_register(L, "set_time_of_day", set_time_of_day); // 1776 0x00C0 COMMAND_SET_TIME_OF_DAY (reVC Script.cpp:4170)
-	lua_register(L, "locate_stopped_player_in_car_3d", locate_stopped_player_in_car_3d); // 1777 0x00FA COMMAND_LOCATE_STOPPED_PLAYER_IN_CAR_3D (reVC Script.cpp:4453)
-	lua_register(L, "set_char_obj_enter_car_as_passenger", set_char_obj_enter_car_as_passenger); // 1778 0x01D4 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_PASSENGER (reVC Script2.cpp:1275)
-	lua_register(L, "set_char_suffers_critical_hits", set_char_suffers_critical_hits); // 1779 0x0446 COMMAND_SET_CHAR_SUFFERS_CRITICAL_HITS (reVC Script6.cpp:801)
-	lua_register(L, "store_car_char_is_in", store_car_char_is_in); // 1780 0x00D9 COMMAND_STORE_CAR_CHAR_IS_IN (reVC Script.cpp:4258)
-	lua_register(L, "locate_player_any_means_2d", locate_player_any_means_2d); // 1781 0x00E3 COMMAND_LOCATE_PLAYER_ANY_MEANS_2D (reVC Script.cpp:4422)
-	lua_register(L, "locate_stopped_player_on_foot_3d", locate_stopped_player_on_foot_3d); // 1782 0x00F9 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_3D (reVC Script.cpp:4452)
-
-
-	lua_register(L, "set_player_as_leader", set_player_as_leader); // 1783 0x01DF COMMAND_SET_PLAYER_AS_LEADER (reVC Script2.cpp:1357)
-	lua_register(L, "add_short_range_sprite_blip_for_coord", add_short_range_sprite_blip_for_coord); // 1784 0x04CE COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_COORD (reVC Script7.cpp:244)
-	lua_register(L, "stop_char_looking", stop_char_looking); // 1785 0x022F COMMAND_STOP_CHAR_LOOKING (reVC Script3.cpp:548)
-	lua_register(L, "has_cutscene_finished", has_cutscene_finished); // 1786 0x02E9 COMMAND_HAS_CUTSCENE_FINISHED (reVC Script3.cpp:1984)
-	lua_register(L, "shut_player_up", shut_player_up); // 1787 0x04E2 COMMAND_SHUT_PLAYER_UP (reVC Script7.cpp:390)
-	lua_register(L, "is_char_health_greater", is_char_health_greater); // 1788 0x0184 COMMAND_IS_CHAR_HEALTH_GREATER (reVC Script2.cpp:605)
-	lua_register(L, "store_wanted_level", store_wanted_level); // 1789 0x01C0 COMMAND_STORE_WANTED_LEVEL (reVC Script2.cpp:1028)
-	lua_register(L, "is_char_in_players_group", is_char_in_players_group); // 1790 0x0320 COMMAND_IS_CHAR_IN_PLAYERS_GROUP (reVC Script4.cpp:65)
-	lua_register(L, "make_player_safe_for_cutscene", make_player_safe_for_cutscene); // 1791 0x03EF COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE (reVC Script6.cpp:125)
-	lua_register(L, "create_protection_pickup", create_protection_pickup); // 1792 0x04A6 COMMAND_CREATE_PROTECTION_PICKUP (reVC Script6.cpp:1719)
-
-
-	lua_register(L, "locate_stopped_player_any_means_3d", locate_stopped_player_any_means_3d); // 1793 0x00F8 COMMAND_LOCATE_STOPPED_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4451)
-	lua_register(L, "char_look_at_player_always", char_look_at_player_always); // 1794 0x022D COMMAND_CHAR_LOOK_AT_PLAYER_ALWAYS (reVC Script3.cpp:526)
-	lua_register(L, "stop_player_looking", stop_player_looking); // 1795 0x0230 COMMAND_STOP_PLAYER_LOOKING (reVC Script3.cpp:559)
-	lua_register(L, "store_car_player_is_in_no_save", store_car_player_is_in_no_save); // 1796 0x03C1 COMMAND_STORE_CAR_PLAYER_IS_IN_NO_SAVE (reVC Script4.cpp:1770)
-	lua_register(L, "get_offset_from_car_in_world_coords", get_offset_from_car_in_world_coords); // 1797 0x0407 COMMAND_GET_OFFSET_FROM_CAR_IN_WORLD_COORDS (reVC Script6.cpp:286)
-	lua_register(L, "shut_char_up", shut_char_up); // 1798 0x0489 COMMAND_SHUT_CHAR_UP (reVC Script6.cpp:1524)
-	lua_register(L, "draw_weaponshop_corona", draw_weaponshop_corona); // 1799 0x04D5 COMMAND_DRAW_WEAPONSHOP_CORONA (reVC Script7.cpp:302)
-	lua_register(L, "does_char_exist", does_char_exist); // 1800 0x056D COMMAND_DOES_CHAR_EXIST (reVC Script7.cpp:1328)
-	lua_register(L, "point_camera_at_player", point_camera_at_player); // 1801 0x0157 COMMAND_POINT_CAMERA_AT_PLAYER (reVC Script2.cpp:244)
-	lua_register(L, "mark_object_as_no_longer_needed", mark_object_as_no_longer_needed); // 1802 0x01C4 COMMAND_MARK_OBJECT_AS_NO_LONGER_NEEDED (reVC Script2.cpp:1063)
-
-
-	lua_register(L, "get_player_char", get_player_char); // 1803 0x01F5 COMMAND_GET_PLAYER_CHAR (reVC Script3.cpp:50)
-	lua_register(L, "get_ground_z_for_3d_coord", get_ground_z_for_3d_coord); // 1804 0x02CE COMMAND_GET_GROUND_Z_FOR_3D_COORD (reVC Script3.cpp:1654)
-	lua_register(L, "place_object_relative_to_car", place_object_relative_to_car); // 1805 0x035C COMMAND_PLACE_OBJECT_RELATIVE_TO_CAR (reVC Script4.cpp:726)
-	lua_register(L, "add_moving_particle_effect", add_moving_particle_effect); // 1806 0x039D COMMAND_ADD_MOVING_PARTICLE_EFFECT (reVC Script4.cpp:1464)
-	lua_register(L, "change_garage_type", change_garage_type); // 1807 0x02FA COMMAND_CHANGE_GARAGE_TYPE (reVC Script3.cpp:2127)
-	lua_register(L, "has_object_been_damaged", has_object_been_damaged); // 1808 0x0366 COMMAND_HAS_OBJECT_BEEN_DAMAGED (reVC Script4.cpp:899)
-	lua_register(L, "is_player_sitting_in_car", is_player_sitting_in_car); // 1809 0x0442 COMMAND_IS_PLAYER_SITTING_IN_CAR (reVC Script6.cpp:775)
-	lua_register(L, "is_char_on_foot", is_char_on_foot); // 1810 0x044B COMMAND_IS_CHAR_ON_FOOT (reVC Script6.cpp:846)
-	lua_register(L, "is_car_in_area_2d", is_car_in_area_2d); // 1811 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC Script.cpp:4084)
-	lua_register(L, "locate_player_on_foot_2d", locate_player_on_foot_2d); // 1812 0x00E4 COMMAND_LOCATE_PLAYER_ON_FOOT_2D (reVC Script.cpp:4423)
-
-
-	lua_register(L, "locate_stopped_char_any_means_3d", locate_stopped_char_any_means_3d); // 1813 0x0101 COMMAND_LOCATE_STOPPED_CHAR_ANY_MEANS_3D (reVC Script.cpp:4464)
-	lua_register(L, "set_char_as_leader", set_char_as_leader); // 1814 0x01DE COMMAND_SET_CHAR_AS_LEADER (reVC Script2.cpp:1348)
-	lua_register(L, "locate_char_any_means_car_2d", locate_char_any_means_car_2d); // 1815 0x0202 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_2D (reVC Script3.cpp:116)
-	lua_register(L, "generate_random_float_in_range", generate_random_float_in_range); // 1816 0x0208 COMMAND_GENERATE_RANDOM_FLOAT_IN_RANGE (reVC Script3.cpp:124)
-	lua_register(L, "get_char_health", get_char_health); // 1817 0x0226 COMMAND_GET_CHAR_HEALTH (reVC Script3.cpp:428)
-	lua_register(L, "char_look_at_char_always", char_look_at_char_always); // 1818 0x022C COMMAND_CHAR_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:515)
-	lua_register(L, "player_look_at_char_always", player_look_at_char_always); // 1819 0x022E COMMAND_PLAYER_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:537)
-	lua_register(L, "is_player_in_angled_area_3d", is_player_in_angled_area_3d); // 1820 0x02B3 COMMAND_IS_PLAYER_IN_ANGLED_AREA_3D (reVC Script3.cpp:1494)
-	lua_register(L, "get_closest_char_node", get_closest_char_node); // 1821 0x02C0 COMMAND_GET_CLOSEST_CHAR_NODE (reVC Script3.cpp:1547)
-	lua_register(L, "add_to_object_velocity", add_to_object_velocity); // 1822 0x038C COMMAND_ADD_TO_OBJECT_VELOCITY (reVC Script4.cpp:1304)
-
-
-	lua_register(L, "is_player_sitting_in_any_car", is_player_sitting_in_any_car); // 1823 0x0443 COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR (reVC Script6.cpp:784)
-	lua_register(L, "is_char_sitting_in_any_car", is_char_sitting_in_any_car); // 1824 0x0449 COMMAND_IS_CHAR_SITTING_IN_ANY_CAR (reVC Script6.cpp:829)
-	lua_register(L, "disable_cutscene_shadows", disable_cutscene_shadows); // 1825 0x0522 COMMAND_DISABLE_CUTSCENE_SHADOWS (reVC Script7.cpp:830)
-	lua_register(L, "add_number_of_assassinations", add_number_of_assassinations); // 1826 0x0533 COMMAND_ADD_NUMBER_OF_ASSASSINATIONS (reVC Script7.cpp:912)
-	lua_register(L, "load_uncompressed_anim", load_uncompressed_anim); // 1827 0x0569 COMMAND_LOAD_UNCOMPRESSED_ANIM (reVC Script7.cpp:1297)
-	lua_register(L, "locate_stopped_char_on_foot_2d", locate_stopped_char_on_foot_2d); // 1828 0x00F0 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_2D (reVC Script.cpp:4439)
-	lua_register(L, "locate_char_any_means_char_2d", locate_char_any_means_char_2d); // 1829 0x00F2 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_2D (reVC Script.cpp:4443)
-	lua_register(L, "is_player_dead", is_player_dead); // 1830 0x0117 COMMAND_IS_PLAYER_DEAD (reVC Script.cpp:4577)
-	lua_register(L, "set_char_obj_wait_on_foot", set_char_obj_wait_on_foot); // 1831 0x0192 COMMAND_SET_CHAR_OBJ_WAIT_ON_FOOT (reVC Script2.cpp:786)
-	lua_register(L, "add_route_point", add_route_point); // 1832 0x01E2 COMMAND_ADD_ROUTE_POINT (reVC Script2.cpp:1383)
-
-
-	lua_register(L, "get_maximum_number_of_passengers", get_maximum_number_of_passengers); // 1833 0x01EA COMMAND_GET_MAXIMUM_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1468)
-	lua_register(L, "get_random_car_of_type_in_area", get_random_car_of_type_in_area); // 1834 0x0327 COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA (reVC Script4.cpp:134)
-	lua_register(L, "remove_route", remove_route); // 1835 0x03AC COMMAND_REMOVE_ROUTE (reVC Script4.cpp:1583)
-	lua_register(L, "set_interpolation_parameters", set_interpolation_parameters); // 1836 0x0460 COMMAND_SET_INTERPOLATION_PARAMETERS (reVC Script6.cpp:1149)
-	lua_register(L, "has_animation_loaded", has_animation_loaded); // 1837 0x04EE COMMAND_HAS_ANIMATION_LOADED (reVC Script7.cpp:476)
-	lua_register(L, "display_nth_onscreen_counter_with_string", display_nth_onscreen_counter_with_string); // 1838 0x04F7 COMMAND_DISPLAY_NTH_ONSCREEN_COUNTER_WITH_STRING (reVC Script7.cpp:540)
-	lua_register(L, "is_char_obj_no_obj", is_char_obj_no_obj); // 1839 0x04FF COMMAND_IS_CHAR_OBJ_NO_OBJ (reVC Script7.cpp:610)
-	lua_register(L, "get_distance_between_coords_2d", get_distance_between_coords_2d); // 1840 0x0509 COMMAND_GET_DISTANCE_BETWEEN_COORDS_2D (reVC Script7.cpp:679)
-	lua_register(L, "shake_cam", shake_cam); // 1841 0x0003 COMMAND_SHAKE_CAM (reVC Script.cpp:2629)
-	lua_register(L, "is_char_in_area_2d", is_char_in_area_2d); // 1842 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reVC Script.cpp:3821)
-
-
-	lua_register(L, "set_zone_car_info", set_zone_car_info); // 1843 0x0152 COMMAND_SET_ZONE_CAR_INFO (reVC Script2.cpp:201)
-	lua_register(L, "add_blip_for_car_old", add_blip_for_car_old); // 1844 0x0161 COMMAND_ADD_BLIP_FOR_CAR_OLD (reVC Script2.cpp:325)
-	lua_register(L, "add_blip_for_char_old", add_blip_for_char_old); // 1845 0x0162 COMMAND_ADD_BLIP_FOR_CHAR_OLD (reVC Script2.cpp:335)
-	lua_register(L, "set_char_obj_flee_on_foot_till_safe", set_char_obj_flee_on_foot_till_safe); // 1846 0x0193 COMMAND_SET_CHAR_OBJ_FLEE_ON_FOOT_TILL_SAFE (reVC Script2.cpp:795)
-	lua_register(L, "locate_stopped_car_3d", locate_stopped_car_3d); // 1847 0x01B0 COMMAND_LOCATE_STOPPED_CAR_3D (reVC Script2.cpp:884)
-	lua_register(L, "print_with_number", print_with_number); // 1848 0x01E4 COMMAND_PRINT_WITH_NUMBER (reVC Script2.cpp:1396)
-	lua_register(L, "get_number_of_passengers", get_number_of_passengers); // 1849 0x01E9 COMMAND_GET_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1459)
-	lua_register(L, "set_player_health", set_player_health); // 1850 0x0222 COMMAND_SET_PLAYER_HEALTH (reVC Script3.cpp:385)
-	lua_register(L, "get_player_health", get_player_health); // 1851 0x0225 COMMAND_GET_PLAYER_HEALTH (reVC Script3.cpp:419)
-	lua_register(L, "sin", sin); // 1852 0x02F6 COMMAND_SIN (reVC Script3.cpp:2099)
-
-
-	lua_register(L, "cos", cos); // 1853 0x02F7 COMMAND_COS (reVC Script3.cpp:2104)
-	lua_register(L, "explode_player_head", explode_player_head); // 1854 0x0322 COMMAND_EXPLODE_PLAYER_HEAD (reVC Script4.cpp:83)
-	lua_register(L, "is_area_occupied", is_area_occupied); // 1855 0x0339 COMMAND_IS_AREA_OCCUPIED (reVC Script4.cpp:340)
-	lua_register(L, "swap_nearest_building_model", swap_nearest_building_model); // 1856 0x03B6 COMMAND_SWAP_NEAREST_BUILDING_MODEL (reVC Script4.cpp:1642)
-	lua_register(L, "store_car_char_is_in_no_save", store_car_char_is_in_no_save); // 1857 0x03C0 COMMAND_STORE_CAR_CHAR_IS_IN_NO_SAVE (reVC Script4.cpp:1760)
-	lua_register(L, "get_closest_car_node_with_heading", get_closest_car_node_with_heading); // 1858 0x03D3 COMMAND_GET_CLOSEST_CAR_NODE_WITH_HEADING (reVC Script4.cpp:2061)
-	lua_register(L, "set_mission_audio_position", set_mission_audio_position); // 1859 0x03D7 COMMAND_SET_MISSION_AUDIO_POSITION (reVC Script4.cpp:2091)
-	lua_register(L, "get_ammo_in_player_weapon", get_ammo_in_player_weapon); // 1860 0x0419 COMMAND_GET_AMMO_IN_PLAYER_WEAPON (reVC Script6.cpp:413)
-	lua_register(L, "freeze_char_position", freeze_char_position); // 1861 0x04D7 COMMAND_FREEZE_CHAR_POSITION (reVC Script7.cpp:318)
-	lua_register(L, "add_big_gun_flash", add_big_gun_flash); // 1862 0x058A COMMAND_ADD_BIG_GUN_FLASH (reVC Script8.cpp:210)
-
-
-	lua_register(L, "is_player_pressing_horn", is_player_pressing_horn); // 1863 0x0122 COMMAND_IS_PLAYER_PRESSING_HORN (reVC Script.cpp:4631)
-	lua_register(L, "point_camera_at_char", point_camera_at_char); // 1864 0x0159 COMMAND_POINT_CAMERA_AT_CHAR (reVC Script2.cpp:259)
-	lua_register(L, "set_player_ammo", set_player_ammo); // 1865 0x017A COMMAND_SET_PLAYER_AMMO (reVC Script2.cpp:573)
-	lua_register(L, "is_player_health_greater", is_player_health_greater); // 1866 0x0183 COMMAND_IS_PLAYER_HEALTH_GREATER (reVC Script2.cpp:598)
-	lua_register(L, "locate_player_any_means_car_3d", locate_player_any_means_car_3d); // 1867 0x01FF COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_3D (reVC Script3.cpp:111)
-	lua_register(L, "set_gang_weapons", set_gang_weapons); // 1868 0x0237 COMMAND_SET_GANG_WEAPONS (reVC Script3.cpp:587)
-	lua_register(L, "is_player_stopped", is_player_stopped); // 1869 0x029F COMMAND_IS_PLAYER_STOPPED (reVC Script3.cpp:1345)
-	lua_register(L, "is_char_in_chars_group", is_char_in_chars_group); // 1870 0x031F COMMAND_IS_CHAR_IN_CHARS_GROUP (reVC Script3.cpp:2398)
-	lua_register(L, "set_camera_zoom", set_camera_zoom); // 1871 0x032A COMMAND_SET_CAMERA_ZOOM (reVC Script4.cpp:208)
-	lua_register(L, "set_text_scale", set_text_scale); // 1872 0x033F COMMAND_SET_TEXT_SCALE (reVC Script4.cpp:396)
-
-
-	lua_register(L, "set_text_colour", set_text_colour); // 1873 0x0340 COMMAND_SET_TEXT_COLOUR (reVC Script4.cpp:403)
-	lua_register(L, "set_text_justify", set_text_justify); // 1874 0x0341 COMMAND_SET_TEXT_JUSTIFY (reVC Script4.cpp:410)
-	lua_register(L, "set_text_centre", set_text_centre); // 1875 0x0342 COMMAND_SET_TEXT_CENTRE (reVC Script4.cpp:416)
-	lua_register(L, "set_text_wrapx", set_text_wrapx); // 1876 0x0343 COMMAND_SET_TEXT_WRAPX (reVC Script4.cpp:422)
-	lua_register(L, "set_text_background", set_text_background); // 1877 0x0345 COMMAND_SET_TEXT_BACKGROUND (reVC Script4.cpp:436)
-	lua_register(L, "set_text_proportional", set_text_proportional); // 1878 0x0348 COMMAND_SET_TEXT_PROPORTIONAL (reVC Script4.cpp:457)
-	lua_register(L, "freeze_onscreen_timer", freeze_onscreen_timer); // 1879 0x0396 COMMAND_FREEZE_ONSCREEN_TIMER (reVC Script4.cpp:1413)
-	lua_register(L, "draw_sphere", draw_sphere); // 1880 0x03A1 COMMAND_DRAW_SPHERE (reVC Script4.cpp:1514)
-	lua_register(L, "set_text_right_justify", set_text_right_justify); // 1881 0x03E4 COMMAND_SET_TEXT_RIGHT_JUSTIFY (reVC Script4.cpp:2179)
-	lua_register(L, "set_generate_cars_around_camera", set_generate_cars_around_camera); // 1882 0x03EA COMMAND_SET_GENERATE_CARS_AROUND_CAMERA (reVC Script6.cpp:95)
-
-
-	lua_register(L, "use_text_commands", use_text_commands); // 1883 0x03F0 COMMAND_USE_TEXT_COMMANDS (reVC Script6.cpp:138)
-	lua_register(L, "set_car_can_be_damaged", set_car_can_be_damaged); // 1884 0x03F5 COMMAND_SET_CAR_CAN_BE_DAMAGED (reVC Script6.cpp:166)
-	lua_register(L, "get_offset_from_object_in_world_coords", get_offset_from_object_in_world_coords); // 1885 0x0400 COMMAND_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS (reVC Script6.cpp:253)
-	lua_register(L, "register_highest_score", register_highest_score); // 1886 0x042F COMMAND_REGISTER_HIGHEST_SCORE (reVC Script6.cpp:639)
-	lua_register(L, "create_single_particle", create_single_particle); // 1887 0x0437 COMMAND_CREATE_SINGLE_PARTICLE (reVC Script6.cpp:682)
-	lua_register(L, "is_player_on_foot", is_player_on_foot); // 1888 0x044A COMMAND_IS_PLAYER_ON_FOOT (reVC Script6.cpp:837)
-	lua_register(L, "set_object_rotation", set_object_rotation); // 1889 0x0453 COMMAND_SET_OBJECT_ROTATION (reVC Script6.cpp:951)
-	lua_register(L, "display_text_with_number", display_text_with_number); // 1890 0x045A COMMAND_DISPLAY_TEXT_WITH_NUMBER (reVC Script6.cpp:1054)
-	lua_register(L, "get_random_cop_in_area", get_random_cop_in_area); // 1891 0x0469 COMMAND_GET_RANDOM_COP_IN_AREA (reVC Script6.cpp:1233)
-	lua_register(L, "get_offset_from_char_in_world_coords", get_offset_from_char_in_world_coords); // 1892 0x04C4 COMMAND_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS (reVC Script7.cpp:191)
-
-
-	lua_register(L, "switch_security_camera", switch_security_camera); // 1893 0x04C7 COMMAND_SWITCH_SECURITY_CAMERA (reVC Script7.cpp:225)
-	lua_register(L, "set_zone_civilian_car_info", set_zone_civilian_car_info); // 1894 0x04EC COMMAND_SET_ZONE_CIVILIAN_CAR_INFO (reVC Script7.cpp:443)
-	lua_register(L, "is_char_waiting_for_world_collision", is_char_waiting_for_world_collision); // 1895 0x04F0 COMMAND_IS_CHAR_WAITING_FOR_WORLD_COLLISION (reVC Script7.cpp:492)
-	lua_register(L, "attach_char_to_object", attach_char_to_object); // 1896 0x04F4 COMMAND_ATTACH_CHAR_TO_OBJECT (reVC Script7.cpp:523)
-	lua_register(L, "is_player_wearing", is_player_wearing); // 1897 0x0500 COMMAND_IS_PLAYER_WEARING (reVC Script7.cpp:618)
-	lua_register(L, "attach_cutscene_object_to_bone", attach_cutscene_object_to_bone); // 1898 0x0524 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_BONE (reVC Script7.cpp:846)
-	lua_register(L, "set_player_is_in_stadium", set_player_is_in_stadium); // 1899 0x057E COMMAND_SET_PLAYER_IS_IN_STADIUM (reVC Script8.cpp:83)
-	lua_register(L, "char_wander_dir", char_wander_dir); // 1900 0x009C COMMAND_CHAR_WANDER_DIR (reVC Script.cpp:3709)
-	lua_register(L, "get_time_of_day", get_time_of_day); // 1901 0x00BF COMMAND_GET_TIME_OF_DAY (reVC Script.cpp:4165)
-	lua_register(L, "locate_player_in_car_2d", locate_player_in_car_2d); // 1902 0x00E5 COMMAND_LOCATE_PLAYER_IN_CAR_2D (reVC Script.cpp:4424)
-
-
-	lua_register(L, "locate_stopped_player_on_foot_2d", locate_stopped_player_on_foot_2d); // 1903 0x00E7 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_2D (reVC Script.cpp:4426)
-	lua_register(L, "locate_player_on_foot_char_2d", locate_player_on_foot_char_2d); // 1904 0x00EA COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_2D (reVC Script.cpp:4431)
-	lua_register(L, "locate_player_in_car_char_2d", locate_player_in_car_char_2d); // 1905 0x00EB COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_2D (reVC Script.cpp:4432)
-	lua_register(L, "locate_char_in_car_2d", locate_char_in_car_2d); // 1906 0x00EE COMMAND_LOCATE_CHAR_IN_CAR_2D (reVC Script.cpp:4437)
-	lua_register(L, "locate_player_on_foot_char_3d", locate_player_on_foot_char_3d); // 1907 0x00FC COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_3D (reVC Script.cpp:4457)
-	lua_register(L, "locate_player_in_car_char_3d", locate_player_in_car_char_3d); // 1908 0x00FD COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_3D (reVC Script.cpp:4458)
-	lua_register(L, "is_score_greater", is_score_greater); // 1909 0x010A COMMAND_IS_SCORE_GREATER (reVC Script.cpp:4518)
-	lua_register(L, "store_score", store_score); // 1910 0x010B COMMAND_STORE_SCORE (reVC Script.cpp:4522)
-	lua_register(L, "set_deatharrest_state", set_deatharrest_state); // 1911 0x0111 COMMAND_SET_DEATHARREST_STATE (reVC Script.cpp:4552)
-	lua_register(L, "create_car_generator", create_car_generator); // 1912 0x014B COMMAND_CREATE_CAR_GENERATOR (reVC Script2.cpp:133)
-
-
-	lua_register(L, "add_hospital_restart", add_hospital_restart); // 1913 0x016C COMMAND_ADD_HOSPITAL_RESTART (reVC Script2.cpp:395)
-	lua_register(L, "add_police_restart", add_police_restart); // 1914 0x016D COMMAND_ADD_POLICE_RESTART (reVC Script2.cpp:405)
-	lua_register(L, "add_blip_for_contact_point", add_blip_for_contact_point); // 1915 0x0189 COMMAND_ADD_BLIP_FOR_CONTACT_POINT (reVC Script2.cpp:657)
-	lua_register(L, "locate_player_in_car_car_2d", locate_player_in_car_car_2d); // 1916 0x01FE COMMAND_LOCATE_PLAYER_IN_CAR_CAR_2D (reVC Script3.cpp:110)
-	lua_register(L, "locate_char_on_foot_car_2d", locate_char_on_foot_car_2d); // 1917 0x0203 COMMAND_LOCATE_CHAR_ON_FOOT_CAR_2D (reVC Script3.cpp:117)
-	lua_register(L, "locate_char_any_means_car_3d", locate_char_any_means_car_3d); // 1918 0x0205 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_3D (reVC Script3.cpp:119)
-	lua_register(L, "set_gang_ped_models", set_gang_ped_models); // 1919 0x0235 COMMAND_SET_GANG_PED_MODELS (reVC Script3.cpp:579)
-	lua_register(L, "is_player_in_angled_area_2d", is_player_in_angled_area_2d); // 1920 0x02AD COMMAND_IS_PLAYER_IN_ANGLED_AREA_2D (reVC Script3.cpp:1488)
-	lua_register(L, "set_zone_group", set_zone_group); // 1921 0x0324 COMMAND_SET_ZONE_GROUP (reVC Script4.cpp:99)
-	lua_register(L, "display_text", display_text); // 1922 0x033E COMMAND_DISPLAY_TEXT (reVC Script4.cpp:382)
-
-
-	lua_register(L, "open_garage", open_garage); // 1923 0x0360 COMMAND_OPEN_GARAGE (reVC Script4.cpp:763)
-	lua_register(L, "is_sniper_bullet_in_area", is_sniper_bullet_in_area); // 1924 0x037E COMMAND_IS_SNIPER_BULLET_IN_AREA (reVC Script4.cpp:1131)
-	lua_register(L, "print_string_in_string_now", print_string_in_string_now); // 1925 0x0384 COMMAND_PRINT_STRING_IN_STRING_NOW (reVC Script4.cpp:1205)
-	lua_register(L, "remove_particle_effects_in_area", remove_particle_effects_in_area); // 1926 0x03AE COMMAND_REMOVE_PARTICLE_EFFECTS_IN_AREA (reVC Script4.cpp:1591)
-	lua_register(L, "is_garage_closed", is_garage_closed); // 1927 0x03B1 COMMAND_IS_GARAGE_CLOSED (reVC Script4.cpp:1624)
-	lua_register(L, "does_object_exist", does_object_exist); // 1928 0x03CA COMMAND_DOES_OBJECT_EXIST (reVC Script4.cpp:1996)
-	lua_register(L, "clear_this_big_print", clear_this_big_print); // 1929 0x03D6 COMMAND_CLEAR_THIS_BIG_PRINT (reVC Script4.cpp:2085)
-	lua_register(L, "no_special_camera_for_this_garage", no_special_camera_for_this_garage); // 1930 0x03DA COMMAND_NO_SPECIAL_CAMERA_FOR_THIS_GARAGE (reVC Script4.cpp:2109)
-	lua_register(L, "set_car_avoid_level_transitions", set_car_avoid_level_transitions); // 1931 0x0428 COMMAND_SET_CAR_AVOID_LEVEL_TRANSITIONS (reVC Script6.cpp:580)
-	lua_register(L, "get_car_model", get_car_model); // 1932 0x0441 COMMAND_GET_CAR_MODEL (reVC Script6.cpp:766)
-
-
-	lua_register(L, "display_text_with_2_numbers", display_text_with_2_numbers); // 1933 0x045B COMMAND_DISPLAY_TEXT_WITH_2_NUMBERS (reVC Script6.cpp:1065)
-	lua_register(L, "get_number_of_followers", get_number_of_followers); // 1934 0x046D COMMAND_GET_NUMBER_OF_FOLLOWERS (reVC Script6.cpp:1354)
-	lua_register(L, "get_current_char_weapon", get_current_char_weapon); // 1935 0x0470 COMMAND_GET_CURRENT_CHAR_WEAPON (reVC Script6.cpp:1390)
-	lua_register(L, "remove_all_char_weapons", remove_all_char_weapons); // 1936 0x048F COMMAND_REMOVE_ALL_CHAR_WEAPONS (reVC Script6.cpp:1549)
-	lua_register(L, "has_player_got_weapon", has_player_got_weapon); // 1937 0x0490 COMMAND_HAS_PLAYER_GOT_WEAPON (reVC Script6.cpp:1557)
-	lua_register(L, "get_position_of_analogue_sticks", get_position_of_analogue_sticks); // 1938 0x0494 COMMAND_GET_POSITION_OF_ANALOGUE_STICKS (reVC Script6.cpp:1582)
-	lua_register(L, "set_object_path_speed", set_object_path_speed); // 1939 0x049E COMMAND_SET_OBJECT_PATH_SPEED (reVC Script6.cpp:1668)
-	lua_register(L, "get_closest_straight_road", get_closest_straight_road); // 1940 0x04B9 COMMAND_GET_CLOSEST_STRAIGHT_ROAD (reVC Script7.cpp:104)
-	lua_register(L, "get_nth_closest_car_node", get_nth_closest_car_node); // 1941 0x04D3 COMMAND_GET_NTH_CLOSEST_CAR_NODE (reVC Script7.cpp:291)
-	lua_register(L, "set_object_records_collisions", set_object_records_collisions); // 1942 0x04D9 COMMAND_SET_OBJECT_RECORDS_COLLISIONS (reVC Script7.cpp:334)
-
-
-	lua_register(L, "has_object_collided_with_anything", has_object_collided_with_anything); // 1943 0x04DA COMMAND_HAS_OBJECT_COLLIDED_WITH_ANYTHING (reVC Script7.cpp:342)
-	lua_register(L, "set_heli_stabiliser", set_heli_stabiliser); // 1944 0x04DF COMMAND_SET_HELI_STABILISER (reVC Script7.cpp:366)
-	lua_register(L, "is_object_in_water", is_object_in_water); // 1945 0x04E7 COMMAND_IS_OBJECT_IN_WATER (reVC Script7.cpp:415)
-	lua_register(L, "set_player_can_do_drive_by", set_player_can_do_drive_by); // 1946 0x0501 COMMAND_SET_PLAYER_CAN_DO_DRIVE_BY (reVC Script7.cpp:631)
-	lua_register(L, "sort_out_object_collision_with_car", sort_out_object_collision_with_car); // 1947 0x050E COMMAND_SORT_OUT_OBJECT_COLLISION_WITH_CAR (reVC Script7.cpp:710)
-	lua_register(L, "print_help_forever", print_help_forever); // 1948 0x0512 COMMAND_PRINT_HELP_FOREVER (reVC Script7.cpp:728)
-	lua_register(L, "create_forsale_property_pickup", create_forsale_property_pickup); // 1949 0x0518 COMMAND_CREATE_FORSALE_PROPERTY_PICKUP (reVC Script7.cpp:775)
-	lua_register(L, "increase_player_max_health", increase_player_max_health); // 1950 0x055E COMMAND_INCREASE_PLAYER_MAX_HEALTH (reVC Script7.cpp:1162)
-	lua_register(L, "increase_player_max_armour", increase_player_max_armour); // 1951 0x055F COMMAND_INCREASE_PLAYER_MAX_ARMOUR (reVC Script7.cpp:1170)
-	lua_register(L, "create_random_char_as_passenger", create_random_char_as_passenger); // 1952 0x0561 COMMAND_CREATE_RANDOM_CHAR_AS_PASSENGER (reVC Script7.cpp:1209)
-
-
-	lua_register(L, "set_object_area_visible", set_object_area_visible); // 1953 0x0566 COMMAND_SET_OBJECT_AREA_VISIBLE (reVC Script7.cpp:1280)
-	lua_register(L, "set_char_crouch_when_threatened", set_char_crouch_when_threatened); // 1954 0x056B COMMAND_SET_CHAR_CROUCH_WHEN_THREATENED (reVC Script7.cpp:1310)
-	lua_register(L, "set_allow_hurricanes", set_allow_hurricanes); // 1955 0x057C COMMAND_SET_ALLOW_HURRICANES (reVC Script8.cpp:73)
-	lua_register(L, "play_announcement", play_announcement); // 1956 0x057D COMMAND_PLAY_ANNOUNCEMENT (reVC Script8.cpp:77)
-	lua_register(L, "create_player", create_player); // 1957 0x0053 COMMAND_CREATE_PLAYER (reVC Script.cpp:3159)
-	lua_register(L, "generate_random_int", generate_random_int); // 1958 0x0099 COMMAND_GENERATE_RANDOM_INT (reVC Script.cpp:3637)
-	lua_register(L, "is_car_in_area_3d", is_car_in_area_3d); // 1959 0x00B1 COMMAND_IS_CAR_IN_AREA_3D (reVC Script.cpp:4100)
-	lua_register(L, "get_minutes_to_time_of_day", get_minutes_to_time_of_day); // 1960 0x00C1 COMMAND_GET_MINUTES_TO_TIME_OF_DAY (reVC Script.cpp:4174)
-	lua_register(L, "is_char_in_model", is_char_in_model); // 1961 0x00DD COMMAND_IS_CHAR_IN_MODEL (reVC Script.cpp:4378)
-	lua_register(L, "locate_char_on_foot_char_2d", locate_char_on_foot_char_2d); // 1962 0x00F3 COMMAND_LOCATE_CHAR_ON_FOOT_CHAR_2D (reVC Script.cpp:4444)
-
-
-	lua_register(L, "locate_char_in_car_3d", locate_char_in_car_3d); // 1963 0x0100 COMMAND_LOCATE_CHAR_IN_CAR_3D (reVC Script.cpp:4463)
-	lua_register(L, "locate_stopped_char_on_foot_3d", locate_stopped_char_on_foot_3d); // 1964 0x0102 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_3D (reVC Script.cpp:4465)
-	lua_register(L, "locate_char_any_means_char_3d", locate_char_any_means_char_3d); // 1965 0x0104 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_3D (reVC Script.cpp:4469)
-	lua_register(L, "override_next_restart", override_next_restart); // 1966 0x016E COMMAND_OVERRIDE_NEXT_RESTART (reVC Script2.cpp:415)
-	lua_register(L, "declare_mission_flag", declare_mission_flag); // 1967 0x0180 COMMAND_DECLARE_MISSION_FLAG (reVC Script2.cpp:592)
-	lua_register(L, "dont_remove_char", dont_remove_char); // 1968 0x01C5 COMMAND_DONT_REMOVE_CHAR (reVC Script2.cpp:1072)
-	lua_register(L, "cancel_override_restart", cancel_override_restart); // 1969 0x01F6 COMMAND_CANCEL_OVERRIDE_RESTART (reVC Script3.cpp:59)
-	lua_register(L, "start_kill_frenzy", start_kill_frenzy); // 1970 0x01F9 COMMAND_START_KILL_FRENZY (reVC Script3.cpp:86)
-	lua_register(L, "read_kill_frenzy_status", read_kill_frenzy_status); // 1971 0x01FA COMMAND_READ_KILL_FRENZY_STATUS (reVC Script3.cpp:95)
-	lua_register(L, "set_taxi_lights", set_taxi_lights); // 1972 0x0216 COMMAND_SET_TAXI_LIGHTS (reVC Script3.cpp:253)
-
-
-	lua_register(L, "print_big_q", print_big_q); // 1973 0x0217 COMMAND_PRINT_BIG_Q (reVC Script3.cpp:262)
-	lua_register(L, "set_garage", set_garage); // 1974 0x0219 COMMAND_SET_GARAGE (reVC Script3.cpp:279)
-	lua_register(L, "set_target_car_for_mission_garage", set_target_car_for_mission_garage); // 1975 0x021B COMMAND_SET_TARGET_CAR_FOR_MISSION_GARAGE (reVC Script3.cpp:311)
-	lua_register(L, "set_gang_car_model", set_gang_car_model); // 1976 0x0236 COMMAND_SET_GANG_CAR_MODEL (reVC Script3.cpp:583)
-	lua_register(L, "store_clock", store_clock); // 1977 0x0253 COMMAND_STORE_CLOCK (reVC Script3.cpp:834)
-	lua_register(L, "reset_num_of_models_killed_by_player", reset_num_of_models_killed_by_player); // 1978 0x0297 COMMAND_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1235)
-	lua_register(L, "get_num_of_models_killed_by_player", get_num_of_models_killed_by_player); // 1979 0x0298 COMMAND_GET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1238)
-	lua_register(L, "is_player_in_angled_area_on_foot_3d", is_player_in_angled_area_on_foot_3d); // 1980 0x02B4 COMMAND_IS_PLAYER_IN_ANGLED_AREA_ON_FOOT_3D (reVC Script3.cpp:1495)
-	lua_register(L, "is_player_in_angled_area_in_car_3d", is_player_in_angled_area_in_car_3d); // 1981 0x02B5 COMMAND_IS_PLAYER_IN_ANGLED_AREA_IN_CAR_3D (reVC Script3.cpp:1496)
-	lua_register(L, "is_player_shooting_in_area", is_player_shooting_in_area); // 1982 0x02D5 COMMAND_IS_PLAYER_SHOOTING_IN_AREA (reVC Script3.cpp:1722)
-
-
-	lua_register(L, "get_random_char_in_zone", get_random_char_in_zone); // 1983 0x02DD COMMAND_GET_RANDOM_CHAR_IN_ZONE (reVC Script3.cpp:1844)
-	lua_register(L, "is_player_in_taxi", is_player_in_taxi); // 1984 0x02DE COMMAND_IS_PLAYER_IN_TAXI (reVC Script3.cpp:1898)
-	lua_register(L, "create_collectable1", create_collectable1); // 1985 0x02EC COMMAND_CREATE_COLLECTABLE1 (reVC Script3.cpp:1993)
-	lua_register(L, "set_collectable1_total", set_collectable1_total); // 1986 0x02ED COMMAND_SET_COLLECTABLE1_TOTAL (reVC Script3.cpp:2002)
-	lua_register(L, "is_char_model", is_char_model); // 1987 0x02F2 COMMAND_IS_CHAR_MODEL (reVC Script3.cpp:2078)
-	lua_register(L, "print_with_3_numbers", print_with_3_numbers); // 1988 0x02FF COMMAND_PRINT_WITH_3_NUMBERS (reVC Script3.cpp:2177)
-	lua_register(L, "print_with_4_numbers", print_with_4_numbers); // 1989 0x0302 COMMAND_PRINT_WITH_4_NUMBERS (reVC Script3.cpp:2200)
-	lua_register(L, "print_with_6_numbers", print_with_6_numbers); // 1990 0x0308 COMMAND_PRINT_WITH_6_NUMBERS (reVC Script3.cpp:2244)
-	lua_register(L, "set_progress_total", set_progress_total); // 1991 0x030D COMMAND_SET_PROGRESS_TOTAL (reVC Script3.cpp:2282)
-	lua_register(L, "register_jump_distance", register_jump_distance); // 1992 0x030E COMMAND_REGISTER_JUMP_DISTANCE (reVC Script3.cpp:2288)
-
-
-	lua_register(L, "register_jump_height", register_jump_height); // 1993 0x030F COMMAND_REGISTER_JUMP_HEIGHT (reVC Script3.cpp:2292)
-	lua_register(L, "register_jump_flips", register_jump_flips); // 1994 0x0310 COMMAND_REGISTER_JUMP_FLIPS (reVC Script3.cpp:2296)
-	lua_register(L, "register_jump_spins", register_jump_spins); // 1995 0x0311 COMMAND_REGISTER_JUMP_SPINS (reVC Script3.cpp:2300)
-	lua_register(L, "register_jump_stunt", register_jump_stunt); // 1996 0x0312 COMMAND_REGISTER_JUMP_STUNT (reVC Script3.cpp:2304)
-	lua_register(L, "register_unique_jump_found", register_unique_jump_found); // 1997 0x0313 COMMAND_REGISTER_UNIQUE_JUMP_FOUND (reVC Script3.cpp:2308)
-	lua_register(L, "set_unique_jumps_total", set_unique_jumps_total); // 1998 0x0314 COMMAND_SET_UNIQUE_JUMPS_TOTAL (reVC Script3.cpp:2311)
-	lua_register(L, "register_passenger_dropped_off_taxi", register_passenger_dropped_off_taxi); // 1999 0x0315 COMMAND_REGISTER_PASSENGER_DROPPED_OFF_TAXI (reVC Script3.cpp:2315)
-	lua_register(L, "register_money_made_taxi", register_money_made_taxi); // 2000 0x0316 COMMAND_REGISTER_MONEY_MADE_TAXI (reVC Script3.cpp:2318)
-	lua_register(L, "set_player_never_gets_tired", set_player_never_gets_tired); // 2001 0x0330 COMMAND_SET_PLAYER_NEVER_GETS_TIRED (reVC Script4.cpp:268)
-	lua_register(L, "close_garage", close_garage); // 2002 0x0361 COMMAND_CLOSE_GARAGE (reVC Script4.cpp:769)
-
-
-	lua_register(L, "print_with_2_numbers_big", print_with_2_numbers_big); // 2003 0x036D COMMAND_PRINT_WITH_2_NUMBERS_BIG (reVC Script4.cpp:963)
-	lua_register(L, "is_icecream_jingle_on", is_icecream_jingle_on); // 2004 0x0383 COMMAND_IS_ICECREAM_JINGLE_ON (reVC Script4.cpp:1182)
-	lua_register(L, "is_char_male", is_char_male); // 2005 0x03A3 COMMAND_IS_CHAR_MALE (reVC Script4.cpp:1533)
-	lua_register(L, "is_garage_open", is_garage_open); // 2006 0x03B0 COMMAND_IS_GARAGE_OPEN (reVC Script4.cpp:1620)
-	lua_register(L, "switch_world_processing", switch_world_processing); // 2007 0x03B7 COMMAND_SWITCH_WORLD_PROCESSING (reVC Script4.cpp:1676)
-	lua_register(L, "remove_all_player_weapons", remove_all_player_weapons); // 2008 0x03B8 COMMAND_REMOVE_ALL_PLAYER_WEAPONS (reVC Script4.cpp:1680)
-	lua_register(L, "set_rotating_garage_door", set_rotating_garage_door); // 2009 0x03BB COMMAND_SET_ROTATING_GARAGE_DOOR (reVC Script4.cpp:1721)
-	lua_register(L, "create_random_car_for_car_park", create_random_car_for_car_park); // 2010 0x03C5 COMMAND_CREATE_RANDOM_CAR_FOR_CAR_PARK (reVC Script4.cpp:1808)
-	lua_register(L, "has_import_garage_slot_been_filled", has_import_garage_slot_been_filled); // 2011 0x03D4 COMMAND_HAS_IMPORT_GARAGE_SLOT_BEEN_FILLED (reVC Script4.cpp:2073)
-	lua_register(L, "has_save_game_finished", has_save_game_finished); // 2012 0x03D9 COMMAND_HAS_SAVE_GAME_FINISHED (reVC Script4.cpp:2106)
-
-
-	lua_register(L, "force_random_ped_type", force_random_ped_type); // 2013 0x03DF COMMAND_FORCE_RANDOM_PED_TYPE (reVC Script4.cpp:2152)
-	lua_register(L, "get_collectable1s_collected", get_collectable1s_collected); // 2014 0x03E1 COMMAND_GET_COLLECTABLE1S_COLLECTED (reVC Script4.cpp:2162)
-	lua_register(L, "get_car_colours", get_car_colours); // 2015 0x03F3 COMMAND_GET_CAR_COLOURS (reVC Script6.cpp:150)
-	lua_register(L, "set_drunk_input_delay", set_drunk_input_delay); // 2016 0x03FD COMMAND_SET_DRUNK_INPUT_DELAY (reVC Script6.cpp:236)
-	lua_register(L, "register_life_saved", register_life_saved); // 2017 0x0401 COMMAND_REGISTER_LIFE_SAVED (reVC Script6.cpp:263)
-	lua_register(L, "register_criminal_caught", register_criminal_caught); // 2018 0x0402 COMMAND_REGISTER_CRIMINAL_CAUGHT (reVC Script6.cpp:266)
-	lua_register(L, "register_ambulance_level", register_ambulance_level); // 2019 0x0403 COMMAND_REGISTER_AMBULANCE_LEVEL (reVC Script6.cpp:269)
-	lua_register(L, "register_fire_extinguished", register_fire_extinguished); // 2020 0x0404 COMMAND_REGISTER_FIRE_EXTINGUISHED (reVC Script6.cpp:273)
-	lua_register(L, "set_total_number_of_kill_frenzies", set_total_number_of_kill_frenzies); // 2021 0x0408 COMMAND_SET_TOTAL_NUMBER_OF_KILL_FRENZIES (reVC Script6.cpp:296)
-	lua_register(L, "set_free_health_care", set_free_health_care); // 2022 0x0414 COMMAND_SET_FREE_HEALTH_CARE (reVC Script6.cpp:357)
-
-
-	lua_register(L, "load_and_launch_mission_internal", load_and_launch_mission_internal); // 2023 0x0417 COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL (reVC Script6.cpp:373)
-	lua_register(L, "set_object_draw_last", set_object_draw_last); // 2024 0x0418 COMMAND_SET_OBJECT_DRAW_LAST (reVC Script6.cpp:405)
-	lua_register(L, "convert_metres_to_feet", convert_metres_to_feet); // 2025 0x0425 COMMAND_CONVERT_METRES_TO_FEET (reVC Script6.cpp:521)
-	lua_register(L, "set_total_number_of_missions", set_total_number_of_missions); // 2026 0x042C COMMAND_SET_TOTAL_NUMBER_OF_MISSIONS (reVC Script6.cpp:626)
-	lua_register(L, "convert_metres_to_feet_int", convert_metres_to_feet_int); // 2027 0x042D COMMAND_CONVERT_METRES_TO_FEET_INT (reVC Script6.cpp:630)
-	lua_register(L, "set_char_is_chris_criminal", set_char_is_chris_criminal); // 2028 0x0433 COMMAND_SET_CHAR_IS_CHRIS_CRIMINAL (reVC Script6.cpp:665)
-	lua_register(L, "start_credits", start_credits); // 2029 0x0434 COMMAND_START_CREDITS (reVC Script6.cpp:673)
-	lua_register(L, "stop_credits", stop_credits); // 2030 0x0435 COMMAND_STOP_CREDITS (reVC Script6.cpp:676)
-	lua_register(L, "are_credits_finished", are_credits_finished); // 2031 0x0436 COMMAND_ARE_CREDITS_FINISHED (reVC Script6.cpp:679)
-	lua_register(L, "play_end_of_game_tune", play_end_of_game_tune); // 2032 0x043F COMMAND_PLAY_END_OF_GAME_TUNE (reVC Script6.cpp:759)
-
-
-	lua_register(L, "stop_end_of_game_tune", stop_end_of_game_tune); // 2033 0x0440 COMMAND_STOP_END_OF_GAME_TUNE (reVC Script6.cpp:762)
-	lua_register(L, "are_any_car_cheats_activated", are_any_car_cheats_activated); // 2034 0x0445 COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED (reVC Script6.cpp:798)
-	lua_register(L, "load_splash_screen", load_splash_screen); // 2035 0x044D COMMAND_LOAD_SPLASH_SCREEN (reVC Script6.cpp:902)
-	lua_register(L, "load_end_of_game_tune", load_end_of_game_tune); // 2036 0x0451 COMMAND_LOAD_END_OF_GAME_TUNE (reVC Script6.cpp:940)
-	lua_register(L, "terminate_all_scripts_with_this_name", terminate_all_scripts_with_this_name); // 2037 0x0459 COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME (reVC Script6.cpp:1037)
-	lua_register(L, "get_current_player_weapon", get_current_player_weapon); // 2038 0x046F COMMAND_GET_CURRENT_PLAYER_WEAPON (reVC Script6.cpp:1381)
-	lua_register(L, "locate_char_any_means_object_2d", locate_char_any_means_object_2d); // 2039 0x0471 COMMAND_LOCATE_CHAR_ANY_MEANS_OBJECT_2D (reVC Script6.cpp:1399)
-	lua_register(L, "locate_char_on_foot_object_2d", locate_char_on_foot_object_2d); // 2040 0x0472 COMMAND_LOCATE_CHAR_ON_FOOT_OBJECT_2D (reVC Script6.cpp:1400)
-	lua_register(L, "can_char_see_dead_char", can_char_see_dead_char); // 2041 0x0480 COMMAND_CAN_CHAR_SEE_DEAD_CHAR (reVC Script6.cpp:1473)
-	lua_register(L, "is_any_pickup_at_coords", is_any_pickup_at_coords); // 2042 0x048C COMMAND_IS_ANY_PICKUP_AT_COORDS (reVC Script6.cpp:1540)
-
-
-	lua_register(L, "initialise_object_path", initialise_object_path); // 2043 0x049C COMMAND_INITIALISE_OBJECT_PATH (reVC Script6.cpp:1649)
-	lua_register(L, "start_object_on_path", start_object_on_path); // 2044 0x049D COMMAND_START_OBJECT_ON_PATH (reVC Script6.cpp:1660)
-	lua_register(L, "set_object_path_position", set_object_path_position); // 2045 0x049F COMMAND_SET_OBJECT_PATH_POSITION (reVC Script6.cpp:1674)
-	lua_register(L, "clear_object_path", clear_object_path); // 2046 0x04A1 COMMAND_CLEAR_OBJECT_PATH (reVC Script6.cpp:1681)
-	lua_register(L, "reset_havoc_caused_by_player", reset_havoc_caused_by_player); // 2047 0x04BE COMMAND_RESET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:155)
-	lua_register(L, "get_havoc_caused_by_player", get_havoc_caused_by_player); // 2048 0x04BF COMMAND_GET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:161)
-	lua_register(L, "create_script_roadblock", create_script_roadblock); // 2049 0x04C0 COMMAND_CREATE_SCRIPT_ROADBLOCK (reVC Script7.cpp:168)
-	lua_register(L, "clear_all_script_roadblocks", clear_all_script_roadblocks); // 2050 0x04C1 COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS (reVC Script7.cpp:174)
-	lua_register(L, "has_char_been_photographed", has_char_been_photographed); // 2051 0x04C5 COMMAND_HAS_CHAR_BEEN_PHOTOGRAPHED (reVC Script7.cpp:201)
-	lua_register(L, "add_money_spent_on_clothes", add_money_spent_on_clothes); // 2052 0x04CF COMMAND_ADD_MONEY_SPENT_ON_CLOTHES (reVC Script7.cpp:257)
-
-
-	lua_register(L, "set_heli_orientation", set_heli_orientation); // 2053 0x04D0 COMMAND_SET_HELI_ORIENTATION (reVC Script7.cpp:262)
-	lua_register(L, "clear_heli_orientation", clear_heli_orientation); // 2054 0x04D1 COMMAND_CLEAR_HELI_ORIENTATION (reVC Script7.cpp:275)
-	lua_register(L, "set_char_drowns_in_water", set_char_drowns_in_water); // 2055 0x04D8 COMMAND_SET_CHAR_DROWNS_IN_WATER (reVC Script7.cpp:326)
-	lua_register(L, "get_char_armour", get_char_armour); // 2056 0x04DD COMMAND_GET_CHAR_ARMOUR (reVC Script7.cpp:356)
-	lua_register(L, "locate_object_2d", locate_object_2d); // 2057 0x04E5 COMMAND_LOCATE_OBJECT_2D (reVC Script7.cpp:411)
-	lua_register(L, "locate_object_3d", locate_object_3d); // 2058 0x04E6 COMMAND_LOCATE_OBJECT_3D (reVC Script5.cpp:740)
-	lua_register(L, "is_object_in_area_3d", is_object_in_area_3d); // 2059 0x04EA COMMAND_IS_OBJECT_IN_AREA_3D (reVC Script5.cpp:1295)
-	lua_register(L, "add_set_piece", add_set_piece); // 2060 0x04F8 COMMAND_ADD_SET_PIECE (reVC Script7.cpp:552)
-	lua_register(L, "get_wheelie_stats", get_wheelie_stats); // 2061 0x04FC COMMAND_GET_WHEELIE_STATS (reVC Script7.cpp:574)
-	lua_register(L, "switch_lift_camera", switch_lift_camera); // 2062 0x0507 COMMAND_SWITCH_LIFT_CAMERA (reVC Script7.cpp:665)
-
-
-	lua_register(L, "create_locked_property_pickup", create_locked_property_pickup); // 2063 0x0517 COMMAND_CREATE_LOCKED_PROPERTY_PICKUP (reVC Script7.cpp:760)
-	lua_register(L, "has_glass_been_shattered_nearby", has_glass_been_shattered_nearby); // 2064 0x0523 COMMAND_HAS_GLASS_BEEN_SHATTERED_NEARBY (reVC Script7.cpp:835)
-	lua_register(L, "attach_cutscene_object_to_component", attach_cutscene_object_to_component); // 2065 0x0525 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_COMPONENT (reVC Script7.cpp:852)
-	lua_register(L, "add_money_spent_on_weapons", add_money_spent_on_weapons); // 2066 0x0528 COMMAND_ADD_MONEY_SPENT_ON_WEAPONS (reVC Script7.cpp:874)
-	lua_register(L, "set_player_drunkenness", set_player_drunkenness); // 2067 0x052C COMMAND_SET_PLAYER_DRUNKENNESS (reVC Script7.cpp:893)
-	lua_register(L, "add_stores_knocked_off", add_stores_knocked_off); // 2068 0x0531 COMMAND_ADD_STORES_KNOCKED_OFF (reVC Script7.cpp:907)
-	lua_register(L, "add_pizzas_delivered", add_pizzas_delivered); // 2069 0x0534 COMMAND_ADD_PIZZAS_DELIVERED (reVC Script7.cpp:916)
-	lua_register(L, "add_ice_creams_sold", add_ice_creams_sold); // 2070 0x0536 COMMAND_ADD_ICE_CREAMS_SOLD (reVC Script7.cpp:921)
-	lua_register(L, "set_char_in_players_group_can_fight", set_char_in_players_group_can_fight); // 2071 0x053C COMMAND_SET_CHAR_IN_PLAYERS_GROUP_CAN_FIGHT (reVC Script7.cpp:930)
-	lua_register(L, "get_random_car_of_type_in_area_no_save", get_random_car_of_type_in_area_no_save); // 2072 0x053E COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA_NO_SAVE (reVC Script7.cpp:946)
-
-
-	lua_register(L, "set_player_auto_aim", set_player_auto_aim); // 2073 0x0540 COMMAND_SET_PLAYER_AUTO_AIM (reVC Script7.cpp:981)
-	lua_register(L, "add_blood_ring_kills", add_blood_ring_kills); // 2074 0x0543 COMMAND_ADD_BLOOD_RING_KILLS (reVC Script7.cpp:1007)
-	lua_register(L, "set_longest_time_in_blood_ring", set_longest_time_in_blood_ring); // 2075 0x0544 COMMAND_SET_LONGEST_TIME_IN_BLOOD_RING (reVC Script7.cpp:1011)
-	lua_register(L, "remove_everything_for_huge_cutscene", remove_everything_for_huge_cutscene); // 2076 0x0545 COMMAND_REMOVE_EVERYTHING_FOR_HUGE_CUTSCENE (reVC Script7.cpp:1015)
-	lua_register(L, "is_player_touching_vehicle", is_player_touching_vehicle); // 2077 0x0546 COMMAND_IS_PLAYER_TOUCHING_VEHICLE (reVC Script7.cpp:1020)
-	lua_register(L, "check_for_ped_model_around_player", check_for_ped_model_around_player); // 2078 0x0548 COMMAND_CHECK_FOR_PED_MODEL_AROUND_PLAYER (reVC Script7.cpp:1033)
-	lua_register(L, "attach_cutscene_object_to_vehicle", attach_cutscene_object_to_vehicle); // 2079 0x054B COMMAND_ATTACH_CUTSCENE_OBJECT_TO_VEHICLE (reVC Script7.cpp:1071)
-	lua_register(L, "set_tonights_event", set_tonights_event); // 2080 0x054D COMMAND_SET_TONIGHTS_EVENT (reVC Script7.cpp:1085)
-	lua_register(L, "freeze_object_position", freeze_object_position); // 2081 0x0550 COMMAND_FREEZE_OBJECT_POSITION (reVC Script7.cpp:1102)
-	lua_register(L, "set_player_has_met_debbie_harry", set_player_has_met_debbie_harry); // 2082 0x0551 COMMAND_SET_PLAYER_HAS_MET_DEBBIE_HARRY (reVC Script7.cpp:1111)
-
-
-	lua_register(L, "set_up_taxi_shortcut", set_up_taxi_shortcut); // 2083 0x0556 COMMAND_SET_UP_TAXI_SHORTCUT (reVC Script7.cpp:1126)
-	lua_register(L, "clear_taxi_shortcut", clear_taxi_shortcut); // 2084 0x0557 COMMAND_CLEAR_TAXI_SHORTCUT (reVC Script7.cpp:1134)
-	lua_register(L, "add_porn_leaflet_to_rubbish", add_porn_leaflet_to_rubbish); // 2085 0x055A COMMAND_ADD_PORN_LEAFLET_TO_RUBBISH (reVC Script7.cpp:1139)
-	lua_register(L, "make_player_fire_proof", make_player_fire_proof); // 2086 0x055D COMMAND_MAKE_PLAYER_FIRE_PROOF (reVC Script7.cpp:1155)
-	lua_register(L, "create_random_char_as_driver", create_random_char_as_driver); // 2087 0x0560 COMMAND_CREATE_RANDOM_CHAR_AS_DRIVER (reVC Script7.cpp:1178)
-	lua_register(L, "set_char_ignore_threats_behind_objects", set_char_ignore_threats_behind_objects); // 2088 0x0562 COMMAND_SET_CHAR_IGNORE_THREATS_BEHIND_OBJECTS (reVC Script7.cpp:1239)
-	lua_register(L, "make_heli_come_crashing_down", make_heli_come_crashing_down); // 2089 0x0564 COMMAND_MAKE_HELI_COME_CRASHING_DOWN (reVC Script7.cpp:1266)
-	lua_register(L, "is_char_stuck", is_char_stuck); // 2090 0x0571 COMMAND_IS_CHAR_STUCK (reVC Script7.cpp:1347)
-	lua_register(L, "set_all_taxis_have_nitro", set_all_taxis_have_nitro); // 2091 0x0572 COMMAND_SET_ALL_TAXIS_HAVE_NITRO (reVC Script7.cpp:1355)
-	lua_register(L, "register_vigilante_level", register_vigilante_level); // 2092 0x0578 COMMAND_REGISTER_VIGILANTE_LEVEL (reVC Script8.cpp:35)
-
-
-	lua_register(L, "set_maximum_number_of_cars_in_garage", set_maximum_number_of_cars_in_garage); // 2093 0x057A COMMAND_SET_MAXIMUM_NUMBER_OF_CARS_IN_GARAGE (reVC Script8.cpp:63)
-	lua_register(L, "wanted_stars_are_flashing", wanted_stars_are_flashing); // 2094 0x057B COMMAND_WANTED_STARS_ARE_FLASHING (reVC Script8.cpp:67)
-	lua_register(L, "get_bus_fares_collected_by_player", get_bus_fares_collected_by_player); // 2095 0x057F COMMAND_GET_BUS_FARES_COLLECTED_BY_PLAYER (reVC Script8.cpp:89)
-	lua_register(L, "register_best_position", register_best_position); // 2096 0x0582 COMMAND_REGISTER_BEST_POSITION (reVC Script8.cpp:126)
-	lua_register(L, "is_player_in_info_zone", is_player_in_info_zone); // 2097 0x0583 COMMAND_IS_PLAYER_IN_INFO_ZONE (reVC Script8.cpp:130)
-	lua_register(L, "has_char_attempted_attractor", has_char_attempted_attractor); // 2098 0x0586 COMMAND_HAS_CHAR_ATTEMPTED_ATTRACTOR (reVC Script8.cpp:155)
-	lua_register(L, "set_load_collision_for_char_flag", set_load_collision_for_char_flag); // 2099 0x0588 COMMAND_SET_LOAD_COLLISION_FOR_CHAR_FLAG (reVC Script8.cpp:186)
-	lua_register(L, "has_char_bought_ice_cream", has_char_bought_ice_cream); // 2100 0x058B COMMAND_HAS_CHAR_BOUGHT_ICE_CREAM (reVC Script8.cpp:216)
-	lua_register(L, "get_progress_percentage", get_progress_percentage); // 2101 0x058C COMMAND_GET_PROGRESS_PERCENTAGE (reVC Script8.cpp:224)
-	lua_register(L, "set_shortcut_pickup_point", set_shortcut_pickup_point); // 2102 0x058D COMMAND_SET_SHORTCUT_PICKUP_POINT (reVC Script8.cpp:228)
-
-
-	lua_register(L, "get_random_ice_cream_customer_in_area", get_random_ice_cream_customer_in_area); // 2103 0x058F COMMAND_GET_RANDOM_ICE_CREAM_CUSTOMER_IN_AREA (reVC Script8.cpp:240)
-	lua_register(L, "set_char_frightened_in_jacked_car", set_char_frightened_in_jacked_car); // 2104 0x0593 COMMAND_SET_CHAR_FRIGHTENED_IN_JACKED_CAR (reVC Script8.cpp:314)
-	lua_register(L, "is_player_in_shortcut_taxi", is_player_in_shortcut_taxi); // 2105 0x0596 COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI (reVC Script8.cpp:336)
-	lua_register(L, "register_fire_level", register_fire_level); // 2106 0x0599 COMMAND_REGISTER_FIRE_LEVEL (reVC Script8.cpp:370)
+	lua_register(L, "print_with_number_big", print_with_number_big); // 1713 0x01E3 COMMAND_PRINT_WITH_NUMBER_BIG (reVC Script2.cpp:1389) — вывести число крупным текстом
+	lua_register(L, "add_score", add_score); // 1714 0x0109 COMMAND_ADD_SCORE (reVC Script.cpp:4512) — добавить очки
+	lua_register(L, "has_deatharrest_been_executed", has_deatharrest_been_executed); // 1715 0x0112 COMMAND_HAS_DEATHARREST_BEEN_EXECUTED (reVC Script.cpp:4556) — проверить арест при смерти выполнен
+	lua_register(L, "clear_prints", clear_prints); // 1716 0x00BE COMMAND_CLEAR_PRINTS (reVC Script.cpp:4162) — очистить тексты
+	lua_register(L, "set_fading_colour", set_fading_colour); // 1717 0x0169 COMMAND_SET_FADING_COLOUR (reVC Script2.cpp:384) — установить цвет затемнения
+	lua_register(L, "load_special_character", load_special_character); // 1718 0x023C COMMAND_LOAD_SPECIAL_CHARACTER (reVC Script3.cpp:662) — загрузить специальный персонаж
+	lua_register(L, "has_special_character_loaded", has_special_character_loaded); // 1719 0x023D COMMAND_HAS_SPECIAL_CHARACTER_LOADED (reVC Script3.cpp:673) — проверить специальный персонаж загружен
+	lua_register(L, "set_cutscene_offset", set_cutscene_offset); // 1720 0x0244 COMMAND_SET_CUTSCENE_OFFSET (reVC Script3.cpp:729) — установить смещение сцены
+	lua_register(L, "load_cutscene", load_cutscene); // 1721 0x02E4 COMMAND_LOAD_CUTSCENE (reVC Script3.cpp:1950) — загрузить сцена
+	lua_register(L, "create_cutscene_object", create_cutscene_object); // 1722 0x02E5 COMMAND_CREATE_CUTSCENE_OBJECT (reVC Script3.cpp:1958) — создать объект сцены
+
+
+	lua_register(L, "set_cutscene_anim", set_cutscene_anim); // 1723 0x02E6 COMMAND_SET_CUTSCENE_ANIM (reVC Script3.cpp:1966) — установить анимация сцены
+	lua_register(L, "start_cutscene", start_cutscene); // 1724 0x02E7 COMMAND_START_CUTSCENE (reVC Script3.cpp:1977) — начать сцена
+	lua_register(L, "get_cutscene_time", get_cutscene_time); // 1725 0x02E8 COMMAND_GET_CUTSCENE_TIME (reVC Script3.cpp:1980) — получить время сцены
+	lua_register(L, "clear_cutscene", clear_cutscene); // 1726 0x02EA COMMAND_CLEAR_CUTSCENE (reVC Script3.cpp:1987) — очистить сцена
+	lua_register(L, "set_shortcut_dropoff_point_for_mission", set_shortcut_dropoff_point_for_mission); // 1727 0x058E COMMAND_SET_SHORTCUT_DROPOFF_POINT_FOR_MISSION (reVC Script8.cpp:234) — установить точка высадки такси миссия
+	lua_register(L, "clear_this_print", clear_this_print); // 1728 0x03D5 COMMAND_CLEAR_THIS_PRINT (reVC Script4.cpp:2079) — очистить текст с экрана
+	lua_register(L, "is_player_in_any_car", is_player_in_any_car); // 1729 0x00E0 COMMAND_IS_PLAYER_IN_ANY_CAR (reVC Script.cpp:4400) — проверить игрок в любом авто
+	lua_register(L, "is_player_in_car", is_player_in_car); // 1730 0x00DC COMMAND_IS_PLAYER_IN_CAR (reVC Script.cpp:4370) — проверить игрок в авто
+	lua_register(L, "get_player_coordinates", get_player_coordinates); // 1731 0x0054 COMMAND_GET_PLAYER_COORDINATES (reVC Script.cpp:3183) — получить координаты игрока
+	lua_register(L, "load_special_model", load_special_model); // 1732 0x02F3 COMMAND_LOAD_SPECIAL_MODEL (reVC Script3.cpp:2086) — загрузить специальная модель
+
+
+	lua_register(L, "is_char_in_car", is_char_in_car); // 1733 0x00DB COMMAND_IS_CHAR_IN_CAR (reVC Script.cpp:4361) — проверить персонаж в авто
+	lua_register(L, "is_char_in_any_car", is_char_in_any_car); // 1734 0x00DF COMMAND_IS_CHAR_IN_ANY_CAR (reVC Script.cpp:4393) — проверить персонаж в любом авто
+	lua_register(L, "locate_player_any_means_3d", locate_player_any_means_3d); // 1735 0x00F5 COMMAND_LOCATE_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4448) — найти игрок любым способом в 3D
+	lua_register(L, "get_car_coordinates", get_car_coordinates); // 1736 0x00AA COMMAND_GET_CAR_COORDINATES (reVC Script.cpp:3982) — получить координаты авто
+	lua_register(L, "store_car_player_is_in", store_car_player_is_in); // 1737 0x00DA COMMAND_STORE_CAR_PLAYER_IS_IN (reVC Script.cpp:4310) — сохранить авто игрок
+	lua_register(L, "clear_onscreen_counter", clear_onscreen_counter); // 1738 0x0151 COMMAND_CLEAR_ONSCREEN_COUNTER (reVC Script2.cpp:194) — очистить счётчик на экране
+	lua_register(L, "clear_extra_colours", clear_extra_colours); // 1739 0x04FA COMMAND_CLEAR_EXTRA_COLOURS (reVC Script7.cpp:567) — очистить дополнительные цвета
+	lua_register(L, "register_oddjob_mission_passed", register_oddjob_mission_passed); // 1740 0x0595 COMMAND_REGISTER_ODDJOB_MISSION_PASSED (reVC Script8.cpp:330) — зарегистрировать случайная работа пройдена
+	lua_register(L, "locate_char_on_foot_2d", locate_char_on_foot_2d); // 1741 0x00ED COMMAND_LOCATE_CHAR_ON_FOOT_2D (reVC Script.cpp:4436) — найти персонаж пешком 2D
+	lua_register(L, "locate_car_2d", locate_car_2d); // 1742 0x01AD COMMAND_LOCATE_CAR_2D (reVC Script2.cpp:881) — найти авто 2D
+
+
+	lua_register(L, "display_onscreen_counter_with_string", display_onscreen_counter_with_string); // 1743 0x03C4 COMMAND_DISPLAY_ONSCREEN_COUNTER_WITH_STRING (reVC Script4.cpp:1797) — Показать счётчик на экране со строкой
+	lua_register(L, "set_extra_colours", set_extra_colours); // 1744 0x04F9 COMMAND_SET_EXTRA_COLOURS (reVC Script7.cpp:561) — установить дополнительные цвета
+	lua_register(L, "set_char_obj_enter_car_as_driver", set_char_obj_enter_car_as_driver); // 1745 0x01D5 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_DRIVER (reVC Script2.cpp:1285) — установить персонаж цель: сесть в авто за руль
+	lua_register(L, "create_object_no_offset", create_object_no_offset); // 1746 0x029B COMMAND_CREATE_OBJECT_NO_OFFSET (reVC Script3.cpp:1260) — создать объект без смещения
+	lua_register(L, "change_blip_display", change_blip_display); // 1747 0x018B COMMAND_CHANGE_BLIP_DISPLAY (reVC Script2.cpp:683) — изменить отображение блипа
+	lua_register(L, "set_char_health", set_char_health); // 1748 0x0223 COMMAND_SET_CHAR_HEALTH (reVC Script3.cpp:393) — установить персонаж здоровье
+	lua_register(L, "locate_player_on_foot_3d", locate_player_on_foot_3d); // 1749 0x00F6 COMMAND_LOCATE_PLAYER_ON_FOOT_3D (reVC Script.cpp:4449) — найти игрок пешком 3D
+	lua_register(L, "get_char_coordinates", get_char_coordinates); // 1750 0x00A0 COMMAND_GET_CHAR_COORDINATES (reVC Script.cpp:3759) — получить координаты персонажа
+	lua_register(L, "register_fastest_time", register_fastest_time); // 1751 0x042E COMMAND_REGISTER_FASTEST_TIME (reVC Script6.cpp:635) — зарегистрировать самый быстрый время
+	lua_register(L, "print", print); // 1752 0x00BB COMMAND_PRINT (reVC Script.cpp:4139) — вывести
+
+
+	lua_register(L, "display_onscreen_timer", display_onscreen_timer); // 1753 0x014E COMMAND_DISPLAY_ONSCREEN_TIMER (reVC Script2.cpp:169) — Показать на экране таймер
+	lua_register(L, "locate_player_in_car_3d", locate_player_in_car_3d); // 1754 0x00F7 COMMAND_LOCATE_PLAYER_IN_CAR_3D (reVC Script.cpp:4450) — найти игрок в авто 3D
+	lua_register(L, "locate_player_any_means_car_2d", locate_player_any_means_car_2d); // 1755 0x01FC COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_2D (reVC Script3.cpp:108) — найти игрок способ авто 2D
+	lua_register(L, "print_with_2_numbers_now", print_with_2_numbers_now); // 1756 0x02FD COMMAND_PRINT_WITH_2_NUMBERS_NOW (reVC Script3.cpp:2161) — вывести 2 числа сейчас
+	lua_register(L, "clear_small_prints", clear_small_prints); // 1757 0x03EB COMMAND_CLEAR_SMALL_PRINTS (reVC Script6.cpp:99) — очистить малый тексты
+	lua_register(L, "is_player_in_model", is_player_in_model); // 1758 0x00DE COMMAND_IS_PLAYER_IN_MODEL (reVC Script.cpp:4386) — проверить игрок модель
+	lua_register(L, "switch_car_generator", switch_car_generator); // 1759 0x014C COMMAND_SWITCH_CAR_GENERATOR (reVC Script2.cpp:146) — Переключатель авто генератор
+	lua_register(L, "turn_char_to_face_char", turn_char_to_face_char); // 1760 0x020E COMMAND_TURN_CHAR_TO_FACE_CHAR (reVC Script3.cpp:163) — повернуть персонаж лицо персонаж
+	lua_register(L, "is_player_playing", is_player_playing); // 1761 0x0256 COMMAND_IS_PLAYER_PLAYING (reVC Script3.cpp:854) — проверить игрок играет
+	lua_register(L, "is_point_obscured_by_a_mission_entity", is_point_obscured_by_a_mission_entity); // 1762 0x038A COMMAND_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY (reVC Script4.cpp:1262) — проверить точка затемнён миссия сущность
+
+
+	lua_register(L, "sqrt", sqrt); // 1763 0x01FB COMMAND_SQRT (reVC Script3.cpp:101) — Квадратный корень
+	lua_register(L, "set_camera_in_front_of_player", set_camera_in_front_of_player); // 1764 0x03C8 COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER (reVC Script4.cpp:1983) — установить камера передняя часть игрок
+	lua_register(L, "locate_char_on_foot_3d", locate_char_on_foot_3d); // 1765 0x00FF COMMAND_LOCATE_CHAR_ON_FOOT_3D (reVC Script.cpp:4462) — найти персонаж пешком 3D
+	lua_register(L, "print_with_number_now", print_with_number_now); // 1766 0x01E5 COMMAND_PRINT_WITH_NUMBER_NOW (reVC Script2.cpp:1403) — вывести сейчас
+	lua_register(L, "was_cutscene_skipped", was_cutscene_skipped); // 1767 0x056A COMMAND_WAS_CUTSCENE_SKIPPED (reVC Script7.cpp:1305) — Сцена пропущено
+	lua_register(L, "set_zone_ped_info", set_zone_ped_info); // 1768 0x015C COMMAND_SET_ZONE_PED_INFO (reVC Script2.cpp:275) — установить зона пешеход информация
+	lua_register(L, "add_money_spent_on_property", add_money_spent_on_property); // 1769 0x0529 COMMAND_ADD_MONEY_SPENT_ON_PROPERTY (reVC Script7.cpp:878) — добавить деньги потрачено собственность
+	lua_register(L, "set_property_as_owned", set_property_as_owned); // 1770 0x0542 COMMAND_SET_PROPERTY_AS_OWNED (reVC Script7.cpp:1003) — установить собственность принадлежит
+	lua_register(L, "get_object_coordinates", get_object_coordinates); // 1771 0x01BB COMMAND_GET_OBJECT_COORDINATES (reVC Script2.cpp:951) — получить координаты объекта
+	lua_register(L, "generate_random_int_in_range", generate_random_int_in_range); // 1772 0x0209 COMMAND_GENERATE_RANDOM_INT_IN_RANGE (reVC Script3.cpp:129) — Создать случайный целое число дальность
+
+
+	lua_register(L, "set_char_cant_be_dragged_out", set_char_cant_be_dragged_out); // 1773 0x039E COMMAND_SET_CHAR_CANT_BE_DRAGGED_OUT (reVC Script4.cpp:1485) — установить персонаж не может перетащен снаружи
+	lua_register(L, "set_cutscene_anim_to_loop", set_cutscene_anim_to_loop); // 1774 0x04BC COMMAND_SET_CUTSCENE_ANIM_TO_LOOP (reVC Script7.cpp:139) — установить анимация сцены цикл
+	lua_register(L, "is_player_in_area_2d", is_player_in_area_2d); // 1775 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D (reVC Script.cpp:3248) — проверить игрок область 2D
+	lua_register(L, "set_time_of_day", set_time_of_day); // 1776 0x00C0 COMMAND_SET_TIME_OF_DAY (reVC Script.cpp:4170) — установить время день
+	lua_register(L, "locate_stopped_player_in_car_3d", locate_stopped_player_in_car_3d); // 1777 0x00FA COMMAND_LOCATE_STOPPED_PLAYER_IN_CAR_3D (reVC Script.cpp:4453) — найти остановлен игрок в авто 3D
+	lua_register(L, "set_char_obj_enter_car_as_passenger", set_char_obj_enter_car_as_passenger); // 1778 0x01D4 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_PASSENGER (reVC Script2.cpp:1275) — установить персонаж объект войти авто пассажир
+	lua_register(L, "set_char_suffers_critical_hits", set_char_suffers_critical_hits); // 1779 0x0446 COMMAND_SET_CHAR_SUFFERS_CRITICAL_HITS (reVC Script6.cpp:801) — установить персонаж страдает критический попадания
+	lua_register(L, "store_car_char_is_in", store_car_char_is_in); // 1780 0x00D9 COMMAND_STORE_CAR_CHAR_IS_IN (reVC Script.cpp:4258) — сохранить авто персонаж
+	lua_register(L, "locate_player_any_means_2d", locate_player_any_means_2d); // 1781 0x00E3 COMMAND_LOCATE_PLAYER_ANY_MEANS_2D (reVC Script.cpp:4422) — найти игрок способ 2D
+	lua_register(L, "locate_stopped_player_on_foot_3d", locate_stopped_player_on_foot_3d); // 1782 0x00F9 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_3D (reVC Script.cpp:4452) — найти остановлен игрок пешком 3D
+
+
+	lua_register(L, "set_player_as_leader", set_player_as_leader); // 1783 0x01DF COMMAND_SET_PLAYER_AS_LEADER (reVC Script2.cpp:1357) — установить игрок лидер
+	lua_register(L, "add_short_range_sprite_blip_for_coord", add_short_range_sprite_blip_for_coord); // 1784 0x04CE COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_COORD (reVC Script7.cpp:244) — добавить короткий дальность спрайт блип радара координата
+	lua_register(L, "stop_char_looking", stop_char_looking); // 1785 0x022F COMMAND_STOP_CHAR_LOOKING (reVC Script3.cpp:548) — остановить персонаж смотрит
+	lua_register(L, "has_cutscene_finished", has_cutscene_finished); // 1786 0x02E9 COMMAND_HAS_CUTSCENE_FINISHED (reVC Script3.cpp:1984) — проверить сцена завершено
+	lua_register(L, "shut_player_up", shut_player_up); // 1787 0x04E2 COMMAND_SHUT_PLAYER_UP (reVC Script7.cpp:390) — Закрыть игрок
+	lua_register(L, "is_char_health_greater", is_char_health_greater); // 1788 0x0184 COMMAND_IS_CHAR_HEALTH_GREATER (reVC Script2.cpp:605) — проверить персонаж здоровье больше
+	lua_register(L, "store_wanted_level", store_wanted_level); // 1789 0x01C0 COMMAND_STORE_WANTED_LEVEL (reVC Script2.cpp:1028) — сохранить розыск уровень
+	lua_register(L, "is_char_in_players_group", is_char_in_players_group); // 1790 0x0320 COMMAND_IS_CHAR_IN_PLAYERS_GROUP (reVC Script4.cpp:65) — проверить персонаж игроки группа
+	lua_register(L, "make_player_safe_for_cutscene", make_player_safe_for_cutscene); // 1791 0x03EF COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE (reVC Script6.cpp:125) — сделать игрок безопасно сцена
+	lua_register(L, "create_protection_pickup", create_protection_pickup); // 1792 0x04A6 COMMAND_CREATE_PROTECTION_PICKUP (reVC Script6.cpp:1719) — создать защита пикап
+
+
+	lua_register(L, "locate_stopped_player_any_means_3d", locate_stopped_player_any_means_3d); // 1793 0x00F8 COMMAND_LOCATE_STOPPED_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4451) — найти остановлен игрок любым способом в 3D
+	lua_register(L, "char_look_at_player_always", char_look_at_player_always); // 1794 0x022D COMMAND_CHAR_LOOK_AT_PLAYER_ALWAYS (reVC Script3.cpp:526) — Персонаж смотреть игрок всегда
+	lua_register(L, "stop_player_looking", stop_player_looking); // 1795 0x0230 COMMAND_STOP_PLAYER_LOOKING (reVC Script3.cpp:559) — остановить игрок смотрит
+	lua_register(L, "store_car_player_is_in_no_save", store_car_player_is_in_no_save); // 1796 0x03C1 COMMAND_STORE_CAR_PLAYER_IS_IN_NO_SAVE (reVC Script4.cpp:1770) — сохранить авто игрок сохранить
+	lua_register(L, "get_offset_from_car_in_world_coords", get_offset_from_car_in_world_coords); // 1797 0x0407 COMMAND_GET_OFFSET_FROM_CAR_IN_WORLD_COORDS (reVC Script6.cpp:286) — получить смещение авто мир координаты
+	lua_register(L, "shut_char_up", shut_char_up); // 1798 0x0489 COMMAND_SHUT_CHAR_UP (reVC Script6.cpp:1524) — Закрыть персонаж
+	lua_register(L, "draw_weaponshop_corona", draw_weaponshop_corona); // 1799 0x04D5 COMMAND_DRAW_WEAPONSHOP_CORONA (reVC Script7.cpp:302) — нарисовать магазин оружия корона
+	lua_register(L, "does_char_exist", does_char_exist); // 1800 0x056D COMMAND_DOES_CHAR_EXIST (reVC Script7.cpp:1328) — Персонаж существовать
+	lua_register(L, "point_camera_at_player", point_camera_at_player); // 1801 0x0157 COMMAND_POINT_CAMERA_AT_PLAYER (reVC Script2.cpp:244) — Точка камера игрок
+	lua_register(L, "mark_object_as_no_longer_needed", mark_object_as_no_longer_needed); // 1802 0x01C4 COMMAND_MARK_OBJECT_AS_NO_LONGER_NEEDED (reVC Script2.cpp:1063) — пометить объект длиннее требуется
+
+
+	lua_register(L, "get_player_char", get_player_char); // 1803 0x01F5 COMMAND_GET_PLAYER_CHAR (reVC Script3.cpp:50) — получить игрок персонаж
+	lua_register(L, "get_ground_z_for_3d_coord", get_ground_z_for_3d_coord); // 1804 0x02CE COMMAND_GET_GROUND_Z_FOR_3D_COORD (reVC Script3.cpp:1654) — получить земля Z 3D координата
+	lua_register(L, "place_object_relative_to_car", place_object_relative_to_car); // 1805 0x035C COMMAND_PLACE_OBJECT_RELATIVE_TO_CAR (reVC Script4.cpp:726) — Место объект относительный авто
+	lua_register(L, "add_moving_particle_effect", add_moving_particle_effect); // 1806 0x039D COMMAND_ADD_MOVING_PARTICLE_EFFECT (reVC Script4.cpp:1464) — добавить движущийся частица эффект
+	lua_register(L, "change_garage_type", change_garage_type); // 1807 0x02FA COMMAND_CHANGE_GARAGE_TYPE (reVC Script3.cpp:2127) — изменить гараж тип
+	lua_register(L, "has_object_been_damaged", has_object_been_damaged); // 1808 0x0366 COMMAND_HAS_OBJECT_BEEN_DAMAGED (reVC Script4.cpp:899) — проверить объект повреждён
+	lua_register(L, "is_player_sitting_in_car", is_player_sitting_in_car); // 1809 0x0442 COMMAND_IS_PLAYER_SITTING_IN_CAR (reVC Script6.cpp:775) — проверить игрок сидит авто
+	lua_register(L, "is_char_on_foot", is_char_on_foot); // 1810 0x044B COMMAND_IS_CHAR_ON_FOOT (reVC Script6.cpp:846) — проверить персонаж пешком
+	lua_register(L, "is_car_in_area_2d", is_car_in_area_2d); // 1811 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC Script.cpp:4084) — проверить авто область 2D
+	lua_register(L, "locate_player_on_foot_2d", locate_player_on_foot_2d); // 1812 0x00E4 COMMAND_LOCATE_PLAYER_ON_FOOT_2D (reVC Script.cpp:4423) — найти игрок пешком 2D
+
+
+	lua_register(L, "locate_stopped_char_any_means_3d", locate_stopped_char_any_means_3d); // 1813 0x0101 COMMAND_LOCATE_STOPPED_CHAR_ANY_MEANS_3D (reVC Script.cpp:4464) — найти остановлен персонаж любым способом в 3D
+	lua_register(L, "set_char_as_leader", set_char_as_leader); // 1814 0x01DE COMMAND_SET_CHAR_AS_LEADER (reVC Script2.cpp:1348) — установить персонаж лидер
+	lua_register(L, "locate_char_any_means_car_2d", locate_char_any_means_car_2d); // 1815 0x0202 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_2D (reVC Script3.cpp:116) — найти персонаж способ авто 2D
+	lua_register(L, "generate_random_float_in_range", generate_random_float_in_range); // 1816 0x0208 COMMAND_GENERATE_RANDOM_FLOAT_IN_RANGE (reVC Script3.cpp:124) — Создать случайный вещественное число дальность
+	lua_register(L, "get_char_health", get_char_health); // 1817 0x0226 COMMAND_GET_CHAR_HEALTH (reVC Script3.cpp:428) — получить персонаж здоровье
+	lua_register(L, "char_look_at_char_always", char_look_at_char_always); // 1818 0x022C COMMAND_CHAR_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:515) — Персонаж смотреть персонаж всегда
+	lua_register(L, "player_look_at_char_always", player_look_at_char_always); // 1819 0x022E COMMAND_PLAYER_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:537) — Игрок смотреть персонаж всегда
+	lua_register(L, "is_player_in_angled_area_3d", is_player_in_angled_area_3d); // 1820 0x02B3 COMMAND_IS_PLAYER_IN_ANGLED_AREA_3D (reVC Script3.cpp:1494) — проверить игрок под углом область 3D
+	lua_register(L, "get_closest_char_node", get_closest_char_node); // 1821 0x02C0 COMMAND_GET_CLOSEST_CHAR_NODE (reVC Script3.cpp:1547) — получить ближайший персонаж узел
+	lua_register(L, "add_to_object_velocity", add_to_object_velocity); // 1822 0x038C COMMAND_ADD_TO_OBJECT_VELOCITY (reVC Script4.cpp:1304) — добавить объект скорость
+
+
+	lua_register(L, "is_player_sitting_in_any_car", is_player_sitting_in_any_car); // 1823 0x0443 COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR (reVC Script6.cpp:784) — проверить игрок сидит авто
+	lua_register(L, "is_char_sitting_in_any_car", is_char_sitting_in_any_car); // 1824 0x0449 COMMAND_IS_CHAR_SITTING_IN_ANY_CAR (reVC Script6.cpp:829) — проверить персонаж сидит авто
+	lua_register(L, "disable_cutscene_shadows", disable_cutscene_shadows); // 1825 0x0522 COMMAND_DISABLE_CUTSCENE_SHADOWS (reVC Script7.cpp:830) — отключить сцена тени
+	lua_register(L, "add_number_of_assassinations", add_number_of_assassinations); // 1826 0x0533 COMMAND_ADD_NUMBER_OF_ASSASSINATIONS (reVC Script7.cpp:912) — добавить заказные убийства
+	lua_register(L, "load_uncompressed_anim", load_uncompressed_anim); // 1827 0x0569 COMMAND_LOAD_UNCOMPRESSED_ANIM (reVC Script7.cpp:1297) — загрузить несжатый анимация
+	lua_register(L, "locate_stopped_char_on_foot_2d", locate_stopped_char_on_foot_2d); // 1828 0x00F0 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_2D (reVC Script.cpp:4439) — найти остановлен персонаж пешком 2D
+	lua_register(L, "locate_char_any_means_char_2d", locate_char_any_means_char_2d); // 1829 0x00F2 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_2D (reVC Script.cpp:4443) — найти персонаж способ персонаж 2D
+	lua_register(L, "is_player_dead", is_player_dead); // 1830 0x0117 COMMAND_IS_PLAYER_DEAD (reVC Script.cpp:4577) — проверить игрок мёртв
+	lua_register(L, "set_char_obj_wait_on_foot", set_char_obj_wait_on_foot); // 1831 0x0192 COMMAND_SET_CHAR_OBJ_WAIT_ON_FOOT (reVC Script2.cpp:786) — установить персонаж объект ждать пешком
+	lua_register(L, "add_route_point", add_route_point); // 1832 0x01E2 COMMAND_ADD_ROUTE_POINT (reVC Script2.cpp:1383) — добавить маршрут точка
+
+
+	lua_register(L, "get_maximum_number_of_passengers", get_maximum_number_of_passengers); // 1833 0x01EA COMMAND_GET_MAXIMUM_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1468) — получить максимум пассажиры
+	lua_register(L, "get_random_car_of_type_in_area", get_random_car_of_type_in_area); // 1834 0x0327 COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA (reVC Script4.cpp:134) — получить случайный авто тип область
+	lua_register(L, "remove_route", remove_route); // 1835 0x03AC COMMAND_REMOVE_ROUTE (reVC Script4.cpp:1583) — удалить маршрут
+	lua_register(L, "set_interpolation_parameters", set_interpolation_parameters); // 1836 0x0460 COMMAND_SET_INTERPOLATION_PARAMETERS (reVC Script6.cpp:1149) — установить интерполяция параметры
+	lua_register(L, "has_animation_loaded", has_animation_loaded); // 1837 0x04EE COMMAND_HAS_ANIMATION_LOADED (reVC Script7.cpp:476) — проверить анимация загружен
+	lua_register(L, "display_nth_onscreen_counter_with_string", display_nth_onscreen_counter_with_string); // 1838 0x04F7 COMMAND_DISPLAY_NTH_ONSCREEN_COUNTER_WITH_STRING (reVC Script7.cpp:540) — Показать n-й счётчик на экране со строкой
+	lua_register(L, "is_char_obj_no_obj", is_char_obj_no_obj); // 1839 0x04FF COMMAND_IS_CHAR_OBJ_NO_OBJ (reVC Script7.cpp:610) — проверить персонаж объект
+	lua_register(L, "get_distance_between_coords_2d", get_distance_between_coords_2d); // 1840 0x0509 COMMAND_GET_DISTANCE_BETWEEN_COORDS_2D (reVC Script7.cpp:679) — получить расстояние между координаты 2D
+	lua_register(L, "shake_cam", shake_cam); // 1841 0x0003 COMMAND_SHAKE_CAM (reVC Script.cpp:2629) — Тряска камера
+	lua_register(L, "is_char_in_area_2d", is_char_in_area_2d); // 1842 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reVC Script.cpp:3821) — проверить персонаж область 2D
+
+
+	lua_register(L, "set_zone_car_info", set_zone_car_info); // 1843 0x0152 COMMAND_SET_ZONE_CAR_INFO (reVC Script2.cpp:201) — установить зона авто информация
+	lua_register(L, "add_blip_for_car_old", add_blip_for_car_old); // 1844 0x0161 COMMAND_ADD_BLIP_FOR_CAR_OLD (reVC Script2.cpp:325) — добавить блип радара авто старый
+	lua_register(L, "add_blip_for_char_old", add_blip_for_char_old); // 1845 0x0162 COMMAND_ADD_BLIP_FOR_CHAR_OLD (reVC Script2.cpp:335) — добавить блип радара персонаж старый
+	lua_register(L, "set_char_obj_flee_on_foot_till_safe", set_char_obj_flee_on_foot_till_safe); // 1846 0x0193 COMMAND_SET_CHAR_OBJ_FLEE_ON_FOOT_TILL_SAFE (reVC Script2.cpp:795) — установить персонаж объект побег пешком до безопасно
+	lua_register(L, "locate_stopped_car_3d", locate_stopped_car_3d); // 1847 0x01B0 COMMAND_LOCATE_STOPPED_CAR_3D (reVC Script2.cpp:884) — найти остановлен авто 3D
+	lua_register(L, "print_with_number", print_with_number); // 1848 0x01E4 COMMAND_PRINT_WITH_NUMBER (reVC Script2.cpp:1396) — вывести
+	lua_register(L, "get_number_of_passengers", get_number_of_passengers); // 1849 0x01E9 COMMAND_GET_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1459) — получить пассажиры
+	lua_register(L, "set_player_health", set_player_health); // 1850 0x0222 COMMAND_SET_PLAYER_HEALTH (reVC Script3.cpp:385) — установить игрок здоровье
+	lua_register(L, "get_player_health", get_player_health); // 1851 0x0225 COMMAND_GET_PLAYER_HEALTH (reVC Script3.cpp:419) — получить игрок здоровье
+	lua_register(L, "sin", sin); // 1852 0x02F6 COMMAND_SIN (reVC Script3.cpp:2099) — Синус
+
+
+	lua_register(L, "cos", cos); // 1853 0x02F7 COMMAND_COS (reVC Script3.cpp:2104) — Косинус
+	lua_register(L, "explode_player_head", explode_player_head); // 1854 0x0322 COMMAND_EXPLODE_PLAYER_HEAD (reVC Script4.cpp:83) — взорвать игрок голова
+	lua_register(L, "is_area_occupied", is_area_occupied); // 1855 0x0339 COMMAND_IS_AREA_OCCUPIED (reVC Script4.cpp:340) — проверить область занято
+	lua_register(L, "swap_nearest_building_model", swap_nearest_building_model); // 1856 0x03B6 COMMAND_SWAP_NEAREST_BUILDING_MODEL (reVC Script4.cpp:1642) — заменить ближайший здание модель
+	lua_register(L, "store_car_char_is_in_no_save", store_car_char_is_in_no_save); // 1857 0x03C0 COMMAND_STORE_CAR_CHAR_IS_IN_NO_SAVE (reVC Script4.cpp:1760) — сохранить авто персонаж сохранить
+	lua_register(L, "get_closest_car_node_with_heading", get_closest_car_node_with_heading); // 1858 0x03D3 COMMAND_GET_CLOSEST_CAR_NODE_WITH_HEADING (reVC Script4.cpp:2061) — получить ближайший авто узел курс
+	lua_register(L, "set_mission_audio_position", set_mission_audio_position); // 1859 0x03D7 COMMAND_SET_MISSION_AUDIO_POSITION (reVC Script4.cpp:2091) — установить миссия звук позиция
+	lua_register(L, "get_ammo_in_player_weapon", get_ammo_in_player_weapon); // 1860 0x0419 COMMAND_GET_AMMO_IN_PLAYER_WEAPON (reVC Script6.cpp:413) — получить патроны игрок оружие
+	lua_register(L, "freeze_char_position", freeze_char_position); // 1861 0x04D7 COMMAND_FREEZE_CHAR_POSITION (reVC Script7.cpp:318) — заморозить персонаж позиция
+	lua_register(L, "add_big_gun_flash", add_big_gun_flash); // 1862 0x058A COMMAND_ADD_BIG_GUN_FLASH (reVC Script8.cpp:210) — добавить большой пушка вспышка
+
+
+	lua_register(L, "is_player_pressing_horn", is_player_pressing_horn); // 1863 0x0122 COMMAND_IS_PLAYER_PRESSING_HORN (reVC Script.cpp:4631) — проверить игрок нажатие гудок
+	lua_register(L, "point_camera_at_char", point_camera_at_char); // 1864 0x0159 COMMAND_POINT_CAMERA_AT_CHAR (reVC Script2.cpp:259) — Точка камера персонаж
+	lua_register(L, "set_player_ammo", set_player_ammo); // 1865 0x017A COMMAND_SET_PLAYER_AMMO (reVC Script2.cpp:573) — установить игрок патроны
+	lua_register(L, "is_player_health_greater", is_player_health_greater); // 1866 0x0183 COMMAND_IS_PLAYER_HEALTH_GREATER (reVC Script2.cpp:598) — проверить игрок здоровье больше
+	lua_register(L, "locate_player_any_means_car_3d", locate_player_any_means_car_3d); // 1867 0x01FF COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_3D (reVC Script3.cpp:111) — найти игрок способ авто 3D
+	lua_register(L, "set_gang_weapons", set_gang_weapons); // 1868 0x0237 COMMAND_SET_GANG_WEAPONS (reVC Script3.cpp:587) — установить банда оружия
+	lua_register(L, "is_player_stopped", is_player_stopped); // 1869 0x029F COMMAND_IS_PLAYER_STOPPED (reVC Script3.cpp:1345) — проверить игрок остановлен
+	lua_register(L, "is_char_in_chars_group", is_char_in_chars_group); // 1870 0x031F COMMAND_IS_CHAR_IN_CHARS_GROUP (reVC Script3.cpp:2398) — проверить персонаж персонажи группа
+	lua_register(L, "set_camera_zoom", set_camera_zoom); // 1871 0x032A COMMAND_SET_CAMERA_ZOOM (reVC Script4.cpp:208) — установить камера масштаб
+	lua_register(L, "set_text_scale", set_text_scale); // 1872 0x033F COMMAND_SET_TEXT_SCALE (reVC Script4.cpp:396) — установить текст масштаб
+
+
+	lua_register(L, "set_text_colour", set_text_colour); // 1873 0x0340 COMMAND_SET_TEXT_COLOUR (reVC Script4.cpp:403) — установить текст цвет
+	lua_register(L, "set_text_justify", set_text_justify); // 1874 0x0341 COMMAND_SET_TEXT_JUSTIFY (reVC Script4.cpp:410) — установить текст выравнивание
+	lua_register(L, "set_text_centre", set_text_centre); // 1875 0x0342 COMMAND_SET_TEXT_CENTRE (reVC Script4.cpp:416) — установить текст центр
+	lua_register(L, "set_text_wrapx", set_text_wrapx); // 1876 0x0343 COMMAND_SET_TEXT_WRAPX (reVC Script4.cpp:422) — установить текст зацикливание X
+	lua_register(L, "set_text_background", set_text_background); // 1877 0x0345 COMMAND_SET_TEXT_BACKGROUND (reVC Script4.cpp:436) — установить текст фон
+	lua_register(L, "set_text_proportional", set_text_proportional); // 1878 0x0348 COMMAND_SET_TEXT_PROPORTIONAL (reVC Script4.cpp:457) — установить текст пропорциональный
+	lua_register(L, "freeze_onscreen_timer", freeze_onscreen_timer); // 1879 0x0396 COMMAND_FREEZE_ONSCREEN_TIMER (reVC Script4.cpp:1413) — заморозить на экране таймер
+	lua_register(L, "draw_sphere", draw_sphere); // 1880 0x03A1 COMMAND_DRAW_SPHERE (reVC Script4.cpp:1514) — нарисовать сфера
+	lua_register(L, "set_text_right_justify", set_text_right_justify); // 1881 0x03E4 COMMAND_SET_TEXT_RIGHT_JUSTIFY (reVC Script4.cpp:2179) — установить текст вправо выравнивание
+	lua_register(L, "set_generate_cars_around_camera", set_generate_cars_around_camera); // 1882 0x03EA COMMAND_SET_GENERATE_CARS_AROUND_CAMERA (reVC Script6.cpp:95) — установить создать авто вокруг камера
+
+
+	lua_register(L, "use_text_commands", use_text_commands); // 1883 0x03F0 COMMAND_USE_TEXT_COMMANDS (reVC Script6.cpp:138) — использовать текст команды
+	lua_register(L, "set_car_can_be_damaged", set_car_can_be_damaged); // 1884 0x03F5 COMMAND_SET_CAR_CAN_BE_DAMAGED (reVC Script6.cpp:166) — установить авто может повреждён
+	lua_register(L, "get_offset_from_object_in_world_coords", get_offset_from_object_in_world_coords); // 1885 0x0400 COMMAND_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS (reVC Script6.cpp:253) — получить смещение объект мир координаты
+	lua_register(L, "register_highest_score", register_highest_score); // 1886 0x042F COMMAND_REGISTER_HIGHEST_SCORE (reVC Script6.cpp:639) — зарегистрировать наибольший очки
+	lua_register(L, "create_single_particle", create_single_particle); // 1887 0x0437 COMMAND_CREATE_SINGLE_PARTICLE (reVC Script6.cpp:682) — создать одиночный частица
+	lua_register(L, "is_player_on_foot", is_player_on_foot); // 1888 0x044A COMMAND_IS_PLAYER_ON_FOOT (reVC Script6.cpp:837) — проверить игрок пешком
+	lua_register(L, "set_object_rotation", set_object_rotation); // 1889 0x0453 COMMAND_SET_OBJECT_ROTATION (reVC Script6.cpp:951) — установить объект вращение
+	lua_register(L, "display_text_with_number", display_text_with_number); // 1890 0x045A COMMAND_DISPLAY_TEXT_WITH_NUMBER (reVC Script6.cpp:1054) — Показать текст
+	lua_register(L, "get_random_cop_in_area", get_random_cop_in_area); // 1891 0x0469 COMMAND_GET_RANDOM_COP_IN_AREA (reVC Script6.cpp:1233) — получить случайный полицейский область
+	lua_register(L, "get_offset_from_char_in_world_coords", get_offset_from_char_in_world_coords); // 1892 0x04C4 COMMAND_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS (reVC Script7.cpp:191) — получить смещение персонаж мир координаты
+
+
+	lua_register(L, "switch_security_camera", switch_security_camera); // 1893 0x04C7 COMMAND_SWITCH_SECURITY_CAMERA (reVC Script7.cpp:225) — Переключатель охрана камера
+	lua_register(L, "set_zone_civilian_car_info", set_zone_civilian_car_info); // 1894 0x04EC COMMAND_SET_ZONE_CIVILIAN_CAR_INFO (reVC Script7.cpp:443) — установить зона гражданский авто информация
+	lua_register(L, "is_char_waiting_for_world_collision", is_char_waiting_for_world_collision); // 1895 0x04F0 COMMAND_IS_CHAR_WAITING_FOR_WORLD_COLLISION (reVC Script7.cpp:492) — проверить персонаж ожидание мир столкновение
+	lua_register(L, "attach_char_to_object", attach_char_to_object); // 1896 0x04F4 COMMAND_ATTACH_CHAR_TO_OBJECT (reVC Script7.cpp:523) — прикрепить персонаж объект
+	lua_register(L, "is_player_wearing", is_player_wearing); // 1897 0x0500 COMMAND_IS_PLAYER_WEARING (reVC Script7.cpp:618) — проверить игрок носит
+	lua_register(L, "attach_cutscene_object_to_bone", attach_cutscene_object_to_bone); // 1898 0x0524 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_BONE (reVC Script7.cpp:846) — прикрепить объект сцены кость
+	lua_register(L, "set_player_is_in_stadium", set_player_is_in_stadium); // 1899 0x057E COMMAND_SET_PLAYER_IS_IN_STADIUM (reVC Script8.cpp:83) — установить игрок стадион
+	lua_register(L, "char_wander_dir", char_wander_dir); // 1900 0x009C COMMAND_CHAR_WANDER_DIR (reVC Script.cpp:3709) — Персонаж бродить направление
+	lua_register(L, "get_time_of_day", get_time_of_day); // 1901 0x00BF COMMAND_GET_TIME_OF_DAY (reVC Script.cpp:4165) — получить время день
+	lua_register(L, "locate_player_in_car_2d", locate_player_in_car_2d); // 1902 0x00E5 COMMAND_LOCATE_PLAYER_IN_CAR_2D (reVC Script.cpp:4424) — найти игрок в авто 2D
+
+
+	lua_register(L, "locate_stopped_player_on_foot_2d", locate_stopped_player_on_foot_2d); // 1903 0x00E7 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_2D (reVC Script.cpp:4426) — найти остановлен игрок пешком 2D
+	lua_register(L, "locate_player_on_foot_char_2d", locate_player_on_foot_char_2d); // 1904 0x00EA COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_2D (reVC Script.cpp:4431) — найти игрок пешком персонаж 2D
+	lua_register(L, "locate_player_in_car_char_2d", locate_player_in_car_char_2d); // 1905 0x00EB COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_2D (reVC Script.cpp:4432) — найти игрок в авто персонаж 2D
+	lua_register(L, "locate_char_in_car_2d", locate_char_in_car_2d); // 1906 0x00EE COMMAND_LOCATE_CHAR_IN_CAR_2D (reVC Script.cpp:4437) — найти персонаж в авто 2D
+	lua_register(L, "locate_player_on_foot_char_3d", locate_player_on_foot_char_3d); // 1907 0x00FC COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_3D (reVC Script.cpp:4457) — найти игрок пешком персонаж 3D
+	lua_register(L, "locate_player_in_car_char_3d", locate_player_in_car_char_3d); // 1908 0x00FD COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_3D (reVC Script.cpp:4458) — найти игрок в авто персонаж 3D
+	lua_register(L, "is_score_greater", is_score_greater); // 1909 0x010A COMMAND_IS_SCORE_GREATER (reVC Script.cpp:4518) — проверить очки больше
+	lua_register(L, "store_score", store_score); // 1910 0x010B COMMAND_STORE_SCORE (reVC Script.cpp:4522) — сохранить очки
+	lua_register(L, "set_deatharrest_state", set_deatharrest_state); // 1911 0x0111 COMMAND_SET_DEATHARREST_STATE (reVC Script.cpp:4552) — установить арест при смерти состояние
+	lua_register(L, "create_car_generator", create_car_generator); // 1912 0x014B COMMAND_CREATE_CAR_GENERATOR (reVC Script2.cpp:133) — создать авто генератор
+
+
+	lua_register(L, "add_hospital_restart", add_hospital_restart); // 1913 0x016C COMMAND_ADD_HOSPITAL_RESTART (reVC Script2.cpp:395) — добавить больница перезапуск
+	lua_register(L, "add_police_restart", add_police_restart); // 1914 0x016D COMMAND_ADD_POLICE_RESTART (reVC Script2.cpp:405) — добавить полиция перезапуск
+	lua_register(L, "add_blip_for_contact_point", add_blip_for_contact_point); // 1915 0x0189 COMMAND_ADD_BLIP_FOR_CONTACT_POINT (reVC Script2.cpp:657) — добавить блип радара контакт точка
+	lua_register(L, "locate_player_in_car_car_2d", locate_player_in_car_car_2d); // 1916 0x01FE COMMAND_LOCATE_PLAYER_IN_CAR_CAR_2D (reVC Script3.cpp:110) — найти игрок в авто авто 2D
+	lua_register(L, "locate_char_on_foot_car_2d", locate_char_on_foot_car_2d); // 1917 0x0203 COMMAND_LOCATE_CHAR_ON_FOOT_CAR_2D (reVC Script3.cpp:117) — найти персонаж пешком авто 2D
+	lua_register(L, "locate_char_any_means_car_3d", locate_char_any_means_car_3d); // 1918 0x0205 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_3D (reVC Script3.cpp:119) — найти персонаж способ авто 3D
+	lua_register(L, "set_gang_ped_models", set_gang_ped_models); // 1919 0x0235 COMMAND_SET_GANG_PED_MODELS (reVC Script3.cpp:579) — установить банда пешеход модели
+	lua_register(L, "is_player_in_angled_area_2d", is_player_in_angled_area_2d); // 1920 0x02AD COMMAND_IS_PLAYER_IN_ANGLED_AREA_2D (reVC Script3.cpp:1488) — проверить игрок под углом область 2D
+	lua_register(L, "set_zone_group", set_zone_group); // 1921 0x0324 COMMAND_SET_ZONE_GROUP (reVC Script4.cpp:99) — установить зона группа
+	lua_register(L, "display_text", display_text); // 1922 0x033E COMMAND_DISPLAY_TEXT (reVC Script4.cpp:382) — Показать текст
+
+
+	lua_register(L, "open_garage", open_garage); // 1923 0x0360 COMMAND_OPEN_GARAGE (reVC Script4.cpp:763) — открыть гараж
+	lua_register(L, "is_sniper_bullet_in_area", is_sniper_bullet_in_area); // 1924 0x037E COMMAND_IS_SNIPER_BULLET_IN_AREA (reVC Script4.cpp:1131) — проверить снайпер пуля область
+	lua_register(L, "print_string_in_string_now", print_string_in_string_now); // 1925 0x0384 COMMAND_PRINT_STRING_IN_STRING_NOW (reVC Script4.cpp:1205) — вывести строка сейчас
+	lua_register(L, "remove_particle_effects_in_area", remove_particle_effects_in_area); // 1926 0x03AE COMMAND_REMOVE_PARTICLE_EFFECTS_IN_AREA (reVC Script4.cpp:1591) — удалить частица эффекты область
+	lua_register(L, "is_garage_closed", is_garage_closed); // 1927 0x03B1 COMMAND_IS_GARAGE_CLOSED (reVC Script4.cpp:1624) — проверить гараж закрыто
+	lua_register(L, "does_object_exist", does_object_exist); // 1928 0x03CA COMMAND_DOES_OBJECT_EXIST (reVC Script4.cpp:1996) — Объект существовать
+	lua_register(L, "clear_this_big_print", clear_this_big_print); // 1929 0x03D6 COMMAND_CLEAR_THIS_BIG_PRINT (reVC Script4.cpp:2085) — очистить большой вывести текст
+	lua_register(L, "no_special_camera_for_this_garage", no_special_camera_for_this_garage); // 1930 0x03DA COMMAND_NO_SPECIAL_CAMERA_FOR_THIS_GARAGE (reVC Script4.cpp:2109) — Специальный камера гараж
+	lua_register(L, "set_car_avoid_level_transitions", set_car_avoid_level_transitions); // 1931 0x0428 COMMAND_SET_CAR_AVOID_LEVEL_TRANSITIONS (reVC Script6.cpp:580) — установить авто избегать уровень переходы
+	lua_register(L, "get_car_model", get_car_model); // 1932 0x0441 COMMAND_GET_CAR_MODEL (reVC Script6.cpp:766) — получить авто модель
+
+
+	lua_register(L, "display_text_with_2_numbers", display_text_with_2_numbers); // 1933 0x045B COMMAND_DISPLAY_TEXT_WITH_2_NUMBERS (reVC Script6.cpp:1065) — Показать текст 2 числа
+	lua_register(L, "get_number_of_followers", get_number_of_followers); // 1934 0x046D COMMAND_GET_NUMBER_OF_FOLLOWERS (reVC Script6.cpp:1354) — получить последователи
+	lua_register(L, "get_current_char_weapon", get_current_char_weapon); // 1935 0x0470 COMMAND_GET_CURRENT_CHAR_WEAPON (reVC Script6.cpp:1390) — получить текущий персонаж оружие
+	lua_register(L, "remove_all_char_weapons", remove_all_char_weapons); // 1936 0x048F COMMAND_REMOVE_ALL_CHAR_WEAPONS (reVC Script6.cpp:1549) — удалить персонаж оружия
+	lua_register(L, "has_player_got_weapon", has_player_got_weapon); // 1937 0x0490 COMMAND_HAS_PLAYER_GOT_WEAPON (reVC Script6.cpp:1557) — проверить игрок получено оружие
+	lua_register(L, "get_position_of_analogue_sticks", get_position_of_analogue_sticks); // 1938 0x0494 COMMAND_GET_POSITION_OF_ANALOGUE_STICKS (reVC Script6.cpp:1582) — получить позиция аналоговый палки
+	lua_register(L, "set_object_path_speed", set_object_path_speed); // 1939 0x049E COMMAND_SET_OBJECT_PATH_SPEED (reVC Script6.cpp:1668) — установить объект путь скорость
+	lua_register(L, "get_closest_straight_road", get_closest_straight_road); // 1940 0x04B9 COMMAND_GET_CLOSEST_STRAIGHT_ROAD (reVC Script7.cpp:104) — получить ближайший прямо дорога
+	lua_register(L, "get_nth_closest_car_node", get_nth_closest_car_node); // 1941 0x04D3 COMMAND_GET_NTH_CLOSEST_CAR_NODE (reVC Script7.cpp:291) — получить n-й ближайший авто узел
+	lua_register(L, "set_object_records_collisions", set_object_records_collisions); // 1942 0x04D9 COMMAND_SET_OBJECT_RECORDS_COLLISIONS (reVC Script7.cpp:334) — установить объект рекорды столкновения
+
+
+	lua_register(L, "has_object_collided_with_anything", has_object_collided_with_anything); // 1943 0x04DA COMMAND_HAS_OBJECT_COLLIDED_WITH_ANYTHING (reVC Script7.cpp:342) — проверить объект столкнулся что-либо
+	lua_register(L, "set_heli_stabiliser", set_heli_stabiliser); // 1944 0x04DF COMMAND_SET_HELI_STABILISER (reVC Script7.cpp:366) — установить вертолёт стабилизатор
+	lua_register(L, "is_object_in_water", is_object_in_water); // 1945 0x04E7 COMMAND_IS_OBJECT_IN_WATER (reVC Script7.cpp:415) — проверить объект вода
+	lua_register(L, "set_player_can_do_drive_by", set_player_can_do_drive_by); // 1946 0x0501 COMMAND_SET_PLAYER_CAN_DO_DRIVE_BY (reVC Script7.cpp:631) — установить игрок может do ездить
+	lua_register(L, "sort_out_object_collision_with_car", sort_out_object_collision_with_car); // 1947 0x050E COMMAND_SORT_OUT_OBJECT_COLLISION_WITH_CAR (reVC Script7.cpp:710) — отсортировать снаружи объект столкновение авто
+	lua_register(L, "print_help_forever", print_help_forever); // 1948 0x0512 COMMAND_PRINT_HELP_FOREVER (reVC Script7.cpp:728) — вывести помощь навсегда
+	lua_register(L, "create_forsale_property_pickup", create_forsale_property_pickup); // 1949 0x0518 COMMAND_CREATE_FORSALE_PROPERTY_PICKUP (reVC Script7.cpp:775) — создать продаётся собственность пикап
+	lua_register(L, "increase_player_max_health", increase_player_max_health); // 1950 0x055E COMMAND_INCREASE_PLAYER_MAX_HEALTH (reVC Script7.cpp:1162) — увеличить игрок максимум здоровье
+	lua_register(L, "increase_player_max_armour", increase_player_max_armour); // 1951 0x055F COMMAND_INCREASE_PLAYER_MAX_ARMOUR (reVC Script7.cpp:1170) — увеличить игрок максимум броня
+	lua_register(L, "create_random_char_as_passenger", create_random_char_as_passenger); // 1952 0x0561 COMMAND_CREATE_RANDOM_CHAR_AS_PASSENGER (reVC Script7.cpp:1209) — создать случайный персонаж пассажир
+
+
+	lua_register(L, "set_object_area_visible", set_object_area_visible); // 1953 0x0566 COMMAND_SET_OBJECT_AREA_VISIBLE (reVC Script7.cpp:1280) — установить объект область видимый
+	lua_register(L, "set_char_crouch_when_threatened", set_char_crouch_when_threatened); // 1954 0x056B COMMAND_SET_CHAR_CROUCH_WHEN_THREATENED (reVC Script7.cpp:1310) — установить персонаж присесть под угрозой
+	lua_register(L, "set_allow_hurricanes", set_allow_hurricanes); // 1955 0x057C COMMAND_SET_ALLOW_HURRICANES (reVC Script8.cpp:73) — установить разрешить ураганы
+	lua_register(L, "play_announcement", play_announcement); // 1956 0x057D COMMAND_PLAY_ANNOUNCEMENT (reVC Script8.cpp:77) — проиграть объявление
+	lua_register(L, "create_player", create_player); // 1957 0x0053 COMMAND_CREATE_PLAYER (reVC Script.cpp:3159) — создать игрок
+	lua_register(L, "generate_random_int", generate_random_int); // 1958 0x0099 COMMAND_GENERATE_RANDOM_INT (reVC Script.cpp:3637) — Создать случайный целое число
+	lua_register(L, "is_car_in_area_3d", is_car_in_area_3d); // 1959 0x00B1 COMMAND_IS_CAR_IN_AREA_3D (reVC Script.cpp:4100) — проверить авто область 3D
+	lua_register(L, "get_minutes_to_time_of_day", get_minutes_to_time_of_day); // 1960 0x00C1 COMMAND_GET_MINUTES_TO_TIME_OF_DAY (reVC Script.cpp:4174) — получить минуты время день
+	lua_register(L, "is_char_in_model", is_char_in_model); // 1961 0x00DD COMMAND_IS_CHAR_IN_MODEL (reVC Script.cpp:4378) — проверить персонаж модель
+	lua_register(L, "locate_char_on_foot_char_2d", locate_char_on_foot_char_2d); // 1962 0x00F3 COMMAND_LOCATE_CHAR_ON_FOOT_CHAR_2D (reVC Script.cpp:4444) — найти персонаж пешком персонаж 2D
+
+
+	lua_register(L, "locate_char_in_car_3d", locate_char_in_car_3d); // 1963 0x0100 COMMAND_LOCATE_CHAR_IN_CAR_3D (reVC Script.cpp:4463) — найти персонаж в авто 3D
+	lua_register(L, "locate_stopped_char_on_foot_3d", locate_stopped_char_on_foot_3d); // 1964 0x0102 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_3D (reVC Script.cpp:4465) — найти остановлен персонаж пешком 3D
+	lua_register(L, "locate_char_any_means_char_3d", locate_char_any_means_char_3d); // 1965 0x0104 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_3D (reVC Script.cpp:4469) — найти персонаж способ персонаж 3D
+	lua_register(L, "override_next_restart", override_next_restart); // 1966 0x016E COMMAND_OVERRIDE_NEXT_RESTART (reVC Script2.cpp:415) — Переопределить следующий перезапуск
+	lua_register(L, "declare_mission_flag", declare_mission_flag); // 1967 0x0180 COMMAND_DECLARE_MISSION_FLAG (reVC Script2.cpp:592) — Объявить миссия флаг
+	lua_register(L, "dont_remove_char", dont_remove_char); // 1968 0x01C5 COMMAND_DONT_REMOVE_CHAR (reVC Script2.cpp:1072) — Не удалить персонаж
+	lua_register(L, "cancel_override_restart", cancel_override_restart); // 1969 0x01F6 COMMAND_CANCEL_OVERRIDE_RESTART (reVC Script3.cpp:59) — отменить переопределить перезапуск
+	lua_register(L, "start_kill_frenzy", start_kill_frenzy); // 1970 0x01F9 COMMAND_START_KILL_FRENZY (reVC Script3.cpp:86) — начать убить бешенство
+	lua_register(L, "read_kill_frenzy_status", read_kill_frenzy_status); // 1971 0x01FA COMMAND_READ_KILL_FRENZY_STATUS (reVC Script3.cpp:95) — прочитать убить бешенство статус
+	lua_register(L, "set_taxi_lights", set_taxi_lights); // 1972 0x0216 COMMAND_SET_TAXI_LIGHTS (reVC Script3.cpp:253) — установить такси фары
+
+
+	lua_register(L, "print_big_q", print_big_q); // 1973 0x0217 COMMAND_PRINT_BIG_Q (reVC Script3.cpp:262) — вывести большой
+	lua_register(L, "set_garage", set_garage); // 1974 0x0219 COMMAND_SET_GARAGE (reVC Script3.cpp:279) — установить гараж
+	lua_register(L, "set_target_car_for_mission_garage", set_target_car_for_mission_garage); // 1975 0x021B COMMAND_SET_TARGET_CAR_FOR_MISSION_GARAGE (reVC Script3.cpp:311) — установить цель авто миссия гараж
+	lua_register(L, "set_gang_car_model", set_gang_car_model); // 1976 0x0236 COMMAND_SET_GANG_CAR_MODEL (reVC Script3.cpp:583) — установить банда авто модель
+	lua_register(L, "store_clock", store_clock); // 1977 0x0253 COMMAND_STORE_CLOCK (reVC Script3.cpp:834) — сохранить часы
+	lua_register(L, "reset_num_of_models_killed_by_player", reset_num_of_models_killed_by_player); // 1978 0x0297 COMMAND_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1235) — сбросить модели убит игрок
+	lua_register(L, "get_num_of_models_killed_by_player", get_num_of_models_killed_by_player); // 1979 0x0298 COMMAND_GET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1238) — получить модели убит игрок
+	lua_register(L, "is_player_in_angled_area_on_foot_3d", is_player_in_angled_area_on_foot_3d); // 1980 0x02B4 COMMAND_IS_PLAYER_IN_ANGLED_AREA_ON_FOOT_3D (reVC Script3.cpp:1495) — проверить игрок под углом область пешком 3D
+	lua_register(L, "is_player_in_angled_area_in_car_3d", is_player_in_angled_area_in_car_3d); // 1981 0x02B5 COMMAND_IS_PLAYER_IN_ANGLED_AREA_IN_CAR_3D (reVC Script3.cpp:1496) — проверить игрок под углом область авто 3D
+	lua_register(L, "is_player_shooting_in_area", is_player_shooting_in_area); // 1982 0x02D5 COMMAND_IS_PLAYER_SHOOTING_IN_AREA (reVC Script3.cpp:1722) — проверить игрок стрельба область
+
+
+	lua_register(L, "get_random_char_in_zone", get_random_char_in_zone); // 1983 0x02DD COMMAND_GET_RANDOM_CHAR_IN_ZONE (reVC Script3.cpp:1844) — получить случайный персонаж зона
+	lua_register(L, "is_player_in_taxi", is_player_in_taxi); // 1984 0x02DE COMMAND_IS_PLAYER_IN_TAXI (reVC Script3.cpp:1898) — проверить игрок такси
+	lua_register(L, "create_collectable1", create_collectable1); // 1985 0x02EC COMMAND_CREATE_COLLECTABLE1 (reVC Script3.cpp:1993) — создать собираемый предмет 1
+	lua_register(L, "set_collectable1_total", set_collectable1_total); // 1986 0x02ED COMMAND_SET_COLLECTABLE1_TOTAL (reVC Script3.cpp:2002) — установить собираемый предмет 1 всего
+	lua_register(L, "is_char_model", is_char_model); // 1987 0x02F2 COMMAND_IS_CHAR_MODEL (reVC Script3.cpp:2078) — проверить персонаж модель
+	lua_register(L, "print_with_3_numbers", print_with_3_numbers); // 1988 0x02FF COMMAND_PRINT_WITH_3_NUMBERS (reVC Script3.cpp:2177) — вывести 3 числа
+	lua_register(L, "print_with_4_numbers", print_with_4_numbers); // 1989 0x0302 COMMAND_PRINT_WITH_4_NUMBERS (reVC Script3.cpp:2200) — вывести 4 числа
+	lua_register(L, "print_with_6_numbers", print_with_6_numbers); // 1990 0x0308 COMMAND_PRINT_WITH_6_NUMBERS (reVC Script3.cpp:2244) — вывести 6 числа
+	lua_register(L, "set_progress_total", set_progress_total); // 1991 0x030D COMMAND_SET_PROGRESS_TOTAL (reVC Script3.cpp:2282) — установить прогресс всего
+	lua_register(L, "register_jump_distance", register_jump_distance); // 1992 0x030E COMMAND_REGISTER_JUMP_DISTANCE (reVC Script3.cpp:2288) — зарегистрировать прыжок расстояние
+
+
+	lua_register(L, "register_jump_height", register_jump_height); // 1993 0x030F COMMAND_REGISTER_JUMP_HEIGHT (reVC Script3.cpp:2292) — зарегистрировать прыжок высота
+	lua_register(L, "register_jump_flips", register_jump_flips); // 1994 0x0310 COMMAND_REGISTER_JUMP_FLIPS (reVC Script3.cpp:2296) — зарегистрировать прыжок перевороты
+	lua_register(L, "register_jump_spins", register_jump_spins); // 1995 0x0311 COMMAND_REGISTER_JUMP_SPINS (reVC Script3.cpp:2300) — зарегистрировать прыжок вращения
+	lua_register(L, "register_jump_stunt", register_jump_stunt); // 1996 0x0312 COMMAND_REGISTER_JUMP_STUNT (reVC Script3.cpp:2304) — зарегистрировать прыжок трюк
+	lua_register(L, "register_unique_jump_found", register_unique_jump_found); // 1997 0x0313 COMMAND_REGISTER_UNIQUE_JUMP_FOUND (reVC Script3.cpp:2308) — зарегистрировать уникальный прыжок найден
+	lua_register(L, "set_unique_jumps_total", set_unique_jumps_total); // 1998 0x0314 COMMAND_SET_UNIQUE_JUMPS_TOTAL (reVC Script3.cpp:2311) — установить уникальный прыжки всего
+	lua_register(L, "register_passenger_dropped_off_taxi", register_passenger_dropped_off_taxi); // 1999 0x0315 COMMAND_REGISTER_PASSENGER_DROPPED_OFF_TAXI (reVC Script3.cpp:2315) — зарегистрировать пассажир выпущен такси
+	lua_register(L, "register_money_made_taxi", register_money_made_taxi); // 2000 0x0316 COMMAND_REGISTER_MONEY_MADE_TAXI (reVC Script3.cpp:2318) — зарегистрировать деньги сделано такси
+	lua_register(L, "set_player_never_gets_tired", set_player_never_gets_tired); // 2001 0x0330 COMMAND_SET_PLAYER_NEVER_GETS_TIRED (reVC Script4.cpp:268) — установить игрок никогда получить устал
+	lua_register(L, "close_garage", close_garage); // 2002 0x0361 COMMAND_CLOSE_GARAGE (reVC Script4.cpp:769) — закрыть гараж
+
+
+	lua_register(L, "print_with_2_numbers_big", print_with_2_numbers_big); // 2003 0x036D COMMAND_PRINT_WITH_2_NUMBERS_BIG (reVC Script4.cpp:963) — вывести 2 числа большой
+	lua_register(L, "is_icecream_jingle_on", is_icecream_jingle_on); // 2004 0x0383 COMMAND_IS_ICECREAM_JINGLE_ON (reVC Script4.cpp:1182) — проверить мороженое джингл
+	lua_register(L, "is_char_male", is_char_male); // 2005 0x03A3 COMMAND_IS_CHAR_MALE (reVC Script4.cpp:1533) — проверить персонаж мужской
+	lua_register(L, "is_garage_open", is_garage_open); // 2006 0x03B0 COMMAND_IS_GARAGE_OPEN (reVC Script4.cpp:1620) — проверить гараж открыть
+	lua_register(L, "switch_world_processing", switch_world_processing); // 2007 0x03B7 COMMAND_SWITCH_WORLD_PROCESSING (reVC Script4.cpp:1676) — Переключатель мир обработка
+	lua_register(L, "remove_all_player_weapons", remove_all_player_weapons); // 2008 0x03B8 COMMAND_REMOVE_ALL_PLAYER_WEAPONS (reVC Script4.cpp:1680) — удалить игрок оружия
+	lua_register(L, "set_rotating_garage_door", set_rotating_garage_door); // 2009 0x03BB COMMAND_SET_ROTATING_GARAGE_DOOR (reVC Script4.cpp:1721) — установить вращение гараж дверь
+	lua_register(L, "create_random_car_for_car_park", create_random_car_for_car_park); // 2010 0x03C5 COMMAND_CREATE_RANDOM_CAR_FOR_CAR_PARK (reVC Script4.cpp:1808) — создать случайный авто парковать
+	lua_register(L, "has_import_garage_slot_been_filled", has_import_garage_slot_been_filled); // 2011 0x03D4 COMMAND_HAS_IMPORT_GARAGE_SLOT_BEEN_FILLED (reVC Script4.cpp:2073) — проверить импорт гараж слот заполнен
+	lua_register(L, "has_save_game_finished", has_save_game_finished); // 2012 0x03D9 COMMAND_HAS_SAVE_GAME_FINISHED (reVC Script4.cpp:2106) — проверить сохранить игра завершено
+
+
+	lua_register(L, "force_random_ped_type", force_random_ped_type); // 2013 0x03DF COMMAND_FORCE_RANDOM_PED_TYPE (reVC Script4.cpp:2152) — Сила случайный пешеход тип
+	lua_register(L, "get_collectable1s_collected", get_collectable1s_collected); // 2014 0x03E1 COMMAND_GET_COLLECTABLE1S_COLLECTED (reVC Script4.cpp:2162) — получить собираемые предметы 1 собрано
+	lua_register(L, "get_car_colours", get_car_colours); // 2015 0x03F3 COMMAND_GET_CAR_COLOURS (reVC Script6.cpp:150) — получить авто цвета
+	lua_register(L, "set_drunk_input_delay", set_drunk_input_delay); // 2016 0x03FD COMMAND_SET_DRUNK_INPUT_DELAY (reVC Script6.cpp:236) — установить пьян ввод задержка
+	lua_register(L, "register_life_saved", register_life_saved); // 2017 0x0401 COMMAND_REGISTER_LIFE_SAVED (reVC Script6.cpp:263) — зарегистрировать жизнь сохранено
+	lua_register(L, "register_criminal_caught", register_criminal_caught); // 2018 0x0402 COMMAND_REGISTER_CRIMINAL_CAUGHT (reVC Script6.cpp:266) — зарегистрировать преступник пойман
+	lua_register(L, "register_ambulance_level", register_ambulance_level); // 2019 0x0403 COMMAND_REGISTER_AMBULANCE_LEVEL (reVC Script6.cpp:269) — зарегистрировать скорая помощь уровень
+	lua_register(L, "register_fire_extinguished", register_fire_extinguished); // 2020 0x0404 COMMAND_REGISTER_FIRE_EXTINGUISHED (reVC Script6.cpp:273) — зарегистрировать огонь погашен
+	lua_register(L, "set_total_number_of_kill_frenzies", set_total_number_of_kill_frenzies); // 2021 0x0408 COMMAND_SET_TOTAL_NUMBER_OF_KILL_FRENZIES (reVC Script6.cpp:296) — установить всего убить бешенство
+	lua_register(L, "set_free_health_care", set_free_health_care); // 2022 0x0414 COMMAND_SET_FREE_HEALTH_CARE (reVC Script6.cpp:357) — установить свободный здоровье забота
+
+
+	lua_register(L, "load_and_launch_mission_internal", load_and_launch_mission_internal); // 2023 0x0417 COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL (reVC Script6.cpp:373) — загрузить запустить миссия внутренний
+	lua_register(L, "set_object_draw_last", set_object_draw_last); // 2024 0x0418 COMMAND_SET_OBJECT_DRAW_LAST (reVC Script6.cpp:405) — установить объект рисовать последний
+	lua_register(L, "convert_metres_to_feet", convert_metres_to_feet); // 2025 0x0425 COMMAND_CONVERT_METRES_TO_FEET (reVC Script6.cpp:521) — преобразовать метры ноги
+	lua_register(L, "set_total_number_of_missions", set_total_number_of_missions); // 2026 0x042C COMMAND_SET_TOTAL_NUMBER_OF_MISSIONS (reVC Script6.cpp:626) — установить всего миссии
+	lua_register(L, "convert_metres_to_feet_int", convert_metres_to_feet_int); // 2027 0x042D COMMAND_CONVERT_METRES_TO_FEET_INT (reVC Script6.cpp:630) — преобразовать метры ноги целое число
+	lua_register(L, "set_char_is_chris_criminal", set_char_is_chris_criminal); // 2028 0x0433 COMMAND_SET_CHAR_IS_CHRIS_CRIMINAL (reVC Script6.cpp:665) — установить персонаж Chris преступник
+	lua_register(L, "start_credits", start_credits); // 2029 0x0434 COMMAND_START_CREDITS (reVC Script6.cpp:673) — начать титры
+	lua_register(L, "stop_credits", stop_credits); // 2030 0x0435 COMMAND_STOP_CREDITS (reVC Script6.cpp:676) — остановить титры
+	lua_register(L, "are_credits_finished", are_credits_finished); // 2031 0x0436 COMMAND_ARE_CREDITS_FINISHED (reVC Script6.cpp:679) — проверить титры завершено
+	lua_register(L, "play_end_of_game_tune", play_end_of_game_tune); // 2032 0x043F COMMAND_PLAY_END_OF_GAME_TUNE (reVC Script6.cpp:759) — проиграть конец игра тюнинг
+
+
+	lua_register(L, "stop_end_of_game_tune", stop_end_of_game_tune); // 2033 0x0440 COMMAND_STOP_END_OF_GAME_TUNE (reVC Script6.cpp:762) — остановить конец игра тюнинг
+	lua_register(L, "are_any_car_cheats_activated", are_any_car_cheats_activated); // 2034 0x0445 COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED (reVC Script6.cpp:798) — проверить авто читы активирован
+	lua_register(L, "load_splash_screen", load_splash_screen); // 2035 0x044D COMMAND_LOAD_SPLASH_SCREEN (reVC Script6.cpp:902) — загрузить всплеск экран
+	lua_register(L, "load_end_of_game_tune", load_end_of_game_tune); // 2036 0x0451 COMMAND_LOAD_END_OF_GAME_TUNE (reVC Script6.cpp:940) — загрузить конец игра тюнинг
+	lua_register(L, "terminate_all_scripts_with_this_name", terminate_all_scripts_with_this_name); // 2037 0x0459 COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME (reVC Script6.cpp:1037) — Прекратить скрипты имя
+	lua_register(L, "get_current_player_weapon", get_current_player_weapon); // 2038 0x046F COMMAND_GET_CURRENT_PLAYER_WEAPON (reVC Script6.cpp:1381) — получить текущий игрок оружие
+	lua_register(L, "locate_char_any_means_object_2d", locate_char_any_means_object_2d); // 2039 0x0471 COMMAND_LOCATE_CHAR_ANY_MEANS_OBJECT_2D (reVC Script6.cpp:1399) — найти персонаж способ объект 2D
+	lua_register(L, "locate_char_on_foot_object_2d", locate_char_on_foot_object_2d); // 2040 0x0472 COMMAND_LOCATE_CHAR_ON_FOOT_OBJECT_2D (reVC Script6.cpp:1400) — найти персонаж пешком объект 2D
+	lua_register(L, "can_char_see_dead_char", can_char_see_dead_char); // 2041 0x0480 COMMAND_CAN_CHAR_SEE_DEAD_CHAR (reVC Script6.cpp:1473) — проверить персонаж видеть мёртв персонаж
+	lua_register(L, "is_any_pickup_at_coords", is_any_pickup_at_coords); // 2042 0x048C COMMAND_IS_ANY_PICKUP_AT_COORDS (reVC Script6.cpp:1540) — проверить пикап координаты
+
+
+	lua_register(L, "initialise_object_path", initialise_object_path); // 2043 0x049C COMMAND_INITIALISE_OBJECT_PATH (reVC Script6.cpp:1649) — Инициализировать объект путь
+	lua_register(L, "start_object_on_path", start_object_on_path); // 2044 0x049D COMMAND_START_OBJECT_ON_PATH (reVC Script6.cpp:1660) — начать объект путь
+	lua_register(L, "set_object_path_position", set_object_path_position); // 2045 0x049F COMMAND_SET_OBJECT_PATH_POSITION (reVC Script6.cpp:1674) — установить объект путь позиция
+	lua_register(L, "clear_object_path", clear_object_path); // 2046 0x04A1 COMMAND_CLEAR_OBJECT_PATH (reVC Script6.cpp:1681) — очистить объект путь
+	lua_register(L, "reset_havoc_caused_by_player", reset_havoc_caused_by_player); // 2047 0x04BE COMMAND_RESET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:155) — сбросить разрушение вызвано игрок
+	lua_register(L, "get_havoc_caused_by_player", get_havoc_caused_by_player); // 2048 0x04BF COMMAND_GET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:161) — получить разрушение вызвано игрок
+	lua_register(L, "create_script_roadblock", create_script_roadblock); // 2049 0x04C0 COMMAND_CREATE_SCRIPT_ROADBLOCK (reVC Script7.cpp:168) — создать скрипт блокпост
+	lua_register(L, "clear_all_script_roadblocks", clear_all_script_roadblocks); // 2050 0x04C1 COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS (reVC Script7.cpp:174) — очистить скрипт блокпосты
+	lua_register(L, "has_char_been_photographed", has_char_been_photographed); // 2051 0x04C5 COMMAND_HAS_CHAR_BEEN_PHOTOGRAPHED (reVC Script7.cpp:201) — проверить персонаж сфотографирован
+	lua_register(L, "add_money_spent_on_clothes", add_money_spent_on_clothes); // 2052 0x04CF COMMAND_ADD_MONEY_SPENT_ON_CLOTHES (reVC Script7.cpp:257) — добавить деньги потрачено одежда
+
+
+	lua_register(L, "set_heli_orientation", set_heli_orientation); // 2053 0x04D0 COMMAND_SET_HELI_ORIENTATION (reVC Script7.cpp:262) — установить вертолёт ориентация
+	lua_register(L, "clear_heli_orientation", clear_heli_orientation); // 2054 0x04D1 COMMAND_CLEAR_HELI_ORIENTATION (reVC Script7.cpp:275) — очистить вертолёт ориентация
+	lua_register(L, "set_char_drowns_in_water", set_char_drowns_in_water); // 2055 0x04D8 COMMAND_SET_CHAR_DROWNS_IN_WATER (reVC Script7.cpp:326) — установить персонаж утопление вода
+	lua_register(L, "get_char_armour", get_char_armour); // 2056 0x04DD COMMAND_GET_CHAR_ARMOUR (reVC Script7.cpp:356) — получить персонаж броня
+	lua_register(L, "locate_object_2d", locate_object_2d); // 2057 0x04E5 COMMAND_LOCATE_OBJECT_2D (reVC Script7.cpp:411) — найти объект 2D
+	lua_register(L, "locate_object_3d", locate_object_3d); // 2058 0x04E6 COMMAND_LOCATE_OBJECT_3D (reVC Script5.cpp:740) — найти объект 3D
+	lua_register(L, "is_object_in_area_3d", is_object_in_area_3d); // 2059 0x04EA COMMAND_IS_OBJECT_IN_AREA_3D (reVC Script5.cpp:1295) — проверить объект область 3D
+	lua_register(L, "add_set_piece", add_set_piece); // 2060 0x04F8 COMMAND_ADD_SET_PIECE (reVC Script7.cpp:552) — добавить установить кусок
+	lua_register(L, "get_wheelie_stats", get_wheelie_stats); // 2061 0x04FC COMMAND_GET_WHEELIE_STATS (reVC Script7.cpp:574) — получить вилли статистика
+	lua_register(L, "switch_lift_camera", switch_lift_camera); // 2062 0x0507 COMMAND_SWITCH_LIFT_CAMERA (reVC Script7.cpp:665) — Переключатель подъёмник камера
+
+
+	lua_register(L, "create_locked_property_pickup", create_locked_property_pickup); // 2063 0x0517 COMMAND_CREATE_LOCKED_PROPERTY_PICKUP (reVC Script7.cpp:760) — создать заблокировано собственность пикап
+	lua_register(L, "has_glass_been_shattered_nearby", has_glass_been_shattered_nearby); // 2064 0x0523 COMMAND_HAS_GLASS_BEEN_SHATTERED_NEARBY (reVC Script7.cpp:835) — проверить стекло разбито рядом
+	lua_register(L, "attach_cutscene_object_to_component", attach_cutscene_object_to_component); // 2065 0x0525 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_COMPONENT (reVC Script7.cpp:852) — прикрепить объект сцены компонент
+	lua_register(L, "add_money_spent_on_weapons", add_money_spent_on_weapons); // 2066 0x0528 COMMAND_ADD_MONEY_SPENT_ON_WEAPONS (reVC Script7.cpp:874) — добавить деньги потрачено оружия
+	lua_register(L, "set_player_drunkenness", set_player_drunkenness); // 2067 0x052C COMMAND_SET_PLAYER_DRUNKENNESS (reVC Script7.cpp:893) — установить игрок опьянение
+	lua_register(L, "add_stores_knocked_off", add_stores_knocked_off); // 2068 0x0531 COMMAND_ADD_STORES_KNOCKED_OFF (reVC Script7.cpp:907) — добавить магазины сбит
+	lua_register(L, "add_pizzas_delivered", add_pizzas_delivered); // 2069 0x0534 COMMAND_ADD_PIZZAS_DELIVERED (reVC Script7.cpp:916) — добавить пиццы доставлено
+	lua_register(L, "add_ice_creams_sold", add_ice_creams_sold); // 2070 0x0536 COMMAND_ADD_ICE_CREAMS_SOLD (reVC Script7.cpp:921) — добавить лёд кремы продано
+	lua_register(L, "set_char_in_players_group_can_fight", set_char_in_players_group_can_fight); // 2071 0x053C COMMAND_SET_CHAR_IN_PLAYERS_GROUP_CAN_FIGHT (reVC Script7.cpp:930) — установить персонаж игроки группа может драка
+	lua_register(L, "get_random_car_of_type_in_area_no_save", get_random_car_of_type_in_area_no_save); // 2072 0x053E COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA_NO_SAVE (reVC Script7.cpp:946) — получить случайный авто тип область сохранить
+
+
+	lua_register(L, "set_player_auto_aim", set_player_auto_aim); // 2073 0x0540 COMMAND_SET_PLAYER_AUTO_AIM (reVC Script7.cpp:981) — установить игрок авто прицеливание
+	lua_register(L, "add_blood_ring_kills", add_blood_ring_kills); // 2074 0x0543 COMMAND_ADD_BLOOD_RING_KILLS (reVC Script7.cpp:1007) — добавить кровь кольцо убийства
+	lua_register(L, "set_longest_time_in_blood_ring", set_longest_time_in_blood_ring); // 2075 0x0544 COMMAND_SET_LONGEST_TIME_IN_BLOOD_RING (reVC Script7.cpp:1011) — установить самый длинный время кровь кольцо
+	lua_register(L, "remove_everything_for_huge_cutscene", remove_everything_for_huge_cutscene); // 2076 0x0545 COMMAND_REMOVE_EVERYTHING_FOR_HUGE_CUTSCENE (reVC Script7.cpp:1015) — удалить всё огромный сцена
+	lua_register(L, "is_player_touching_vehicle", is_player_touching_vehicle); // 2077 0x0546 COMMAND_IS_PLAYER_TOUCHING_VEHICLE (reVC Script7.cpp:1020) — проверить игрок касание автомобиль
+	lua_register(L, "check_for_ped_model_around_player", check_for_ped_model_around_player); // 2078 0x0548 COMMAND_CHECK_FOR_PED_MODEL_AROUND_PLAYER (reVC Script7.cpp:1033) — проверить модель пешехода вокруг игрок
+	lua_register(L, "attach_cutscene_object_to_vehicle", attach_cutscene_object_to_vehicle); // 2079 0x054B COMMAND_ATTACH_CUTSCENE_OBJECT_TO_VEHICLE (reVC Script7.cpp:1071) — прикрепить объект сцены автомобиль
+	lua_register(L, "set_tonights_event", set_tonights_event); // 2080 0x054D COMMAND_SET_TONIGHTS_EVENT (reVC Script7.cpp:1085) — установить сегодня вечером событие
+	lua_register(L, "freeze_object_position", freeze_object_position); // 2081 0x0550 COMMAND_FREEZE_OBJECT_POSITION (reVC Script7.cpp:1102) — заморозить объект позиция
+	lua_register(L, "set_player_has_met_debbie_harry", set_player_has_met_debbie_harry); // 2082 0x0551 COMMAND_SET_PLAYER_HAS_MET_DEBBIE_HARRY (reVC Script7.cpp:1111) — установить игрок имеет встретил Debbie Harry
+
+
+	lua_register(L, "set_up_taxi_shortcut", set_up_taxi_shortcut); // 2083 0x0556 COMMAND_SET_UP_TAXI_SHORTCUT (reVC Script7.cpp:1126) — установить такси сокращение
+	lua_register(L, "clear_taxi_shortcut", clear_taxi_shortcut); // 2084 0x0557 COMMAND_CLEAR_TAXI_SHORTCUT (reVC Script7.cpp:1134) — очистить такси сокращение
+	lua_register(L, "add_porn_leaflet_to_rubbish", add_porn_leaflet_to_rubbish); // 2085 0x055A COMMAND_ADD_PORN_LEAFLET_TO_RUBBISH (reVC Script7.cpp:1139) — добавить порно листовка мусор
+	lua_register(L, "make_player_fire_proof", make_player_fire_proof); // 2086 0x055D COMMAND_MAKE_PLAYER_FIRE_PROOF (reVC Script7.cpp:1155) — сделать игрок огонь защита
+	lua_register(L, "create_random_char_as_driver", create_random_char_as_driver); // 2087 0x0560 COMMAND_CREATE_RANDOM_CHAR_AS_DRIVER (reVC Script7.cpp:1178) — создать случайный персонаж водитель
+	lua_register(L, "set_char_ignore_threats_behind_objects", set_char_ignore_threats_behind_objects); // 2088 0x0562 COMMAND_SET_CHAR_IGNORE_THREATS_BEHIND_OBJECTS (reVC Script7.cpp:1239) — установить персонаж игнорировать угрозы позади объекты
+	lua_register(L, "make_heli_come_crashing_down", make_heli_come_crashing_down); // 2089 0x0564 COMMAND_MAKE_HELI_COME_CRASHING_DOWN (reVC Script7.cpp:1266) — сделать вертолёт прийти авария
+	lua_register(L, "is_char_stuck", is_char_stuck); // 2090 0x0571 COMMAND_IS_CHAR_STUCK (reVC Script7.cpp:1347) — проверить персонаж застрял
+	lua_register(L, "set_all_taxis_have_nitro", set_all_taxis_have_nitro); // 2091 0x0572 COMMAND_SET_ALL_TAXIS_HAVE_NITRO (reVC Script7.cpp:1355) — установить такси иметь нитро
+	lua_register(L, "register_vigilante_level", register_vigilante_level); // 2092 0x0578 COMMAND_REGISTER_VIGILANTE_LEVEL (reVC Script8.cpp:35) — зарегистрировать vigilante уровень
+
+
+	lua_register(L, "set_maximum_number_of_cars_in_garage", set_maximum_number_of_cars_in_garage); // 2093 0x057A COMMAND_SET_MAXIMUM_NUMBER_OF_CARS_IN_GARAGE (reVC Script8.cpp:63) — установить максимум авто гараж
+	lua_register(L, "wanted_stars_are_flashing", wanted_stars_are_flashing); // 2094 0x057B COMMAND_WANTED_STARS_ARE_FLASHING (reVC Script8.cpp:67) — Розыск звёзды розыска мигание
+	lua_register(L, "get_bus_fares_collected_by_player", get_bus_fares_collected_by_player); // 2095 0x057F COMMAND_GET_BUS_FARES_COLLECTED_BY_PLAYER (reVC Script8.cpp:89) — получить автобус плата за проезд собрано игрок
+	lua_register(L, "register_best_position", register_best_position); // 2096 0x0582 COMMAND_REGISTER_BEST_POSITION (reVC Script8.cpp:126) — зарегистрировать лучший позиция
+	lua_register(L, "is_player_in_info_zone", is_player_in_info_zone); // 2097 0x0583 COMMAND_IS_PLAYER_IN_INFO_ZONE (reVC Script8.cpp:130) — проверить игрок информация зона
+	lua_register(L, "has_char_attempted_attractor", has_char_attempted_attractor); // 2098 0x0586 COMMAND_HAS_CHAR_ATTEMPTED_ATTRACTOR (reVC Script8.cpp:155) — проверить персонаж попытка притягиватель
+	lua_register(L, "set_load_collision_for_char_flag", set_load_collision_for_char_flag); // 2099 0x0588 COMMAND_SET_LOAD_COLLISION_FOR_CHAR_FLAG (reVC Script8.cpp:186) — установить загрузить столкновение персонаж флаг
+	lua_register(L, "has_char_bought_ice_cream", has_char_bought_ice_cream); // 2100 0x058B COMMAND_HAS_CHAR_BOUGHT_ICE_CREAM (reVC Script8.cpp:216) — проверить персонаж куплено лёд крем
+	lua_register(L, "get_progress_percentage", get_progress_percentage); // 2101 0x058C COMMAND_GET_PROGRESS_PERCENTAGE (reVC Script8.cpp:224) — получить прогресс процент
+	lua_register(L, "set_shortcut_pickup_point", set_shortcut_pickup_point); // 2102 0x058D COMMAND_SET_SHORTCUT_PICKUP_POINT (reVC Script8.cpp:228) — установить сокращение пикап точка
+
+
+	lua_register(L, "get_random_ice_cream_customer_in_area", get_random_ice_cream_customer_in_area); // 2103 0x058F COMMAND_GET_RANDOM_ICE_CREAM_CUSTOMER_IN_AREA (reVC Script8.cpp:240) — получить случайный лёд крем клиент область
+	lua_register(L, "set_char_frightened_in_jacked_car", set_char_frightened_in_jacked_car); // 2104 0x0593 COMMAND_SET_CHAR_FRIGHTENED_IN_JACKED_CAR (reVC Script8.cpp:314) — установить персонаж напуган угнан авто
+	lua_register(L, "is_player_in_shortcut_taxi", is_player_in_shortcut_taxi); // 2105 0x0596 COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI (reVC Script8.cpp:336) — проверить игрок сокращение такси
+	lua_register(L, "register_fire_level", register_fire_level); // 2106 0x0599 COMMAND_REGISTER_FIRE_LEVEL (reVC Script8.cpp:370) — зарегистрировать огонь уровень
 
 
 	// === COMMUNITY ADDRESSES + HEADLIGHTS (20.11) ===
-	lua_register(L, "patch_headlights", patch_headlights); // 2107 GTAForums 0x58CD4E
+	lua_register(L, "patch_headlights", patch_headlights); // 2107 GTAForums 0x58CD4E — Патч фары
 	lua_register(L, "set_headlights_on", set_headlights_on); // 2108 включить фары авто игрока (0x7E49C0+0x1F9=0x50)
 	lua_register(L, "set_headlights_off", set_headlights_off); // 2109 выключить фары авто игрока (0x7E49C0+0x1F9=0x10)
 	lua_register(L, "is_headlights_on", is_headlights_on); // 2110 проверить, включены ли фары авто игрока
@@ -2588,29 +2588,29 @@ int funs(lua_State* L) {// список функций.
 
 	lua_register(L, "get_m_panzer_rhino_model", get_m_panzer_rhino_model); // 2127 0x4AC14B PANZER модель Rhino
 	lua_register(L, "set_m_panzer_rhino_model", set_m_panzer_rhino_model); // 2128 0x4AC14B PANZER модель Rhino (установка)
-	lua_register(L, "get_m_travelinstyle_bloodring_a_model", get_m_travelinstyle_bloodring_a_model); // 2129 0x4AC946 TRAVELINSTYLE Bloodring A model
+	lua_register(L, "get_m_travelinstyle_bloodring_a_model", get_m_travelinstyle_bloodring_a_model); // 2129 0x4AC946 TRAVELINSTYLE Bloodring A model — получить чит TRAVELINSTYLE Bloodring модель
 	lua_register(L, "set_m_travelinstyle_bloodring_a_model", set_m_travelinstyle_bloodring_a_model); // 2130 0x4AC946 TRAVELINSTYLE Bloodring A model (установка)
-	lua_register(L, "get_m_thelastride_romero_hearse_model", get_m_thelastride_romero_hearse_model); // 2131 0x4AC976 THELASTRIDE Romero's Hearse model
+	lua_register(L, "get_m_thelastride_romero_hearse_model", get_m_thelastride_romero_hearse_model); // 2131 0x4AC976 THELASTRIDE Romero's Hearse model — получить чит THELASTRIDE Romero катафалк модель
 	lua_register(L, "set_m_thelastride_romero_hearse_model", set_m_thelastride_romero_hearse_model); // 2132 0x4AC976 THELASTRIDE Romero's Hearse model (установка)
-	lua_register(L, "get_m_rockandrollcar_love_fist_model", get_m_rockandrollcar_love_fist_model); // 2133 0x4AC9A6 ROCKANDROLLCAR Love Fist model
+	lua_register(L, "get_m_rockandrollcar_love_fist_model", get_m_rockandrollcar_love_fist_model); // 2133 0x4AC9A6 ROCKANDROLLCAR Love Fist model — получить чит ROCKANDROLLCAR любовь кулак модель
 	lua_register(L, "set_m_rockandrollcar_love_fist_model", set_m_rockandrollcar_love_fist_model); // 2134 0x4AC9A6 ROCKANDROLLCAR Love Fist model (установка)
-	lua_register(L, "get_m_rubbishcar_trashmaster_model", get_m_rubbishcar_trashmaster_model); // 2135 0x4AC9D6 RUBBISHCAR Trashmaster model
+	lua_register(L, "get_m_rubbishcar_trashmaster_model", get_m_rubbishcar_trashmaster_model); // 2135 0x4AC9D6 RUBBISHCAR Trashmaster model — получить чит RUBBISHCAR мусоровоз модель
 	lua_register(L, "set_m_rubbishcar_trashmaster_model", set_m_rubbishcar_trashmaster_model); // 2136 0x4AC9D6 RUBBISHCAR Trashmaster model (установка)
 
 
-	lua_register(L, "get_m_gettherefast_sabre_turbo_model", get_m_gettherefast_sabre_turbo_model); // 2137 0x4ACA06 GETTHEREFAST Sabre Turbo model
+	lua_register(L, "get_m_gettherefast_sabre_turbo_model", get_m_gettherefast_sabre_turbo_model); // 2137 0x4ACA06 GETTHEREFAST Sabre Turbo model — получить чит GETTHEREFAST Sabre турбо модель
 	lua_register(L, "set_m_gettherefast_sabre_turbo_model", set_m_gettherefast_sabre_turbo_model); // 2138 0x4ACA06 GETTHEREFAST Sabre Turbo model (установка)
 	lua_register(L, "get_m_betterthanwalking_caddy_model", get_m_betterthanwalking_caddy_model); // 2139 0x4ACA36 BETTERTHANWALKING модель Caddy
 	lua_register(L, "set_m_betterthanwalking_caddy_model", set_m_betterthanwalking_caddy_model); // 2140 0x4ACA36 BETTERTHANWALKING модель Caddy (установка)
-	lua_register(L, "get_m_gettherequickly_bloodring_b_model", get_m_gettherequickly_bloodring_b_model); // 2141 0x4ACDD6 GETTHEREQUICKLY Bloodring B model
+	lua_register(L, "get_m_gettherequickly_bloodring_b_model", get_m_gettherequickly_bloodring_b_model); // 2141 0x4ACDD6 GETTHEREQUICKLY Bloodring B model — получить чит GETTHEREQUICKLY Bloodring модель
 	lua_register(L, "set_m_gettherequickly_bloodring_b_model", set_m_gettherequickly_bloodring_b_model); // 2142 0x4ACDD6 GETTHEREQUICKLY Bloodring B model (установка)
-	lua_register(L, "get_m_getthereveryfastindeed_hotring_a_model", get_m_getthereveryfastindeed_hotring_a_model); // 2143 0x4ACE06 GETTHEREVERYFASTINDEED Hotring A model
+	lua_register(L, "get_m_getthereveryfastindeed_hotring_a_model", get_m_getthereveryfastindeed_hotring_a_model); // 2143 0x4ACE06 GETTHEREVERYFASTINDEED Hotring A model — получить чит GETTHEREVERYFASTINDEED Hotring модель
 	lua_register(L, "set_m_getthereveryfastindeed_hotring_a_model", set_m_getthereveryfastindeed_hotring_a_model); // 2144 0x4ACE06 GETTHEREVERYFASTINDEED Hotring A model (установка)
-	lua_register(L, "get_m_getthereamazinglyfast_hotring_b_model", get_m_getthereamazinglyfast_hotring_b_model); // 2145 0x4ACE36 GETTHEREAMAZINGLYFAST Hotring B model
+	lua_register(L, "get_m_getthereamazinglyfast_hotring_b_model", get_m_getthereamazinglyfast_hotring_b_model); // 2145 0x4ACE36 GETTHEREAMAZINGLYFAST Hotring B model — получить чит GETTHEREAMAZINGLYFAST Hotring модель
 	lua_register(L, "set_m_getthereamazinglyfast_hotring_b_model", set_m_getthereamazinglyfast_hotring_b_model); // 2146 0x4ACE36 GETTHEREAMAZINGLYFAST Hotring B model (установка)
 
 
-	lua_register(L, "get_m_nuttertools_chainsaw_model", get_m_nuttertools_chainsaw_model); // 2147 0x4AEAEF NUTTERTOOLS Chainsaw model
+	lua_register(L, "get_m_nuttertools_chainsaw_model", get_m_nuttertools_chainsaw_model); // 2147 0x4AEAEF NUTTERTOOLS Chainsaw model — получить чит NUTTERTOOLS бензопила модель
 	lua_register(L, "set_m_nuttertools_chainsaw_model", set_m_nuttertools_chainsaw_model); // 2148 0x4AEAEF NUTTERTOOLS Chainsaw model (установка)
 	lua_register(L, "get_m_nuttertools_chainsaw_weapon_note", get_m_nuttertools_chainsaw_weapon_note); // 2149 0x4AEB77 NUTTERTOOLS Chainsaw номер оружия (модель должна быть загружена
 	lua_register(L, "set_m_nuttertools_chainsaw_weapon_note", set_m_nuttertools_chainsaw_weapon_note); // 2150 0x4AEB77 NUTTERTOOLS Chainsaw номер оружия (модель должна быть загружена (установка)
@@ -2622,7 +2622,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_m_nuttertools_minigun_weapon_note", set_m_nuttertools_minigun_weapon_note); // 2156 0x4AEBFB NUTTERTOOLS Minigun номер оружия (модель должна быть загружена l (установка)
 
 
-	lua_register(L, "get_m_professionaltools_katana_model", get_m_professionaltools_katana_model); // 2157 0x4AEC8F PROFESSIONALTOOLS Katana model
+	lua_register(L, "get_m_professionaltools_katana_model", get_m_professionaltools_katana_model); // 2157 0x4AEC8F PROFESSIONALTOOLS Katana model — получить чит PROFESSIONALTOOLS катана модель
 	lua_register(L, "set_m_professionaltools_katana_model", set_m_professionaltools_katana_model); // 2158 0x4AEC8F PROFESSIONALTOOLS Katana model (установка)
 	lua_register(L, "get_m_professionaltools_katana_weapon_note", get_m_professionaltools_katana_weapon_note); // 2159 0x4AED17 PROFESSIONALTOOLS Katana номер оружия (NOTE: Model needs to
 	lua_register(L, "set_m_professionaltools_katana_weapon_note", set_m_professionaltools_katana_weapon_note); // 2160 0x4AED17 PROFESSIONALTOOLS Katana номер оружия (NOTE: Model needs to (установка)
@@ -2634,7 +2634,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_m_professionaltools_rocket_launcher_weapon", set_m_professionaltools_rocket_launcher_weapon); // 2166 0x4AED98 PROFESSIONALTOOLS Rocket Launcher номер оружия (NOTE: Model (установка)
 
 
-	lua_register(L, "get_m_thugstools_brass_knuckles_model", get_m_thugstools_brass_knuckles_model); // 2167 0x4AEE1F THUGSTOOLS Brass Knuckles model
+	lua_register(L, "get_m_thugstools_brass_knuckles_model", get_m_thugstools_brass_knuckles_model); // 2167 0x4AEE1F THUGSTOOLS Brass Knuckles model — получить чит THUGSTOOLS латунные кастеты модель
 	lua_register(L, "set_m_thugstools_brass_knuckles_model", set_m_thugstools_brass_knuckles_model); // 2168 0x4AEE1F THUGSTOOLS Brass Knuckles model (установка)
 	lua_register(L, "get_m_thugstools_brass_knuckles_weapon", get_m_thugstools_brass_knuckles_weapon); // 2169 0x4AEEA7 THUGSTOOLS Brass Knuckles номер оружия (NOTE: Model needs t
 	lua_register(L, "set_m_thugstools_brass_knuckles_weapon", set_m_thugstools_brass_knuckles_weapon); // 2170 0x4AEEA7 THUGSTOOLS Brass Knuckles номер оружия (NOTE: Model needs t (установка)
@@ -2694,13 +2694,13 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_m_iwantitpaintedblack", set_m_iwantitpaintedblack); // 2216 0xA10B82 IWANTITPAINTEDBLACK переключатель чита (установка)
 
 
-	lua_register(L, "get_m_lifeispassingmeby", get_m_lifeispassingmeby); // 2217 0xA10B87 LIFEISPASSINGMEBY cheat
+	lua_register(L, "get_m_lifeispassingmeby", get_m_lifeispassingmeby); // 2217 0xA10B87 LIFEISPASSINGMEBY cheat — получить чит LIFEISPASSINGMEBY
 	lua_register(L, "set_m_lifeispassingmeby", set_m_lifeispassingmeby); // 2218 0xA10B87 LIFEISPASSINGMEBY cheat (установка)
 	lua_register(L, "get_m_opcode_de_check_if", get_m_opcode_de_check_if); // 2219 0x456046 02DE: проверка, игрок в такси
 	lua_register(L, "set_m_opcode_de_check_if", set_m_opcode_de_check_if); // 2220 0x456046 02DE: проверка, игрок в такси (установка)
 	lua_register(L, "get_m_cash_when_entering_a", get_m_cash_when_entering_a); // 2221 0x5B8AB6 деньги при посадке в такси (по умолчанию 12)
 	lua_register(L, "set_m_cash_when_entering_a", set_m_cash_when_entering_a); // 2222 0x5B8AB6 деньги при посадке в такси (по умолчанию 12) (установка)
-	lua_register(L, "get_m_kaufman_cabs_radio_flag", get_m_kaufman_cabs_radio_flag); // 2223 0xA10B7F Kaufman Cabs' radio flag
+	lua_register(L, "get_m_kaufman_cabs_radio_flag", get_m_kaufman_cabs_radio_flag); // 2223 0xA10B7F Kaufman Cabs' radio flag — получить Kaufman такси радио флаг
 	lua_register(L, "set_m_kaufman_cabs_radio_flag", set_m_kaufman_cabs_radio_flag); // 2224 0xA10B7F Kaufman Cabs' radio flag (установка)
 	lua_register(L, "get_m_kaufman_cabs_spawn_note", get_m_kaufman_cabs_spawn_note); // 2225 0x42AEAC спавн Kaufman Cabs (модель должна быть загружена)
 	lua_register(L, "set_m_kaufman_cabs_spawn_note", set_m_kaufman_cabs_spawn_note); // 2226 0x42AEAC спавн Kaufman Cabs (модель должна быть загружена) (установка)
@@ -2722,7 +2722,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_m_angle_taxi_destination", set_m_angle_taxi_destination); // 2238 0xA0D378 угол цели такси (установка)
 	lua_register(L, "get_m_activate_mission_restart_taxi", get_m_activate_mission_restart_taxi); // 2239 0xA10B6D перезапуск миссии такси
 	lua_register(L, "set_m_activate_mission_restart_taxi", set_m_activate_mission_restart_taxi); // 2240 0xA10B6D перезапуск миссии такси (установка)
-	lua_register(L, "get_m_camera_move_when_entering", get_m_camera_move_when_entering); // 2241 0x46B389 camera move when entering/exiting car
+	lua_register(L, "get_m_camera_move_when_entering", get_m_camera_move_when_entering); // 2241 0x46B389 camera move when entering/exiting car — получить камера двигать вход
 	lua_register(L, "set_m_camera_move_when_entering", set_m_camera_move_when_entering); // 2242 0x46B389 camera move when entering/exiting car (установка)
 	lua_register(L, "get_m_same", get_m_same); // 2243 0x46B58F то же [5]
 	lua_register(L, "set_m_same", set_m_same); // 2244 0x46B58F то же [5] (установка)
@@ -2826,7 +2826,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_m_addr_426909", set_m_addr_426909); // 2326 0x426909 Vicechee (модель авто) 4 (установка)
 
 
-	lua_register(L, "get_m_fbi_rancher", get_m_fbi_rancher); // 2327 0x4269BA FBI Rancher
+	lua_register(L, "get_m_fbi_rancher", get_m_fbi_rancher); // 2327 0x4269BA FBI Rancher — получить ФБР Rancher
 	lua_register(L, "set_m_fbi_rancher", set_m_fbi_rancher); // 2328 0x4269BA FBI Rancher (установка)
 	lua_register(L, "get_m_barracks_ol", get_m_barracks_ol); // 2329 0x426A0A Barracks OL (модель авто)
 	lua_register(L, "set_m_barracks_ol", set_m_barracks_ol); // 2330 0x426A0A Barracks OL (модель авто) (установка)
@@ -2873,49 +2873,49 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_model_id_by_name", get_model_id_by_name); // 2356 получить id модели по имени
 	lua_register(L, "check_studio_gates", check_studio_gates); // 2357 диагностика ворот киностудии
 	lua_register(L, "open_studio_gates", open_studio_gates); // 2358 убрать закрытые ворота и поставить открытые
-	lua_register(L, "get_flag", get_flag); // 2359 get flag
+	lua_register(L, "get_flag", get_flag); // 2359 get flag — получить флаг
 
 
 	lua_register(L, "set_flag", set_flag); // 2360 установить флаг (flag)
-	lua_register(L, "flag_addr", flag_addr); // 2361 flag addr
-	lua_register(L, "get_flag_airship", get_flag_airship); // 2362 get flag airship
+	lua_register(L, "flag_addr", flag_addr); // 2361 flag addr — Флаг адрес
+	lua_register(L, "get_flag_airship", get_flag_airship); // 2362 get flag airship — получить флаг дирижабль
 	lua_register(L, "set_flag_airship", set_flag_airship); // 2363 установить флаг (flag_airship)
-	lua_register(L, "get_flag_rc_zone", get_flag_rc_zone); // 2364 get flag rc zone
+	lua_register(L, "get_flag_rc_zone", get_flag_rc_zone); // 2364 get flag rc zone — получить флаг радиоуправляемый зона
 	lua_register(L, "set_flag_rc_zone", set_flag_rc_zone); // 2365 установить флаг (flag_rc_zone)
-	lua_register(L, "get_flag_rc_mode", get_flag_rc_mode); // 2366 get flag rc mode
+	lua_register(L, "get_flag_rc_mode", get_flag_rc_mode); // 2366 get flag rc mode — получить флаг радиоуправляемый режим
 	lua_register(L, "set_flag_rc_mode", set_flag_rc_mode); // 2367 установить флаг (flag_rc_mode)
-	lua_register(L, "get_flag_airship2", get_flag_airship2); // 2368 get flag airship2
+	lua_register(L, "get_flag_airship2", get_flag_airship2); // 2368 get flag airship2 — получить флаг дирижабль 2
 	lua_register(L, "set_flag_airship2", set_flag_airship2); // 2369 установить флаг (flag_airship2)
 
 
-	lua_register(L, "get_flag_cheat82", get_flag_cheat82); // 2370 get flag cheat82
+	lua_register(L, "get_flag_cheat82", get_flag_cheat82); // 2370 get flag cheat82 — получить флаг чит 82
 	lua_register(L, "set_flag_cheat82", set_flag_cheat82); // 2371 установить флаг (flag_cheat82)
-	lua_register(L, "get_flag_cheat26", get_flag_cheat26); // 2372 get flag cheat26
+	lua_register(L, "get_flag_cheat26", get_flag_cheat26); // 2372 get flag cheat26 — получить флаг чит 26
 	lua_register(L, "set_flag_cheat26", set_flag_cheat26); // 2373 установить флаг (flag_cheat26)
-	lua_register(L, "get_flag_cheatadc", get_flag_cheatadc); // 2374 get flag cheatadc
+	lua_register(L, "get_flag_cheatadc", get_flag_cheatadc); // 2374 get flag cheatadc — получить флаг чит ADC
 	lua_register(L, "set_flag_cheatadc", set_flag_cheatadc); // 2375 установить флаг (flag_cheatadc)
-	lua_register(L, "get_flag_cheat23", get_flag_cheat23); // 2376 get flag cheat23
+	lua_register(L, "get_flag_cheat23", get_flag_cheat23); // 2376 get flag cheat23 — получить флаг чит 23
 	lua_register(L, "set_flag_cheat23", set_flag_cheat23); // 2377 установить флаг (flag_cheat23)
-	lua_register(L, "get_flag_cheat47", get_flag_cheat47); // 2378 get flag cheat47
+	lua_register(L, "get_flag_cheat47", get_flag_cheat47); // 2378 get flag cheat47 — получить флаг чит 47
 	lua_register(L, "set_flag_cheat47", set_flag_cheat47); // 2379 установить флаг (flag_cheat47)
 
 
-	lua_register(L, "get_flag_cheat5f", get_flag_cheat5f); // 2380 get flag cheat5f
+	lua_register(L, "get_flag_cheat5f", get_flag_cheat5f); // 2380 get flag cheat5f — получить флаг чит 5F
 	lua_register(L, "set_flag_cheat5f", set_flag_cheat5f); // 2381 установить флаг (flag_cheat5f)
-	lua_register(L, "get_flag_cheatstate", get_flag_cheatstate); // 2382 get flag cheatstate
+	lua_register(L, "get_flag_cheatstate", get_flag_cheatstate); // 2382 get flag cheatstate — получить флаг состояние чита
 	lua_register(L, "set_flag_cheatstate", set_flag_cheatstate); // 2383 установить флаг (flag_cheatstate)
-	lua_register(L, "get_flag_named", get_flag_named); // 2384 get flag named
+	lua_register(L, "get_flag_named", get_flag_named); // 2384 get flag named — получить флаг по имени
 	lua_register(L, "set_flag_named", set_flag_named); // 2385 установить флаг (flag_named)
-	lua_register(L, "list_flags", list_flags); // 2386 list flags
-	lua_register(L, "keep_rc", keep_rc); // 2387 keep rc
-	lua_register(L, "get_mem_addr", get_mem_addr); // 2388 get mem addr
-	lua_register(L, "force_rc_autopilot", force_rc_autopilot); // 2389 force rc autopilot
+	lua_register(L, "list_flags", list_flags); // 2386 list flags — Список флаги
+	lua_register(L, "keep_rc", keep_rc); // 2387 keep rc — удерживать радиоуправляемый
+	lua_register(L, "get_mem_addr", get_mem_addr); // 2388 get mem addr — получить память адрес
+	lua_register(L, "force_rc_autopilot", force_rc_autopilot); // 2389 force rc autopilot — Сила радиоуправляемый автопилот
 
 
-	lua_register(L, "press_fire", press_fire); // 2390 press fire
-	lua_register(L, "release_fire", release_fire); // 2391 release fire
+	lua_register(L, "press_fire", press_fire); // 2390 press fire — стрелять нажать
+	lua_register(L, "release_fire", release_fire); // 2391 release fire — освободить огонь
 	lua_register(L, "set_script_int", set_script_int); // 2392 установить целое в ScriptSpace
-	lua_register(L, "get_script_int", get_script_int); // 2393 get script int
+	lua_register(L, "get_script_int", get_script_int); // 2393 get script int — получить скрипт целое число
 	lua_register(L, "set_all_timers_99", set_all_timers_99); // 2394 23.11: все убывающие таймеры -> 99 мин
 	lua_register(L, "restore_all_timers", restore_all_timers); // 2395 23.11: вернуть исходные значения таймеров
 	lua_register(L, "map_overlay_on", map_overlay_on); // 2396 23.11: показать карту меню
@@ -2931,13 +2931,13 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "play_wav_file", play_wav_file); // 2404 23.11: WAV из Audio/
 	lua_register(L, "stop_wav_file", stop_wav_file); // 2405 23.11: остановить WAV
 	lua_register(L, "set_pad_controls", set_pad_controls); // 2406 set pad controls (установка)
-	lua_register(L, "sys_key_down", sys_key_down); // 2407 sys key down
-	lua_register(L, "sys_key_up", sys_key_up); // 2408 sys key up
-	lua_register(L, "sys_mouse_down", sys_mouse_down); // 2409 sys mouse down
+	lua_register(L, "sys_key_down", sys_key_down); // 2407 sys key down — Система клавиша
+	lua_register(L, "sys_key_up", sys_key_up); // 2408 sys key up — Система клавиша
+	lua_register(L, "sys_mouse_down", sys_mouse_down); // 2409 sys mouse down — Система мышь
 
 
-	lua_register(L, "sys_mouse_up", sys_mouse_up); // 2410 sys mouse up
-	lua_register(L, "find_all_peds_by_model", find_all_peds_by_model); // 2411 find all peds by model
+	lua_register(L, "sys_mouse_up", sys_mouse_up); // 2410 sys mouse up — Система мышь
+	lua_register(L, "find_all_peds_by_model", find_all_peds_by_model); // 2411 find all peds by model — найти пешеходы модель
 	lua_register(L, "get_water_level", get_water_level); // 2412 0x5C2C80 уровень воды в точке (x,y) или nil
 	lua_register(L, "create_door_object", create_door_object); // 2413 объект-дверь с удержанием модели/коллизии
 	lua_register(L, "get_model_col_bounds", get_model_col_bounds); // 2414 COL min/max модели (6 чисел или nil)
@@ -2956,113 +2956,113 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_vehicle_wheel_size", set_vehicle_wheel_size); // 2425 уст. размер колёс
 	lua_register(L, "get_vehicle_wheel_type", get_vehicle_wheel_type); // 2426 тип колёс/модель (+0x44)
 	lua_register(L, "set_vehicle_wheel_type", set_vehicle_wheel_type); // 2427 уст. тип колёс
-	lua_register(L, "get_vehicle_engine_type", get_vehicle_engine_type); // 2428 handling id (+0x46)
+	lua_register(L, "get_vehicle_engine_type", get_vehicle_engine_type); // 2428 handling id (+0x46) — получить автомобиль двигатель тип
 	lua_register(L, "set_vehicle_engine_type", set_vehicle_engine_type); // 2429 уст. handling id
 
 
-	lua_register(L, "get_m_remove_distant_cars", get_m_remove_distant_cars); // 2430 0x426640 byte
+	lua_register(L, "get_m_remove_distant_cars", get_m_remove_distant_cars); // 2430 0x426640 byte — получить удалить далёкий авто
 
-	lua_register(L, "set_m_remove_distant_cars", set_m_remove_distant_cars); // 2431 0x426640 byte
+	lua_register(L, "set_m_remove_distant_cars", set_m_remove_distant_cars); // 2431 0x426640 byte — установить удалить далёкий авто
 
-	lua_register(L, "get_m_spawn_with_siren_horn", get_m_spawn_with_siren_horn); // 2432 0x427aac int
+	lua_register(L, "get_m_spawn_with_siren_horn", get_m_spawn_with_siren_horn); // 2432 0x427aac int — получить спавн сирена гудок
 
-	lua_register(L, "set_m_spawn_with_siren_horn", set_m_spawn_with_siren_horn); // 2433 0x427aac int
+	lua_register(L, "set_m_spawn_with_siren_horn", set_m_spawn_with_siren_horn); // 2433 0x427aac int — установить спавн сирена гудок
 
-	lua_register(L, "get_m_rhino_cannon_reaction", get_m_rhino_cannon_reaction); // 2434 0x69a608 float
+	lua_register(L, "get_m_rhino_cannon_reaction", get_m_rhino_cannon_reaction); // 2434 0x69a608 float — получить Rhino пушка реакция
 
-	lua_register(L, "set_m_rhino_cannon_reaction", set_m_rhino_cannon_reaction); // 2435 0x69a608 float
+	lua_register(L, "set_m_rhino_cannon_reaction", set_m_rhino_cannon_reaction); // 2435 0x69a608 float — установить Rhino пушка реакция
 
-	lua_register(L, "get_m_rhino_cannon_range", get_m_rhino_cannon_range); // 2436 0x69a610 float
+	lua_register(L, "get_m_rhino_cannon_range", get_m_rhino_cannon_range); // 2436 0x69a610 float — получить Rhino пушка дальность
 
-	lua_register(L, "set_m_rhino_cannon_range", set_m_rhino_cannon_range); // 2437 0x69a610 float
+	lua_register(L, "set_m_rhino_cannon_range", set_m_rhino_cannon_range); // 2437 0x69a610 float — установить Rhino пушка дальность
 
-	lua_register(L, "get_m_rhino_firetrail_radius", get_m_rhino_firetrail_radius); // 2438 0x69a618 float
+	lua_register(L, "get_m_rhino_firetrail_radius", get_m_rhino_firetrail_radius); // 2438 0x69a618 float — получить Rhino огненный след радиус
 
-	lua_register(L, "set_m_rhino_firetrail_radius", set_m_rhino_firetrail_radius); // 2439 0x69a618 float
+	lua_register(L, "set_m_rhino_firetrail_radius", set_m_rhino_firetrail_radius); // 2439 0x69a618 float — установить Rhino огненный след радиус
 
-	lua_register(L, "get_m_rhino_smoke_radius", get_m_rhino_smoke_radius); // 2440 0x69a61c float
+	lua_register(L, "get_m_rhino_smoke_radius", get_m_rhino_smoke_radius); // 2440 0x69a61c float — получить Rhino дым радиус
 
-	lua_register(L, "set_m_rhino_smoke_radius", set_m_rhino_smoke_radius); // 2441 0x69a61c float
+	lua_register(L, "set_m_rhino_smoke_radius", set_m_rhino_smoke_radius); // 2441 0x69a61c float — установить Rhino дым радиус
 
-	lua_register(L, "get_m_rhino_spark_radius", get_m_rhino_spark_radius); // 2442 0x69a630 float
+	lua_register(L, "get_m_rhino_spark_radius", get_m_rhino_spark_radius); // 2442 0x69a630 float — получить Rhino искра радиус
 
-	lua_register(L, "set_m_rhino_spark_radius", set_m_rhino_spark_radius); // 2443 0x69a630 float
+	lua_register(L, "set_m_rhino_spark_radius", set_m_rhino_spark_radius); // 2443 0x69a630 float — установить Rhino искра радиус
 
-	lua_register(L, "get_m_cuban_exhaust_z", get_m_cuban_exhaust_z); // 2444 0x69a710 int
+	lua_register(L, "get_m_cuban_exhaust_z", get_m_cuban_exhaust_z); // 2444 0x69a710 int — получить Cuban выхлоп Z
 
-	lua_register(L, "set_m_cuban_exhaust_z", set_m_cuban_exhaust_z); // 2445 0x69a710 int
+	lua_register(L, "set_m_cuban_exhaust_z", set_m_cuban_exhaust_z); // 2445 0x69a710 int — установить Cuban выхлоп Z
 
-	lua_register(L, "get_m_cuban_exhaust_x", get_m_cuban_exhaust_x); // 2446 0x69a714 int
+	lua_register(L, "get_m_cuban_exhaust_x", get_m_cuban_exhaust_x); // 2446 0x69a714 int — получить Cuban выхлоп X
 
-	lua_register(L, "set_m_cuban_exhaust_x", set_m_cuban_exhaust_x); // 2447 0x69a714 int
+	lua_register(L, "set_m_cuban_exhaust_x", set_m_cuban_exhaust_x); // 2447 0x69a714 int — установить Cuban выхлоп X
 
-	lua_register(L, "get_m_cuban_exhaust_y", get_m_cuban_exhaust_y); // 2448 0x69a71c int
+	lua_register(L, "get_m_cuban_exhaust_y", get_m_cuban_exhaust_y); // 2448 0x69a71c int — получить Cuban выхлоп Y
 
-	lua_register(L, "set_m_cuban_exhaust_y", set_m_cuban_exhaust_y); // 2449 0x69a71c int
+	lua_register(L, "set_m_cuban_exhaust_y", set_m_cuban_exhaust_y); // 2449 0x69a71c int — установить Cuban выхлоп Y
 
-	lua_register(L, "get_m_radio_font_style", get_m_radio_font_style); // 2450 0x5fa178 byte
+	lua_register(L, "get_m_radio_font_style", get_m_radio_font_style); // 2450 0x5fa178 byte — получить радио шрифт стиль
 
-	lua_register(L, "set_m_radio_font_style", set_m_radio_font_style); // 2451 0x5fa178 byte
+	lua_register(L, "set_m_radio_font_style", set_m_radio_font_style); // 2451 0x5fa178 byte — установить радио шрифт стиль
 
-	lua_register(L, "get_m_ped_car_accident_chance", get_m_ped_car_accident_chance); // 2452 0x68723b byte
+	lua_register(L, "get_m_ped_car_accident_chance", get_m_ped_car_accident_chance); // 2452 0x68723b byte — получить пешеход авто авария шанс
 
-	lua_register(L, "set_m_ped_car_accident_chance", set_m_ped_car_accident_chance); // 2453 0x68723b byte
+	lua_register(L, "set_m_ped_car_accident_chance", set_m_ped_car_accident_chance); // 2453 0x68723b byte — установить пешеход авто авария шанс
 
-	lua_register(L, "get_m_force_law_seconds", get_m_force_law_seconds); // 2454 0x68f590 float
+	lua_register(L, "get_m_force_law_seconds", get_m_force_law_seconds); // 2454 0x68f590 float — получить сила закон секунды
 
-	lua_register(L, "set_m_force_law_seconds", set_m_force_law_seconds); // 2455 0x68f590 float
+	lua_register(L, "set_m_force_law_seconds", set_m_force_law_seconds); // 2455 0x68f590 float — установить сила закон секунды
 
-	lua_register(L, "get_m_tick_rate", get_m_tick_rate); // 2456 0x69102e byte
+	lua_register(L, "get_m_tick_rate", get_m_tick_rate); // 2456 0x69102e byte — получить тик частота
 
-	lua_register(L, "set_m_tick_rate", set_m_tick_rate); // 2457 0x69102e byte
+	lua_register(L, "set_m_tick_rate", set_m_tick_rate); // 2457 0x69102e byte — установить тик частота
 
-	lua_register(L, "get_m_entity_size", get_m_entity_size); // 2458 0x69154e byte
+	lua_register(L, "get_m_entity_size", get_m_entity_size); // 2458 0x69154e byte — получить сущность размер
 
-	lua_register(L, "set_m_entity_size", set_m_entity_size); // 2459 0x69154e byte
+	lua_register(L, "set_m_entity_size", set_m_entity_size); // 2459 0x69154e byte — установить сущность размер
 
-	lua_register(L, "get_m_moon_size", get_m_moon_size); // 2460 0x695680 int
+	lua_register(L, "get_m_moon_size", get_m_moon_size); // 2460 0x695680 int — получить луна размер
 
-	lua_register(L, "set_m_moon_size", set_m_moon_size); // 2461 0x695680 int
+	lua_register(L, "set_m_moon_size", set_m_moon_size); // 2461 0x695680 int — установить луна размер
 
-	lua_register(L, "get_m_car_friction", get_m_car_friction); // 2462 0x69a61a byte
+	lua_register(L, "get_m_car_friction", get_m_car_friction); // 2462 0x69a61a byte — получить авто трение
 
-	lua_register(L, "set_m_car_friction", set_m_car_friction); // 2463 0x69a61a byte
+	lua_register(L, "set_m_car_friction", set_m_car_friction); // 2463 0x69a61a byte — установить авто трение
 
-	lua_register(L, "get_m_wheel_camber", get_m_wheel_camber); // 2464 0x69a6a8 float
+	lua_register(L, "get_m_wheel_camber", get_m_wheel_camber); // 2464 0x69a6a8 float — получить колесо развал
 
-	lua_register(L, "set_m_wheel_camber", set_m_wheel_camber); // 2465 0x69a6a8 float
+	lua_register(L, "set_m_wheel_camber", set_m_wheel_camber); // 2465 0x69a6a8 float — установить колесо развал
 
-	lua_register(L, "get_m_car_door_speed", get_m_car_door_speed); // 2466 0x69b34a float
+	lua_register(L, "get_m_car_door_speed", get_m_car_door_speed); // 2466 0x69b34a float — получить авто дверь скорость
 
-	lua_register(L, "set_m_car_door_speed", set_m_car_door_speed); // 2467 0x69b34a float
+	lua_register(L, "set_m_car_door_speed", set_m_car_door_speed); // 2467 0x69b34a float — установить авто дверь скорость
 
-	lua_register(L, "get_m_max_heli_height", get_m_max_heli_height); // 2468 0x69c780 float
+	lua_register(L, "get_m_max_heli_height", get_m_max_heli_height); // 2468 0x69c780 float — получить максимум вертолёт высота
 
-	lua_register(L, "set_m_max_heli_height", set_m_max_heli_height); // 2469 0x69c780 float
+	lua_register(L, "set_m_max_heli_height", set_m_max_heli_height); // 2469 0x69c780 float — установить максимум вертолёт высота
 
-	lua_register(L, "get_m_car_gear", get_m_car_gear); // 2470 0x7838d1 byte
+	lua_register(L, "get_m_car_gear", get_m_car_gear); // 2470 0x7838d1 byte — получить авто передача
 
-	lua_register(L, "set_m_car_gear", set_m_car_gear); // 2471 0x7838d1 byte
+	lua_register(L, "set_m_car_gear", set_m_car_gear); // 2471 0x7838d1 byte — установить авто передача
 
-	lua_register(L, "get_m_water_level_1", get_m_water_level_1); // 2472 0x78d658 float
+	lua_register(L, "get_m_water_level_1", get_m_water_level_1); // 2472 0x78d658 float — получить вода уровень 1
 
-	lua_register(L, "set_m_water_level_1", set_m_water_level_1); // 2473 0x78d658 float
+	lua_register(L, "set_m_water_level_1", set_m_water_level_1); // 2473 0x78d658 float — установить вода уровень 1
 
-	lua_register(L, "get_m_water_level_2", get_m_water_level_2); // 2474 0x78d65c float
+	lua_register(L, "get_m_water_level_2", get_m_water_level_2); // 2474 0x78d65c float — получить вода уровень 2
 
-	lua_register(L, "set_m_water_level_2", set_m_water_level_2); // 2475 0x78d65c float
+	lua_register(L, "set_m_water_level_2", set_m_water_level_2); // 2475 0x78d65c float — установить вода уровень 2
 
-	lua_register(L, "get_m_respawn_depth", get_m_respawn_depth); // 2476 0x6912dc float
+	lua_register(L, "get_m_respawn_depth", get_m_respawn_depth); // 2476 0x6912dc float — получить возрождение глубина
 
-	lua_register(L, "set_m_respawn_depth", set_m_respawn_depth); // 2477 0x6912dc float
+	lua_register(L, "set_m_respawn_depth", set_m_respawn_depth); // 2477 0x6912dc float — установить возрождение глубина
 
-	lua_register(L, "get_m_player_pitch", get_m_player_pitch); // 2478 0x7e48bc float
+	lua_register(L, "get_m_player_pitch", get_m_player_pitch); // 2478 0x7e48bc float — получить игрок угол наклона
 
-	lua_register(L, "set_m_player_pitch", set_m_player_pitch); // 2479 0x7e48bc float
+	lua_register(L, "set_m_player_pitch", set_m_player_pitch); // 2479 0x7e48bc float — установить игрок угол наклона
 
-	lua_register(L, "get_m_player_yaw", get_m_player_yaw); // 2480 0x7e48cc float
+	lua_register(L, "get_m_player_yaw", get_m_player_yaw); // 2480 0x7e48cc float — получить игрок угол поворота
 
-	lua_register(L, "set_m_player_yaw", set_m_player_yaw); // 2481 0x7e48cc float
+	lua_register(L, "set_m_player_yaw", set_m_player_yaw); // 2481 0x7e48cc float — установить игрок угол поворота
 return 0;
 };
 

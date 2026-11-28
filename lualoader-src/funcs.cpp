@@ -78,7 +78,7 @@ static std::mutex g_epoch_mx;
 
 static const char* wait_script_name(lua_State* L);// имя .lua-скрипта из реестра (определение ниже).
 
-int wait(lua_State* L) {
+int wait(lua_State* L) { // ждать
 	// wait([ms]) — (2021, директива юзера) пауза СПИТ ПОТОКОМ ЭТОГО СКРИПТА.
 	// У каждого .lua свой std::thread (plugin.cpp), поэтому wait не блокирует
 	// игру и другие скрипты. Спим кусками по 10 мс: разборка (teardown_active)
@@ -1454,7 +1454,7 @@ int lockstatus(lua_State* L) {// статус двери авто.
 // текущее воспроизведение это НЕ останавливает. Реально радио ставит
 // DMAudio.SetRadioInCar() (0x5F9730). Вызов с RADIO_OFF (9) глушит звук,
 // даже когда игрок — пассажир, а не водитель.
-int stop_car_radio(lua_State* L) {
+int stop_car_radio(lua_State* L) { // остановить авто радио
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         // Полное выключение радио в VC:
@@ -1705,7 +1705,7 @@ int findcar(lua_State* L) {//Найти авто.
 	catch (const char* x) { writelog(x); }// записать ошибку в файл.
 };
 
-int findped(lua_State* L) {
+int findped(lua_State* L) { // найти пешехода
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		lua_newtable(L);
@@ -1836,7 +1836,7 @@ static void hold_model(lua_State* L, int model) {
 // (`Object.Init(#DK_CAMJONESDOOR, ...)` + RemoveFromMissionCleanupList).
 // Если модель с коллизией выгрузить, объект остаётся без коллизии — байк проходит
 // насквозь. Здесь модель держится до конца скрипта (как у педов).
-int create_door_object(lua_State* L) {
+int create_door_object(lua_State* L) { // создать дверь объект
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
@@ -1867,7 +1867,7 @@ int create_door_object(lua_State* L) {
 
 // (26.11) COL-габариты модели: min/max условий boxes. Нужны, чтобы посчитать
 // настоящий Z origin для двери, повёрнутой горизонтально (0107 прячет поправку).
-int get_model_col_bounds(lua_State* L) {
+int get_model_col_bounds(lua_State* L) { // получить модель коллизия bounds
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushnil(L); return 1; }
 	int model = (int)lua_tointeger(L, 1);
@@ -1889,7 +1889,7 @@ int get_model_col_bounds(lua_State* L) {
 // (26.11) Дверь-платформа через CREATE_OBJECT_NO_OFFSET (029B): Z = origin модели,
 // без скрытой поправки 0107 по boundingBox.min.z. Модель удерживается, объект
 // статический, collide включён, поворот 90° по Y применяется через CWorld.
-int create_door_object_no_offset(lua_State* L) {
+int create_door_object_no_offset(lua_State* L) { // создать дверь объект без смещения
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
@@ -2039,7 +2039,7 @@ static int ma_lua_api_wrap(lua_State* L) {
  		if (cache.size() > 4096) cache.clear();
  	}
  }
-int ma_lua_register(lua_State* L, const char* name, lua_CFunction fn) {
+int ma_lua_register(lua_State* L, const char* name, lua_CFunction fn) { // внутренняя обёртка регистрации Lua API // зарегистрировать MA Lua
 	lua_pushstring(L, name ? name : "?");
 	lua_pushlightuserdata(L, (void*)fn);
 	lua_pushcclosure(L, ma_lua_api_wrap, 2);
@@ -2463,7 +2463,7 @@ int giveweaponped(lua_State* L) {// Дать оружие педу.
 	return 0;
 };
 
-int kill_ped_on_foot(lua_State* L) {
+int kill_ped_on_foot(lua_State* L) { // Убить пешеход пешком
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {//указатель на педа.
@@ -2481,7 +2481,7 @@ int kill_ped_on_foot(lua_State* L) {
 	return 0;
 };
 
-int kill_char_any_means(lua_State* L) {
+int kill_char_any_means(lua_State* L) { // Убить персонаж способ
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {//указатель на педа.
@@ -2519,7 +2519,7 @@ int ped_aim_at_ped(lua_State* L) {//Пед целиться в педа.
 	return 0;
 };
 
-int is_current_weapon_ped(lua_State* L) {
+int is_current_weapon_ped(lua_State* L) { // проверить текущий оружие пешеход
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {// указатель на педа.
@@ -3121,7 +3121,7 @@ int remove_obj(lua_State* L) {// удалить объект.
 // или nil, если в этой точке воды нет. Адрес подтверждён в Vice-City-Rainbomizer
 // (Functions::GetWaterLevel) и работает на 1.0 EN.
 typedef bool (__cdecl *ma_GetWaterLevel_t)(float, float, float, float*, bool);
-int get_water_level(lua_State* L) {
+int get_water_level(lua_State* L) { // получить вода уровень
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)) {
@@ -3973,7 +3973,7 @@ int play_voice(lua_State* L) {// проиграть реплику педа.
 // CreateSpecialActor(model, type, x, y, z) — числовой id модели:
 //   сам грузит модель -> проверяет -> создаёт актёра -> ВЫГРУЖАЕТ модель.
 // (Тип 4 — обычный уличный актёр; 5 — специальный/_static.)
-int CreateSpecialActor(lua_State* L) {
+int CreateSpecialActor(lua_State* L) { // создать специальный актёр
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2) &&
@@ -4756,7 +4756,7 @@ int ped_attack_car(lua_State* L) {// пед атакует авто.
 
 // (28.11) Сброс набранного чит-кода: Lua-вызов и то же, что делает пробел
 // в клавиатурной задаче (compat/ma_tasks.cpp).
-int reset_cheat(lua_State* L) {
+int reset_cheat(lua_State* L) { // сбросить чит
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	cheatstr.clear();
 	lua_pushboolean(L, true);
@@ -7472,13 +7472,13 @@ int setstamina_ped(lua_State* L) { // установить выносливос�
 //   +0x600 float stamina, +0x604 float max stamina, +0x608 float stamina duration.
 static CPed* ma_stamina_ped() { return FindPlayerPed(); }
 
-int get_stamina(lua_State* L) {
+int get_stamina(lua_State* L) { // получить выносливость
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	CPed* p = ma_stamina_ped();
 	lua_pushnumber(L, p ? *reinterpret_cast<float*>((char*)p + 0x600) : 0.f);
 	return 1;
 }
-int set_stamina(lua_State* L) {
+int set_stamina(lua_State* L) { // установить выносливость
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
 	CPed* p = ma_stamina_ped();
@@ -7486,13 +7486,13 @@ int set_stamina(lua_State* L) {
 	*reinterpret_cast<float*>((char*)p + 0x600) = (float)lua_tonumber(L, 1);
 	lua_pushboolean(L, true); return 1;
 }
-int get_max_stamina(lua_State* L) {
+int get_max_stamina(lua_State* L) { // получить максимум выносливость
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	CPed* p = ma_stamina_ped();
 	lua_pushnumber(L, p ? *reinterpret_cast<float*>((char*)p + 0x604) : 0.f);
 	return 1;
 }
-int set_max_stamina(lua_State* L) {
+int set_max_stamina(lua_State* L) { // установить максимум выносливость
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
 	CPed* p = ma_stamina_ped();
@@ -7500,13 +7500,13 @@ int set_max_stamina(lua_State* L) {
 	*reinterpret_cast<float*>((char*)p + 0x604) = (float)lua_tonumber(L, 1);
 	lua_pushboolean(L, true); return 1;
 }
-int get_stamina_duration(lua_State* L) {
+int get_stamina_duration(lua_State* L) { // получить выносливость длительность
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	CPed* p = ma_stamina_ped();
 	lua_pushnumber(L, p ? *reinterpret_cast<float*>((char*)p + 0x608) : 0.f);
 	return 1;
 }
-int set_stamina_duration(lua_State* L) {
+int set_stamina_duration(lua_State* L) { // установить выносливость длительность
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
 	CPed* p = ma_stamina_ped();
@@ -7517,7 +7517,7 @@ int set_stamina_duration(lua_State* L) {
 
 // Уличные фонари в VC включаются по времени суток — отдельного флага в
 // GTAMods Memory Addresses (VC) нет. Проверка по игровым часам: 19:00..06:00.
-int are_street_lights_on(lua_State* L) {
+int are_street_lights_on(lua_State* L) { // проверить улица фары
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	int h = (int)CClock::ms_nGameClockHours;
 	bool on = (h >= 19 || h < 6);
@@ -7532,39 +7532,39 @@ static CVehicleModelInfo* ma_vehicle_model(int model) {
 	if (!mi || mi->m_nType != MODEL_INFO_VEHICLE) return nullptr;
 	return static_cast<CVehicleModelInfo*>(mi);
 }
-int get_vehicle_wheel_size(lua_State* L) {
+int get_vehicle_wheel_size(lua_State* L) { // получить автомобиль колесо размер
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushnil(L); return 1; }
 	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
 	lua_pushnumber(L, v ? v->m_fWheelSize : 0.f); return 1;
 }
-int set_vehicle_wheel_size(lua_State* L) {
+int set_vehicle_wheel_size(lua_State* L) { // установить автомобиль колесо размер
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
 	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
 	if (!v) { lua_pushboolean(L, false); return 1; }
 	v->m_fWheelSize = (float)lua_tonumber(L, 2); lua_pushboolean(L, true); return 1;
 }
-int get_vehicle_wheel_type(lua_State* L) {
+int get_vehicle_wheel_type(lua_State* L) { // получить автомобиль колесо тип
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushnil(L); return 1; }
 	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
 	lua_pushinteger(L, v ? v->m_nWheelModelIndex : -1); return 1;
 }
-int set_vehicle_wheel_type(lua_State* L) {
+int set_vehicle_wheel_type(lua_State* L) { // установить автомобиль колесо тип
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
 	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
 	if (!v) { lua_pushboolean(L, false); return 1; }
 	v->m_nWheelModelIndex = (short)lua_tointeger(L, 2); lua_pushboolean(L, true); return 1;
 }
-int get_vehicle_engine_type(lua_State* L) {
+int get_vehicle_engine_type(lua_State* L) { // получить автомобиль двигатель тип
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushnil(L); return 1; }
 	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
 	lua_pushinteger(L, v ? v->m_nHandlingId : -1); return 1;
 }
-int set_vehicle_engine_type(lua_State* L) {
+int set_vehicle_engine_type(lua_State* L) { // установить автомобиль двигатель тип
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
 	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
@@ -10013,7 +10013,7 @@ int is_car_damage_by_car(lua_State* L) {// Если авто получило у
 	return 0;
 };
 
-int show_text_gtx_table(lua_State* L) {
+int show_text_gtx_table(lua_State* L) { // показать текст GXT текст таблица
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TSTRING != lua_type(L,1) || LUA_TSTRING != lua_type(L,2) ||
@@ -10163,7 +10163,7 @@ static const std::map<std::string, const char*> g_gxt_prefix_table = {
     {"TEX3", "SERG3"},
 };
 
-int show_text_key(lua_State* L) {
+int show_text_key(lua_State* L) { // показать текст клавиша
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TSTRING != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2) || LUA_TNUMBER != lua_type(L, 3)) {
@@ -10217,7 +10217,7 @@ int show_text_key(lua_State* L) {
 	lua_pushboolean(L, false); return 1;
 }
 
-int load_gtx_table(lua_State* L) {
+int load_gtx_table(lua_State* L) { // загрузить GXT текст таблица
 	try {
 		if (LUA_TSTRING != lua_type(L,1)) { lua_pushboolean(L,false); return 1; }
 		std::string table(lua_tostring(L,1));
@@ -15525,7 +15525,7 @@ static bool ma_entity_pos(const void* p, CVector& out) {
     if (CObject* o = findobjinpool(p)) { out = o->GetPosition(); return true; }
     return false;
 }
-int angle_entity_to_entity(lua_State* L) {
+int angle_entity_to_entity(lua_State* L) { // Угол сущность
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1) || LUA_TLIGHTUSERDATA != lua_type(L, 2)) {
@@ -15542,8 +15542,8 @@ int angle_entity_to_entity(lua_State* L) {
     return 0;
 }
 // алиасы для удобства
-int angle_to_entity(lua_State* L) { return angle_entity_to_entity(L); }
-int get_angle_to_target(lua_State* L) { return angle_entity_to_entity(L); }
+int angle_to_entity(lua_State* L) { return angle_entity_to_entity(L); } // Угол сущность
+int get_angle_to_target(lua_State* L) { return angle_entity_to_entity(L); } // получить угол цель
 
 int general_angle_between_points(lua_State* L) {// general_angle_between_points(x1,y1,x2,y2) - угол между точками в градусах.
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
@@ -19109,7 +19109,7 @@ int set_char_obj_follow_formation(lua_State* L) { // следовать в ст�
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int set_char_obj_hail_taxi(lua_State* L) {// hail_taxi (0365).
+int set_char_obj_hail_taxi(lua_State* L) {// hail_taxi (0365). — установить персонаж объект hail такси
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -19138,7 +19138,7 @@ int set_char_obj_steal_any_car(lua_State* L) { // украсть любую ма
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int set_char_obj_leave_any_car(lua_State* L) {// leave_any_car (03E2).
+int set_char_obj_leave_any_car(lua_State* L) {// leave_any_car (03E2). — установить персонаж объект оставить авто
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -19169,7 +19169,7 @@ int set_char_obj_flee_car(lua_State* L) { // убежать от машины
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int set_char_obj_walk_to_char(lua_State* L) {// walk_to_char (04C2).
+int set_char_obj_walk_to_char(lua_State* L) {// walk_to_char (04C2). — установить персонаж объект ходить персонаж
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {
@@ -19221,7 +19221,7 @@ int set_char_obj_sprint_to_coord(lua_State* L) { // спринт к коорди
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int set_char_obj_goto_car_on_foot(lua_State* L) {// goto_car_on_foot (0558).
+int set_char_obj_goto_car_on_foot(lua_State* L) {// goto_car_on_foot (0558). — установить персонаж объект перейти авто пешком
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TLIGHTUSERDATA == lua_type(L, 2)) {
@@ -20841,7 +20841,7 @@ int add_ammo_to_player(lua_State* L) { // добавить патронов иг
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int clear_area_of_cars(lua_State* L) { // (x1,y1,z1,x2,y2,z2) — reVC Script4.cpp:1697: 6 FLOAT.
+int clear_area_of_cars(lua_State* L) { // (x1,y1,z1,x2,y2,z2) — reVC Script4.cpp:1697: 6 FLOAT. — очистить область авто
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		bool ok = true;
@@ -20854,7 +20854,7 @@ int clear_area_of_cars(lua_State* L) { // (x1,y1,z1,x2,y2,z2) — reVC Script4.c
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int clear_area_of_chars(lua_State* L) { // (x1,y1,z1,x2,y2,z2) — reVC Script6.cpp:602: 6 FLOAT.
+int clear_area_of_chars(lua_State* L) { // (x1,y1,z1,x2,y2,z2) — reVC Script6.cpp:602: 6 FLOAT. — очистить область персонажи
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		bool ok = true;
@@ -21971,7 +21971,7 @@ int get_num_bright_lights(lua_State* L) { // число ярких огней
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nPrimaryColor(lua_State* L) { // m_nPrimaryColor (CVehicle)
+int get_car_m_nPrimaryColor(lua_State* L) { // m_nPrimaryColor (CVehicle) — получить поле nPrimaryColor (основной, цвет)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -21999,7 +21999,7 @@ int set_car_m_nPrimaryColor(lua_State* L) { // уст. m_nPrimaryColor (CVehicle
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nSecondaryColor(lua_State* L) { // m_nSecondaryColor (CVehicle)
+int get_car_m_nSecondaryColor(lua_State* L) { // m_nSecondaryColor (CVehicle) — получить поле nSecondaryColor (дополнительный, цвет)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22027,7 +22027,7 @@ int set_car_m_nSecondaryColor(lua_State* L) { // уст. m_nSecondaryColor (CVeh
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_wWantedStarsOnEnter(lua_State* L) { // m_wWantedStarsOnEnter (CVehicle)
+int get_car_m_wWantedStarsOnEnter(lua_State* L) { // m_wWantedStarsOnEnter (CVehicle) — получить поле wWantedStarsOnEnter (розыск, звёзды розыска, войти)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22055,7 +22055,7 @@ int set_car_m_wWantedStarsOnEnter(lua_State* L) { // уст. m_wWantedStarsOnEnt
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_wMissionValue(lua_State* L) { // m_wMissionValue (CVehicle)
+int get_car_m_wMissionValue(lua_State* L) { // m_wMissionValue (CVehicle) — получить поле wMissionValue (миссия, значение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22083,7 +22083,7 @@ int set_car_m_wMissionValue(lua_State* L) { // уст. m_wMissionValue (CVehicle
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nNumPassengers(lua_State* L) { // m_nNumPassengers (CVehicle)
+int get_car_m_nNumPassengers(lua_State* L) { // m_nNumPassengers (CVehicle) — получить поле nNumPassengers (пассажиры)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22111,7 +22111,7 @@ int set_car_m_nNumPassengers(lua_State* L) { // уст. m_nNumPassengers (CVehic
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nNumGettingIn(lua_State* L) { // m_nNumGettingIn (CVehicle)
+int get_car_m_nNumGettingIn(lua_State* L) { // m_nNumGettingIn (CVehicle) — получить поле nNumGettingIn (получение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22139,7 +22139,7 @@ int set_car_m_nNumGettingIn(lua_State* L) { // уст. m_nNumGettingIn (CVehicle
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nGettingInFlags(lua_State* L) { // m_nGettingInFlags (CVehicle)
+int get_car_m_nGettingInFlags(lua_State* L) { // m_nGettingInFlags (CVehicle) — получить поле nGettingInFlags (получение, флаги)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22167,7 +22167,7 @@ int set_car_m_nGettingInFlags(lua_State* L) { // уст. m_nGettingInFlags (CVeh
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nGettingOutFlags(lua_State* L) { // m_nGettingOutFlags (CVehicle)
+int get_car_m_nGettingOutFlags(lua_State* L) { // m_nGettingOutFlags (CVehicle) — получить поле nGettingOutFlags (получение, снаружи, флаги)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22195,7 +22195,7 @@ int set_car_m_nGettingOutFlags(lua_State* L) { // уст. m_nGettingOutFlags (CV
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nMaxPassengers(lua_State* L) { // m_nMaxPassengers (CVehicle)
+int get_car_m_nMaxPassengers(lua_State* L) { // m_nMaxPassengers (CVehicle) — получить поле nMaxPassengers (максимум, пассажиры)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22223,7 +22223,7 @@ int set_car_m_nMaxPassengers(lua_State* L) { // уст. m_nMaxPassengers (CVehic
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fSteerAngle(lua_State* L) { // m_fSteerAngle (CVehicle)
+int get_car_m_fSteerAngle(lua_State* L) { // m_fSteerAngle (CVehicle) — получить поле fSteerAngle (руль, угол)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22251,7 +22251,7 @@ int set_car_m_fSteerAngle(lua_State* L) { // уст. m_fSteerAngle (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fGasPedal(lua_State* L) { // m_fGasPedal (CVehicle)
+int get_car_m_fGasPedal(lua_State* L) { // m_fGasPedal (CVehicle) — получить поле fGasPedal (газ, педаль)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22279,7 +22279,7 @@ int set_car_m_fGasPedal(lua_State* L) { // уст. m_fGasPedal (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fBreakPedal(lua_State* L) { // m_fBreakPedal (CVehicle)
+int get_car_m_fBreakPedal(lua_State* L) { // m_fBreakPedal (CVehicle) — получить поле fBreakPedal (тормоз, педаль)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22307,7 +22307,7 @@ int set_car_m_fBreakPedal(lua_State* L) { // уст. m_fBreakPedal (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nCreatedBy(lua_State* L) { // m_nCreatedBy (CVehicle)
+int get_car_m_nCreatedBy(lua_State* L) { // m_nCreatedBy (CVehicle) — получить поле nCreatedBy (создано)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22335,7 +22335,7 @@ int set_car_m_nCreatedBy(lua_State* L) { // уст. m_nCreatedBy (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nAmmoInClip(lua_State* L) { // m_nAmmoInClip (CVehicle)
+int get_car_m_nAmmoInClip(lua_State* L) { // m_nAmmoInClip (CVehicle) — получить поле nAmmoInClip (патроны, обойма)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22363,7 +22363,7 @@ int set_car_m_nAmmoInClip(lua_State* L) { // уст. m_nAmmoInClip (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fHealth(lua_State* L) { // m_fHealth (CVehicle)
+int get_car_m_fHealth(lua_State* L) { // m_fHealth (CVehicle) — получить поле fHealth (здоровье)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22391,7 +22391,7 @@ int set_car_m_fHealth(lua_State* L) { // уст. m_fHealth (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nCurrentGear(lua_State* L) { // m_nCurrentGear (CVehicle)
+int get_car_m_nCurrentGear(lua_State* L) { // m_nCurrentGear (CVehicle) — получить поле nCurrentGear (текущий, передача)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22419,7 +22419,7 @@ int set_car_m_nCurrentGear(lua_State* L) { // уст. m_nCurrentGear (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nTimeTillWeNeedThisCar(lua_State* L) { // m_nTimeTillWeNeedThisCar (CVehicle)
+int get_car_m_nTimeTillWeNeedThisCar(lua_State* L) { // m_nTimeTillWeNeedThisCar (CVehicle) — получить поле nTimeTillWeNeedThisCar (время, до, мы, нужно, авто)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22447,7 +22447,7 @@ int set_car_m_nTimeTillWeNeedThisCar(lua_State* L) { // уст. m_nTimeTillWeNee
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nTimeOfDeath(lua_State* L) { // m_nTimeOfDeath (CVehicle)
+int get_car_m_nTimeOfDeath(lua_State* L) { // m_nTimeOfDeath (CVehicle) — получить поле nTimeOfDeath (время, смерть)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22475,7 +22475,7 @@ int set_car_m_nTimeOfDeath(lua_State* L) { // уст. m_nTimeOfDeath (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_wBombTimer(lua_State* L) { // m_wBombTimer (CVehicle)
+int get_car_m_wBombTimer(lua_State* L) { // m_wBombTimer (CVehicle) — получить поле wBombTimer (бомба, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22503,7 +22503,7 @@ int set_car_m_wBombTimer(lua_State* L) { // уст. m_wBombTimer (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nLastWeaponDamage(lua_State* L) { // m_nLastWeaponDamage (CVehicle)
+int get_car_m_nLastWeaponDamage(lua_State* L) { // m_nLastWeaponDamage (CVehicle) — получить поле nLastWeaponDamage (последний, оружие, повреждение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22531,7 +22531,7 @@ int set_car_m_nLastWeaponDamage(lua_State* L) { // уст. m_nLastWeaponDamage (
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nRadioStation(lua_State* L) { // m_nRadioStation (CVehicle)
+int get_car_m_nRadioStation(lua_State* L) { // m_nRadioStation (CVehicle) — получить поле nRadioStation (радио, станция)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22559,7 +22559,7 @@ int set_car_m_nRadioStation(lua_State* L) { // уст. m_nRadioStation (CVehicle
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_bHornEnabled(lua_State* L) { // m_bHornEnabled (CVehicle)
+int get_car_m_bHornEnabled(lua_State* L) { // m_bHornEnabled (CVehicle) — получить поле bHornEnabled (гудок, включено)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22587,7 +22587,7 @@ int set_car_m_bHornEnabled(lua_State* L) { // уст. m_bHornEnabled (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nSirenOrAlarm(lua_State* L) { // m_nSirenOrAlarm (CVehicle)
+int get_car_m_nSirenOrAlarm(lua_State* L) { // m_nSirenOrAlarm (CVehicle) — получить поле nSirenOrAlarm (сирена, сигнализация)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22615,7 +22615,7 @@ int set_car_m_nSirenOrAlarm(lua_State* L) { // уст. m_nSirenOrAlarm (CVehicle
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nSirenExtra(lua_State* L) { // m_nSirenExtra (CVehicle)
+int get_car_m_nSirenExtra(lua_State* L) { // m_nSirenExtra (CVehicle) — получить поле nSirenExtra (сирена, дополнительный)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22643,7 +22643,7 @@ int set_car_m_nSirenExtra(lua_State* L) { // уст. m_nSirenExtra (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fSteerRatio(lua_State* L) { // m_fSteerRatio (CVehicle)
+int get_car_m_fSteerRatio(lua_State* L) { // m_fSteerRatio (CVehicle) — получить поле fSteerRatio (руль, коэффициент)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22671,7 +22671,7 @@ int set_car_m_fSteerRatio(lua_State* L) { // уст. m_fSteerRatio (CVehicle)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nVehicleClass(lua_State* L) { // m_nVehicleClass (CVehicle)
+int get_car_m_nVehicleClass(lua_State* L) { // m_nVehicleClass (CVehicle) — получить поле nVehicleClass (автомобиль, класс)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22699,7 +22699,7 @@ int set_car_m_nVehicleClass(lua_State* L) { // уст. m_nVehicleClass (CVehicle
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fCollisionSpeed(lua_State* L) { // m_fCollisionSpeed (CPed)
+int get_ped_m_fCollisionSpeed(lua_State* L) { // m_fCollisionSpeed (CPed) — получить поле fCollisionSpeed (столкновение, скорость)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22725,7 +22725,7 @@ int set_ped_m_fCollisionSpeed(lua_State* L) { // уст. m_fCollisionSpeed (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nGangFlags(lua_State* L) { // m_nGangFlags (CPed)
+int get_ped_m_nGangFlags(lua_State* L) { // m_nGangFlags (CPed) — получить поле nGangFlags (банда, флаги)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22751,7 +22751,7 @@ int set_ped_m_nGangFlags(lua_State* L) { // уст. m_nGangFlags (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nPedStatus(lua_State* L) { // m_nPedStatus (CPed)
+int get_ped_m_nPedStatus(lua_State* L) { // m_nPedStatus (CPed) — получить поле nPedStatus (пешеход, статус)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22777,7 +22777,7 @@ int set_ped_m_nPedStatus(lua_State* L) { // уст. m_nPedStatus (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_vecObjective(lua_State* L) { // m_vecObjective (CPed) (x,y,z)
+int get_ped_m_vecObjective(lua_State* L) { // m_vecObjective (CPed) (x,y,z) — получить поле vecObjective (цель)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22808,7 +22808,7 @@ int set_ped_m_vecObjective(lua_State* L) { // уст. m_vecObjective (CPed) (x,y
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fObjectiveAngle(lua_State* L) { // m_fObjectiveAngle (CPed)
+int get_ped_m_fObjectiveAngle(lua_State* L) { // m_fObjectiveAngle (CPed) — получить поле fObjectiveAngle (цель, угол)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22834,7 +22834,7 @@ int set_ped_m_fObjectiveAngle(lua_State* L) { // уст. m_fObjectiveAngle (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nPedFormation(lua_State* L) { // m_nPedFormation (CPed)
+int get_ped_m_nPedFormation(lua_State* L) { // m_nPedFormation (CPed) — получить поле nPedFormation (пешеход, формация)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22860,7 +22860,7 @@ int set_ped_m_nPedFormation(lua_State* L) { // уст. m_nPedFormation (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nFearFlags(lua_State* L) { // m_nFearFlags (CPed)
+int get_ped_m_nFearFlags(lua_State* L) { // m_nFearFlags (CPed) — получить поле nFearFlags (страх, флаги)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22886,7 +22886,7 @@ int set_ped_m_nFearFlags(lua_State* L) { // уст. m_nFearFlags (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nEventType(lua_State* L) { // m_nEventType (CPed)
+int get_ped_m_nEventType(lua_State* L) { // m_nEventType (CPed) — получить поле nEventType (событие, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22912,7 +22912,7 @@ int set_ped_m_nEventType(lua_State* L) { // уст. m_nEventType (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fAngleToEvent(lua_State* L) { // m_fAngleToEvent (CPed)
+int get_ped_m_fAngleToEvent(lua_State* L) { // m_fAngleToEvent (CPed) — получить поле fAngleToEvent (угол, событие)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22938,7 +22938,7 @@ int set_ped_m_fAngleToEvent(lua_State* L) { // уст. m_fAngleToEvent (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nAnimGroupId(lua_State* L) { // m_nAnimGroupId (CPed)
+int get_ped_m_nAnimGroupId(lua_State* L) { // m_nAnimGroupId (CPed) — получить поле nAnimGroupId (анимация, группа)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22964,7 +22964,7 @@ int set_ped_m_nAnimGroupId(lua_State* L) { // уст. m_nAnimGroupId (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_vecOffsetSeek(lua_State* L) { // m_vecOffsetSeek (CPed) (x,y,z)
+int get_ped_m_vecOffsetSeek(lua_State* L) { // m_vecOffsetSeek (CPed) (x,y,z) — получить поле vecOffsetSeek (смещение, искать)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -22995,7 +22995,7 @@ int set_ped_m_vecOffsetSeek(lua_State* L) { // уст. m_vecOffsetSeek (CPed) (x
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nActionTimer(lua_State* L) { // m_nActionTimer (CPed)
+int get_ped_m_nActionTimer(lua_State* L) { // m_nActionTimer (CPed) — получить поле nActionTimer (действие, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23021,7 +23021,7 @@ int set_ped_m_nActionTimer(lua_State* L) { // уст. m_nActionTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nWaitState(lua_State* L) { // m_nWaitState (CPed)
+int get_ped_m_nWaitState(lua_State* L) { // m_nWaitState (CPed) — получить поле nWaitState (ждать, состояние)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23047,7 +23047,7 @@ int set_ped_m_nWaitState(lua_State* L) { // уст. m_nWaitState (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nWaitTimer(lua_State* L) { // m_nWaitTimer (CPed)
+int get_ped_m_nWaitTimer(lua_State* L) { // m_nWaitTimer (CPed) — получить поле nWaitTimer (ждать, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23073,7 +23073,7 @@ int set_ped_m_nWaitTimer(lua_State* L) { // уст. m_nWaitTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_wPathNodes(lua_State* L) { // m_wPathNodes (CPed)
+int get_ped_m_wPathNodes(lua_State* L) { // m_wPathNodes (CPed) — получить поле wPathNodes (путь, узлы)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23099,7 +23099,7 @@ int set_ped_m_wPathNodes(lua_State* L) { // уст. m_wPathNodes (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_wCurPathNode(lua_State* L) { // m_wCurPathNode (CPed)
+int get_ped_m_wCurPathNode(lua_State* L) { // m_wCurPathNode (CPed) — получить поле wCurPathNode (текущий, путь, узел)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23125,7 +23125,7 @@ int set_ped_m_wCurPathNode(lua_State* L) { // уст. m_wCurPathNode (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nPathNodeTimer(lua_State* L) { // m_nPathNodeTimer (CPed)
+int get_ped_m_nPathNodeTimer(lua_State* L) { // m_nPathNodeTimer (CPed) — получить поле nPathNodeTimer (путь, узел, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23151,7 +23151,7 @@ int set_ped_m_nPathNodeTimer(lua_State* L) { // уст. m_nPathNodeTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_vecPathNextNode(lua_State* L) { // m_vecPathNextNode (CPed) (x,y,z)
+int get_ped_m_vecPathNextNode(lua_State* L) { // m_vecPathNextNode (CPed) (x,y,z) — получить поле vecPathNextNode (путь, следующий, узел)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23182,7 +23182,7 @@ int set_ped_m_vecPathNextNode(lua_State* L) { // уст. m_vecPathNextNode (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fPathNextNodeDir(lua_State* L) { // m_fPathNextNodeDir (CPed)
+int get_ped_m_fPathNextNodeDir(lua_State* L) { // m_fPathNextNodeDir (CPed) — получить поле fPathNextNodeDir (путь, следующий, узел, направление)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23208,7 +23208,7 @@ int set_ped_m_fPathNextNodeDir(lua_State* L) { // уст. m_fPathNextNodeDir (CP
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nPathNodeType(lua_State* L) { // m_nPathNodeType (CPed)
+int get_ped_m_nPathNodeType(lua_State* L) { // m_nPathNodeType (CPed) — получить поле nPathNodeType (путь, узел, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23234,7 +23234,7 @@ int set_ped_m_nPathNodeType(lua_State* L) { // уст. m_nPathNodeType (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fHealth(lua_State* L) { // m_fHealth (CPed)
+int get_ped_m_fHealth(lua_State* L) { // m_fHealth (CPed) — получить поле fHealth (здоровье)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23260,7 +23260,7 @@ int set_ped_m_fHealth(lua_State* L) { // уст. m_fHealth (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fArmour(lua_State* L) { // m_fArmour (CPed)
+int get_ped_m_fArmour(lua_State* L) { // m_fArmour (CPed) — получить поле fArmour (броня)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23286,7 +23286,7 @@ int set_ped_m_fArmour(lua_State* L) { // уст. m_fArmour (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nShadowUpdateTimer(lua_State* L) { // m_nShadowUpdateTimer (CPed)
+int get_ped_m_nShadowUpdateTimer(lua_State* L) { // m_nShadowUpdateTimer (CPed) — получить поле nShadowUpdateTimer (тень, обновить, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23312,7 +23312,7 @@ int set_ped_m_nShadowUpdateTimer(lua_State* L) { // уст. m_nShadowUpdateTimer
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_wRouteLastPoint(lua_State* L) { // wRouteLastPoint (CPed)
+int get_ped_wRouteLastPoint(lua_State* L) { // wRouteLastPoint (CPed) — получить поле wRouteLastPoint (маршрут, последний, точка)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23338,7 +23338,7 @@ int set_ped_wRouteLastPoint(lua_State* L) { // уст. wRouteLastPoint (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_wRoutePoints(lua_State* L) { // wRoutePoints (CPed)
+int get_ped_wRoutePoints(lua_State* L) { // wRoutePoints (CPed) — получить поле wRoutePoints (маршрут, очки)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23364,7 +23364,7 @@ int set_ped_wRoutePoints(lua_State* L) { // уст. wRoutePoints (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_wRoutePos(lua_State* L) { // wRoutePos (CPed)
+int get_ped_wRoutePos(lua_State* L) { // wRoutePos (CPed) — получить поле wRoutePos (маршрут, позиция)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23390,7 +23390,7 @@ int set_ped_wRoutePos(lua_State* L) { // уст. wRoutePos (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_wRouteType(lua_State* L) { // wRouteType (CPed)
+int get_ped_wRouteType(lua_State* L) { // wRouteType (CPed) — получить поле wRouteType (маршрут, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23416,7 +23416,7 @@ int set_ped_wRouteType(lua_State* L) { // уст. wRouteType (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_wRouteCurDir(lua_State* L) { // wRouteCurDir (CPed)
+int get_ped_wRouteCurDir(lua_State* L) { // wRouteCurDir (CPed) — получить поле wRouteCurDir (маршрут, текущий, направление)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23442,7 +23442,7 @@ int set_ped_wRouteCurDir(lua_State* L) { // уст. wRouteCurDir (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fHeadingCurrent(lua_State* L) { // m_fHeadingCurrent (CPed)
+int get_ped_m_fHeadingCurrent(lua_State* L) { // m_fHeadingCurrent (CPed) — получить поле fHeadingCurrent (курс, текущий)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23468,7 +23468,7 @@ int set_ped_m_fHeadingCurrent(lua_State* L) { // уст. m_fHeadingCurrent (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fHeadingGoal(lua_State* L) { // m_fHeadingGoal (CPed)
+int get_ped_m_fHeadingGoal(lua_State* L) { // m_fHeadingGoal (CPed) — получить поле fHeadingGoal (курс, цель)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23494,7 +23494,7 @@ int set_ped_m_fHeadingGoal(lua_State* L) { // уст. m_fHeadingGoal (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fHeadingChangeRate(lua_State* L) { // m_fHeadingChangeRate (CPed)
+int get_ped_m_fHeadingChangeRate(lua_State* L) { // m_fHeadingChangeRate (CPed) — получить поле fHeadingChangeRate (курс, изменить, частота)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23520,7 +23520,7 @@ int set_ped_m_fHeadingChangeRate(lua_State* L) { // уст. m_fHeadingChangeRate
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nEnterType(lua_State* L) { // m_nEnterType (CPed)
+int get_ped_m_nEnterType(lua_State* L) { // m_nEnterType (CPed) — получить поле nEnterType (войти, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23546,7 +23546,7 @@ int set_ped_m_nEnterType(lua_State* L) { // уст. m_nEnterType (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nWalkAroundType(lua_State* L) { // m_nWalkAroundType (CPed)
+int get_ped_m_nWalkAroundType(lua_State* L) { // m_nWalkAroundType (CPed) — получить поле nWalkAroundType (ходить, вокруг, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23572,7 +23572,7 @@ int set_ped_m_nWalkAroundType(lua_State* L) { // уст. m_nWalkAroundType (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_vecOffsetFromPhysSurface(lua_State* L) { // m_vecOffsetFromPhysSurface (CPed) (x,y,z)
+int get_ped_m_vecOffsetFromPhysSurface(lua_State* L) { // m_vecOffsetFromPhysSurface (CPed) (x,y,z) — получить поле vecOffsetFromPhysSurface (смещение, физика, поверхность)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23603,7 +23603,7 @@ int set_ped_m_vecOffsetFromPhysSurface(lua_State* L) { // уст. m_vecOffsetFro
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_vecSeekVehicle(lua_State* L) { // vecSeekVehicle (CPed) (x,y,z)
+int get_ped_vecSeekVehicle(lua_State* L) { // vecSeekVehicle (CPed) (x,y,z) — получить поле vecSeekVehicle (искать, автомобиль)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23634,7 +23634,7 @@ int set_ped_vecSeekVehicle(lua_State* L) { // уст. vecSeekVehicle (CPed) (x,y
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_bInVehicle(lua_State* L) { // m_bInVehicle (CPed)
+int get_ped_m_bInVehicle(lua_State* L) { // m_bInVehicle (CPed) — получить поле bInVehicle (автомобиль)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23660,7 +23660,7 @@ int set_ped_m_bInVehicle(lua_State* L) { // уст. m_bInVehicle (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fSeatPrecisionX(lua_State* L) { // m_fSeatPrecisionX (CPed)
+int get_ped_m_fSeatPrecisionX(lua_State* L) { // m_fSeatPrecisionX (CPed) — получить поле fSeatPrecisionX (сиденье, точность, X)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23686,7 +23686,7 @@ int set_ped_m_fSeatPrecisionX(lua_State* L) { // уст. m_fSeatPrecisionX (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fSeatPrecisionY(lua_State* L) { // m_fSeatPrecisionY (CPed)
+int get_ped_m_fSeatPrecisionY(lua_State* L) { // m_fSeatPrecisionY (CPed) — получить поле fSeatPrecisionY (сиденье, точность, Y)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23712,7 +23712,7 @@ int set_ped_m_fSeatPrecisionY(lua_State* L) { // уст. m_fSeatPrecisionY (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nSeatType(lua_State* L) { // m_nSeatType (CPed)
+int get_ped_m_nSeatType(lua_State* L) { // m_nSeatType (CPed) — получить поле nSeatType (сиденье, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23738,7 +23738,7 @@ int set_ped_m_nSeatType(lua_State* L) { // уст. m_nSeatType (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_bHasPhone(lua_State* L) { // m_bHasPhone (CPed)
+int get_ped_m_bHasPhone(lua_State* L) { // m_bHasPhone (CPed) — получить поле bHasPhone (имеет, телефон)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23764,7 +23764,7 @@ int set_ped_m_bHasPhone(lua_State* L) { // уст. m_bHasPhone (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_wPhoneId(lua_State* L) { // m_wPhoneId (CPed)
+int get_ped_m_wPhoneId(lua_State* L) { // m_wPhoneId (CPed) — получить поле wPhoneId (телефон)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23790,7 +23790,7 @@ int set_ped_m_wPhoneId(lua_State* L) { // уст. m_wPhoneId (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nLookingForPhone(lua_State* L) { // m_nLookingForPhone (CPed)
+int get_ped_m_nLookingForPhone(lua_State* L) { // m_nLookingForPhone (CPed) — получить поле nLookingForPhone (смотрит, телефон)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23816,7 +23816,7 @@ int set_ped_m_nLookingForPhone(lua_State* L) { // уст. m_nLookingForPhone (CP
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nPhoneTalkTimer(lua_State* L) { // m_nPhoneTalkTimer (CPed)
+int get_ped_m_nPhoneTalkTimer(lua_State* L) { // m_nPhoneTalkTimer (CPed) — получить поле nPhoneTalkTimer (телефон, разговор, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23842,7 +23842,7 @@ int set_ped_m_nPhoneTalkTimer(lua_State* L) { // уст. m_nPhoneTalkTimer (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fFleeFromPosX(lua_State* L) { // m_fFleeFromPosX (CPed)
+int get_ped_m_fFleeFromPosX(lua_State* L) { // m_fFleeFromPosX (CPed) — получить поле fFleeFromPosX (побег, позиция, X)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23868,7 +23868,7 @@ int set_ped_m_fFleeFromPosX(lua_State* L) { // уст. m_fFleeFromPosX (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fFleeFromPosY(lua_State* L) { // m_fFleeFromPosY (CPed)
+int get_ped_m_fFleeFromPosY(lua_State* L) { // m_fFleeFromPosY (CPed) — получить поле fFleeFromPosY (побег, позиция, Y)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23894,7 +23894,7 @@ int set_ped_m_fFleeFromPosY(lua_State* L) { // уст. m_fFleeFromPosY (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nFleeTimer(lua_State* L) { // m_nFleeTimer (CPed)
+int get_ped_m_nFleeTimer(lua_State* L) { // m_nFleeTimer (CPed) — получить поле nFleeTimer (побег, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23920,7 +23920,7 @@ int set_ped_m_nFleeTimer(lua_State* L) { // уст. m_nFleeTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nLastThreatTimer(lua_State* L) { // m_nLastThreatTimer (CPed)
+int get_ped_m_nLastThreatTimer(lua_State* L) { // m_nLastThreatTimer (CPed) — получить поле nLastThreatTimer (последний, угроза, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23946,7 +23946,7 @@ int set_ped_m_nLastThreatTimer(lua_State* L) { // уст. m_nLastThreatTimer (CP
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nStateUnused(lua_State* L) { // m_nStateUnused (CPed)
+int get_ped_m_nStateUnused(lua_State* L) { // m_nStateUnused (CPed) — получить поле nStateUnused (состояние, неиспользуемый)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23972,7 +23972,7 @@ int set_ped_m_nStateUnused(lua_State* L) { // уст. m_nStateUnused (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nTimerUnused(lua_State* L) { // m_nTimerUnused (CPed)
+int get_ped_m_nTimerUnused(lua_State* L) { // m_nTimerUnused (CPed) — получить поле nTimerUnused (таймер, неиспользуемый)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -23998,7 +23998,7 @@ int set_ped_m_nTimerUnused(lua_State* L) { // уст. m_nTimerUnused (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nAtchStoredWep(lua_State* L) { // m_nAtchStoredWep (CPed)
+int get_ped_m_nAtchStoredWep(lua_State* L) { // m_nAtchStoredWep (CPed) — получить поле nAtchStoredWep (прикрепить, сохранено, оружие)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24024,7 +24024,7 @@ int set_ped_m_nAtchStoredWep(lua_State* L) { // уст. m_nAtchStoredWep (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nStoredGiveWep(lua_State* L) { // m_nStoredGiveWep (CPed)
+int get_ped_m_nStoredGiveWep(lua_State* L) { // m_nStoredGiveWep (CPed) — получить поле nStoredGiveWep (сохранено, дать, оружие)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24050,7 +24050,7 @@ int set_ped_m_nStoredGiveWep(lua_State* L) { // уст. m_nStoredGiveWep (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nStoredGiveAmmo(lua_State* L) { // m_nStoredGiveAmmo (CPed)
+int get_ped_m_nStoredGiveAmmo(lua_State* L) { // m_nStoredGiveAmmo (CPed) — получить поле nStoredGiveAmmo (сохранено, дать, патроны)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24076,7 +24076,7 @@ int set_ped_m_nStoredGiveAmmo(lua_State* L) { // уст. m_nStoredGiveAmmo (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nCurrentWeapon(lua_State* L) { // m_nCurrentWeapon (CPed)
+int get_ped_m_nCurrentWeapon(lua_State* L) { // m_nCurrentWeapon (CPed) — получить поле nCurrentWeapon (текущий, оружие)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24102,7 +24102,7 @@ int set_ped_m_nCurrentWeapon(lua_State* L) { // уст. m_nCurrentWeapon (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nWepSkills(lua_State* L) { // m_nWepSkills (CPed)
+int get_ped_m_nWepSkills(lua_State* L) { // m_nWepSkills (CPed) — получить поле nWepSkills (оружие, навыки)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24128,7 +24128,7 @@ int set_ped_m_nWepSkills(lua_State* L) { // уст. m_nWepSkills (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nWeaponAccuracy(lua_State* L) { // m_nWeaponAccuracy (CPed)
+int get_ped_m_nWeaponAccuracy(lua_State* L) { // m_nWeaponAccuracy (CPed) — получить поле nWeaponAccuracy (оружие, точность)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24154,7 +24154,7 @@ int set_ped_m_nWeaponAccuracy(lua_State* L) { // уст. m_nWeaponAccuracy (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nBodyPart(lua_State* L) { // m_nBodyPart (CPed)
+int get_ped_m_nBodyPart(lua_State* L) { // m_nBodyPart (CPed) — получить поле nBodyPart (кузов, часть)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24180,7 +24180,7 @@ int set_ped_m_nBodyPart(lua_State* L) { // уст. m_nBodyPart (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_vecHitLastPos(lua_State* L) { // m_vecHitLastPos (CPed) (x,y,z)
+int get_ped_m_vecHitLastPos(lua_State* L) { // m_vecHitLastPos (CPed) (x,y,z) — получить поле vecHitLastPos (попадание, последний, позиция)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24211,7 +24211,7 @@ int set_ped_m_vecHitLastPos(lua_State* L) { // уст. m_vecHitLastPos (CPed) (x
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nHitCounter(lua_State* L) { // m_nHitCounter (CPed)
+int get_ped_m_nHitCounter(lua_State* L) { // m_nHitCounter (CPed) — получить поле nHitCounter (попадание, счётчик)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24237,7 +24237,7 @@ int set_ped_m_nHitCounter(lua_State* L) { // уст. m_nHitCounter (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nLastHitState(lua_State* L) { // m_nLastHitState (CPed)
+int get_ped_m_nLastHitState(lua_State* L) { // m_nLastHitState (CPed) — получить поле nLastHitState (последний, попадание, состояние)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24263,7 +24263,7 @@ int set_ped_m_nLastHitState(lua_State* L) { // уст. m_nLastHitState (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nFightFlags1(lua_State* L) { // m_nFightFlags1 (CPed)
+int get_ped_m_nFightFlags1(lua_State* L) { // m_nFightFlags1 (CPed) — получить поле nFightFlags1 (драка, флаги 1)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24289,7 +24289,7 @@ int set_ped_m_nFightFlags1(lua_State* L) { // уст. m_nFightFlags1 (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nFightFlags2(lua_State* L) { // m_nFightFlags2 (CPed)
+int get_ped_m_nFightFlags2(lua_State* L) { // m_nFightFlags2 (CPed) — получить поле nFightFlags2 (драка, флаги 2)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24315,7 +24315,7 @@ int set_ped_m_nFightFlags2(lua_State* L) { // уст. m_nFightFlags2 (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nFightFlags3(lua_State* L) { // m_nFightFlags3 (CPed)
+int get_ped_m_nFightFlags3(lua_State* L) { // m_nFightFlags3 (CPed) — получить поле nFightFlags3 (драка, флаги 3)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24341,7 +24341,7 @@ int set_ped_m_nFightFlags3(lua_State* L) { // уст. m_nFightFlags3 (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nBleedCounter(lua_State* L) { // m_nBleedCounter (CPed)
+int get_ped_m_nBleedCounter(lua_State* L) { // m_nBleedCounter (CPed) — получить поле nBleedCounter (кровотечение, счётчик)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24367,7 +24367,7 @@ int set_ped_m_nBleedCounter(lua_State* L) { // уст. m_nBleedCounter (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fLookDirection(lua_State* L) { // m_fLookDirection (CPed)
+int get_ped_m_fLookDirection(lua_State* L) { // m_fLookDirection (CPed) — получить поле fLookDirection (смотреть, направление)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24393,7 +24393,7 @@ int set_ped_m_fLookDirection(lua_State* L) { // уст. m_fLookDirection (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nWepModelID(lua_State* L) { // m_nWepModelID (CPed)
+int get_ped_m_nWepModelID(lua_State* L) { // m_nWepModelID (CPed) — получить поле nWepModelID (оружие, модель)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24419,7 +24419,7 @@ int set_ped_m_nWepModelID(lua_State* L) { // уст. m_nWepModelID (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nLeaveCarTimer(lua_State* L) { // m_nLeaveCarTimer (CPed)
+int get_ped_m_nLeaveCarTimer(lua_State* L) { // m_nLeaveCarTimer (CPed) — получить поле nLeaveCarTimer (оставить, авто, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24445,7 +24445,7 @@ int set_ped_m_nLeaveCarTimer(lua_State* L) { // уст. m_nLeaveCarTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nGetUpTimer(lua_State* L) { // m_nGetUpTimer (CPed)
+int get_ped_m_nGetUpTimer(lua_State* L) { // m_nGetUpTimer (CPed) — получить поле nGetUpTimer (получить, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24471,7 +24471,7 @@ int set_ped_m_nGetUpTimer(lua_State* L) { // уст. m_nGetUpTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nLookTimer(lua_State* L) { // m_nLookTimer (CPed)
+int get_ped_m_nLookTimer(lua_State* L) { // m_nLookTimer (CPed) — получить поле nLookTimer (смотреть, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24497,7 +24497,7 @@ int set_ped_m_nLookTimer(lua_State* L) { // уст. m_nLookTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nStandardTimer(lua_State* L) { // m_nStandardTimer (CPed)
+int get_ped_m_nStandardTimer(lua_State* L) { // m_nStandardTimer (CPed) — получить поле nStandardTimer (стандартный, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24523,7 +24523,7 @@ int set_ped_m_nStandardTimer(lua_State* L) { // уст. m_nStandardTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nAttackTimer(lua_State* L) { // m_nAttackTimer (CPed)
+int get_ped_m_nAttackTimer(lua_State* L) { // m_nAttackTimer (CPed) — получить поле nAttackTimer (атака, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24549,7 +24549,7 @@ int set_ped_m_nAttackTimer(lua_State* L) { // уст. m_nAttackTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nLastHitTime(lua_State* L) { // m_nLastHitTime (CPed)
+int get_ped_m_nLastHitTime(lua_State* L) { // m_nLastHitTime (CPed) — получить поле nLastHitTime (последний, попадание, время)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24575,7 +24575,7 @@ int set_ped_m_nLastHitTime(lua_State* L) { // уст. m_nLastHitTime (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nHitRecoverTimer(lua_State* L) { // m_nHitRecoverTimer (CPed)
+int get_ped_m_nHitRecoverTimer(lua_State* L) { // m_nHitRecoverTimer (CPed) — получить поле nHitRecoverTimer (попадание, восстановить, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24601,7 +24601,7 @@ int set_ped_m_nHitRecoverTimer(lua_State* L) { // уст. m_nHitRecoverTimer (CP
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nObjectiveTimer(lua_State* L) { // m_nObjectiveTimer (CPed)
+int get_ped_m_nObjectiveTimer(lua_State* L) { // m_nObjectiveTimer (CPed) — получить поле nObjectiveTimer (цель, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24627,7 +24627,7 @@ int set_ped_m_nObjectiveTimer(lua_State* L) { // уст. m_nObjectiveTimer (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nDuckTimer(lua_State* L) { // m_nDuckTimer (CPed)
+int get_ped_m_nDuckTimer(lua_State* L) { // m_nDuckTimer (CPed) — получить поле nDuckTimer (утка, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24653,7 +24653,7 @@ int set_ped_m_nDuckTimer(lua_State* L) { // уст. m_nDuckTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nDuckAndCoverTimer(lua_State* L) { // m_nDuckAndCoverTimer (CPed)
+int get_ped_m_nDuckAndCoverTimer(lua_State* L) { // m_nDuckAndCoverTimer (CPed) — получить поле nDuckAndCoverTimer (утка, покрытие, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24679,7 +24679,7 @@ int set_ped_m_nDuckAndCoverTimer(lua_State* L) { // уст. m_nDuckAndCoverTimer
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nBloodyTimer(lua_State* L) { // m_nBloodyTimer (CPed)
+int get_ped_m_nBloodyTimer(lua_State* L) { // m_nBloodyTimer (CPed) — получить поле nBloodyTimer (кровавый, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24705,7 +24705,7 @@ int set_ped_m_nBloodyTimer(lua_State* L) { // уст. m_nBloodyTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nShotTime(lua_State* L) { // m_nShotTime (CPed)
+int get_ped_m_nShotTime(lua_State* L) { // m_nShotTime (CPed) — получить поле nShotTime (выстрел, время)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24731,7 +24731,7 @@ int set_ped_m_nShotTime(lua_State* L) { // уст. m_nShotTime (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nShotTimeAdd(lua_State* L) { // m_nShotTimeAdd (CPed)
+int get_ped_m_nShotTimeAdd(lua_State* L) { // m_nShotTimeAdd (CPed) — получить поле nShotTimeAdd (выстрел, время, добавить)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24757,7 +24757,7 @@ int set_ped_m_nShotTimeAdd(lua_State* L) { // уст. m_nShotTimeAdd (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nPanicCounter(lua_State* L) { // m_nPanicCounter (CPed)
+int get_ped_m_nPanicCounter(lua_State* L) { // m_nPanicCounter (CPed) — получить поле nPanicCounter (паника, счётчик)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24783,7 +24783,7 @@ int set_ped_m_nPanicCounter(lua_State* L) { // уст. m_nPanicCounter (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nDeadBleeding(lua_State* L) { // m_nDeadBleeding (CPed)
+int get_ped_m_nDeadBleeding(lua_State* L) { // m_nDeadBleeding (CPed) — получить поле nDeadBleeding (мёртв, кровотечение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24809,7 +24809,7 @@ int set_ped_m_nDeadBleeding(lua_State* L) { // уст. m_nDeadBleeding (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nBodyPartBleeding(lua_State* L) { // m_nBodyPartBleeding (CPed)
+int get_ped_m_nBodyPartBleeding(lua_State* L) { // m_nBodyPartBleeding (CPed) — получить поле nBodyPartBleeding (кузов, часть, кровотечение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24835,7 +24835,7 @@ int set_ped_m_nBodyPartBleeding(lua_State* L) { // уст. m_nBodyPartBleeding (
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nNumNearPeds(lua_State* L) { // m_nNumNearPeds (CPed)
+int get_ped_m_nNumNearPeds(lua_State* L) { // m_nNumNearPeds (CPed) — получить поле nNumNearPeds (около, пешеходы)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24861,7 +24861,7 @@ int set_ped_m_nNumNearPeds(lua_State* L) { // уст. m_nNumNearPeds (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nPedMoney(lua_State* L) { // m_nPedMoney (CPed)
+int get_ped_m_nPedMoney(lua_State* L) { // m_nPedMoney (CPed) — получить поле nPedMoney (пешеход, деньги)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24887,7 +24887,7 @@ int set_ped_m_nPedMoney(lua_State* L) { // уст. m_nPedMoney (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nLastDamWep(lua_State* L) { // m_nLastDamWep (CPed)
+int get_ped_m_nLastDamWep(lua_State* L) { // m_nLastDamWep (CPed) — получить поле nLastDamWep (последний, урон, оружие)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24913,7 +24913,7 @@ int set_ped_m_nLastDamWep(lua_State* L) { // уст. m_nLastDamWep (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_vecAttachOffset(lua_State* L) { // m_vecAttachOffset (CPed) (x,y,z)
+int get_ped_m_vecAttachOffset(lua_State* L) { // m_vecAttachOffset (CPed) (x,y,z) — получить поле vecAttachOffset (прикрепить, смещение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24944,7 +24944,7 @@ int set_ped_m_vecAttachOffset(lua_State* L) { // уст. m_vecAttachOffset (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nAttachType(lua_State* L) { // m_nAttachType (CPed)
+int get_ped_m_nAttachType(lua_State* L) { // m_nAttachType (CPed) — получить поле nAttachType (прикрепить, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24970,7 +24970,7 @@ int set_ped_m_nAttachType(lua_State* L) { // уст. m_nAttachType (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fAttachRot(lua_State* L) { // m_fAttachRot (CPed)
+int get_ped_m_fAttachRot(lua_State* L) { // m_fAttachRot (CPed) — получить поле fAttachRot (прикрепить, поворот)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -24996,7 +24996,7 @@ int set_ped_m_fAttachRot(lua_State* L) { // уст. m_fAttachRot (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nAttachWepAmmo(lua_State* L) { // m_nAttachWepAmmo (CPed)
+int get_ped_m_nAttachWepAmmo(lua_State* L) { // m_nAttachWepAmmo (CPed) — получить поле nAttachWepAmmo (прикрепить, оружие, патроны)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25022,7 +25022,7 @@ int set_ped_m_nAttachWepAmmo(lua_State* L) { // уст. m_nAttachWepAmmo (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nThreatFlags(lua_State* L) { // m_nThreatFlags (CPed)
+int get_ped_m_nThreatFlags(lua_State* L) { // m_nThreatFlags (CPed) — получить поле nThreatFlags (угроза, флаги)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25048,7 +25048,7 @@ int set_ped_m_nThreatFlags(lua_State* L) { // уст. m_nThreatFlags (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nThreatCheck(lua_State* L) { // m_nThreatCheck (CPed)
+int get_ped_m_nThreatCheck(lua_State* L) { // m_nThreatCheck (CPed) — получить поле nThreatCheck (угроза, проверить)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25074,7 +25074,7 @@ int set_ped_m_nThreatCheck(lua_State* L) { // уст. m_nThreatCheck (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nLastThreatCheck(lua_State* L) { // m_nLastThreatCheck (CPed)
+int get_ped_m_nLastThreatCheck(lua_State* L) { // m_nLastThreatCheck (CPed) — получить поле nLastThreatCheck (последний, угроза, проверить)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25100,7 +25100,7 @@ int set_ped_m_nLastThreatCheck(lua_State* L) { // уст. m_nLastThreatCheck (CP
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nSayType(lua_State* L) { // m_nSayType (CPed)
+int get_ped_m_nSayType(lua_State* L) { // m_nSayType (CPed) — получить поле nSayType (сказать, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25126,7 +25126,7 @@ int set_ped_m_nSayType(lua_State* L) { // уст. m_nSayType (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nSayTimer(lua_State* L) { // m_nSayTimer (CPed)
+int get_ped_m_nSayTimer(lua_State* L) { // m_nSayTimer (CPed) — получить поле nSayTimer (сказать, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25152,7 +25152,7 @@ int set_ped_m_nSayTimer(lua_State* L) { // уст. m_nSayTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nTalkTimerLast(lua_State* L) { // m_nTalkTimerLast (CPed)
+int get_ped_m_nTalkTimerLast(lua_State* L) { // m_nTalkTimerLast (CPed) — получить поле nTalkTimerLast (разговор, таймер, последний)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25178,7 +25178,7 @@ int set_ped_m_nTalkTimerLast(lua_State* L) { // уст. m_nTalkTimerLast (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nTalkTimer(lua_State* L) { // m_nTalkTimer (CPed)
+int get_ped_m_nTalkTimer(lua_State* L) { // m_nTalkTimer (CPed) — получить поле nTalkTimer (разговор, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25204,7 +25204,7 @@ int set_ped_m_nTalkTimer(lua_State* L) { // уст. m_nTalkTimer (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_wTalkTypeLast(lua_State* L) { // m_wTalkTypeLast (CPed)
+int get_ped_m_wTalkTypeLast(lua_State* L) { // m_wTalkTypeLast (CPed) — получить поле wTalkTypeLast (разговор, тип, последний)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25230,7 +25230,7 @@ int set_ped_m_wTalkTypeLast(lua_State* L) { // уст. m_wTalkTypeLast (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_wTalkType(lua_State* L) { // m_wTalkType (CPed)
+int get_ped_m_wTalkType(lua_State* L) { // m_wTalkType (CPed) — получить поле wTalkType (разговор, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25256,7 +25256,7 @@ int set_ped_m_wTalkType(lua_State* L) { // уст. m_wTalkType (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_bCanPedTalk(lua_State* L) { // m_bCanPedTalk (CPed)
+int get_ped_m_bCanPedTalk(lua_State* L) { // m_bCanPedTalk (CPed) — получить поле bCanPedTalk (может, пешеход, разговор)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25282,7 +25282,7 @@ int set_ped_m_bCanPedTalk(lua_State* L) { // уст. m_bCanPedTalk (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_nPedLastComment(lua_State* L) { // m_nPedLastComment (CPed)
+int get_ped_m_nPedLastComment(lua_State* L) { // m_nPedLastComment (CPed) — получить поле nPedLastComment (пешеход, последний, комментарий)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25308,7 +25308,7 @@ int set_ped_m_nPedLastComment(lua_State* L) { // уст. m_nPedLastComment (CPed
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_vecSeekPosEx(lua_State* L) { // m_vecSeekPosEx (CPed) (x,y,z)
+int get_ped_m_vecSeekPosEx(lua_State* L) { // m_vecSeekPosEx (CPed) (x,y,z) — получить поле vecSeekPosEx (искать, позиция)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25339,7 +25339,7 @@ int set_ped_m_vecSeekPosEx(lua_State* L) { // уст. m_vecSeekPosEx (CPed) (x,y
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_ped_m_fSeekExAngle(lua_State* L) { // m_fSeekExAngle (CPed)
+int get_ped_m_fSeekExAngle(lua_State* L) { // m_fSeekExAngle (CPed) — получить поле fSeekExAngle (искать, угол)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25365,7 +25365,7 @@ int set_ped_m_fSeekExAngle(lua_State* L) { // уст. m_fSeekExAngle (CPed)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_obj_m_nObjectType(lua_State* L) { // m_nObjectType (CObject)
+int get_obj_m_nObjectType(lua_State* L) { // m_nObjectType (CObject) — получить поле nObjectType (объект, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25391,7 +25391,7 @@ int set_obj_m_nObjectType(lua_State* L) { // уст. m_nObjectType (CObject)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_obj_m_nBonusValue(lua_State* L) { // m_nBonusValue (CObject)
+int get_obj_m_nBonusValue(lua_State* L) { // m_nBonusValue (CObject) — получить поле nBonusValue (бонус, значение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25417,7 +25417,7 @@ int set_obj_m_nBonusValue(lua_State* L) { // уст. m_nBonusValue (CObject)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_obj_m_wCostValue(lua_State* L) { // m_wCostValue (CObject)
+int get_obj_m_wCostValue(lua_State* L) { // m_wCostValue (CObject) — получить поле wCostValue (стоимость, значение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25443,7 +25443,7 @@ int set_obj_m_wCostValue(lua_State* L) { // уст. m_wCostValue (CObject)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_obj_m_fDamageMultiplier(lua_State* L) { // m_fDamageMultiplier (CObject)
+int get_obj_m_fDamageMultiplier(lua_State* L) { // m_fDamageMultiplier (CObject) — получить поле fDamageMultiplier (повреждение, множитель)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25469,7 +25469,7 @@ int set_obj_m_fDamageMultiplier(lua_State* L) { // уст. m_fDamageMultiplier (
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_obj_m_bCameraAvoids(lua_State* L) { // m_bCameraAvoids (CObject)
+int get_obj_m_bCameraAvoids(lua_State* L) { // m_bCameraAvoids (CObject) — получить поле bCameraAvoids (камера, избегает)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25495,7 +25495,7 @@ int set_obj_m_bCameraAvoids(lua_State* L) { // уст. m_bCameraAvoids (CObject)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_obj_m_wRefModelId(lua_State* L) { // m_wRefModelId (CObject)
+int get_obj_m_wRefModelId(lua_State* L) { // m_wRefModelId (CObject) — получить поле wRefModelId (ссылка, модель)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25521,7 +25521,7 @@ int set_obj_m_wRefModelId(lua_State* L) { // уст. m_wRefModelId (CObject)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nAudioEntityId(lua_State* L) { // m_nAudioEntityId (CPhysical)
+int get_car_m_nAudioEntityId(lua_State* L) { // m_nAudioEntityId (CPhysical) — получить поле nAudioEntityId (звук, сущность)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25549,7 +25549,7 @@ int set_car_m_nAudioEntityId(lua_State* L) { // уст. m_nAudioEntityId (CPhysi
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_vecMoveSpeed(lua_State* L) { // m_vecMoveSpeed (CPhysical) (x,y,z)
+int get_car_m_vecMoveSpeed(lua_State* L) { // m_vecMoveSpeed (CPhysical) (x,y,z) — получить поле vecMoveSpeed (переместить, скорость)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25582,7 +25582,7 @@ int set_car_m_vecMoveSpeed(lua_State* L) { // уст. m_vecMoveSpeed (CPhysical)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_vecTurnSpeed(lua_State* L) { // m_vecTurnSpeed (CPhysical) (x,y,z)
+int get_car_m_vecTurnSpeed(lua_State* L) { // m_vecTurnSpeed (CPhysical) (x,y,z) — получить поле vecTurnSpeed (повернуть, скорость)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25615,7 +25615,7 @@ int set_car_m_vecTurnSpeed(lua_State* L) { // уст. m_vecTurnSpeed (CPhysical)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_vecFrictionMoveForce(lua_State* L) { // m_vecFrictionMoveForce (CPhysical) (x,y,z)
+int get_car_m_vecFrictionMoveForce(lua_State* L) { // m_vecFrictionMoveForce (CPhysical) (x,y,z) — получить поле vecFrictionMoveForce (трение, переместить, сила)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25648,7 +25648,7 @@ int set_car_m_vecFrictionMoveForce(lua_State* L) { // уст. m_vecFrictionMoveF
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_vecFrictionTurnForce(lua_State* L) { // m_vecFrictionTurnForce (CPhysical) (x,y,z)
+int get_car_m_vecFrictionTurnForce(lua_State* L) { // m_vecFrictionTurnForce (CPhysical) (x,y,z) — получить поле vecFrictionTurnForce (трение, повернуть, сила)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25681,7 +25681,7 @@ int set_car_m_vecFrictionTurnForce(lua_State* L) { // уст. m_vecFrictionTurnF
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_vecForce(lua_State* L) { // m_vecForce (CPhysical) (x,y,z)
+int get_car_m_vecForce(lua_State* L) { // m_vecForce (CPhysical) (x,y,z) — получить поле vecForce (сила)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25714,7 +25714,7 @@ int set_car_m_vecForce(lua_State* L) { // уст. m_vecForce (CPhysical) (x,y,z)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_vecTorque(lua_State* L) { // m_vecTorque (CPhysical) (x,y,z)
+int get_car_m_vecTorque(lua_State* L) { // m_vecTorque (CPhysical) (x,y,z) — получить поле vecTorque (крутящий момент)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25747,7 +25747,7 @@ int set_car_m_vecTorque(lua_State* L) { // уст. m_vecTorque (CPhysical) (x,y,
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fMass(lua_State* L) { // m_fMass (CPhysical)
+int get_car_m_fMass(lua_State* L) { // m_fMass (CPhysical) — получить поле fMass (масса)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25775,7 +25775,7 @@ int set_car_m_fMass(lua_State* L) { // уст. m_fMass (CPhysical)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fTurnMass(lua_State* L) { // m_fTurnMass (CPhysical)
+int get_car_m_fTurnMass(lua_State* L) { // m_fTurnMass (CPhysical) — получить поле fTurnMass (повернуть, масса)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25803,7 +25803,7 @@ int set_car_m_fTurnMass(lua_State* L) { // уст. m_fTurnMass (CPhysical)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fVelocityFrequency(lua_State* L) { // m_fVelocityFrequency (CPhysical)
+int get_car_m_fVelocityFrequency(lua_State* L) { // m_fVelocityFrequency (CPhysical) — получить поле fVelocityFrequency (скорость, частота)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25831,7 +25831,7 @@ int set_car_m_fVelocityFrequency(lua_State* L) { // уст. m_fVelocityFrequency
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fAirResistance(lua_State* L) { // m_fAirResistance (CPhysical)
+int get_car_m_fAirResistance(lua_State* L) { // m_fAirResistance (CPhysical) — получить поле fAirResistance (воздух, сопротивление)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25859,7 +25859,7 @@ int set_car_m_fAirResistance(lua_State* L) { // уст. m_fAirResistance (CPhysi
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fElasticity(lua_State* L) { // m_fElasticity (CPhysical)
+int get_car_m_fElasticity(lua_State* L) { // m_fElasticity (CPhysical) — получить поле fElasticity (упругость)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25887,7 +25887,7 @@ int set_car_m_fElasticity(lua_State* L) { // уст. m_fElasticity (CPhysical)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fBuoyancyConstant(lua_State* L) { // m_fBuoyancyConstant (CPhysical)
+int get_car_m_fBuoyancyConstant(lua_State* L) { // m_fBuoyancyConstant (CPhysical) — получить поле fBuoyancyConstant (плавучесть, константа)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25915,7 +25915,7 @@ int set_car_m_fBuoyancyConstant(lua_State* L) { // уст. m_fBuoyancyConstant (
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_vecCentreOfMass(lua_State* L) { // m_vecCentreOfMass (CPhysical) (x,y,z)
+int get_car_m_vecCentreOfMass(lua_State* L) { // m_vecCentreOfMass (CPhysical) (x,y,z) — получить поле vecCentreOfMass (центр, масса)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25948,7 +25948,7 @@ int set_car_m_vecCentreOfMass(lua_State* L) { // уст. m_vecCentreOfMass (CPhy
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nNumCollisionRecords(lua_State* L) { // m_nNumCollisionRecords (CPhysical)
+int get_car_m_nNumCollisionRecords(lua_State* L) { // m_nNumCollisionRecords (CPhysical) — получить поле nNumCollisionRecords (столкновение, рекорды)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -25976,7 +25976,7 @@ int set_car_m_nNumCollisionRecords(lua_State* L) { // уст. m_nNumCollisionRec
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fTotSpeed(lua_State* L) { // m_fTotSpeed (CPhysical)
+int get_car_m_fTotSpeed(lua_State* L) { // m_fTotSpeed (CPhysical) — получить поле fTotSpeed (всего, скорость)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26004,7 +26004,7 @@ int set_car_m_fTotSpeed(lua_State* L) { // уст. m_fTotSpeed (CPhysical)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fCollisionPower(lua_State* L) { // m_fCollisionPower (CPhysical)
+int get_car_m_fCollisionPower(lua_State* L) { // m_fCollisionPower (CPhysical) — получить поле fCollisionPower (столкновение, мощность)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26032,7 +26032,7 @@ int set_car_m_fCollisionPower(lua_State* L) { // уст. m_fCollisionPower (CPhy
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_vecCollisionPower(lua_State* L) { // m_vecCollisionPower (CPhysical) (x,y,z)
+int get_car_m_vecCollisionPower(lua_State* L) { // m_vecCollisionPower (CPhysical) (x,y,z) — получить поле vecCollisionPower (столкновение, мощность)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26065,7 +26065,7 @@ int set_car_m_vecCollisionPower(lua_State* L) { // уст. m_vecCollisionPower (
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_wComponentCol(lua_State* L) { // m_wComponentCol (CPhysical)
+int get_car_m_wComponentCol(lua_State* L) { // m_wComponentCol (CPhysical) — получить поле wComponentCol (компонент, коллизия)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26093,7 +26093,7 @@ int set_car_m_wComponentCol(lua_State* L) { // уст. m_wComponentCol (CPhysica
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nMoveFlags(lua_State* L) { // m_nMoveFlags (CPhysical)
+int get_car_m_nMoveFlags(lua_State* L) { // m_nMoveFlags (CPhysical) — получить поле nMoveFlags (переместить, флаги)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26121,7 +26121,7 @@ int set_car_m_nMoveFlags(lua_State* L) { // уст. m_nMoveFlags (CPhysical)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nCollFlags(lua_State* L) { // m_nCollFlags (CPhysical)
+int get_car_m_nCollFlags(lua_State* L) { // m_nCollFlags (CPhysical) — получить поле nCollFlags (коллизия, флаги)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26149,7 +26149,7 @@ int set_car_m_nCollFlags(lua_State* L) { // уст. m_nCollFlags (CPhysical)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nLastCollType(lua_State* L) { // m_nLastCollType (CPhysical)
+int get_car_m_nLastCollType(lua_State* L) { // m_nLastCollType (CPhysical) — получить поле nLastCollType (последний, коллизия, тип)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26177,7 +26177,7 @@ int set_car_m_nLastCollType(lua_State* L) { // уст. m_nLastCollType (CPhysica
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nZoneLevel(lua_State* L) { // m_nZoneLevel (CPhysical)
+int get_car_m_nZoneLevel(lua_State* L) { // m_nZoneLevel (CPhysical) — получить поле nZoneLevel (зона, уровень)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26205,7 +26205,7 @@ int set_car_m_nZoneLevel(lua_State* L) { // уст. m_nZoneLevel (CPhysical)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_fNegSpeed(lua_State* L) { // fNegSpeed (CAutomobile)
+int get_car_fNegSpeed(lua_State* L) { // fNegSpeed (CAutomobile) — получить поле fNegSpeed (отрицательный, скорость)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26235,7 +26235,7 @@ int set_car_fNegSpeed(lua_State* L) { // уст. fNegSpeed (CAutomobile)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_fAIGripMultiplier(lua_State* L) { // fAIGripMultiplier (CAutomobile)
+int get_car_fAIGripMultiplier(lua_State* L) { // fAIGripMultiplier (CAutomobile) — получить поле fAIGripMultiplier (ИИ, сцепление, множитель)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26265,7 +26265,7 @@ int set_car_fAIGripMultiplier(lua_State* L) { // уст. fAIGripMultiplier (CAut
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_fSpecialWepRotH(lua_State* L) { // fSpecialWepRotH (CAutomobile)
+int get_car_fSpecialWepRotH(lua_State* L) { // fSpecialWepRotH (CAutomobile) — получить поле fSpecialWepRotH (специальный, оружие, поворот)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26295,7 +26295,7 @@ int set_car_fSpecialWepRotH(lua_State* L) { // уст. fSpecialWepRotH (CAutomob
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_fSpecialWepRotV(lua_State* L) { // fSpecialWepRotV (CAutomobile)
+int get_car_fSpecialWepRotV(lua_State* L) { // fSpecialWepRotV (CAutomobile) — получить поле fSpecialWepRotV (специальный, оружие, поворот)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26325,7 +26325,7 @@ int set_car_fSpecialWepRotV(lua_State* L) { // уст. fSpecialWepRotV (CAutomob
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_fSpecialSteering(lua_State* L) { // fSpecialSteering (CAutomobile)
+int get_car_fSpecialSteering(lua_State* L) { // fSpecialSteering (CAutomobile) — получить поле fSpecialSteering (специальный, рулевое управление)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26355,7 +26355,7 @@ int set_car_fSpecialSteering(lua_State* L) { // уст. fSpecialSteering (CAutom
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_fSpecialMoveState(lua_State* L) { // fSpecialMoveState (CAutomobile)
+int get_car_fSpecialMoveState(lua_State* L) { // fSpecialMoveState (CAutomobile) — получить поле fSpecialMoveState (специальный, переместить, состояние)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26385,7 +26385,7 @@ int set_car_fSpecialMoveState(lua_State* L) { // уст. fSpecialMoveState (CAut
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_fSkidMarkDensity(lua_State* L) { // fSkidMarkDensity (CAutomobile)
+int get_car_fSkidMarkDensity(lua_State* L) { // fSkidMarkDensity (CAutomobile) — получить поле fSkidMarkDensity (след шин, маркер, плотность)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26415,7 +26415,7 @@ int set_car_fSkidMarkDensity(lua_State* L) { // уст. fSkidMarkDensity (CAutom
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fPropRotation(lua_State* L) { // m_fPropRotation (CBoat)
+int get_car_m_fPropRotation(lua_State* L) { // m_fPropRotation (CBoat) — получить поле fPropRotation (реквизит, вращение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26445,7 +26445,7 @@ int set_car_m_fPropRotation(lua_State* L) { // уст. m_fPropRotation (CBoat)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fPropSpeed(lua_State* L) { // m_fPropSpeed (CBoat)
+int get_car_m_fPropSpeed(lua_State* L) { // m_fPropSpeed (CBoat) — получить поле fPropSpeed (реквизит, скорость)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26475,7 +26475,7 @@ int set_car_m_fPropSpeed(lua_State* L) { // уст. m_fPropSpeed (CBoat)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fForcedZRotation(lua_State* L) { // m_fForcedZRotation (CBoat)
+int get_car_m_fForcedZRotation(lua_State* L) { // m_fForcedZRotation (CBoat) — получить поле fForcedZRotation (принудительно, Z, вращение)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26505,7 +26505,7 @@ int set_car_m_fForcedZRotation(lua_State* L) { // уст. m_fForcedZRotation (CB
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nAttackPlayerTime(lua_State* L) { // m_nAttackPlayerTime (CBoat)
+int get_car_m_nAttackPlayerTime(lua_State* L) { // m_nAttackPlayerTime (CBoat) — получить поле nAttackPlayerTime (атака, игрок, время)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26535,7 +26535,7 @@ int set_car_m_nAttackPlayerTime(lua_State* L) { // уст. m_nAttackPlayerTime (
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fBurningTimer(lua_State* L) { // m_fBurningTimer (CBoat)
+int get_car_m_fBurningTimer(lua_State* L) { // m_fBurningTimer (CBoat) — получить поле fBurningTimer (горение, таймер)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26565,7 +26565,7 @@ int set_car_m_fBurningTimer(lua_State* L) { // уст. m_fBurningTimer (CBoat)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fBoatGasPedal(lua_State* L) { // m_fBoatGasPedal (CBoat)
+int get_car_m_fBoatGasPedal(lua_State* L) { // m_fBoatGasPedal (CBoat) — получить поле fBoatGasPedal (лодка, газ, педаль)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26595,7 +26595,7 @@ int set_car_m_fBoatGasPedal(lua_State* L) { // уст. m_fBoatGasPedal (CBoat)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fBoatBrakePedal(lua_State* L) { // m_fBoatBrakePedal (CBoat)
+int get_car_m_fBoatBrakePedal(lua_State* L) { // m_fBoatBrakePedal (CBoat) — получить поле fBoatBrakePedal (лодка, тормоз, педаль)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26625,7 +26625,7 @@ int set_car_m_fBoatBrakePedal(lua_State* L) { // уст. m_fBoatBrakePedal (CBoa
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fBoatSteeringLeftRight(lua_State* L) { // m_fBoatSteeringLeftRight (CBoat)
+int get_car_m_fBoatSteeringLeftRight(lua_State* L) { // m_fBoatSteeringLeftRight (CBoat) — получить поле fBoatSteeringLeftRight (лодка, рулевое управление, влево, вправо)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26655,7 +26655,7 @@ int set_car_m_fBoatSteeringLeftRight(lua_State* L) { // уст. m_fBoatSteeringL
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nPadNumber(lua_State* L) { // m_nPadNumber (CBoat)
+int get_car_m_nPadNumber(lua_State* L) { // m_nPadNumber (CBoat) — получить поле nPadNumber (панель)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26685,7 +26685,7 @@ int set_car_m_nPadNumber(lua_State* L) { // уст. m_nPadNumber (CBoat)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nNumWaterTrailPoints(lua_State* L) { // m_nNumWaterTrailPoints (CBoat)
+int get_car_m_nNumWaterTrailPoints(lua_State* L) { // m_nNumWaterTrailPoints (CBoat) — получить поле nNumWaterTrailPoints (вода, след, очки)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26715,7 +26715,7 @@ int set_car_m_nNumWaterTrailPoints(lua_State* L) { // уст. m_nNumWaterTrailPo
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_nBikeAnimGroup(lua_State* L) { // nBikeAnimGroup (CBike)
+int get_car_nBikeAnimGroup(lua_State* L) { // nBikeAnimGroup (CBike) — получить поле nBikeAnimGroup (мотоцикл, анимация, группа)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26745,7 +26745,7 @@ int set_car_nBikeAnimGroup(lua_State* L) { // уст. nBikeAnimGroup (CBike)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nDamageFlags(lua_State* L) { // m_nDamageFlags (CBike)
+int get_car_m_nDamageFlags(lua_State* L) { // m_nDamageFlags (CBike) — получить поле nDamageFlags (повреждение, флаги)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26775,7 +26775,7 @@ int set_car_m_nDamageFlags(lua_State* L) { // уст. m_nDamageFlags (CBike)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fSearchLightX(lua_State* L) { // m_fSearchLightX (CHeli)
+int get_car_m_fSearchLightX(lua_State* L) { // m_fSearchLightX (CHeli) — получить поле fSearchLightX (поиск, свет, X)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26805,7 +26805,7 @@ int set_car_m_fSearchLightX(lua_State* L) { // уст. m_fSearchLightX (CHeli)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fSearchLightY(lua_State* L) { // m_fSearchLightY (CHeli)
+int get_car_m_fSearchLightY(lua_State* L) { // m_fSearchLightY (CHeli) — получить поле fSearchLightY (поиск, свет, Y)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26835,7 +26835,7 @@ int set_car_m_fSearchLightY(lua_State* L) { // уст. m_fSearchLightY (CHeli)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nExplosionTime(lua_State* L) { // m_nExplosionTime (CHeli)
+int get_car_m_nExplosionTime(lua_State* L) { // m_nExplosionTime (CHeli) — получить поле nExplosionTime (взрыв, время)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26865,7 +26865,7 @@ int set_car_m_nExplosionTime(lua_State* L) { // уст. m_nExplosionTime (CHeli)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fRotationX(lua_State* L) { // m_fRotationX (CHeli)
+int get_car_m_fRotationX(lua_State* L) { // m_fRotationX (CHeli) — получить поле fRotationX (вращение, X)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26895,7 +26895,7 @@ int set_car_m_fRotationX(lua_State* L) { // уст. m_fRotationX (CHeli)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fHeliForcedZ(lua_State* L) { // m_fHeliForcedZ (CHeli)
+int get_car_m_fHeliForcedZ(lua_State* L) { // m_fHeliForcedZ (CHeli) — получить поле fHeliForcedZ (вертолёт, принудительно, Z)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26925,7 +26925,7 @@ int set_car_m_fHeliForcedZ(lua_State* L) { // уст. m_fHeliForcedZ (CHeli)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fSearchLightIntensity(lua_State* L) { // m_fSearchLightIntensity (CHeli)
+int get_car_m_fSearchLightIntensity(lua_State* L) { // m_fSearchLightIntensity (CHeli) — получить поле fSearchLightIntensity (поиск, свет, интенсивность)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26955,7 +26955,7 @@ int set_car_m_fSearchLightIntensity(lua_State* L) { // уст. m_fSearchLightInt
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_nDamagePoints(lua_State* L) { // m_nDamagePoints (CHeli)
+int get_car_m_nDamagePoints(lua_State* L) { // m_nDamagePoints (CHeli) — получить поле nDamagePoints (повреждение, очки)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -26985,7 +26985,7 @@ int set_car_m_nDamagePoints(lua_State* L) { // уст. m_nDamagePoints (CHeli)
 	}
 	catch (const char* x) { writelog(x); }
 	return 0;};
-int get_car_m_fRotorAngle(lua_State* L) { // m_fRotorAngle (CHeli)
+int get_car_m_fRotorAngle(lua_State* L) { // m_fRotorAngle (CHeli) — получить поле fRotorAngle (ротор, угол)
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29087,7 +29087,7 @@ int has_respray_happened(lua_State* L) {// 0329: HAS_RESPRAY_HAPPENED — был
 	return 1;
 };
 
-int set_camera_behind_player(lua_State* L) {// 0373: SET_CAMERA_BEHIND_PLAYER.
+int set_camera_behind_player(lua_State* L) {// 0373: SET_CAMERA_BEHIND_PLAYER. — установить камера позади игрок
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		Command<COMMAND_SET_CAMERA_BEHIND_PLAYER>();
@@ -29226,7 +29226,7 @@ int is_char_wander_path_clear(lua_State* L) {// 0510: IS_CHAR_WANDER_PATH_CLEAR 
 	return 1;
 };
 
-int turn_player_to_face_char(lua_State* L) {// 0210: TURN_PLAYER_TO_FACE_CHAR.
+int turn_player_to_face_char(lua_State* L) {// 0210: TURN_PLAYER_TO_FACE_CHAR. — повернуть игрок лицо персонаж
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29242,7 +29242,7 @@ int turn_player_to_face_char(lua_State* L) {// 0210: TURN_PLAYER_TO_FACE_CHAR.
 	return 0;
 };
 
-int turn_char_to_face_player(lua_State* L) {// 020F: TURN_CHAR_TO_FACE_PLAYER.
+int turn_char_to_face_player(lua_State* L) {// 020F: TURN_CHAR_TO_FACE_PLAYER. — повернуть персонаж лицо игрок
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29258,7 +29258,7 @@ int turn_char_to_face_player(lua_State* L) {// 020F: TURN_CHAR_TO_FACE_PLAYER.
 	return 0;
 };
 
-int turn_char_to_face_coord(lua_State* L) {// 01BE: TURN_CHAR_TO_FACE_COORD.
+int turn_char_to_face_coord(lua_State* L) {// 01BE: TURN_CHAR_TO_FACE_COORD. — повернуть персонаж лицо координата
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && LUA_TNUMBER == lua_type(L, 2)
@@ -29276,7 +29276,7 @@ int turn_char_to_face_coord(lua_State* L) {// 01BE: TURN_CHAR_TO_FACE_COORD.
 	return 0;
 };
 
-int set_car_density_multiplier(lua_State* L) {// 01EB: SET_CAR_DENSITY_MULTIPLIER.
+int set_car_density_multiplier(lua_State* L) {// 01EB: SET_CAR_DENSITY_MULTIPLIER. — установить авто плотность множитель
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1)) {
@@ -29304,7 +29304,7 @@ int request_collision(lua_State* L) {// 04E4: REQUEST_COLLISION — загруз
 	return 0;
 };
 
-int switch_rubbish(lua_State* L) {// 03AD: SWITCH_RUBBISH.
+int switch_rubbish(lua_State* L) {// 03AD: SWITCH_RUBBISH. — Переключатель мусор
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1)) {
@@ -29318,7 +29318,7 @@ int switch_rubbish(lua_State* L) {// 03AD: SWITCH_RUBBISH.
 	return 0;
 };
 
-int switch_streaming(lua_State* L) {// 03AF: SWITCH_STREAMING.
+int switch_streaming(lua_State* L) {// 03AF: SWITCH_STREAMING. — Переключатель streaming
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TNUMBER == lua_type(L, 1)) {
@@ -29332,7 +29332,7 @@ int switch_streaming(lua_State* L) {// 03AF: SWITCH_STREAMING.
 	return 0;
 };
 
-int mark_char_as_no_longer_needed(lua_State* L) {// 01C2: MARK_CHAR_AS_NO_LONGER_NEEDED.
+int mark_char_as_no_longer_needed(lua_State* L) {// 01C2: MARK_CHAR_AS_NO_LONGER_NEEDED. — пометить персонаж длиннее требуется
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);// ОБЩИЙ мьютекс всех API (25.10, финал-6): wait/yield его НЕ берут — они паркуются изнутри.
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29693,7 +29693,7 @@ int player_made_progress(lua_State* L) {// 030C: PLAYER_MADE_PROGRESS — доб
 // ==================== (доп.) Обёртки по значениям: стиль вождения, поведение/задачи авто ====================
 // Старые функции (setdrivingstyle, setcaraction, setcartask, set_car_mission, set_driving_style_op) НЕ удалены.
 
-int set_car_driving_style_stop_for_cars(lua_State* L) {
+int set_car_driving_style_stop_for_cars(lua_State* L) { // установить авто вождение стиль остановить авто
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29703,7 +29703,7 @@ int set_car_driving_style_stop_for_cars(lua_State* L) {
 		} else { throw "bad argument in function set_car_driving_style_stop_for_cars"; }
 	} catch (const char* x) { writelog(x); } return 0;
 }
-int set_car_driving_style_slow_down_for_cars(lua_State* L) {
+int set_car_driving_style_slow_down_for_cars(lua_State* L) { // установить авто вождение стиль медленно авто
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29713,7 +29713,7 @@ int set_car_driving_style_slow_down_for_cars(lua_State* L) {
 		} else { throw "bad argument in function set_car_driving_style_slow_down_for_cars"; }
 	} catch (const char* x) { writelog(x); } return 0;
 }
-int set_car_driving_style_avoid_cars(lua_State* L) {
+int set_car_driving_style_avoid_cars(lua_State* L) { // установить авто вождение стиль избегать авто
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29723,7 +29723,7 @@ int set_car_driving_style_avoid_cars(lua_State* L) {
 		} else { throw "bad argument in function set_car_driving_style_avoid_cars"; }
 	} catch (const char* x) { writelog(x); } return 0;
 }
-int set_car_driving_style_plough_through(lua_State* L) {
+int set_car_driving_style_plough_through(lua_State* L) { // установить авто вождение стиль вспахивать через
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29733,7 +29733,7 @@ int set_car_driving_style_plough_through(lua_State* L) {
 		} else { throw "bad argument in function set_car_driving_style_plough_through"; }
 	} catch (const char* x) { writelog(x); } return 0;
 }
-int set_car_driving_style_stop_for_cars_ignore_lights(lua_State* L) {
+int set_car_driving_style_stop_for_cars_ignore_lights(lua_State* L) { // установить авто вождение стиль остановить авто игнорировать фары
 	std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
 	try {
 		if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29756,17 +29756,17 @@ static int _car_temp_action(lua_State* L, int action, const char* fname) {
 		} else { throw fname; }
 	} catch (const char* x) { writelog(x); } return 0;
 }
-int car_temp_action_none(lua_State* L) { return _car_temp_action(L, TEMPACT_NONE, "bad argument in function car_temp_action_none"); }
-int car_temp_action_wait(lua_State* L) { return _car_temp_action(L, TEMPACT_WAIT, "bad argument in function car_temp_action_wait"); }
-int car_temp_action_reverse(lua_State* L) { return _car_temp_action(L, TEMPACT_REVERSE, "bad argument in function car_temp_action_reverse"); }
-int car_temp_action_handbrake_turn_left(lua_State* L) { return _car_temp_action(L, TEMPACT_HANDBRAKETURNLEFT, "bad argument in function car_temp_action_handbrake_turn_left"); }
-int car_temp_action_handbrake_turn_right(lua_State* L) { return _car_temp_action(L, TEMPACT_HANDBRAKETURNRIGHT, "bad argument in function car_temp_action_handbrake_turn_right"); }
-int car_temp_action_handbrake_straight(lua_State* L) { return _car_temp_action(L, TEMPACT_HANDBRAKESTRAIGHT, "bad argument in function car_temp_action_handbrake_straight"); }
-int car_temp_action_turn_left(lua_State* L) { return _car_temp_action(L, TEMPACT_TURNLEFT, "bad argument in function car_temp_action_turn_left"); }
-int car_temp_action_turn_right(lua_State* L) { return _car_temp_action(L, TEMPACT_TURNRIGHT, "bad argument in function car_temp_action_turn_right"); }
-int car_temp_action_go_forward(lua_State* L) { return _car_temp_action(L, TEMPACT_GOFORWARD, "bad argument in function car_temp_action_go_forward"); }
-int car_temp_action_swerve_left(lua_State* L) { return _car_temp_action(L, TEMPACT_SWERVELEFT, "bad argument in function car_temp_action_swerve_left"); }
-int car_temp_action_swerve_right(lua_State* L) { return _car_temp_action(L, TEMPACT_SWERVERIGHT, "bad argument in function car_temp_action_swerve_right"); }
+int car_temp_action_none(lua_State* L) { return _car_temp_action(L, TEMPACT_NONE, "bad argument in function car_temp_action_none"); } // Авто температура действие нет
+int car_temp_action_wait(lua_State* L) { return _car_temp_action(L, TEMPACT_WAIT, "bad argument in function car_temp_action_wait"); } // ждать авто температура действие
+int car_temp_action_reverse(lua_State* L) { return _car_temp_action(L, TEMPACT_REVERSE, "bad argument in function car_temp_action_reverse"); } // Авто температура действие реверс
+int car_temp_action_handbrake_turn_left(lua_State* L) { return _car_temp_action(L, TEMPACT_HANDBRAKETURNLEFT, "bad argument in function car_temp_action_handbrake_turn_left"); } // Авто температура действие ручной тормоз повернуть влево
+int car_temp_action_handbrake_turn_right(lua_State* L) { return _car_temp_action(L, TEMPACT_HANDBRAKETURNRIGHT, "bad argument in function car_temp_action_handbrake_turn_right"); } // Авто температура действие ручной тормоз повернуть вправо
+int car_temp_action_handbrake_straight(lua_State* L) { return _car_temp_action(L, TEMPACT_HANDBRAKESTRAIGHT, "bad argument in function car_temp_action_handbrake_straight"); } // Авто температура действие ручной тормоз прямо
+int car_temp_action_turn_left(lua_State* L) { return _car_temp_action(L, TEMPACT_TURNLEFT, "bad argument in function car_temp_action_turn_left"); } // Авто температура действие повернуть влево
+int car_temp_action_turn_right(lua_State* L) { return _car_temp_action(L, TEMPACT_TURNRIGHT, "bad argument in function car_temp_action_turn_right"); } // Авто температура действие повернуть вправо
+int car_temp_action_go_forward(lua_State* L) { return _car_temp_action(L, TEMPACT_GOFORWARD, "bad argument in function car_temp_action_go_forward"); } // Авто температура действие идти вперёд
+int car_temp_action_swerve_left(lua_State* L) { return _car_temp_action(L, TEMPACT_SWERVELEFT, "bad argument in function car_temp_action_swerve_left"); } // Авто температура действие резкий поворот влево
+int car_temp_action_swerve_right(lua_State* L) { return _car_temp_action(L, TEMPACT_SWERVERIGHT, "bad argument in function car_temp_action_swerve_right"); } // Авто температура действие резкий поворот вправо
 
 // Миссии/задачи авто (setcartask, m_nCarMission). Отдельная функция на каждое поведение.
 static int _car_mission_set(lua_State* L, int mission, const char* fname) {
@@ -29779,58 +29779,58 @@ static int _car_mission_set(lua_State* L, int mission, const char* fname) {
 		} else { throw fname; }
 	} catch (const char* x) { writelog(x); } return 0;
 }
-int car_mission_none(lua_State* L) { return _car_mission_set(L, MISSION_NONE, "bad argument in function car_mission_none"); }
-int car_mission_cruise(lua_State* L) { return _car_mission_set(L, MISSION_CRUISE, "bad argument in function car_mission_cruise"); }
-int car_mission_ram_player_faraway(lua_State* L) { return _car_mission_set(L, MISSION_RAMPLAYER_FARAWAY, "bad argument in function car_mission_ram_player_faraway"); }
-int car_mission_ram_player_close(lua_State* L) { return _car_mission_set(L, MISSION_RAMPLAYER_CLOSE, "bad argument in function car_mission_ram_player_close"); }
-int car_mission_block_player_faraway(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_FARAWAY, "bad argument in function car_mission_block_player_faraway"); }
-int car_mission_block_player_close(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_CLOSE, "bad argument in function car_mission_block_player_close"); }
-int car_mission_block_player_handbrake_stop(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_HANDBRAKESTOP, "bad argument in function car_mission_block_player_handbrake_stop"); }
-int car_mission_wait_for_deletion(lua_State* L) { return _car_mission_set(L, MISSION_WAITFORDELETION, "bad argument in function car_mission_wait_for_deletion"); }
-int car_mission_goto_coords(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS, "bad argument in function car_mission_goto_coords"); }
-int car_mission_goto_coords_straight(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS_STRAIGHT, "bad argument in function car_mission_goto_coords_straight"); }
-int car_mission_emergency_vehicle_stop(lua_State* L) { return _car_mission_set(L, MISSION_EMERGENCYVEHICLE_STOP, "bad argument in function car_mission_emergency_vehicle_stop"); }
-int car_mission_stop_forever(lua_State* L) { return _car_mission_set(L, MISSION_STOP_FOREVER, "bad argument in function car_mission_stop_forever"); }
-int car_mission_goto_coords_accurate(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS_ACCURATE, "bad argument in function car_mission_goto_coords_accurate"); }
-int car_mission_goto_coords_straight_accurate(lua_State* L) { return _car_mission_set(L, MISSION_GOTO_COORDS_STRAIGHT_ACCURATE, "bad argument in function car_mission_goto_coords_straight_accurate"); }
-int car_mission_goto_coords_as_the_crow_swims(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS_ASTHECROWSWIMS, "bad argument in function car_mission_goto_coords_as_the_crow_swims"); }
-int car_mission_ram_car_faraway(lua_State* L) { return _car_mission_set(L, MISSION_RAMCAR_FARAWAY, "bad argument in function car_mission_ram_car_faraway"); }
-int car_mission_ram_car_close(lua_State* L) { return _car_mission_set(L, MISSION_RAMCAR_CLOSE, "bad argument in function car_mission_ram_car_close"); }
-int car_mission_block_car_faraway(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKCAR_FARAWAY, "bad argument in function car_mission_block_car_faraway"); }
-int car_mission_block_car_close(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKCAR_CLOSE, "bad argument in function car_mission_block_car_close"); }
-int car_mission_block_car_handbrake_stop(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKCAR_HANDBRAKESTOP, "bad argument in function car_mission_block_car_handbrake_stop"); }
-int car_mission_heli_fly_to_coords(lua_State* L) { return _car_mission_set(L, MISSION_HELI_FLYTOCOORS, "bad argument in function car_mission_heli_fly_to_coords"); }
-int car_mission_attack_player(lua_State* L) { return _car_mission_set(L, MISSION_ATTACKPLAYER, "bad argument in function car_mission_attack_player"); }
-int car_mission_plane_fly_to_coords(lua_State* L) { return _car_mission_set(L, MISSION_PLANE_FLYTOCOORS, "bad argument in function car_mission_plane_fly_to_coords"); }
-int car_mission_heli_land(lua_State* L) { return _car_mission_set(L, MISSION_HELI_LAND, "bad argument in function car_mission_heli_land"); }
-int car_mission_slowly_drive_towards_player_1(lua_State* L) { return _car_mission_set(L, MISSION_SLOWLY_DRIVE_TOWARDS_PLAYER_1, "bad argument in function car_mission_slowly_drive_towards_player_1"); }
-int car_mission_slowly_drive_towards_player_2(lua_State* L) { return _car_mission_set(L, MISSION_SLOWLY_DRIVE_TOWARDS_PLAYER_2, "bad argument in function car_mission_slowly_drive_towards_player_2"); }
-int car_mission_block_player_forward_and_back(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_FORWARDANDBACK, "bad argument in function car_mission_block_player_forward_and_back"); }
+int car_mission_none(lua_State* L) { return _car_mission_set(L, MISSION_NONE, "bad argument in function car_mission_none"); } // Авто миссия нет
+int car_mission_cruise(lua_State* L) { return _car_mission_set(L, MISSION_CRUISE, "bad argument in function car_mission_cruise"); } // Авто миссия круиз
+int car_mission_ram_player_faraway(lua_State* L) { return _car_mission_set(L, MISSION_RAMPLAYER_FARAWAY, "bad argument in function car_mission_ram_player_faraway"); } // Авто миссия таран игрок далёкий
+int car_mission_ram_player_close(lua_State* L) { return _car_mission_set(L, MISSION_RAMPLAYER_CLOSE, "bad argument in function car_mission_ram_player_close"); } // закрыть авто миссия таран игрок
+int car_mission_block_player_faraway(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_FARAWAY, "bad argument in function car_mission_block_player_faraway"); } // Авто миссия блок игрок далёкий
+int car_mission_block_player_close(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_CLOSE, "bad argument in function car_mission_block_player_close"); } // закрыть авто миссия блок игрок
+int car_mission_block_player_handbrake_stop(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_HANDBRAKESTOP, "bad argument in function car_mission_block_player_handbrake_stop"); } // остановить авто миссия блок игрок ручной тормоз
+int car_mission_wait_for_deletion(lua_State* L) { return _car_mission_set(L, MISSION_WAITFORDELETION, "bad argument in function car_mission_wait_for_deletion"); } // Авто миссия ждать удаление
+int car_mission_goto_coords(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS, "bad argument in function car_mission_goto_coords"); } // Авто миссия перейти координаты
+int car_mission_goto_coords_straight(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS_STRAIGHT, "bad argument in function car_mission_goto_coords_straight"); } // Авто миссия перейти координаты прямо
+int car_mission_emergency_vehicle_stop(lua_State* L) { return _car_mission_set(L, MISSION_EMERGENCYVEHICLE_STOP, "bad argument in function car_mission_emergency_vehicle_stop"); } // остановить авто миссия экстренный автомобиль
+int car_mission_stop_forever(lua_State* L) { return _car_mission_set(L, MISSION_STOP_FOREVER, "bad argument in function car_mission_stop_forever"); } // Авто миссия остановить навсегда
+int car_mission_goto_coords_accurate(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS_ACCURATE, "bad argument in function car_mission_goto_coords_accurate"); } // Авто миссия перейти координаты точный
+int car_mission_goto_coords_straight_accurate(lua_State* L) { return _car_mission_set(L, MISSION_GOTO_COORDS_STRAIGHT_ACCURATE, "bad argument in function car_mission_goto_coords_straight_accurate"); } // Авто миссия перейти координаты прямо точный
+int car_mission_goto_coords_as_the_crow_swims(lua_State* L) { return _car_mission_set(L, MISSION_GOTOCOORDS_ASTHECROWSWIMS, "bad argument in function car_mission_goto_coords_as_the_crow_swims"); } // Авто миссия перейти координаты ворона плавает
+int car_mission_ram_car_faraway(lua_State* L) { return _car_mission_set(L, MISSION_RAMCAR_FARAWAY, "bad argument in function car_mission_ram_car_faraway"); } // Авто миссия таран авто далёкий
+int car_mission_ram_car_close(lua_State* L) { return _car_mission_set(L, MISSION_RAMCAR_CLOSE, "bad argument in function car_mission_ram_car_close"); } // закрыть авто миссия таран авто
+int car_mission_block_car_faraway(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKCAR_FARAWAY, "bad argument in function car_mission_block_car_faraway"); } // Авто миссия блок авто далёкий
+int car_mission_block_car_close(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKCAR_CLOSE, "bad argument in function car_mission_block_car_close"); } // закрыть авто миссия блок авто
+int car_mission_block_car_handbrake_stop(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKCAR_HANDBRAKESTOP, "bad argument in function car_mission_block_car_handbrake_stop"); } // остановить авто миссия блок авто ручной тормоз
+int car_mission_heli_fly_to_coords(lua_State* L) { return _car_mission_set(L, MISSION_HELI_FLYTOCOORS, "bad argument in function car_mission_heli_fly_to_coords"); } // Авто миссия вертолёт лететь координаты
+int car_mission_attack_player(lua_State* L) { return _car_mission_set(L, MISSION_ATTACKPLAYER, "bad argument in function car_mission_attack_player"); } // Авто миссия атака игрок
+int car_mission_plane_fly_to_coords(lua_State* L) { return _car_mission_set(L, MISSION_PLANE_FLYTOCOORS, "bad argument in function car_mission_plane_fly_to_coords"); } // Авто миссия самолёт лететь координаты
+int car_mission_heli_land(lua_State* L) { return _car_mission_set(L, MISSION_HELI_LAND, "bad argument in function car_mission_heli_land"); } // Авто миссия вертолёт приземлиться
+int car_mission_slowly_drive_towards_player_1(lua_State* L) { return _car_mission_set(L, MISSION_SLOWLY_DRIVE_TOWARDS_PLAYER_1, "bad argument in function car_mission_slowly_drive_towards_player_1"); } // Авто миссия медленно ездить к игрок 1
+int car_mission_slowly_drive_towards_player_2(lua_State* L) { return _car_mission_set(L, MISSION_SLOWLY_DRIVE_TOWARDS_PLAYER_2, "bad argument in function car_mission_slowly_drive_towards_player_2"); } // Авто миссия медленно ездить к игрок 2
+int car_mission_block_player_forward_and_back(lua_State* L) { return _car_mission_set(L, MISSION_BLOCKPLAYER_FORWARDANDBACK, "bad argument in function car_mission_block_player_forward_and_back"); } // Авто миссия блок игрок вперёд назад
 
 // (доп.) Обёртки скорости передвижения педа (ped_set_move_state)
-int ped_move_state_none(lua_State* L){
+int ped_move_state_none(lua_State* L){ // Пешеход переместить состояние нет
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)0); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_none";} }catch(const char* x){writelog(x);} return 0;
 }
-int ped_move_state_still(lua_State* L){
+int ped_move_state_still(lua_State* L){ // Пешеход переместить состояние всё ещё
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)1); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_still";} }catch(const char* x){writelog(x);} return 0;
 }
-int ped_move_state_walk(lua_State* L){
+int ped_move_state_walk(lua_State* L){ // Пешеход переместить состояние ходить
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)2); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_walk";} }catch(const char* x){writelog(x);} return 0;
 }
-int ped_move_state_run(lua_State* L){
+int ped_move_state_run(lua_State* L){ // Пешеход переместить состояние бежать
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)4); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_run";} }catch(const char* x){writelog(x);} return 0;
 }
-int ped_move_state_sprint(lua_State* L){
+int ped_move_state_sprint(lua_State* L){ // Пешеход переместить состояние спринт
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try{ if(LUA_TLIGHTUSERDATA==lua_type(L,1)){ const void* p=lua_topointer(L,1); CPed* ped=findpedinpool(p); if(!ped){lua_pushboolean(L,false);return 1;} ped->SetMoveState((eMoveState)5); lua_pushboolean(L,true); return 1; } else {throw "bad argument in function ped_move_state_sprint";} }catch(const char* x){writelog(x);} return 0;
 }
 
 // (доп.) Обёртки поведения педа по pedstat (set_ped_stats_to). Старые функции сохранены.
-int set_ped_stat_player(lua_State* L) {
+int set_ped_stat_player(lua_State* L) { // установить пешеход характеристика игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29841,7 +29841,7 @@ int set_ped_stat_player(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_player"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_cop(lua_State* L) {
+int set_ped_stat_cop(lua_State* L) { // установить пешеход характеристика полицейский
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29852,7 +29852,7 @@ int set_ped_stat_cop(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_cop"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_medic(lua_State* L) {
+int set_ped_stat_medic(lua_State* L) { // установить пешеход характеристика медик
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29863,7 +29863,7 @@ int set_ped_stat_medic(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_medic"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_fire(lua_State* L) {
+int set_ped_stat_fire(lua_State* L) { // установить пешеход характеристика огонь
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29874,7 +29874,7 @@ int set_ped_stat_fire(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_fire"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_gang1(lua_State* L) {
+int set_ped_stat_gang1(lua_State* L) { // установить пешеход характеристика gang1
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29885,7 +29885,7 @@ int set_ped_stat_gang1(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_gang1"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_gang2(lua_State* L) {
+int set_ped_stat_gang2(lua_State* L) { // установить пешеход характеристика gang2
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29896,7 +29896,7 @@ int set_ped_stat_gang2(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_gang2"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_gang3(lua_State* L) {
+int set_ped_stat_gang3(lua_State* L) { // установить пешеход характеристика gang3
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29907,7 +29907,7 @@ int set_ped_stat_gang3(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_gang3"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_gang4(lua_State* L) {
+int set_ped_stat_gang4(lua_State* L) { // установить пешеход характеристика gang4
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29918,7 +29918,7 @@ int set_ped_stat_gang4(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_gang4"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_gang5(lua_State* L) {
+int set_ped_stat_gang5(lua_State* L) { // установить пешеход характеристика gang5
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29929,7 +29929,7 @@ int set_ped_stat_gang5(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_gang5"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_gang6(lua_State* L) {
+int set_ped_stat_gang6(lua_State* L) { // установить пешеход характеристика gang6
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29940,7 +29940,7 @@ int set_ped_stat_gang6(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_gang6"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_gang7(lua_State* L) {
+int set_ped_stat_gang7(lua_State* L) { // установить пешеход характеристика gang7
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29951,7 +29951,7 @@ int set_ped_stat_gang7(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_gang7"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_street_guy(lua_State* L) {
+int set_ped_stat_street_guy(lua_State* L) { // установить пешеход характеристика улица парень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29962,7 +29962,7 @@ int set_ped_stat_street_guy(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_street_guy"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_suit_guy(lua_State* L) {
+int set_ped_stat_suit_guy(lua_State* L) { // установить пешеход характеристика костюм парень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29973,7 +29973,7 @@ int set_ped_stat_suit_guy(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_suit_guy"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_sensible_guy(lua_State* L) {
+int set_ped_stat_sensible_guy(lua_State* L) { // установить пешеход характеристика разумный парень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29984,7 +29984,7 @@ int set_ped_stat_sensible_guy(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_sensible_guy"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_geek_guy(lua_State* L) {
+int set_ped_stat_geek_guy(lua_State* L) { // установить пешеход характеристика geek парень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -29995,7 +29995,7 @@ int set_ped_stat_geek_guy(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_geek_guy"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_old_guy(lua_State* L) {
+int set_ped_stat_old_guy(lua_State* L) { // установить пешеход характеристика старый парень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30006,7 +30006,7 @@ int set_ped_stat_old_guy(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_old_guy"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_tough_guy(lua_State* L) {
+int set_ped_stat_tough_guy(lua_State* L) { // установить пешеход характеристика жёсткий парень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30017,7 +30017,7 @@ int set_ped_stat_tough_guy(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_tough_guy"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_street_girl(lua_State* L) {
+int set_ped_stat_street_girl(lua_State* L) { // установить пешеход характеристика улица девушка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30028,7 +30028,7 @@ int set_ped_stat_street_girl(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_street_girl"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_suit_girl(lua_State* L) {
+int set_ped_stat_suit_girl(lua_State* L) { // установить пешеход характеристика костюм девушка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30039,7 +30039,7 @@ int set_ped_stat_suit_girl(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_suit_girl"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_sensible_girl(lua_State* L) {
+int set_ped_stat_sensible_girl(lua_State* L) { // установить пешеход характеристика разумный девушка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30050,7 +30050,7 @@ int set_ped_stat_sensible_girl(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_sensible_girl"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_geek_girl(lua_State* L) {
+int set_ped_stat_geek_girl(lua_State* L) { // установить пешеход характеристика geek девушка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30061,7 +30061,7 @@ int set_ped_stat_geek_girl(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_geek_girl"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_old_girl(lua_State* L) {
+int set_ped_stat_old_girl(lua_State* L) { // установить пешеход характеристика старый девушка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30072,7 +30072,7 @@ int set_ped_stat_old_girl(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_old_girl"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_tough_girl(lua_State* L) {
+int set_ped_stat_tough_girl(lua_State* L) { // установить пешеход характеристика жёсткий девушка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30083,7 +30083,7 @@ int set_ped_stat_tough_girl(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_tough_girl"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_tramp_male(lua_State* L) {
+int set_ped_stat_tramp_male(lua_State* L) { // установить пешеход характеристика бродяга мужской
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30094,7 +30094,7 @@ int set_ped_stat_tramp_male(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_tramp_male"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_tramp_female(lua_State* L) {
+int set_ped_stat_tramp_female(lua_State* L) { // установить пешеход характеристика бродяга женский
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30105,7 +30105,7 @@ int set_ped_stat_tramp_female(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_tramp_female"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_tourist(lua_State* L) {
+int set_ped_stat_tourist(lua_State* L) { // установить пешеход характеристика турист
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30116,7 +30116,7 @@ int set_ped_stat_tourist(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_tourist"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_prostitute(lua_State* L) {
+int set_ped_stat_prostitute(lua_State* L) { // установить пешеход характеристика проститутка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30127,7 +30127,7 @@ int set_ped_stat_prostitute(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_prostitute"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_criminal(lua_State* L) {
+int set_ped_stat_criminal(lua_State* L) { // установить пешеход характеристика преступник
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30138,7 +30138,7 @@ int set_ped_stat_criminal(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_criminal"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_busker(lua_State* L) {
+int set_ped_stat_busker(lua_State* L) { // установить пешеход характеристика уличный музыкант
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30149,7 +30149,7 @@ int set_ped_stat_busker(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_busker"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_taxidriver(lua_State* L) {
+int set_ped_stat_taxidriver(lua_State* L) { // установить пешеход характеристика таксист
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30160,7 +30160,7 @@ int set_ped_stat_taxidriver(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_taxidriver"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_psycho(lua_State* L) {
+int set_ped_stat_psycho(lua_State* L) { // установить пешеход характеристика псих
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30171,7 +30171,7 @@ int set_ped_stat_psycho(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_psycho"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_steward(lua_State* L) {
+int set_ped_stat_steward(lua_State* L) { // установить пешеход характеристика стюард
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30182,7 +30182,7 @@ int set_ped_stat_steward(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_steward"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_sportsfan(lua_State* L) {
+int set_ped_stat_sportsfan(lua_State* L) { // установить пешеход характеристика спортивный фанат
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30193,7 +30193,7 @@ int set_ped_stat_sportsfan(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_sportsfan"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_shopper(lua_State* L) {
+int set_ped_stat_shopper(lua_State* L) { // установить пешеход характеристика покупатель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30204,7 +30204,7 @@ int set_ped_stat_shopper(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_shopper"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_oldshopper(lua_State* L) {
+int set_ped_stat_oldshopper(lua_State* L) { // установить пешеход характеристика старый покупатель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30215,7 +30215,7 @@ int set_ped_stat_oldshopper(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_oldshopper"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_beach_guy(lua_State* L) {
+int set_ped_stat_beach_guy(lua_State* L) { // установить пешеход характеристика пляж парень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30226,7 +30226,7 @@ int set_ped_stat_beach_guy(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_beach_guy"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_beach_girl(lua_State* L) {
+int set_ped_stat_beach_girl(lua_State* L) { // установить пешеход характеристика пляж девушка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30237,7 +30237,7 @@ int set_ped_stat_beach_girl(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_beach_girl"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_skater(lua_State* L) {
+int set_ped_stat_skater(lua_State* L) { // установить пешеход характеристика скейтер
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30248,7 +30248,7 @@ int set_ped_stat_skater(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_skater"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_std_mission(lua_State* L) {
+int set_ped_stat_std_mission(lua_State* L) { // установить пешеход характеристика стандарт миссия
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30259,7 +30259,7 @@ int set_ped_stat_std_mission(lua_State* L) {
         } else { throw "bad argument in function set_ped_stat_std_mission"; }
     } catch (const char* x) { writelog(x); } return 0;
 }
-int set_ped_stat_coward(lua_State* L) {
+int set_ped_stat_coward(lua_State* L) { // установить пешеход характеристика трус
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
@@ -30299,7 +30299,7 @@ int reset_gangs(lua_State* L) { // сброс/реинициализация д�
 }
 
 // === AUTO-ADDED OPCODE WRAPPERS (20.11) ===
-int print_with_number_big(lua_State* L) { // 0x01E3 COMMAND_PRINT_WITH_NUMBER_BIG (reVC Script2.cpp:1389)
+int print_with_number_big(lua_State* L) { // 0x01E3 COMMAND_PRINT_WITH_NUMBER_BIG (reVC Script2.cpp:1389) — вывести число крупным текстом
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_number_big"; }
@@ -30319,7 +30319,7 @@ int print_with_number_big(lua_State* L) { // 0x01E3 COMMAND_PRINT_WITH_NUMBER_BI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_score(lua_State* L) { // 0x0109 COMMAND_ADD_SCORE (reVC Script.cpp:4512)
+int add_score(lua_State* L) { // 0x0109 COMMAND_ADD_SCORE (reVC Script.cpp:4512) — добавить очки
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_score"; }
@@ -30327,7 +30327,7 @@ int add_score(lua_State* L) { // 0x0109 COMMAND_ADD_SCORE (reVC Script.cpp:4512)
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_deatharrest_been_executed(lua_State* L) { // 0x0112 COMMAND_HAS_DEATHARREST_BEEN_EXECUTED (reVC Script.cpp:4556)
+int has_deatharrest_been_executed(lua_State* L) { // 0x0112 COMMAND_HAS_DEATHARREST_BEEN_EXECUTED (reVC Script.cpp:4556) — проверить арест при смерти выполнен
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_HAS_DEATHARREST_BEEN_EXECUTED>();
@@ -30335,14 +30335,14 @@ int has_deatharrest_been_executed(lua_State* L) { // 0x0112 COMMAND_HAS_DEATHARR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_prints(lua_State* L) { // 0x00BE COMMAND_CLEAR_PRINTS (reVC Script.cpp:4162)
+int clear_prints(lua_State* L) { // 0x00BE COMMAND_CLEAR_PRINTS (reVC Script.cpp:4162) — очистить тексты
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_CLEAR_PRINTS>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_fading_colour(lua_State* L) { // 0x0169 COMMAND_SET_FADING_COLOUR (reVC Script2.cpp:384)
+int set_fading_colour(lua_State* L) { // 0x0169 COMMAND_SET_FADING_COLOUR (reVC Script2.cpp:384) — установить цвет затемнения
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_fading_colour"; }
@@ -30352,7 +30352,7 @@ int set_fading_colour(lua_State* L) { // 0x0169 COMMAND_SET_FADING_COLOUR (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int load_special_character(lua_State* L) { // 0x023C COMMAND_LOAD_SPECIAL_CHARACTER (reVC Script3.cpp:662)
+int load_special_character(lua_State* L) { // 0x023C COMMAND_LOAD_SPECIAL_CHARACTER (reVC Script3.cpp:662) — загрузить специальный персонаж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function load_special_character"; }
@@ -30368,7 +30368,7 @@ int load_special_character(lua_State* L) { // 0x023C COMMAND_LOAD_SPECIAL_CHARAC
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_special_character_loaded(lua_State* L) { // 0x023D COMMAND_HAS_SPECIAL_CHARACTER_LOADED (reVC Script3.cpp:673)
+int has_special_character_loaded(lua_State* L) { // 0x023D COMMAND_HAS_SPECIAL_CHARACTER_LOADED (reVC Script3.cpp:673) — проверить специальный персонаж загружен
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function has_special_character_loaded"; }
@@ -30377,7 +30377,7 @@ int has_special_character_loaded(lua_State* L) { // 0x023D COMMAND_HAS_SPECIAL_C
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_cutscene_offset(lua_State* L) { // 0x0244 COMMAND_SET_CUTSCENE_OFFSET (reVC Script3.cpp:729)
+int set_cutscene_offset(lua_State* L) { // 0x0244 COMMAND_SET_CUTSCENE_OFFSET (reVC Script3.cpp:729) — установить смещение сцены
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_cutscene_offset"; }
@@ -30387,7 +30387,7 @@ int set_cutscene_offset(lua_State* L) { // 0x0244 COMMAND_SET_CUTSCENE_OFFSET (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int load_cutscene(lua_State* L) { // 0x02E4 COMMAND_LOAD_CUTSCENE (reVC Script3.cpp:1950)
+int load_cutscene(lua_State* L) { // 0x02E4 COMMAND_LOAD_CUTSCENE (reVC Script3.cpp:1950) — загрузить сцена
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function load_cutscene"; }
@@ -30401,7 +30401,7 @@ int load_cutscene(lua_State* L) { // 0x02E4 COMMAND_LOAD_CUTSCENE (reVC Script3.
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_cutscene_object(lua_State* L) { // 0x02E5 COMMAND_CREATE_CUTSCENE_OBJECT (reVC Script3.cpp:1958)
+int create_cutscene_object(lua_State* L) { // 0x02E5 COMMAND_CREATE_CUTSCENE_OBJECT (reVC Script3.cpp:1958) — создать объект сцены
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_cutscene_object"; }
@@ -30412,7 +30412,7 @@ int create_cutscene_object(lua_State* L) { // 0x02E5 COMMAND_CREATE_CUTSCENE_OBJ
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_cutscene_anim(lua_State* L) { // 0x02E6 COMMAND_SET_CUTSCENE_ANIM (reVC Script3.cpp:1966)
+int set_cutscene_anim(lua_State* L) { // 0x02E6 COMMAND_SET_CUTSCENE_ANIM (reVC Script3.cpp:1966) — установить анимация сцены
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_cutscene_anim"; }
@@ -30429,14 +30429,14 @@ int set_cutscene_anim(lua_State* L) { // 0x02E6 COMMAND_SET_CUTSCENE_ANIM (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int start_cutscene(lua_State* L) { // 0x02E7 COMMAND_START_CUTSCENE (reVC Script3.cpp:1977)
+int start_cutscene(lua_State* L) { // 0x02E7 COMMAND_START_CUTSCENE (reVC Script3.cpp:1977) — начать сцена
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_START_CUTSCENE>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_cutscene_time(lua_State* L) { // 0x02E8 COMMAND_GET_CUTSCENE_TIME (reVC Script3.cpp:1980)
+int get_cutscene_time(lua_State* L) { // 0x02E8 COMMAND_GET_CUTSCENE_TIME (reVC Script3.cpp:1980) — получить время сцены
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -30446,14 +30446,14 @@ int get_cutscene_time(lua_State* L) { // 0x02E8 COMMAND_GET_CUTSCENE_TIME (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_cutscene(lua_State* L) { // 0x02EA COMMAND_CLEAR_CUTSCENE (reVC Script3.cpp:1987)
+int clear_cutscene(lua_State* L) { // 0x02EA COMMAND_CLEAR_CUTSCENE (reVC Script3.cpp:1987) — очистить сцена
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_CLEAR_CUTSCENE>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_shortcut_dropoff_point_for_mission(lua_State* L) { // 0x058E COMMAND_SET_SHORTCUT_DROPOFF_POINT_FOR_MISSION (reVC Script8.cpp:234)
+int set_shortcut_dropoff_point_for_mission(lua_State* L) { // 0x058E COMMAND_SET_SHORTCUT_DROPOFF_POINT_FOR_MISSION (reVC Script8.cpp:234) — установить точка высадки такси миссия
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_shortcut_dropoff_point_for_mission"; }
@@ -30464,7 +30464,7 @@ int set_shortcut_dropoff_point_for_mission(lua_State* L) { // 0x058E COMMAND_SET
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_this_print(lua_State* L) { // 0x03D5 COMMAND_CLEAR_THIS_PRINT (reVC Script4.cpp:2079)
+int clear_this_print(lua_State* L) { // 0x03D5 COMMAND_CLEAR_THIS_PRINT (reVC Script4.cpp:2079) — очистить текст с экрана
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function clear_this_print"; }
@@ -30478,7 +30478,7 @@ int clear_this_print(lua_State* L) { // 0x03D5 COMMAND_CLEAR_THIS_PRINT (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_any_car(lua_State* L) { // 0x00E0 COMMAND_IS_PLAYER_IN_ANY_CAR (reVC Script.cpp:4400)
+int is_player_in_any_car(lua_State* L) { // 0x00E0 COMMAND_IS_PLAYER_IN_ANY_CAR (reVC Script.cpp:4400) — проверить игрок в любом авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_IS_PLAYER_IN_ANY_CAR>(CWorld::PlayerInFocus);
@@ -30486,7 +30486,7 @@ int is_player_in_any_car(lua_State* L) { // 0x00E0 COMMAND_IS_PLAYER_IN_ANY_CAR 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_car(lua_State* L) { // 0x00DC COMMAND_IS_PLAYER_IN_CAR (reVC Script.cpp:4370)
+int is_player_in_car(lua_State* L) { // 0x00DC COMMAND_IS_PLAYER_IN_CAR (reVC Script.cpp:4370) — проверить игрок в авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_player_in_car"; }
@@ -30496,7 +30496,7 @@ int is_player_in_car(lua_State* L) { // 0x00DC COMMAND_IS_PLAYER_IN_CAR (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_player_coordinates(lua_State* L) { // 0x0054 COMMAND_GET_PLAYER_COORDINATES (reVC Script.cpp:3183)
+int get_player_coordinates(lua_State* L) { // 0x0054 COMMAND_GET_PLAYER_COORDINATES (reVC Script.cpp:3183) — получить координаты игрока
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         float out0 = 0;
@@ -30510,7 +30510,7 @@ int get_player_coordinates(lua_State* L) { // 0x0054 COMMAND_GET_PLAYER_COORDINA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int load_special_model(lua_State* L) { // 0x02F3 COMMAND_LOAD_SPECIAL_MODEL (reVC Script3.cpp:2086)
+int load_special_model(lua_State* L) { // 0x02F3 COMMAND_LOAD_SPECIAL_MODEL (reVC Script3.cpp:2086) — загрузить специальная модель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function load_special_model"; }
@@ -30526,7 +30526,7 @@ int load_special_model(lua_State* L) { // 0x02F3 COMMAND_LOAD_SPECIAL_MODEL (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_in_car(lua_State* L) { // 0x00DB COMMAND_IS_CHAR_IN_CAR (reVC Script.cpp:4361)
+int is_char_in_car(lua_State* L) { // 0x00DB COMMAND_IS_CHAR_IN_CAR (reVC Script.cpp:4361) — проверить персонаж в авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_car"; }
@@ -30538,7 +30538,7 @@ int is_char_in_car(lua_State* L) { // 0x00DB COMMAND_IS_CHAR_IN_CAR (reVC Script
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_in_any_car(lua_State* L) { // 0x00DF COMMAND_IS_CHAR_IN_ANY_CAR (reVC Script.cpp:4393)
+int is_char_in_any_car(lua_State* L) { // 0x00DF COMMAND_IS_CHAR_IN_ANY_CAR (reVC Script.cpp:4393) — проверить персонаж в любом авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_any_car"; }
@@ -30548,7 +30548,7 @@ int is_char_in_any_car(lua_State* L) { // 0x00DF COMMAND_IS_CHAR_IN_ANY_CAR (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_any_means_3d(lua_State* L) { // 0x00F5 COMMAND_LOCATE_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4448)
+int locate_player_any_means_3d(lua_State* L) { // 0x00F5 COMMAND_LOCATE_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4448) — найти игрок любым способом в 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_any_means_3d"; }
@@ -30562,7 +30562,7 @@ int locate_player_any_means_3d(lua_State* L) { // 0x00F5 COMMAND_LOCATE_PLAYER_A
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_car_coordinates(lua_State* L) { // 0x00AA COMMAND_GET_CAR_COORDINATES (reVC Script.cpp:3982)
+int get_car_coordinates(lua_State* L) { // 0x00AA COMMAND_GET_CAR_COORDINATES (reVC Script.cpp:3982) — получить координаты авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_car_coordinates"; }
@@ -30578,7 +30578,7 @@ int get_car_coordinates(lua_State* L) { // 0x00AA COMMAND_GET_CAR_COORDINATES (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int store_car_player_is_in(lua_State* L) { // 0x00DA COMMAND_STORE_CAR_PLAYER_IS_IN (reVC Script.cpp:4310)
+int store_car_player_is_in(lua_State* L) { // 0x00DA COMMAND_STORE_CAR_PLAYER_IS_IN (reVC Script.cpp:4310) — сохранить авто игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -30588,7 +30588,7 @@ int store_car_player_is_in(lua_State* L) { // 0x00DA COMMAND_STORE_CAR_PLAYER_IS
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_onscreen_counter(lua_State* L) { // 0x0151 COMMAND_CLEAR_ONSCREEN_COUNTER (reVC Script2.cpp:194)
+int clear_onscreen_counter(lua_State* L) { // 0x0151 COMMAND_CLEAR_ONSCREEN_COUNTER (reVC Script2.cpp:194) — очистить счётчик на экране
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function clear_onscreen_counter"; }
@@ -30596,7 +30596,7 @@ int clear_onscreen_counter(lua_State* L) { // 0x0151 COMMAND_CLEAR_ONSCREEN_COUN
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_extra_colours(lua_State* L) { // 0x04FA COMMAND_CLEAR_EXTRA_COLOURS (reVC Script7.cpp:567)
+int clear_extra_colours(lua_State* L) { // 0x04FA COMMAND_CLEAR_EXTRA_COLOURS (reVC Script7.cpp:567) — очистить дополнительные цвета
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function clear_extra_colours"; }
@@ -30604,14 +30604,14 @@ int clear_extra_colours(lua_State* L) { // 0x04FA COMMAND_CLEAR_EXTRA_COLOURS (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_oddjob_mission_passed(lua_State* L) { // 0x0595 COMMAND_REGISTER_ODDJOB_MISSION_PASSED (reVC Script8.cpp:330)
+int register_oddjob_mission_passed(lua_State* L) { // 0x0595 COMMAND_REGISTER_ODDJOB_MISSION_PASSED (reVC Script8.cpp:330) — зарегистрировать случайная работа пройдена
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_REGISTER_ODDJOB_MISSION_PASSED>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_on_foot_2d(lua_State* L) { // 0x00ED COMMAND_LOCATE_CHAR_ON_FOOT_2D (reVC Script.cpp:4436)
+int locate_char_on_foot_2d(lua_State* L) { // 0x00ED COMMAND_LOCATE_CHAR_ON_FOOT_2D (reVC Script.cpp:4436) — найти персонаж пешком 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_2d"; }
@@ -30625,7 +30625,7 @@ int locate_char_on_foot_2d(lua_State* L) { // 0x00ED COMMAND_LOCATE_CHAR_ON_FOOT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_car_2d(lua_State* L) { // 0x01AD COMMAND_LOCATE_CAR_2D (reVC Script2.cpp:881)
+int locate_car_2d(lua_State* L) { // 0x01AD COMMAND_LOCATE_CAR_2D (reVC Script2.cpp:881) — найти авто 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_car_2d"; }
@@ -30639,7 +30639,7 @@ int locate_car_2d(lua_State* L) { // 0x01AD COMMAND_LOCATE_CAR_2D (reVC Script2.
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int display_onscreen_counter_with_string(lua_State* L) { // 0x03C4 COMMAND_DISPLAY_ONSCREEN_COUNTER_WITH_STRING (reVC Script4.cpp:1797)
+int display_onscreen_counter_with_string(lua_State* L) { // 0x03C4 COMMAND_DISPLAY_ONSCREEN_COUNTER_WITH_STRING (reVC Script4.cpp:1797) — Показать счётчик на экране со строкой
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_onscreen_counter_with_string"; }
@@ -30657,7 +30657,7 @@ int display_onscreen_counter_with_string(lua_State* L) { // 0x03C4 COMMAND_DISPL
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_extra_colours(lua_State* L) { // 0x04F9 COMMAND_SET_EXTRA_COLOURS (reVC Script7.cpp:561)
+int set_extra_colours(lua_State* L) { // 0x04F9 COMMAND_SET_EXTRA_COLOURS (reVC Script7.cpp:561) — установить дополнительные цвета
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_extra_colours"; }
@@ -30666,7 +30666,7 @@ int set_extra_colours(lua_State* L) { // 0x04F9 COMMAND_SET_EXTRA_COLOURS (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_obj_enter_car_as_driver(lua_State* L) { // 0x01D5 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_DRIVER (reVC Script2.cpp:1285)
+int set_char_obj_enter_car_as_driver(lua_State* L) { // 0x01D5 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_DRIVER (reVC Script2.cpp:1285) — установить персонаж цель: сесть в авто за руль
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_obj_enter_car_as_driver"; }
@@ -30677,7 +30677,7 @@ int set_char_obj_enter_car_as_driver(lua_State* L) { // 0x01D5 COMMAND_SET_CHAR_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_object_no_offset(lua_State* L) { // 0x029B COMMAND_CREATE_OBJECT_NO_OFFSET (reVC Script3.cpp:1260)
+int create_object_no_offset(lua_State* L) { // 0x029B COMMAND_CREATE_OBJECT_NO_OFFSET (reVC Script3.cpp:1260) — создать объект без смещения
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_object_no_offset"; }
@@ -30691,7 +30691,7 @@ int create_object_no_offset(lua_State* L) { // 0x029B COMMAND_CREATE_OBJECT_NO_O
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int change_blip_display(lua_State* L) { // 0x018B COMMAND_CHANGE_BLIP_DISPLAY (reVC Script2.cpp:683)
+int change_blip_display(lua_State* L) { // 0x018B COMMAND_CHANGE_BLIP_DISPLAY (reVC Script2.cpp:683) — изменить отображение блипа
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function change_blip_display"; }
@@ -30700,7 +30700,7 @@ int change_blip_display(lua_State* L) { // 0x018B COMMAND_CHANGE_BLIP_DISPLAY (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_health(lua_State* L) { // 0x0223 COMMAND_SET_CHAR_HEALTH (reVC Script3.cpp:393)
+int set_char_health(lua_State* L) { // 0x0223 COMMAND_SET_CHAR_HEALTH (reVC Script3.cpp:393) — установить персонаж здоровье
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_health"; }
@@ -30710,7 +30710,7 @@ int set_char_health(lua_State* L) { // 0x0223 COMMAND_SET_CHAR_HEALTH (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_on_foot_3d(lua_State* L) { // 0x00F6 COMMAND_LOCATE_PLAYER_ON_FOOT_3D (reVC Script.cpp:4449)
+int locate_player_on_foot_3d(lua_State* L) { // 0x00F6 COMMAND_LOCATE_PLAYER_ON_FOOT_3D (reVC Script.cpp:4449) — найти игрок пешком 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_on_foot_3d"; }
@@ -30724,7 +30724,7 @@ int locate_player_on_foot_3d(lua_State* L) { // 0x00F6 COMMAND_LOCATE_PLAYER_ON_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_char_coordinates(lua_State* L) { // 0x00A0 COMMAND_GET_CHAR_COORDINATES (reVC Script.cpp:3759)
+int get_char_coordinates(lua_State* L) { // 0x00A0 COMMAND_GET_CHAR_COORDINATES (reVC Script.cpp:3759) — получить координаты персонажа
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_char_coordinates"; }
@@ -30740,7 +30740,7 @@ int get_char_coordinates(lua_State* L) { // 0x00A0 COMMAND_GET_CHAR_COORDINATES 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_fastest_time(lua_State* L) { // 0x042E COMMAND_REGISTER_FASTEST_TIME (reVC Script6.cpp:635)
+int register_fastest_time(lua_State* L) { // 0x042E COMMAND_REGISTER_FASTEST_TIME (reVC Script6.cpp:635) — зарегистрировать самый быстрый время
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_fastest_time"; }
@@ -30749,7 +30749,7 @@ int register_fastest_time(lua_State* L) { // 0x042E COMMAND_REGISTER_FASTEST_TIM
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print(lua_State* L) { // 0x00BB COMMAND_PRINT (reVC Script.cpp:4139)
+int print(lua_State* L) { // 0x00BB COMMAND_PRINT (reVC Script.cpp:4139) — вывести
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print"; }
@@ -30767,7 +30767,7 @@ int print(lua_State* L) { // 0x00BB COMMAND_PRINT (reVC Script.cpp:4139)
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int display_onscreen_timer(lua_State* L) { // 0x014E COMMAND_DISPLAY_ONSCREEN_TIMER (reVC Script2.cpp:169)
+int display_onscreen_timer(lua_State* L) { // 0x014E COMMAND_DISPLAY_ONSCREEN_TIMER (reVC Script2.cpp:169) — Показать на экране таймер
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_onscreen_timer"; }
@@ -30776,7 +30776,7 @@ int display_onscreen_timer(lua_State* L) { // 0x014E COMMAND_DISPLAY_ONSCREEN_TI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_in_car_3d(lua_State* L) { // 0x00F7 COMMAND_LOCATE_PLAYER_IN_CAR_3D (reVC Script.cpp:4450)
+int locate_player_in_car_3d(lua_State* L) { // 0x00F7 COMMAND_LOCATE_PLAYER_IN_CAR_3D (reVC Script.cpp:4450) — найти игрок в авто 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_3d"; }
@@ -30791,7 +30791,7 @@ int locate_player_in_car_3d(lua_State* L) { // 0x00F7 COMMAND_LOCATE_PLAYER_IN_C
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_any_means_car_2d(lua_State* L) { // 0x01FC COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_2D (reVC Script3.cpp:108)
+int locate_player_any_means_car_2d(lua_State* L) { // 0x01FC COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_2D (reVC Script3.cpp:108) — найти игрок способ авто 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_any_means_car_2d"; }
@@ -30803,7 +30803,7 @@ int locate_player_any_means_car_2d(lua_State* L) { // 0x01FC COMMAND_LOCATE_PLAY
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_with_2_numbers_now(lua_State* L) { // 0x02FD COMMAND_PRINT_WITH_2_NUMBERS_NOW (reVC Script3.cpp:2161)
+int print_with_2_numbers_now(lua_State* L) { // 0x02FD COMMAND_PRINT_WITH_2_NUMBERS_NOW (reVC Script3.cpp:2161) — вывести 2 числа сейчас
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_2_numbers_now"; }
@@ -30825,14 +30825,14 @@ int print_with_2_numbers_now(lua_State* L) { // 0x02FD COMMAND_PRINT_WITH_2_NUMB
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_small_prints(lua_State* L) { // 0x03EB COMMAND_CLEAR_SMALL_PRINTS (reVC Script6.cpp:99)
+int clear_small_prints(lua_State* L) { // 0x03EB COMMAND_CLEAR_SMALL_PRINTS (reVC Script6.cpp:99) — очистить малый тексты
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_CLEAR_SMALL_PRINTS>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_model(lua_State* L) { // 0x00DE COMMAND_IS_PLAYER_IN_MODEL (reVC Script.cpp:4386)
+int is_player_in_model(lua_State* L) { // 0x00DE COMMAND_IS_PLAYER_IN_MODEL (reVC Script.cpp:4386) — проверить игрок модель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_model"; }
@@ -30841,7 +30841,7 @@ int is_player_in_model(lua_State* L) { // 0x00DE COMMAND_IS_PLAYER_IN_MODEL (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int switch_car_generator(lua_State* L) { // 0x014C COMMAND_SWITCH_CAR_GENERATOR (reVC Script2.cpp:146)
+int switch_car_generator(lua_State* L) { // 0x014C COMMAND_SWITCH_CAR_GENERATOR (reVC Script2.cpp:146) — Переключатель авто генератор
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function switch_car_generator"; }
@@ -30850,7 +30850,7 @@ int switch_car_generator(lua_State* L) { // 0x014C COMMAND_SWITCH_CAR_GENERATOR 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int turn_char_to_face_char(lua_State* L) { // 0x020E COMMAND_TURN_CHAR_TO_FACE_CHAR (reVC Script3.cpp:163)
+int turn_char_to_face_char(lua_State* L) { // 0x020E COMMAND_TURN_CHAR_TO_FACE_CHAR (reVC Script3.cpp:163) — повернуть персонаж лицо персонаж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function turn_char_to_face_char"; }
@@ -30861,7 +30861,7 @@ int turn_char_to_face_char(lua_State* L) { // 0x020E COMMAND_TURN_CHAR_TO_FACE_C
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_playing(lua_State* L) { // 0x0256 COMMAND_IS_PLAYER_PLAYING (reVC Script3.cpp:854)
+int is_player_playing(lua_State* L) { // 0x0256 COMMAND_IS_PLAYER_PLAYING (reVC Script3.cpp:854) — проверить игрок играет
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_IS_PLAYER_PLAYING>(CWorld::PlayerInFocus);
@@ -30869,7 +30869,7 @@ int is_player_playing(lua_State* L) { // 0x0256 COMMAND_IS_PLAYER_PLAYING (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_point_obscured_by_a_mission_entity(lua_State* L) { // 0x038A COMMAND_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY (reVC Script4.cpp:1262)
+int is_point_obscured_by_a_mission_entity(lua_State* L) { // 0x038A COMMAND_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY (reVC Script4.cpp:1262) — проверить точка затемнён миссия сущность
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_point_obscured_by_a_mission_entity"; }
@@ -30883,7 +30883,7 @@ int is_point_obscured_by_a_mission_entity(lua_State* L) { // 0x038A COMMAND_IS_P
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int sqrt(lua_State* L) { // 0x01FB COMMAND_SQRT (reVC Script3.cpp:101)
+int sqrt(lua_State* L) { // 0x01FB COMMAND_SQRT (reVC Script3.cpp:101) — Квадратный корень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function sqrt"; }
@@ -30894,14 +30894,14 @@ int sqrt(lua_State* L) { // 0x01FB COMMAND_SQRT (reVC Script3.cpp:101)
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_camera_in_front_of_player(lua_State* L) { // 0x03C8 COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER (reVC Script4.cpp:1983)
+int set_camera_in_front_of_player(lua_State* L) { // 0x03C8 COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER (reVC Script4.cpp:1983) — установить камера передняя часть игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_on_foot_3d(lua_State* L) { // 0x00FF COMMAND_LOCATE_CHAR_ON_FOOT_3D (reVC Script.cpp:4462)
+int locate_char_on_foot_3d(lua_State* L) { // 0x00FF COMMAND_LOCATE_CHAR_ON_FOOT_3D (reVC Script.cpp:4462) — найти персонаж пешком 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_3d"; }
@@ -30917,7 +30917,7 @@ int locate_char_on_foot_3d(lua_State* L) { // 0x00FF COMMAND_LOCATE_CHAR_ON_FOOT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_with_number_now(lua_State* L) { // 0x01E5 COMMAND_PRINT_WITH_NUMBER_NOW (reVC Script2.cpp:1403)
+int print_with_number_now(lua_State* L) { // 0x01E5 COMMAND_PRINT_WITH_NUMBER_NOW (reVC Script2.cpp:1403) — вывести сейчас
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_number_now"; }
@@ -30937,7 +30937,7 @@ int print_with_number_now(lua_State* L) { // 0x01E5 COMMAND_PRINT_WITH_NUMBER_NO
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int was_cutscene_skipped(lua_State* L) { // 0x056A COMMAND_WAS_CUTSCENE_SKIPPED (reVC Script7.cpp:1305)
+int was_cutscene_skipped(lua_State* L) { // 0x056A COMMAND_WAS_CUTSCENE_SKIPPED (reVC Script7.cpp:1305) — Сцена пропущено
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_WAS_CUTSCENE_SKIPPED>();
@@ -30945,7 +30945,7 @@ int was_cutscene_skipped(lua_State* L) { // 0x056A COMMAND_WAS_CUTSCENE_SKIPPED 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_zone_ped_info(lua_State* L) { // 0x015C COMMAND_SET_ZONE_PED_INFO (reVC Script2.cpp:275)
+int set_zone_ped_info(lua_State* L) { // 0x015C COMMAND_SET_ZONE_PED_INFO (reVC Script2.cpp:275) — установить зона пешеход информация
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_zone_ped_info"; }
@@ -30983,7 +30983,7 @@ int set_zone_ped_info(lua_State* L) { // 0x015C COMMAND_SET_ZONE_PED_INFO (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_money_spent_on_property(lua_State* L) { // 0x0529 COMMAND_ADD_MONEY_SPENT_ON_PROPERTY (reVC Script7.cpp:878)
+int add_money_spent_on_property(lua_State* L) { // 0x0529 COMMAND_ADD_MONEY_SPENT_ON_PROPERTY (reVC Script7.cpp:878) — добавить деньги потрачено собственность
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_money_spent_on_property"; }
@@ -30991,7 +30991,7 @@ int add_money_spent_on_property(lua_State* L) { // 0x0529 COMMAND_ADD_MONEY_SPEN
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_property_as_owned(lua_State* L) { // 0x0542 COMMAND_SET_PROPERTY_AS_OWNED (reVC Script7.cpp:1003)
+int set_property_as_owned(lua_State* L) { // 0x0542 COMMAND_SET_PROPERTY_AS_OWNED (reVC Script7.cpp:1003) — установить собственность принадлежит
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_property_as_owned"; }
@@ -30999,7 +30999,7 @@ int set_property_as_owned(lua_State* L) { // 0x0542 COMMAND_SET_PROPERTY_AS_OWNE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_object_coordinates(lua_State* L) { // 0x01BB COMMAND_GET_OBJECT_COORDINATES (reVC Script2.cpp:951)
+int get_object_coordinates(lua_State* L) { // 0x01BB COMMAND_GET_OBJECT_COORDINATES (reVC Script2.cpp:951) — получить координаты объекта
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_object_coordinates"; }
@@ -31015,7 +31015,7 @@ int get_object_coordinates(lua_State* L) { // 0x01BB COMMAND_GET_OBJECT_COORDINA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int generate_random_int_in_range(lua_State* L) { // 0x0209 COMMAND_GENERATE_RANDOM_INT_IN_RANGE (reVC Script3.cpp:129)
+int generate_random_int_in_range(lua_State* L) { // 0x0209 COMMAND_GENERATE_RANDOM_INT_IN_RANGE (reVC Script3.cpp:129) — Создать случайный целое число дальность
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function generate_random_int_in_range"; }
@@ -31027,7 +31027,7 @@ int generate_random_int_in_range(lua_State* L) { // 0x0209 COMMAND_GENERATE_RAND
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_cant_be_dragged_out(lua_State* L) { // 0x039E COMMAND_SET_CHAR_CANT_BE_DRAGGED_OUT (reVC Script4.cpp:1485)
+int set_char_cant_be_dragged_out(lua_State* L) { // 0x039E COMMAND_SET_CHAR_CANT_BE_DRAGGED_OUT (reVC Script4.cpp:1485) — установить персонаж не может перетащен снаружи
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_cant_be_dragged_out"; }
@@ -31037,7 +31037,7 @@ int set_char_cant_be_dragged_out(lua_State* L) { // 0x039E COMMAND_SET_CHAR_CANT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_cutscene_anim_to_loop(lua_State* L) { // 0x04BC COMMAND_SET_CUTSCENE_ANIM_TO_LOOP (reVC Script7.cpp:139)
+int set_cutscene_anim_to_loop(lua_State* L) { // 0x04BC COMMAND_SET_CUTSCENE_ANIM_TO_LOOP (reVC Script7.cpp:139) — установить анимация сцены цикл
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_cutscene_anim_to_loop"; }
@@ -31051,7 +31051,7 @@ int set_cutscene_anim_to_loop(lua_State* L) { // 0x04BC COMMAND_SET_CUTSCENE_ANI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_area_2d(lua_State* L) { // 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D (reVC Script.cpp:3248)
+int is_player_in_area_2d(lua_State* L) { // 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D (reVC Script.cpp:3248) — проверить игрок область 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_area_2d"; }
@@ -31064,7 +31064,7 @@ int is_player_in_area_2d(lua_State* L) { // 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_time_of_day(lua_State* L) { // 0x00C0 COMMAND_SET_TIME_OF_DAY (reVC Script.cpp:4170)
+int set_time_of_day(lua_State* L) { // 0x00C0 COMMAND_SET_TIME_OF_DAY (reVC Script.cpp:4170) — установить время день
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_time_of_day"; }
@@ -31073,7 +31073,7 @@ int set_time_of_day(lua_State* L) { // 0x00C0 COMMAND_SET_TIME_OF_DAY (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_stopped_player_in_car_3d(lua_State* L) { // 0x00FA COMMAND_LOCATE_STOPPED_PLAYER_IN_CAR_3D (reVC Script.cpp:4453)
+int locate_stopped_player_in_car_3d(lua_State* L) { // 0x00FA COMMAND_LOCATE_STOPPED_PLAYER_IN_CAR_3D (reVC Script.cpp:4453) — найти остановлен игрок в авто 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_player_in_car_3d"; }
@@ -31088,7 +31088,7 @@ int locate_stopped_player_in_car_3d(lua_State* L) { // 0x00FA COMMAND_LOCATE_STO
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_obj_enter_car_as_passenger(lua_State* L) { // 0x01D4 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_PASSENGER (reVC Script2.cpp:1275)
+int set_char_obj_enter_car_as_passenger(lua_State* L) { // 0x01D4 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_PASSENGER (reVC Script2.cpp:1275) — установить персонаж объект войти авто пассажир
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_obj_enter_car_as_passenger"; }
@@ -31099,7 +31099,7 @@ int set_char_obj_enter_car_as_passenger(lua_State* L) { // 0x01D4 COMMAND_SET_CH
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_suffers_critical_hits(lua_State* L) { // 0x0446 COMMAND_SET_CHAR_SUFFERS_CRITICAL_HITS (reVC Script6.cpp:801)
+int set_char_suffers_critical_hits(lua_State* L) { // 0x0446 COMMAND_SET_CHAR_SUFFERS_CRITICAL_HITS (reVC Script6.cpp:801) — установить персонаж страдает критический попадания
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_suffers_critical_hits"; }
@@ -31109,7 +31109,7 @@ int set_char_suffers_critical_hits(lua_State* L) { // 0x0446 COMMAND_SET_CHAR_SU
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int store_car_char_is_in(lua_State* L) { // 0x00D9 COMMAND_STORE_CAR_CHAR_IS_IN (reVC Script.cpp:4258)
+int store_car_char_is_in(lua_State* L) { // 0x00D9 COMMAND_STORE_CAR_CHAR_IS_IN (reVC Script.cpp:4258) — сохранить авто персонаж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function store_car_char_is_in"; }
@@ -31121,7 +31121,7 @@ int store_car_char_is_in(lua_State* L) { // 0x00D9 COMMAND_STORE_CAR_CHAR_IS_IN 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_any_means_2d(lua_State* L) { // 0x00E3 COMMAND_LOCATE_PLAYER_ANY_MEANS_2D (reVC Script.cpp:4422)
+int locate_player_any_means_2d(lua_State* L) { // 0x00E3 COMMAND_LOCATE_PLAYER_ANY_MEANS_2D (reVC Script.cpp:4422) — найти игрок способ 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_any_means_2d"; }
@@ -31133,7 +31133,7 @@ int locate_player_any_means_2d(lua_State* L) { // 0x00E3 COMMAND_LOCATE_PLAYER_A
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_stopped_player_on_foot_3d(lua_State* L) { // 0x00F9 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_3D (reVC Script.cpp:4452)
+int locate_stopped_player_on_foot_3d(lua_State* L) { // 0x00F9 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_3D (reVC Script.cpp:4452) — найти остановлен игрок пешком 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_player_on_foot_3d"; }
@@ -31147,7 +31147,7 @@ int locate_stopped_player_on_foot_3d(lua_State* L) { // 0x00F9 COMMAND_LOCATE_ST
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_player_as_leader(lua_State* L) { // 0x01DF COMMAND_SET_PLAYER_AS_LEADER (reVC Script2.cpp:1357)
+int set_player_as_leader(lua_State* L) { // 0x01DF COMMAND_SET_PLAYER_AS_LEADER (reVC Script2.cpp:1357) — установить игрок лидер
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_player_as_leader"; }
@@ -31156,7 +31156,7 @@ int set_player_as_leader(lua_State* L) { // 0x01DF COMMAND_SET_PLAYER_AS_LEADER 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_short_range_sprite_blip_for_coord(lua_State* L) { // 0x04CE COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_COORD (reVC Script7.cpp:244)
+int add_short_range_sprite_blip_for_coord(lua_State* L) { // 0x04CE COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_COORD (reVC Script7.cpp:244) — добавить короткий дальность спрайт блип радара координата
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_short_range_sprite_blip_for_coord"; }
@@ -31170,7 +31170,7 @@ int add_short_range_sprite_blip_for_coord(lua_State* L) { // 0x04CE COMMAND_ADD_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int stop_char_looking(lua_State* L) { // 0x022F COMMAND_STOP_CHAR_LOOKING (reVC Script3.cpp:548)
+int stop_char_looking(lua_State* L) { // 0x022F COMMAND_STOP_CHAR_LOOKING (reVC Script3.cpp:548) — остановить персонаж смотрит
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function stop_char_looking"; }
@@ -31179,7 +31179,7 @@ int stop_char_looking(lua_State* L) { // 0x022F COMMAND_STOP_CHAR_LOOKING (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_cutscene_finished(lua_State* L) { // 0x02E9 COMMAND_HAS_CUTSCENE_FINISHED (reVC Script3.cpp:1984)
+int has_cutscene_finished(lua_State* L) { // 0x02E9 COMMAND_HAS_CUTSCENE_FINISHED (reVC Script3.cpp:1984) — проверить сцена завершено
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_HAS_CUTSCENE_FINISHED>();
@@ -31187,7 +31187,7 @@ int has_cutscene_finished(lua_State* L) { // 0x02E9 COMMAND_HAS_CUTSCENE_FINISHE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int shut_player_up(lua_State* L) { // 0x04E2 COMMAND_SHUT_PLAYER_UP (reVC Script7.cpp:390)
+int shut_player_up(lua_State* L) { // 0x04E2 COMMAND_SHUT_PLAYER_UP (reVC Script7.cpp:390) — Закрыть игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function shut_player_up"; }
@@ -31196,7 +31196,7 @@ int shut_player_up(lua_State* L) { // 0x04E2 COMMAND_SHUT_PLAYER_UP (reVC Script
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_health_greater(lua_State* L) { // 0x0184 COMMAND_IS_CHAR_HEALTH_GREATER (reVC Script2.cpp:605)
+int is_char_health_greater(lua_State* L) { // 0x0184 COMMAND_IS_CHAR_HEALTH_GREATER (reVC Script2.cpp:605) — проверить персонаж здоровье больше
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_health_greater"; }
@@ -31207,7 +31207,7 @@ int is_char_health_greater(lua_State* L) { // 0x0184 COMMAND_IS_CHAR_HEALTH_GREA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int store_wanted_level(lua_State* L) { // 0x01C0 COMMAND_STORE_WANTED_LEVEL (reVC Script2.cpp:1028)
+int store_wanted_level(lua_State* L) { // 0x01C0 COMMAND_STORE_WANTED_LEVEL (reVC Script2.cpp:1028) — сохранить розыск уровень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -31217,7 +31217,7 @@ int store_wanted_level(lua_State* L) { // 0x01C0 COMMAND_STORE_WANTED_LEVEL (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_in_players_group(lua_State* L) { // 0x0320 COMMAND_IS_CHAR_IN_PLAYERS_GROUP (reVC Script4.cpp:65)
+int is_char_in_players_group(lua_State* L) { // 0x0320 COMMAND_IS_CHAR_IN_PLAYERS_GROUP (reVC Script4.cpp:65) — проверить персонаж игроки группа
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_players_group"; }
@@ -31227,14 +31227,14 @@ int is_char_in_players_group(lua_State* L) { // 0x0320 COMMAND_IS_CHAR_IN_PLAYER
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int make_player_safe_for_cutscene(lua_State* L) { // 0x03EF COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE (reVC Script6.cpp:125)
+int make_player_safe_for_cutscene(lua_State* L) { // 0x03EF COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE (reVC Script6.cpp:125) — сделать игрок безопасно сцена
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE>(CWorld::PlayerInFocus); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_protection_pickup(lua_State* L) { // 0x04A6 COMMAND_CREATE_PROTECTION_PICKUP (reVC Script6.cpp:1719)
+int create_protection_pickup(lua_State* L) { // 0x04A6 COMMAND_CREATE_PROTECTION_PICKUP (reVC Script6.cpp:1719) — создать защита пикап
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_protection_pickup"; }
@@ -31249,7 +31249,7 @@ int create_protection_pickup(lua_State* L) { // 0x04A6 COMMAND_CREATE_PROTECTION
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_stopped_player_any_means_3d(lua_State* L) { // 0x00F8 COMMAND_LOCATE_STOPPED_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4451)
+int locate_stopped_player_any_means_3d(lua_State* L) { // 0x00F8 COMMAND_LOCATE_STOPPED_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4451) — найти остановлен игрок любым способом в 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_player_any_means_3d"; }
@@ -31263,7 +31263,7 @@ int locate_stopped_player_any_means_3d(lua_State* L) { // 0x00F8 COMMAND_LOCATE_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int char_look_at_player_always(lua_State* L) { // 0x022D COMMAND_CHAR_LOOK_AT_PLAYER_ALWAYS (reVC Script3.cpp:526)
+int char_look_at_player_always(lua_State* L) { // 0x022D COMMAND_CHAR_LOOK_AT_PLAYER_ALWAYS (reVC Script3.cpp:526) — Персонаж смотреть игрок всегда
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function char_look_at_player_always"; }
@@ -31272,14 +31272,14 @@ int char_look_at_player_always(lua_State* L) { // 0x022D COMMAND_CHAR_LOOK_AT_PL
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int stop_player_looking(lua_State* L) { // 0x0230 COMMAND_STOP_PLAYER_LOOKING (reVC Script3.cpp:559)
+int stop_player_looking(lua_State* L) { // 0x0230 COMMAND_STOP_PLAYER_LOOKING (reVC Script3.cpp:559) — остановить игрок смотрит
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_STOP_PLAYER_LOOKING>(CWorld::PlayerInFocus); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int store_car_player_is_in_no_save(lua_State* L) { // 0x03C1 COMMAND_STORE_CAR_PLAYER_IS_IN_NO_SAVE (reVC Script4.cpp:1770)
+int store_car_player_is_in_no_save(lua_State* L) { // 0x03C1 COMMAND_STORE_CAR_PLAYER_IS_IN_NO_SAVE (reVC Script4.cpp:1770) — сохранить авто игрок сохранить
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -31289,7 +31289,7 @@ int store_car_player_is_in_no_save(lua_State* L) { // 0x03C1 COMMAND_STORE_CAR_P
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_offset_from_car_in_world_coords(lua_State* L) { // 0x0407 COMMAND_GET_OFFSET_FROM_CAR_IN_WORLD_COORDS (reVC Script6.cpp:286)
+int get_offset_from_car_in_world_coords(lua_State* L) { // 0x0407 COMMAND_GET_OFFSET_FROM_CAR_IN_WORLD_COORDS (reVC Script6.cpp:286) — получить смещение авто мир координаты
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_offset_from_car_in_world_coords"; }
@@ -31308,7 +31308,7 @@ int get_offset_from_car_in_world_coords(lua_State* L) { // 0x0407 COMMAND_GET_OF
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int shut_char_up(lua_State* L) { // 0x0489 COMMAND_SHUT_CHAR_UP (reVC Script6.cpp:1524)
+int shut_char_up(lua_State* L) { // 0x0489 COMMAND_SHUT_CHAR_UP (reVC Script6.cpp:1524) — Закрыть персонаж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function shut_char_up"; }
@@ -31318,7 +31318,7 @@ int shut_char_up(lua_State* L) { // 0x0489 COMMAND_SHUT_CHAR_UP (reVC Script6.cp
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int draw_weaponshop_corona(lua_State* L) { // 0x04D5 COMMAND_DRAW_WEAPONSHOP_CORONA (reVC Script7.cpp:302)
+int draw_weaponshop_corona(lua_State* L) { // 0x04D5 COMMAND_DRAW_WEAPONSHOP_CORONA (reVC Script7.cpp:302) — нарисовать магазин оружия корона
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function draw_weaponshop_corona"; }
@@ -31334,7 +31334,7 @@ int draw_weaponshop_corona(lua_State* L) { // 0x04D5 COMMAND_DRAW_WEAPONSHOP_COR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int does_char_exist(lua_State* L) { // 0x056D COMMAND_DOES_CHAR_EXIST (reVC Script7.cpp:1328)
+int does_char_exist(lua_State* L) { // 0x056D COMMAND_DOES_CHAR_EXIST (reVC Script7.cpp:1328) — Персонаж существовать
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function does_char_exist"; }
@@ -31343,7 +31343,7 @@ int does_char_exist(lua_State* L) { // 0x056D COMMAND_DOES_CHAR_EXIST (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int point_camera_at_player(lua_State* L) { // 0x0157 COMMAND_POINT_CAMERA_AT_PLAYER (reVC Script2.cpp:244)
+int point_camera_at_player(lua_State* L) { // 0x0157 COMMAND_POINT_CAMERA_AT_PLAYER (reVC Script2.cpp:244) — Точка камера игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function point_camera_at_player"; }
@@ -31353,7 +31353,7 @@ int point_camera_at_player(lua_State* L) { // 0x0157 COMMAND_POINT_CAMERA_AT_PLA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int mark_object_as_no_longer_needed(lua_State* L) { // 0x01C4 COMMAND_MARK_OBJECT_AS_NO_LONGER_NEEDED (reVC Script2.cpp:1063)
+int mark_object_as_no_longer_needed(lua_State* L) { // 0x01C4 COMMAND_MARK_OBJECT_AS_NO_LONGER_NEEDED (reVC Script2.cpp:1063) — пометить объект длиннее требуется
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function mark_object_as_no_longer_needed"; }
@@ -31362,7 +31362,7 @@ int mark_object_as_no_longer_needed(lua_State* L) { // 0x01C4 COMMAND_MARK_OBJEC
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_player_char(lua_State* L) { // 0x01F5 COMMAND_GET_PLAYER_CHAR (reVC Script3.cpp:50)
+int get_player_char(lua_State* L) { // 0x01F5 COMMAND_GET_PLAYER_CHAR (reVC Script3.cpp:50) — получить игрок персонаж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -31372,7 +31372,7 @@ int get_player_char(lua_State* L) { // 0x01F5 COMMAND_GET_PLAYER_CHAR (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_ground_z_for_3d_coord(lua_State* L) { // 0x02CE COMMAND_GET_GROUND_Z_FOR_3D_COORD (reVC Script3.cpp:1654)
+int get_ground_z_for_3d_coord(lua_State* L) { // 0x02CE COMMAND_GET_GROUND_Z_FOR_3D_COORD (reVC Script3.cpp:1654) — получить земля Z 3D координата
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_ground_z_for_3d_coord"; }
@@ -31385,7 +31385,7 @@ int get_ground_z_for_3d_coord(lua_State* L) { // 0x02CE COMMAND_GET_GROUND_Z_FOR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int place_object_relative_to_car(lua_State* L) { // 0x035C COMMAND_PLACE_OBJECT_RELATIVE_TO_CAR (reVC Script4.cpp:726)
+int place_object_relative_to_car(lua_State* L) { // 0x035C COMMAND_PLACE_OBJECT_RELATIVE_TO_CAR (reVC Script4.cpp:726) — Место объект относительный авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function place_object_relative_to_car"; }
@@ -31399,7 +31399,7 @@ int place_object_relative_to_car(lua_State* L) { // 0x035C COMMAND_PLACE_OBJECT_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_moving_particle_effect(lua_State* L) { // 0x039D COMMAND_ADD_MOVING_PARTICLE_EFFECT (reVC Script4.cpp:1464)
+int add_moving_particle_effect(lua_State* L) { // 0x039D COMMAND_ADD_MOVING_PARTICLE_EFFECT (reVC Script4.cpp:1464) — добавить движущийся частица эффект
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_moving_particle_effect"; }
@@ -31418,7 +31418,7 @@ int add_moving_particle_effect(lua_State* L) { // 0x039D COMMAND_ADD_MOVING_PART
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int change_garage_type(lua_State* L) { // 0x02FA COMMAND_CHANGE_GARAGE_TYPE (reVC Script3.cpp:2127)
+int change_garage_type(lua_State* L) { // 0x02FA COMMAND_CHANGE_GARAGE_TYPE (reVC Script3.cpp:2127) — изменить гараж тип
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function change_garage_type"; }
@@ -31427,7 +31427,7 @@ int change_garage_type(lua_State* L) { // 0x02FA COMMAND_CHANGE_GARAGE_TYPE (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_object_been_damaged(lua_State* L) { // 0x0366 COMMAND_HAS_OBJECT_BEEN_DAMAGED (reVC Script4.cpp:899)
+int has_object_been_damaged(lua_State* L) { // 0x0366 COMMAND_HAS_OBJECT_BEEN_DAMAGED (reVC Script4.cpp:899) — проверить объект повреждён
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_object_been_damaged"; }
@@ -31437,7 +31437,7 @@ int has_object_been_damaged(lua_State* L) { // 0x0366 COMMAND_HAS_OBJECT_BEEN_DA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_sitting_in_car(lua_State* L) { // 0x0442 COMMAND_IS_PLAYER_SITTING_IN_CAR (reVC Script6.cpp:775)
+int is_player_sitting_in_car(lua_State* L) { // 0x0442 COMMAND_IS_PLAYER_SITTING_IN_CAR (reVC Script6.cpp:775) — проверить игрок сидит авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_player_sitting_in_car"; }
@@ -31447,7 +31447,7 @@ int is_player_sitting_in_car(lua_State* L) { // 0x0442 COMMAND_IS_PLAYER_SITTING
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_on_foot(lua_State* L) { // 0x044B COMMAND_IS_CHAR_ON_FOOT (reVC Script6.cpp:846)
+int is_char_on_foot(lua_State* L) { // 0x044B COMMAND_IS_CHAR_ON_FOOT (reVC Script6.cpp:846) — проверить персонаж пешком
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_on_foot"; }
@@ -31457,7 +31457,7 @@ int is_char_on_foot(lua_State* L) { // 0x044B COMMAND_IS_CHAR_ON_FOOT (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_car_in_area_2d(lua_State* L) { // 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC Script.cpp:4084)
+int is_car_in_area_2d(lua_State* L) { // 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC Script.cpp:4084) — проверить авто область 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_car_in_area_2d"; }
@@ -31472,7 +31472,7 @@ int is_car_in_area_2d(lua_State* L) { // 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_on_foot_2d(lua_State* L) { // 0x00E4 COMMAND_LOCATE_PLAYER_ON_FOOT_2D (reVC Script.cpp:4423)
+int locate_player_on_foot_2d(lua_State* L) { // 0x00E4 COMMAND_LOCATE_PLAYER_ON_FOOT_2D (reVC Script.cpp:4423) — найти игрок пешком 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_on_foot_2d"; }
@@ -31484,7 +31484,7 @@ int locate_player_on_foot_2d(lua_State* L) { // 0x00E4 COMMAND_LOCATE_PLAYER_ON_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_stopped_char_any_means_3d(lua_State* L) { // 0x0101 COMMAND_LOCATE_STOPPED_CHAR_ANY_MEANS_3D (reVC Script.cpp:4464)
+int locate_stopped_char_any_means_3d(lua_State* L) { // 0x0101 COMMAND_LOCATE_STOPPED_CHAR_ANY_MEANS_3D (reVC Script.cpp:4464) — найти остановлен персонаж любым способом в 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_stopped_char_any_means_3d"; }
@@ -31500,7 +31500,7 @@ int locate_stopped_char_any_means_3d(lua_State* L) { // 0x0101 COMMAND_LOCATE_ST
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_as_leader(lua_State* L) { // 0x01DE COMMAND_SET_CHAR_AS_LEADER (reVC Script2.cpp:1348)
+int set_char_as_leader(lua_State* L) { // 0x01DE COMMAND_SET_CHAR_AS_LEADER (reVC Script2.cpp:1348) — установить персонаж лидер
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_as_leader"; }
@@ -31511,7 +31511,7 @@ int set_char_as_leader(lua_State* L) { // 0x01DE COMMAND_SET_CHAR_AS_LEADER (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_any_means_car_2d(lua_State* L) { // 0x0202 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_2D (reVC Script3.cpp:116)
+int locate_char_any_means_car_2d(lua_State* L) { // 0x0202 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_2D (reVC Script3.cpp:116) — найти персонаж способ авто 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_car_2d"; }
@@ -31525,7 +31525,7 @@ int locate_char_any_means_car_2d(lua_State* L) { // 0x0202 COMMAND_LOCATE_CHAR_A
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int generate_random_float_in_range(lua_State* L) { // 0x0208 COMMAND_GENERATE_RANDOM_FLOAT_IN_RANGE (reVC Script3.cpp:124)
+int generate_random_float_in_range(lua_State* L) { // 0x0208 COMMAND_GENERATE_RANDOM_FLOAT_IN_RANGE (reVC Script3.cpp:124) — Создать случайный вещественное число дальность
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function generate_random_float_in_range"; }
@@ -31537,7 +31537,7 @@ int generate_random_float_in_range(lua_State* L) { // 0x0208 COMMAND_GENERATE_RA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_char_health(lua_State* L) { // 0x0226 COMMAND_GET_CHAR_HEALTH (reVC Script3.cpp:428)
+int get_char_health(lua_State* L) { // 0x0226 COMMAND_GET_CHAR_HEALTH (reVC Script3.cpp:428) — получить персонаж здоровье
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_char_health"; }
@@ -31549,7 +31549,7 @@ int get_char_health(lua_State* L) { // 0x0226 COMMAND_GET_CHAR_HEALTH (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int char_look_at_char_always(lua_State* L) { // 0x022C COMMAND_CHAR_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:515)
+int char_look_at_char_always(lua_State* L) { // 0x022C COMMAND_CHAR_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:515) — Персонаж смотреть персонаж всегда
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function char_look_at_char_always"; }
@@ -31560,7 +31560,7 @@ int char_look_at_char_always(lua_State* L) { // 0x022C COMMAND_CHAR_LOOK_AT_CHAR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int player_look_at_char_always(lua_State* L) { // 0x022E COMMAND_PLAYER_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:537)
+int player_look_at_char_always(lua_State* L) { // 0x022E COMMAND_PLAYER_LOOK_AT_CHAR_ALWAYS (reVC Script3.cpp:537) — Игрок смотреть персонаж всегда
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function player_look_at_char_always"; }
@@ -31569,7 +31569,7 @@ int player_look_at_char_always(lua_State* L) { // 0x022E COMMAND_PLAYER_LOOK_AT_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_angled_area_3d(lua_State* L) { // 0x02B3 COMMAND_IS_PLAYER_IN_ANGLED_AREA_3D (reVC Script3.cpp:1494)
+int is_player_in_angled_area_3d(lua_State* L) { // 0x02B3 COMMAND_IS_PLAYER_IN_ANGLED_AREA_3D (reVC Script3.cpp:1494) — проверить игрок под углом область 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_angled_area_3d"; }
@@ -31585,7 +31585,7 @@ int is_player_in_angled_area_3d(lua_State* L) { // 0x02B3 COMMAND_IS_PLAYER_IN_A
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_closest_char_node(lua_State* L) { // 0x02C0 COMMAND_GET_CLOSEST_CHAR_NODE (reVC Script3.cpp:1547)
+int get_closest_char_node(lua_State* L) { // 0x02C0 COMMAND_GET_CLOSEST_CHAR_NODE (reVC Script3.cpp:1547) — получить ближайший персонаж узел
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_closest_char_node"; }
@@ -31602,7 +31602,7 @@ int get_closest_char_node(lua_State* L) { // 0x02C0 COMMAND_GET_CLOSEST_CHAR_NOD
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_to_object_velocity(lua_State* L) { // 0x038C COMMAND_ADD_TO_OBJECT_VELOCITY (reVC Script4.cpp:1304)
+int add_to_object_velocity(lua_State* L) { // 0x038C COMMAND_ADD_TO_OBJECT_VELOCITY (reVC Script4.cpp:1304) — добавить объект скорость
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function add_to_object_velocity"; }
@@ -31614,7 +31614,7 @@ int add_to_object_velocity(lua_State* L) { // 0x038C COMMAND_ADD_TO_OBJECT_VELOC
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_sitting_in_any_car(lua_State* L) { // 0x0443 COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR (reVC Script6.cpp:784)
+int is_player_sitting_in_any_car(lua_State* L) { // 0x0443 COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR (reVC Script6.cpp:784) — проверить игрок сидит авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR>(CWorld::PlayerInFocus);
@@ -31622,7 +31622,7 @@ int is_player_sitting_in_any_car(lua_State* L) { // 0x0443 COMMAND_IS_PLAYER_SIT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_sitting_in_any_car(lua_State* L) { // 0x0449 COMMAND_IS_CHAR_SITTING_IN_ANY_CAR (reVC Script6.cpp:829)
+int is_char_sitting_in_any_car(lua_State* L) { // 0x0449 COMMAND_IS_CHAR_SITTING_IN_ANY_CAR (reVC Script6.cpp:829) — проверить персонаж сидит авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_sitting_in_any_car"; }
@@ -31632,14 +31632,14 @@ int is_char_sitting_in_any_car(lua_State* L) { // 0x0449 COMMAND_IS_CHAR_SITTING
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int disable_cutscene_shadows(lua_State* L) { // 0x0522 COMMAND_DISABLE_CUTSCENE_SHADOWS (reVC Script7.cpp:830)
+int disable_cutscene_shadows(lua_State* L) { // 0x0522 COMMAND_DISABLE_CUTSCENE_SHADOWS (reVC Script7.cpp:830) — отключить сцена тени
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_DISABLE_CUTSCENE_SHADOWS>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_number_of_assassinations(lua_State* L) { // 0x0533 COMMAND_ADD_NUMBER_OF_ASSASSINATIONS (reVC Script7.cpp:912)
+int add_number_of_assassinations(lua_State* L) { // 0x0533 COMMAND_ADD_NUMBER_OF_ASSASSINATIONS (reVC Script7.cpp:912) — добавить заказные убийства
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_number_of_assassinations"; }
@@ -31647,7 +31647,7 @@ int add_number_of_assassinations(lua_State* L) { // 0x0533 COMMAND_ADD_NUMBER_OF
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int load_uncompressed_anim(lua_State* L) { // 0x0569 COMMAND_LOAD_UNCOMPRESSED_ANIM (reVC Script7.cpp:1297)
+int load_uncompressed_anim(lua_State* L) { // 0x0569 COMMAND_LOAD_UNCOMPRESSED_ANIM (reVC Script7.cpp:1297) — загрузить несжатый анимация
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function load_uncompressed_anim"; }
@@ -31661,7 +31661,7 @@ int load_uncompressed_anim(lua_State* L) { // 0x0569 COMMAND_LOAD_UNCOMPRESSED_A
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_stopped_char_on_foot_2d(lua_State* L) { // 0x00F0 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_2D (reVC Script.cpp:4439)
+int locate_stopped_char_on_foot_2d(lua_State* L) { // 0x00F0 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_2D (reVC Script.cpp:4439) — найти остановлен персонаж пешком 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_stopped_char_on_foot_2d"; }
@@ -31675,7 +31675,7 @@ int locate_stopped_char_on_foot_2d(lua_State* L) { // 0x00F0 COMMAND_LOCATE_STOP
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_any_means_char_2d(lua_State* L) { // 0x00F2 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_2D (reVC Script.cpp:4443)
+int locate_char_any_means_char_2d(lua_State* L) { // 0x00F2 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_2D (reVC Script.cpp:4443) — найти персонаж способ персонаж 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_char_2d"; }
@@ -31689,7 +31689,7 @@ int locate_char_any_means_char_2d(lua_State* L) { // 0x00F2 COMMAND_LOCATE_CHAR_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_dead(lua_State* L) { // 0x0117 COMMAND_IS_PLAYER_DEAD (reVC Script.cpp:4577)
+int is_player_dead(lua_State* L) { // 0x0117 COMMAND_IS_PLAYER_DEAD (reVC Script.cpp:4577) — проверить игрок мёртв
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_IS_PLAYER_DEAD>(CWorld::PlayerInFocus);
@@ -31697,7 +31697,7 @@ int is_player_dead(lua_State* L) { // 0x0117 COMMAND_IS_PLAYER_DEAD (reVC Script
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_obj_wait_on_foot(lua_State* L) { // 0x0192 COMMAND_SET_CHAR_OBJ_WAIT_ON_FOOT (reVC Script2.cpp:786)
+int set_char_obj_wait_on_foot(lua_State* L) { // 0x0192 COMMAND_SET_CHAR_OBJ_WAIT_ON_FOOT (reVC Script2.cpp:786) — установить персонаж объект ждать пешком
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_obj_wait_on_foot"; }
@@ -31706,7 +31706,7 @@ int set_char_obj_wait_on_foot(lua_State* L) { // 0x0192 COMMAND_SET_CHAR_OBJ_WAI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_route_point(lua_State* L) { // 0x01E2 COMMAND_ADD_ROUTE_POINT (reVC Script2.cpp:1383)
+int add_route_point(lua_State* L) { // 0x01E2 COMMAND_ADD_ROUTE_POINT (reVC Script2.cpp:1383) — добавить маршрут точка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_route_point"; }
@@ -31717,7 +31717,7 @@ int add_route_point(lua_State* L) { // 0x01E2 COMMAND_ADD_ROUTE_POINT (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_maximum_number_of_passengers(lua_State* L) { // 0x01EA COMMAND_GET_MAXIMUM_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1468)
+int get_maximum_number_of_passengers(lua_State* L) { // 0x01EA COMMAND_GET_MAXIMUM_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1468) — получить максимум пассажиры
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_maximum_number_of_passengers"; }
@@ -31729,7 +31729,7 @@ int get_maximum_number_of_passengers(lua_State* L) { // 0x01EA COMMAND_GET_MAXIM
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_random_car_of_type_in_area(lua_State* L) { // 0x0327 COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA (reVC Script4.cpp:134)
+int get_random_car_of_type_in_area(lua_State* L) { // 0x0327 COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA (reVC Script4.cpp:134) — получить случайный авто тип область
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_random_car_of_type_in_area"; }
@@ -31744,7 +31744,7 @@ int get_random_car_of_type_in_area(lua_State* L) { // 0x0327 COMMAND_GET_RANDOM_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int remove_route(lua_State* L) { // 0x03AC COMMAND_REMOVE_ROUTE (reVC Script4.cpp:1583)
+int remove_route(lua_State* L) { // 0x03AC COMMAND_REMOVE_ROUTE (reVC Script4.cpp:1583) — удалить маршрут
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function remove_route"; }
@@ -31752,7 +31752,7 @@ int remove_route(lua_State* L) { // 0x03AC COMMAND_REMOVE_ROUTE (reVC Script4.cp
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_interpolation_parameters(lua_State* L) { // 0x0460 COMMAND_SET_INTERPOLATION_PARAMETERS (reVC Script6.cpp:1149)
+int set_interpolation_parameters(lua_State* L) { // 0x0460 COMMAND_SET_INTERPOLATION_PARAMETERS (reVC Script6.cpp:1149) — установить интерполяция параметры
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_interpolation_parameters"; }
@@ -31761,7 +31761,7 @@ int set_interpolation_parameters(lua_State* L) { // 0x0460 COMMAND_SET_INTERPOLA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_animation_loaded(lua_State* L) { // 0x04EE COMMAND_HAS_ANIMATION_LOADED (reVC Script7.cpp:476)
+int has_animation_loaded(lua_State* L) { // 0x04EE COMMAND_HAS_ANIMATION_LOADED (reVC Script7.cpp:476) — проверить анимация загружен
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function has_animation_loaded"; }
@@ -31775,7 +31775,7 @@ int has_animation_loaded(lua_State* L) { // 0x04EE COMMAND_HAS_ANIMATION_LOADED 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int display_nth_onscreen_counter_with_string(lua_State* L) { // 0x04F7 COMMAND_DISPLAY_NTH_ONSCREEN_COUNTER_WITH_STRING (reVC Script7.cpp:540)
+int display_nth_onscreen_counter_with_string(lua_State* L) { // 0x04F7 COMMAND_DISPLAY_NTH_ONSCREEN_COUNTER_WITH_STRING (reVC Script7.cpp:540) — Показать n-й счётчик на экране со строкой
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_nth_onscreen_counter_with_string"; }
@@ -31795,7 +31795,7 @@ int display_nth_onscreen_counter_with_string(lua_State* L) { // 0x04F7 COMMAND_D
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_obj_no_obj(lua_State* L) { // 0x04FF COMMAND_IS_CHAR_OBJ_NO_OBJ (reVC Script7.cpp:610)
+int is_char_obj_no_obj(lua_State* L) { // 0x04FF COMMAND_IS_CHAR_OBJ_NO_OBJ (reVC Script7.cpp:610) — проверить персонаж объект
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_obj_no_obj"; }
@@ -31805,7 +31805,7 @@ int is_char_obj_no_obj(lua_State* L) { // 0x04FF COMMAND_IS_CHAR_OBJ_NO_OBJ (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_distance_between_coords_2d(lua_State* L) { // 0x0509 COMMAND_GET_DISTANCE_BETWEEN_COORDS_2D (reVC Script7.cpp:679)
+int get_distance_between_coords_2d(lua_State* L) { // 0x0509 COMMAND_GET_DISTANCE_BETWEEN_COORDS_2D (reVC Script7.cpp:679) — получить расстояние между координаты 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_distance_between_coords_2d"; }
@@ -31819,7 +31819,7 @@ int get_distance_between_coords_2d(lua_State* L) { // 0x0509 COMMAND_GET_DISTANC
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int shake_cam(lua_State* L) { // 0x0003 COMMAND_SHAKE_CAM (reVC Script.cpp:2629)
+int shake_cam(lua_State* L) { // 0x0003 COMMAND_SHAKE_CAM (reVC Script.cpp:2629) — Тряска камера
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function shake_cam"; }
@@ -31827,7 +31827,7 @@ int shake_cam(lua_State* L) { // 0x0003 COMMAND_SHAKE_CAM (reVC Script.cpp:2629)
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_in_area_2d(lua_State* L) { // 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reVC Script.cpp:3821)
+int is_char_in_area_2d(lua_State* L) { // 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reVC Script.cpp:3821) — проверить персонаж область 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_area_2d"; }
@@ -31842,7 +31842,7 @@ int is_char_in_area_2d(lua_State* L) { // 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_zone_car_info(lua_State* L) { // 0x0152 COMMAND_SET_ZONE_CAR_INFO (reVC Script2.cpp:201)
+int set_zone_car_info(lua_State* L) { // 0x0152 COMMAND_SET_ZONE_CAR_INFO (reVC Script2.cpp:201) — установить зона авто информация
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_zone_car_info"; }
@@ -31880,7 +31880,7 @@ int set_zone_car_info(lua_State* L) { // 0x0152 COMMAND_SET_ZONE_CAR_INFO (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_blip_for_car_old(lua_State* L) { // 0x0161 COMMAND_ADD_BLIP_FOR_CAR_OLD (reVC Script2.cpp:325)
+int add_blip_for_car_old(lua_State* L) { // 0x0161 COMMAND_ADD_BLIP_FOR_CAR_OLD (reVC Script2.cpp:325) — добавить блип радара авто старый
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function add_blip_for_car_old"; }
@@ -31894,7 +31894,7 @@ int add_blip_for_car_old(lua_State* L) { // 0x0161 COMMAND_ADD_BLIP_FOR_CAR_OLD 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_blip_for_char_old(lua_State* L) { // 0x0162 COMMAND_ADD_BLIP_FOR_CHAR_OLD (reVC Script2.cpp:335)
+int add_blip_for_char_old(lua_State* L) { // 0x0162 COMMAND_ADD_BLIP_FOR_CHAR_OLD (reVC Script2.cpp:335) — добавить блип радара персонаж старый
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function add_blip_for_char_old"; }
@@ -31908,7 +31908,7 @@ int add_blip_for_char_old(lua_State* L) { // 0x0162 COMMAND_ADD_BLIP_FOR_CHAR_OL
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_obj_flee_on_foot_till_safe(lua_State* L) { // 0x0193 COMMAND_SET_CHAR_OBJ_FLEE_ON_FOOT_TILL_SAFE (reVC Script2.cpp:795)
+int set_char_obj_flee_on_foot_till_safe(lua_State* L) { // 0x0193 COMMAND_SET_CHAR_OBJ_FLEE_ON_FOOT_TILL_SAFE (reVC Script2.cpp:795) — установить персонаж объект побег пешком до безопасно
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_obj_flee_on_foot_till_safe"; }
@@ -31917,7 +31917,7 @@ int set_char_obj_flee_on_foot_till_safe(lua_State* L) { // 0x0193 COMMAND_SET_CH
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_stopped_car_3d(lua_State* L) { // 0x01B0 COMMAND_LOCATE_STOPPED_CAR_3D (reVC Script2.cpp:884)
+int locate_stopped_car_3d(lua_State* L) { // 0x01B0 COMMAND_LOCATE_STOPPED_CAR_3D (reVC Script2.cpp:884) — найти остановлен авто 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_car_3d"; }
@@ -31932,7 +31932,7 @@ int locate_stopped_car_3d(lua_State* L) { // 0x01B0 COMMAND_LOCATE_STOPPED_CAR_3
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_with_number(lua_State* L) { // 0x01E4 COMMAND_PRINT_WITH_NUMBER (reVC Script2.cpp:1396)
+int print_with_number(lua_State* L) { // 0x01E4 COMMAND_PRINT_WITH_NUMBER (reVC Script2.cpp:1396) — вывести
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_number"; }
@@ -31952,7 +31952,7 @@ int print_with_number(lua_State* L) { // 0x01E4 COMMAND_PRINT_WITH_NUMBER (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_number_of_passengers(lua_State* L) { // 0x01E9 COMMAND_GET_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1459)
+int get_number_of_passengers(lua_State* L) { // 0x01E9 COMMAND_GET_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1459) — получить пассажиры
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_number_of_passengers"; }
@@ -31964,7 +31964,7 @@ int get_number_of_passengers(lua_State* L) { // 0x01E9 COMMAND_GET_NUMBER_OF_PAS
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_player_health(lua_State* L) { // 0x0222 COMMAND_SET_PLAYER_HEALTH (reVC Script3.cpp:385)
+int set_player_health(lua_State* L) { // 0x0222 COMMAND_SET_PLAYER_HEALTH (reVC Script3.cpp:385) — установить игрок здоровье
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_health"; }
@@ -31972,7 +31972,7 @@ int set_player_health(lua_State* L) { // 0x0222 COMMAND_SET_PLAYER_HEALTH (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_player_health(lua_State* L) { // 0x0225 COMMAND_GET_PLAYER_HEALTH (reVC Script3.cpp:419)
+int get_player_health(lua_State* L) { // 0x0225 COMMAND_GET_PLAYER_HEALTH (reVC Script3.cpp:419) — получить игрок здоровье
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         float out0 = 0;
@@ -31982,7 +31982,7 @@ int get_player_health(lua_State* L) { // 0x0225 COMMAND_GET_PLAYER_HEALTH (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int sin(lua_State* L) { // 0x02F6 COMMAND_SIN (reVC Script3.cpp:2099)
+int sin(lua_State* L) { // 0x02F6 COMMAND_SIN (reVC Script3.cpp:2099) — Синус
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function sin"; }
@@ -31993,7 +31993,7 @@ int sin(lua_State* L) { // 0x02F6 COMMAND_SIN (reVC Script3.cpp:2099)
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int cos(lua_State* L) { // 0x02F7 COMMAND_COS (reVC Script3.cpp:2104)
+int cos(lua_State* L) { // 0x02F7 COMMAND_COS (reVC Script3.cpp:2104) — Косинус
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function cos"; }
@@ -32004,14 +32004,14 @@ int cos(lua_State* L) { // 0x02F7 COMMAND_COS (reVC Script3.cpp:2104)
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int explode_player_head(lua_State* L) { // 0x0322 COMMAND_EXPLODE_PLAYER_HEAD (reVC Script4.cpp:83)
+int explode_player_head(lua_State* L) { // 0x0322 COMMAND_EXPLODE_PLAYER_HEAD (reVC Script4.cpp:83) — взорвать игрок голова
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_EXPLODE_PLAYER_HEAD>(CWorld::PlayerInFocus); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_area_occupied(lua_State* L) { // 0x0339 COMMAND_IS_AREA_OCCUPIED (reVC Script4.cpp:340)
+int is_area_occupied(lua_State* L) { // 0x0339 COMMAND_IS_AREA_OCCUPIED (reVC Script4.cpp:340) — проверить область занято
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_area_occupied"; }
@@ -32030,7 +32030,7 @@ int is_area_occupied(lua_State* L) { // 0x0339 COMMAND_IS_AREA_OCCUPIED (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int swap_nearest_building_model(lua_State* L) { // 0x03B6 COMMAND_SWAP_NEAREST_BUILDING_MODEL (reVC Script4.cpp:1642)
+int swap_nearest_building_model(lua_State* L) { // 0x03B6 COMMAND_SWAP_NEAREST_BUILDING_MODEL (reVC Script4.cpp:1642) — заменить ближайший здание модель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function swap_nearest_building_model"; }
@@ -32043,7 +32043,7 @@ int swap_nearest_building_model(lua_State* L) { // 0x03B6 COMMAND_SWAP_NEAREST_B
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int store_car_char_is_in_no_save(lua_State* L) { // 0x03C0 COMMAND_STORE_CAR_CHAR_IS_IN_NO_SAVE (reVC Script4.cpp:1760)
+int store_car_char_is_in_no_save(lua_State* L) { // 0x03C0 COMMAND_STORE_CAR_CHAR_IS_IN_NO_SAVE (reVC Script4.cpp:1760) — сохранить авто персонаж сохранить
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function store_car_char_is_in_no_save"; }
@@ -32055,7 +32055,7 @@ int store_car_char_is_in_no_save(lua_State* L) { // 0x03C0 COMMAND_STORE_CAR_CHA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_closest_car_node_with_heading(lua_State* L) { // 0x03D3 COMMAND_GET_CLOSEST_CAR_NODE_WITH_HEADING (reVC Script4.cpp:2061)
+int get_closest_car_node_with_heading(lua_State* L) { // 0x03D3 COMMAND_GET_CLOSEST_CAR_NODE_WITH_HEADING (reVC Script4.cpp:2061) — получить ближайший авто узел курс
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_closest_car_node_with_heading"; }
@@ -32074,7 +32074,7 @@ int get_closest_car_node_with_heading(lua_State* L) { // 0x03D3 COMMAND_GET_CLOS
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_mission_audio_position(lua_State* L) { // 0x03D7 COMMAND_SET_MISSION_AUDIO_POSITION (reVC Script4.cpp:2091)
+int set_mission_audio_position(lua_State* L) { // 0x03D7 COMMAND_SET_MISSION_AUDIO_POSITION (reVC Script4.cpp:2091) — установить миссия звук позиция
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_mission_audio_position"; }
@@ -32085,7 +32085,7 @@ int set_mission_audio_position(lua_State* L) { // 0x03D7 COMMAND_SET_MISSION_AUD
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_ammo_in_player_weapon(lua_State* L) { // 0x0419 COMMAND_GET_AMMO_IN_PLAYER_WEAPON (reVC Script6.cpp:413)
+int get_ammo_in_player_weapon(lua_State* L) { // 0x0419 COMMAND_GET_AMMO_IN_PLAYER_WEAPON (reVC Script6.cpp:413) — получить патроны игрок оружие
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_ammo_in_player_weapon"; }
@@ -32096,7 +32096,7 @@ int get_ammo_in_player_weapon(lua_State* L) { // 0x0419 COMMAND_GET_AMMO_IN_PLAY
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int freeze_char_position(lua_State* L) { // 0x04D7 COMMAND_FREEZE_CHAR_POSITION (reVC Script7.cpp:318)
+int freeze_char_position(lua_State* L) { // 0x04D7 COMMAND_FREEZE_CHAR_POSITION (reVC Script7.cpp:318) — заморозить персонаж позиция
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function freeze_char_position"; }
@@ -32106,7 +32106,7 @@ int freeze_char_position(lua_State* L) { // 0x04D7 COMMAND_FREEZE_CHAR_POSITION 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_big_gun_flash(lua_State* L) { // 0x058A COMMAND_ADD_BIG_GUN_FLASH (reVC Script8.cpp:210)
+int add_big_gun_flash(lua_State* L) { // 0x058A COMMAND_ADD_BIG_GUN_FLASH (reVC Script8.cpp:210) — добавить большой пушка вспышка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_big_gun_flash"; }
@@ -32119,7 +32119,7 @@ int add_big_gun_flash(lua_State* L) { // 0x058A COMMAND_ADD_BIG_GUN_FLASH (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_pressing_horn(lua_State* L) { // 0x0122 COMMAND_IS_PLAYER_PRESSING_HORN (reVC Script.cpp:4631)
+int is_player_pressing_horn(lua_State* L) { // 0x0122 COMMAND_IS_PLAYER_PRESSING_HORN (reVC Script.cpp:4631) — проверить игрок нажатие гудок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_IS_PLAYER_PRESSING_HORN>(CWorld::PlayerInFocus);
@@ -32127,7 +32127,7 @@ int is_player_pressing_horn(lua_State* L) { // 0x0122 COMMAND_IS_PLAYER_PRESSING
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int point_camera_at_char(lua_State* L) { // 0x0159 COMMAND_POINT_CAMERA_AT_CHAR (reVC Script2.cpp:259)
+int point_camera_at_char(lua_State* L) { // 0x0159 COMMAND_POINT_CAMERA_AT_CHAR (reVC Script2.cpp:259) — Точка камера персонаж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function point_camera_at_char"; }
@@ -32138,7 +32138,7 @@ int point_camera_at_char(lua_State* L) { // 0x0159 COMMAND_POINT_CAMERA_AT_CHAR 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_player_ammo(lua_State* L) { // 0x017A COMMAND_SET_PLAYER_AMMO (reVC Script2.cpp:573)
+int set_player_ammo(lua_State* L) { // 0x017A COMMAND_SET_PLAYER_AMMO (reVC Script2.cpp:573) — установить игрок патроны
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_ammo"; }
@@ -32148,7 +32148,7 @@ int set_player_ammo(lua_State* L) { // 0x017A COMMAND_SET_PLAYER_AMMO (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_health_greater(lua_State* L) { // 0x0183 COMMAND_IS_PLAYER_HEALTH_GREATER (reVC Script2.cpp:598)
+int is_player_health_greater(lua_State* L) { // 0x0183 COMMAND_IS_PLAYER_HEALTH_GREATER (reVC Script2.cpp:598) — проверить игрок здоровье больше
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_health_greater"; }
@@ -32157,7 +32157,7 @@ int is_player_health_greater(lua_State* L) { // 0x0183 COMMAND_IS_PLAYER_HEALTH_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_any_means_car_3d(lua_State* L) { // 0x01FF COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_3D (reVC Script3.cpp:111)
+int locate_player_any_means_car_3d(lua_State* L) { // 0x01FF COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_3D (reVC Script3.cpp:111) — найти игрок способ авто 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_any_means_car_3d"; }
@@ -32170,7 +32170,7 @@ int locate_player_any_means_car_3d(lua_State* L) { // 0x01FF COMMAND_LOCATE_PLAY
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_gang_weapons(lua_State* L) { // 0x0237 COMMAND_SET_GANG_WEAPONS (reVC Script3.cpp:587)
+int set_gang_weapons(lua_State* L) { // 0x0237 COMMAND_SET_GANG_WEAPONS (reVC Script3.cpp:587) — установить банда оружия
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_gang_weapons"; }
@@ -32180,7 +32180,7 @@ int set_gang_weapons(lua_State* L) { // 0x0237 COMMAND_SET_GANG_WEAPONS (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_stopped(lua_State* L) { // 0x029F COMMAND_IS_PLAYER_STOPPED (reVC Script3.cpp:1345)
+int is_player_stopped(lua_State* L) { // 0x029F COMMAND_IS_PLAYER_STOPPED (reVC Script3.cpp:1345) — проверить игрок остановлен
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_IS_PLAYER_STOPPED>(CWorld::PlayerInFocus);
@@ -32188,7 +32188,7 @@ int is_player_stopped(lua_State* L) { // 0x029F COMMAND_IS_PLAYER_STOPPED (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_in_chars_group(lua_State* L) { // 0x031F COMMAND_IS_CHAR_IN_CHARS_GROUP (reVC Script3.cpp:2398)
+int is_char_in_chars_group(lua_State* L) { // 0x031F COMMAND_IS_CHAR_IN_CHARS_GROUP (reVC Script3.cpp:2398) — проверить персонаж персонажи группа
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_chars_group"; }
@@ -32200,7 +32200,7 @@ int is_char_in_chars_group(lua_State* L) { // 0x031F COMMAND_IS_CHAR_IN_CHARS_GR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_camera_zoom(lua_State* L) { // 0x032A COMMAND_SET_CAMERA_ZOOM (reVC Script4.cpp:208)
+int set_camera_zoom(lua_State* L) { // 0x032A COMMAND_SET_CAMERA_ZOOM (reVC Script4.cpp:208) — установить камера масштаб
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_camera_zoom"; }
@@ -32208,7 +32208,7 @@ int set_camera_zoom(lua_State* L) { // 0x032A COMMAND_SET_CAMERA_ZOOM (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_text_scale(lua_State* L) { // 0x033F COMMAND_SET_TEXT_SCALE (reVC Script4.cpp:396)
+int set_text_scale(lua_State* L) { // 0x033F COMMAND_SET_TEXT_SCALE (reVC Script4.cpp:396) — установить текст масштаб
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_scale"; }
@@ -32217,7 +32217,7 @@ int set_text_scale(lua_State* L) { // 0x033F COMMAND_SET_TEXT_SCALE (reVC Script
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_text_colour(lua_State* L) { // 0x0340 COMMAND_SET_TEXT_COLOUR (reVC Script4.cpp:403)
+int set_text_colour(lua_State* L) { // 0x0340 COMMAND_SET_TEXT_COLOUR (reVC Script4.cpp:403) — установить текст цвет
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_colour"; }
@@ -32228,7 +32228,7 @@ int set_text_colour(lua_State* L) { // 0x0340 COMMAND_SET_TEXT_COLOUR (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_text_justify(lua_State* L) { // 0x0341 COMMAND_SET_TEXT_JUSTIFY (reVC Script4.cpp:410)
+int set_text_justify(lua_State* L) { // 0x0341 COMMAND_SET_TEXT_JUSTIFY (reVC Script4.cpp:410) — установить текст выравнивание
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_justify"; }
@@ -32236,7 +32236,7 @@ int set_text_justify(lua_State* L) { // 0x0341 COMMAND_SET_TEXT_JUSTIFY (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_text_centre(lua_State* L) { // 0x0342 COMMAND_SET_TEXT_CENTRE (reVC Script4.cpp:416)
+int set_text_centre(lua_State* L) { // 0x0342 COMMAND_SET_TEXT_CENTRE (reVC Script4.cpp:416) — установить текст центр
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_centre"; }
@@ -32244,7 +32244,7 @@ int set_text_centre(lua_State* L) { // 0x0342 COMMAND_SET_TEXT_CENTRE (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_text_wrapx(lua_State* L) { // 0x0343 COMMAND_SET_TEXT_WRAPX (reVC Script4.cpp:422)
+int set_text_wrapx(lua_State* L) { // 0x0343 COMMAND_SET_TEXT_WRAPX (reVC Script4.cpp:422) — установить текст зацикливание X
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_wrapx"; }
@@ -32252,7 +32252,7 @@ int set_text_wrapx(lua_State* L) { // 0x0343 COMMAND_SET_TEXT_WRAPX (reVC Script
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_text_background(lua_State* L) { // 0x0345 COMMAND_SET_TEXT_BACKGROUND (reVC Script4.cpp:436)
+int set_text_background(lua_State* L) { // 0x0345 COMMAND_SET_TEXT_BACKGROUND (reVC Script4.cpp:436) — установить текст фон
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_background"; }
@@ -32260,7 +32260,7 @@ int set_text_background(lua_State* L) { // 0x0345 COMMAND_SET_TEXT_BACKGROUND (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_text_proportional(lua_State* L) { // 0x0348 COMMAND_SET_TEXT_PROPORTIONAL (reVC Script4.cpp:457)
+int set_text_proportional(lua_State* L) { // 0x0348 COMMAND_SET_TEXT_PROPORTIONAL (reVC Script4.cpp:457) — установить текст пропорциональный
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_proportional"; }
@@ -32268,7 +32268,7 @@ int set_text_proportional(lua_State* L) { // 0x0348 COMMAND_SET_TEXT_PROPORTIONA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int freeze_onscreen_timer(lua_State* L) { // 0x0396 COMMAND_FREEZE_ONSCREEN_TIMER (reVC Script4.cpp:1413)
+int freeze_onscreen_timer(lua_State* L) { // 0x0396 COMMAND_FREEZE_ONSCREEN_TIMER (reVC Script4.cpp:1413) — заморозить на экране таймер
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (!ma_arg_is_bool(lua_type(L, 1))) { throw "bad argument in function freeze_onscreen_timer"; }
@@ -32276,7 +32276,7 @@ int freeze_onscreen_timer(lua_State* L) { // 0x0396 COMMAND_FREEZE_ONSCREEN_TIME
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int draw_sphere(lua_State* L) { // 0x03A1 COMMAND_DRAW_SPHERE (reVC Script4.cpp:1514)
+int draw_sphere(lua_State* L) { // 0x03A1 COMMAND_DRAW_SPHERE (reVC Script4.cpp:1514) — нарисовать сфера
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function draw_sphere"; }
@@ -32287,7 +32287,7 @@ int draw_sphere(lua_State* L) { // 0x03A1 COMMAND_DRAW_SPHERE (reVC Script4.cpp:
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_text_right_justify(lua_State* L) { // 0x03E4 COMMAND_SET_TEXT_RIGHT_JUSTIFY (reVC Script4.cpp:2179)
+int set_text_right_justify(lua_State* L) { // 0x03E4 COMMAND_SET_TEXT_RIGHT_JUSTIFY (reVC Script4.cpp:2179) — установить текст вправо выравнивание
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_text_right_justify"; }
@@ -32295,7 +32295,7 @@ int set_text_right_justify(lua_State* L) { // 0x03E4 COMMAND_SET_TEXT_RIGHT_JUST
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_generate_cars_around_camera(lua_State* L) { // 0x03EA COMMAND_SET_GENERATE_CARS_AROUND_CAMERA (reVC Script6.cpp:95)
+int set_generate_cars_around_camera(lua_State* L) { // 0x03EA COMMAND_SET_GENERATE_CARS_AROUND_CAMERA (reVC Script6.cpp:95) — установить создать авто вокруг камера
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_generate_cars_around_camera"; }
@@ -32303,7 +32303,7 @@ int set_generate_cars_around_camera(lua_State* L) { // 0x03EA COMMAND_SET_GENERA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int use_text_commands(lua_State* L) { // 0x03F0 COMMAND_USE_TEXT_COMMANDS (reVC Script6.cpp:138)
+int use_text_commands(lua_State* L) { // 0x03F0 COMMAND_USE_TEXT_COMMANDS (reVC Script6.cpp:138) — использовать текст команды
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function use_text_commands"; }
@@ -32311,7 +32311,7 @@ int use_text_commands(lua_State* L) { // 0x03F0 COMMAND_USE_TEXT_COMMANDS (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_car_can_be_damaged(lua_State* L) { // 0x03F5 COMMAND_SET_CAR_CAN_BE_DAMAGED (reVC Script6.cpp:166)
+int set_car_can_be_damaged(lua_State* L) { // 0x03F5 COMMAND_SET_CAR_CAN_BE_DAMAGED (reVC Script6.cpp:166) — установить авто может повреждён
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_car_can_be_damaged"; }
@@ -32321,7 +32321,7 @@ int set_car_can_be_damaged(lua_State* L) { // 0x03F5 COMMAND_SET_CAR_CAN_BE_DAMA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_offset_from_object_in_world_coords(lua_State* L) { // 0x0400 COMMAND_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS (reVC Script6.cpp:253)
+int get_offset_from_object_in_world_coords(lua_State* L) { // 0x0400 COMMAND_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS (reVC Script6.cpp:253) — получить смещение объект мир координаты
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_offset_from_object_in_world_coords"; }
@@ -32340,7 +32340,7 @@ int get_offset_from_object_in_world_coords(lua_State* L) { // 0x0400 COMMAND_GET
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_highest_score(lua_State* L) { // 0x042F COMMAND_REGISTER_HIGHEST_SCORE (reVC Script6.cpp:639)
+int register_highest_score(lua_State* L) { // 0x042F COMMAND_REGISTER_HIGHEST_SCORE (reVC Script6.cpp:639) — зарегистрировать наибольший очки
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_highest_score"; }
@@ -32349,7 +32349,7 @@ int register_highest_score(lua_State* L) { // 0x042F COMMAND_REGISTER_HIGHEST_SC
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_single_particle(lua_State* L) { // 0x0437 COMMAND_CREATE_SINGLE_PARTICLE (reVC Script6.cpp:682)
+int create_single_particle(lua_State* L) { // 0x0437 COMMAND_CREATE_SINGLE_PARTICLE (reVC Script6.cpp:682) — создать одиночный частица
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_single_particle"; }
@@ -32364,7 +32364,7 @@ int create_single_particle(lua_State* L) { // 0x0437 COMMAND_CREATE_SINGLE_PARTI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_on_foot(lua_State* L) { // 0x044A COMMAND_IS_PLAYER_ON_FOOT (reVC Script6.cpp:837)
+int is_player_on_foot(lua_State* L) { // 0x044A COMMAND_IS_PLAYER_ON_FOOT (reVC Script6.cpp:837) — проверить игрок пешком
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_IS_PLAYER_ON_FOOT>(CWorld::PlayerInFocus);
@@ -32372,7 +32372,7 @@ int is_player_on_foot(lua_State* L) { // 0x044A COMMAND_IS_PLAYER_ON_FOOT (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_object_rotation(lua_State* L) { // 0x0453 COMMAND_SET_OBJECT_ROTATION (reVC Script6.cpp:951)
+int set_object_rotation(lua_State* L) { // 0x0453 COMMAND_SET_OBJECT_ROTATION (reVC Script6.cpp:951) — установить объект вращение
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_object_rotation"; }
@@ -32384,7 +32384,7 @@ int set_object_rotation(lua_State* L) { // 0x0453 COMMAND_SET_OBJECT_ROTATION (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int display_text_with_number(lua_State* L) { // 0x045A COMMAND_DISPLAY_TEXT_WITH_NUMBER (reVC Script6.cpp:1054)
+int display_text_with_number(lua_State* L) { // 0x045A COMMAND_DISPLAY_TEXT_WITH_NUMBER (reVC Script6.cpp:1054) — Показать текст
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_text_with_number"; }
@@ -32404,7 +32404,7 @@ int display_text_with_number(lua_State* L) { // 0x045A COMMAND_DISPLAY_TEXT_WITH
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_random_cop_in_area(lua_State* L) { // 0x0469 COMMAND_GET_RANDOM_COP_IN_AREA (reVC Script6.cpp:1233)
+int get_random_cop_in_area(lua_State* L) { // 0x0469 COMMAND_GET_RANDOM_COP_IN_AREA (reVC Script6.cpp:1233) — получить случайный полицейский область
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_random_cop_in_area"; }
@@ -32423,7 +32423,7 @@ int get_random_cop_in_area(lua_State* L) { // 0x0469 COMMAND_GET_RANDOM_COP_IN_A
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_offset_from_char_in_world_coords(lua_State* L) { // 0x04C4 COMMAND_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS (reVC Script7.cpp:191)
+int get_offset_from_char_in_world_coords(lua_State* L) { // 0x04C4 COMMAND_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS (reVC Script7.cpp:191) — получить смещение персонаж мир координаты
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_offset_from_char_in_world_coords"; }
@@ -32442,7 +32442,7 @@ int get_offset_from_char_in_world_coords(lua_State* L) { // 0x04C4 COMMAND_GET_O
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int switch_security_camera(lua_State* L) { // 0x04C7 COMMAND_SWITCH_SECURITY_CAMERA (reVC Script7.cpp:225)
+int switch_security_camera(lua_State* L) { // 0x04C7 COMMAND_SWITCH_SECURITY_CAMERA (reVC Script7.cpp:225) — Переключатель охрана камера
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function switch_security_camera"; }
@@ -32450,7 +32450,7 @@ int switch_security_camera(lua_State* L) { // 0x04C7 COMMAND_SWITCH_SECURITY_CAM
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_zone_civilian_car_info(lua_State* L) { // 0x04EC COMMAND_SET_ZONE_CIVILIAN_CAR_INFO (reVC Script7.cpp:443)
+int set_zone_civilian_car_info(lua_State* L) { // 0x04EC COMMAND_SET_ZONE_CIVILIAN_CAR_INFO (reVC Script7.cpp:443) — установить зона гражданский авто информация
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_zone_civilian_car_info"; }
@@ -32488,7 +32488,7 @@ int set_zone_civilian_car_info(lua_State* L) { // 0x04EC COMMAND_SET_ZONE_CIVILI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_waiting_for_world_collision(lua_State* L) { // 0x04F0 COMMAND_IS_CHAR_WAITING_FOR_WORLD_COLLISION (reVC Script7.cpp:492)
+int is_char_waiting_for_world_collision(lua_State* L) { // 0x04F0 COMMAND_IS_CHAR_WAITING_FOR_WORLD_COLLISION (reVC Script7.cpp:492) — проверить персонаж ожидание мир столкновение
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_waiting_for_world_collision"; }
@@ -32498,7 +32498,7 @@ int is_char_waiting_for_world_collision(lua_State* L) { // 0x04F0 COMMAND_IS_CHA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int attach_char_to_object(lua_State* L) { // 0x04F4 COMMAND_ATTACH_CHAR_TO_OBJECT (reVC Script7.cpp:523)
+int attach_char_to_object(lua_State* L) { // 0x04F4 COMMAND_ATTACH_CHAR_TO_OBJECT (reVC Script7.cpp:523) — прикрепить персонаж объект
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function attach_char_to_object"; }
@@ -32515,7 +32515,7 @@ int attach_char_to_object(lua_State* L) { // 0x04F4 COMMAND_ATTACH_CHAR_TO_OBJEC
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_wearing(lua_State* L) { // 0x0500 COMMAND_IS_PLAYER_WEARING (reVC Script7.cpp:618)
+int is_player_wearing(lua_State* L) { // 0x0500 COMMAND_IS_PLAYER_WEARING (reVC Script7.cpp:618) — проверить игрок носит
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function is_player_wearing"; }
@@ -32530,7 +32530,7 @@ int is_player_wearing(lua_State* L) { // 0x0500 COMMAND_IS_PLAYER_WEARING (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int attach_cutscene_object_to_bone(lua_State* L) { // 0x0524 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_BONE (reVC Script7.cpp:846)
+int attach_cutscene_object_to_bone(lua_State* L) { // 0x0524 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_BONE (reVC Script7.cpp:846) — прикрепить объект сцены кость
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function attach_cutscene_object_to_bone"; }
@@ -32542,7 +32542,7 @@ int attach_cutscene_object_to_bone(lua_State* L) { // 0x0524 COMMAND_ATTACH_CUTS
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_player_is_in_stadium(lua_State* L) { // 0x057E COMMAND_SET_PLAYER_IS_IN_STADIUM (reVC Script8.cpp:83)
+int set_player_is_in_stadium(lua_State* L) { // 0x057E COMMAND_SET_PLAYER_IS_IN_STADIUM (reVC Script8.cpp:83) — установить игрок стадион
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_is_in_stadium"; }
@@ -32550,7 +32550,7 @@ int set_player_is_in_stadium(lua_State* L) { // 0x057E COMMAND_SET_PLAYER_IS_IN_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int char_wander_dir(lua_State* L) { // 0x009C COMMAND_CHAR_WANDER_DIR (reVC Script.cpp:3709)
+int char_wander_dir(lua_State* L) { // 0x009C COMMAND_CHAR_WANDER_DIR (reVC Script.cpp:3709) — Персонаж бродить направление
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function char_wander_dir"; }
@@ -32560,7 +32560,7 @@ int char_wander_dir(lua_State* L) { // 0x009C COMMAND_CHAR_WANDER_DIR (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_time_of_day(lua_State* L) { // 0x00BF COMMAND_GET_TIME_OF_DAY (reVC Script.cpp:4165)
+int get_time_of_day(lua_State* L) { // 0x00BF COMMAND_GET_TIME_OF_DAY (reVC Script.cpp:4165) — получить время день
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -32572,7 +32572,7 @@ int get_time_of_day(lua_State* L) { // 0x00BF COMMAND_GET_TIME_OF_DAY (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_in_car_2d(lua_State* L) { // 0x00E5 COMMAND_LOCATE_PLAYER_IN_CAR_2D (reVC Script.cpp:4424)
+int locate_player_in_car_2d(lua_State* L) { // 0x00E5 COMMAND_LOCATE_PLAYER_IN_CAR_2D (reVC Script.cpp:4424) — найти игрок в авто 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_2d"; }
@@ -32585,7 +32585,7 @@ int locate_player_in_car_2d(lua_State* L) { // 0x00E5 COMMAND_LOCATE_PLAYER_IN_C
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_stopped_player_on_foot_2d(lua_State* L) { // 0x00E7 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_2D (reVC Script.cpp:4426)
+int locate_stopped_player_on_foot_2d(lua_State* L) { // 0x00E7 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_2D (reVC Script.cpp:4426) — найти остановлен игрок пешком 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_stopped_player_on_foot_2d"; }
@@ -32597,7 +32597,7 @@ int locate_stopped_player_on_foot_2d(lua_State* L) { // 0x00E7 COMMAND_LOCATE_ST
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_on_foot_char_2d(lua_State* L) { // 0x00EA COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_2D (reVC Script.cpp:4431)
+int locate_player_on_foot_char_2d(lua_State* L) { // 0x00EA COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_2D (reVC Script.cpp:4431) — найти игрок пешком персонаж 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_on_foot_char_2d"; }
@@ -32609,7 +32609,7 @@ int locate_player_on_foot_char_2d(lua_State* L) { // 0x00EA COMMAND_LOCATE_PLAYE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_in_car_char_2d(lua_State* L) { // 0x00EB COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_2D (reVC Script.cpp:4432)
+int locate_player_in_car_char_2d(lua_State* L) { // 0x00EB COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_2D (reVC Script.cpp:4432) — найти игрок в авто персонаж 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_char_2d"; }
@@ -32621,7 +32621,7 @@ int locate_player_in_car_char_2d(lua_State* L) { // 0x00EB COMMAND_LOCATE_PLAYER
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_in_car_2d(lua_State* L) { // 0x00EE COMMAND_LOCATE_CHAR_IN_CAR_2D (reVC Script.cpp:4437)
+int locate_char_in_car_2d(lua_State* L) { // 0x00EE COMMAND_LOCATE_CHAR_IN_CAR_2D (reVC Script.cpp:4437) — найти персонаж в авто 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_in_car_2d"; }
@@ -32636,7 +32636,7 @@ int locate_char_in_car_2d(lua_State* L) { // 0x00EE COMMAND_LOCATE_CHAR_IN_CAR_2
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_on_foot_char_3d(lua_State* L) { // 0x00FC COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_3D (reVC Script.cpp:4457)
+int locate_player_on_foot_char_3d(lua_State* L) { // 0x00FC COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_3D (reVC Script.cpp:4457) — найти игрок пешком персонаж 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_on_foot_char_3d"; }
@@ -32649,7 +32649,7 @@ int locate_player_on_foot_char_3d(lua_State* L) { // 0x00FC COMMAND_LOCATE_PLAYE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_in_car_char_3d(lua_State* L) { // 0x00FD COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_3D (reVC Script.cpp:4458)
+int locate_player_in_car_char_3d(lua_State* L) { // 0x00FD COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_3D (reVC Script.cpp:4458) — найти игрок в авто персонаж 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_char_3d"; }
@@ -32662,7 +32662,7 @@ int locate_player_in_car_char_3d(lua_State* L) { // 0x00FD COMMAND_LOCATE_PLAYER
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_score_greater(lua_State* L) { // 0x010A COMMAND_IS_SCORE_GREATER (reVC Script.cpp:4518)
+int is_score_greater(lua_State* L) { // 0x010A COMMAND_IS_SCORE_GREATER (reVC Script.cpp:4518) — проверить очки больше
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_score_greater"; }
@@ -32671,7 +32671,7 @@ int is_score_greater(lua_State* L) { // 0x010A COMMAND_IS_SCORE_GREATER (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int store_score(lua_State* L) { // 0x010B COMMAND_STORE_SCORE (reVC Script.cpp:4522)
+int store_score(lua_State* L) { // 0x010B COMMAND_STORE_SCORE (reVC Script.cpp:4522) — сохранить очки
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -32681,7 +32681,7 @@ int store_score(lua_State* L) { // 0x010B COMMAND_STORE_SCORE (reVC Script.cpp:4
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_deatharrest_state(lua_State* L) { // 0x0111 COMMAND_SET_DEATHARREST_STATE (reVC Script.cpp:4552)
+int set_deatharrest_state(lua_State* L) { // 0x0111 COMMAND_SET_DEATHARREST_STATE (reVC Script.cpp:4552) — установить арест при смерти состояние
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_deatharrest_state"; }
@@ -32689,7 +32689,7 @@ int set_deatharrest_state(lua_State* L) { // 0x0111 COMMAND_SET_DEATHARREST_STAT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_car_generator(lua_State* L) { // 0x014B COMMAND_CREATE_CAR_GENERATOR (reVC Script2.cpp:133)
+int create_car_generator(lua_State* L) { // 0x014B COMMAND_CREATE_CAR_GENERATOR (reVC Script2.cpp:133) — создать авто генератор
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_car_generator"; }
@@ -32711,7 +32711,7 @@ int create_car_generator(lua_State* L) { // 0x014B COMMAND_CREATE_CAR_GENERATOR 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_hospital_restart(lua_State* L) { // 0x016C COMMAND_ADD_HOSPITAL_RESTART (reVC Script2.cpp:395)
+int add_hospital_restart(lua_State* L) { // 0x016C COMMAND_ADD_HOSPITAL_RESTART (reVC Script2.cpp:395) — добавить больница перезапуск
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_hospital_restart"; }
@@ -32722,7 +32722,7 @@ int add_hospital_restart(lua_State* L) { // 0x016C COMMAND_ADD_HOSPITAL_RESTART 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_police_restart(lua_State* L) { // 0x016D COMMAND_ADD_POLICE_RESTART (reVC Script2.cpp:405)
+int add_police_restart(lua_State* L) { // 0x016D COMMAND_ADD_POLICE_RESTART (reVC Script2.cpp:405) — добавить полиция перезапуск
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_police_restart"; }
@@ -32733,7 +32733,7 @@ int add_police_restart(lua_State* L) { // 0x016D COMMAND_ADD_POLICE_RESTART (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_blip_for_contact_point(lua_State* L) { // 0x0189 COMMAND_ADD_BLIP_FOR_CONTACT_POINT (reVC Script2.cpp:657)
+int add_blip_for_contact_point(lua_State* L) { // 0x0189 COMMAND_ADD_BLIP_FOR_CONTACT_POINT (reVC Script2.cpp:657) — добавить блип радара контакт точка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_blip_for_contact_point"; }
@@ -32746,7 +32746,7 @@ int add_blip_for_contact_point(lua_State* L) { // 0x0189 COMMAND_ADD_BLIP_FOR_CO
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_player_in_car_car_2d(lua_State* L) { // 0x01FE COMMAND_LOCATE_PLAYER_IN_CAR_CAR_2D (reVC Script3.cpp:110)
+int locate_player_in_car_car_2d(lua_State* L) { // 0x01FE COMMAND_LOCATE_PLAYER_IN_CAR_CAR_2D (reVC Script3.cpp:110) — найти игрок в авто авто 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_player_in_car_car_2d"; }
@@ -32758,7 +32758,7 @@ int locate_player_in_car_car_2d(lua_State* L) { // 0x01FE COMMAND_LOCATE_PLAYER_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_on_foot_car_2d(lua_State* L) { // 0x0203 COMMAND_LOCATE_CHAR_ON_FOOT_CAR_2D (reVC Script3.cpp:117)
+int locate_char_on_foot_car_2d(lua_State* L) { // 0x0203 COMMAND_LOCATE_CHAR_ON_FOOT_CAR_2D (reVC Script3.cpp:117) — найти персонаж пешком авто 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_car_2d"; }
@@ -32772,7 +32772,7 @@ int locate_char_on_foot_car_2d(lua_State* L) { // 0x0203 COMMAND_LOCATE_CHAR_ON_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_any_means_car_3d(lua_State* L) { // 0x0205 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_3D (reVC Script3.cpp:119)
+int locate_char_any_means_car_3d(lua_State* L) { // 0x0205 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_3D (reVC Script3.cpp:119) — найти персонаж способ авто 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_car_3d"; }
@@ -32787,7 +32787,7 @@ int locate_char_any_means_car_3d(lua_State* L) { // 0x0205 COMMAND_LOCATE_CHAR_A
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_gang_ped_models(lua_State* L) { // 0x0235 COMMAND_SET_GANG_PED_MODELS (reVC Script3.cpp:579)
+int set_gang_ped_models(lua_State* L) { // 0x0235 COMMAND_SET_GANG_PED_MODELS (reVC Script3.cpp:579) — установить банда пешеход модели
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_gang_ped_models"; }
@@ -32797,7 +32797,7 @@ int set_gang_ped_models(lua_State* L) { // 0x0235 COMMAND_SET_GANG_PED_MODELS (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_angled_area_2d(lua_State* L) { // 0x02AD COMMAND_IS_PLAYER_IN_ANGLED_AREA_2D (reVC Script3.cpp:1488)
+int is_player_in_angled_area_2d(lua_State* L) { // 0x02AD COMMAND_IS_PLAYER_IN_ANGLED_AREA_2D (reVC Script3.cpp:1488) — проверить игрок под углом область 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_angled_area_2d"; }
@@ -32811,7 +32811,7 @@ int is_player_in_angled_area_2d(lua_State* L) { // 0x02AD COMMAND_IS_PLAYER_IN_A
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_zone_group(lua_State* L) { // 0x0324 COMMAND_SET_ZONE_GROUP (reVC Script4.cpp:99)
+int set_zone_group(lua_State* L) { // 0x0324 COMMAND_SET_ZONE_GROUP (reVC Script4.cpp:99) — установить зона группа
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function set_zone_group"; }
@@ -32829,7 +32829,7 @@ int set_zone_group(lua_State* L) { // 0x0324 COMMAND_SET_ZONE_GROUP (reVC Script
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int display_text(lua_State* L) { // 0x033E COMMAND_DISPLAY_TEXT (reVC Script4.cpp:382)
+int display_text(lua_State* L) { // 0x033E COMMAND_DISPLAY_TEXT (reVC Script4.cpp:382) — Показать текст
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_text"; }
@@ -32847,7 +32847,7 @@ int display_text(lua_State* L) { // 0x033E COMMAND_DISPLAY_TEXT (reVC Script4.cp
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int open_garage(lua_State* L) { // 0x0360 COMMAND_OPEN_GARAGE (reVC Script4.cpp:763)
+int open_garage(lua_State* L) { // 0x0360 COMMAND_OPEN_GARAGE (reVC Script4.cpp:763) — открыть гараж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function open_garage"; }
@@ -32855,7 +32855,7 @@ int open_garage(lua_State* L) { // 0x0360 COMMAND_OPEN_GARAGE (reVC Script4.cpp:
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_sniper_bullet_in_area(lua_State* L) { // 0x037E COMMAND_IS_SNIPER_BULLET_IN_AREA (reVC Script4.cpp:1131)
+int is_sniper_bullet_in_area(lua_State* L) { // 0x037E COMMAND_IS_SNIPER_BULLET_IN_AREA (reVC Script4.cpp:1131) — проверить снайпер пуля область
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_sniper_bullet_in_area"; }
@@ -32869,7 +32869,7 @@ int is_sniper_bullet_in_area(lua_State* L) { // 0x037E COMMAND_IS_SNIPER_BULLET_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_string_in_string_now(lua_State* L) { // 0x0384 COMMAND_PRINT_STRING_IN_STRING_NOW (reVC Script4.cpp:1205)
+int print_string_in_string_now(lua_State* L) { // 0x0384 COMMAND_PRINT_STRING_IN_STRING_NOW (reVC Script4.cpp:1205) — вывести строка сейчас
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_string_in_string_now"; }
@@ -32889,7 +32889,7 @@ int print_string_in_string_now(lua_State* L) { // 0x0384 COMMAND_PRINT_STRING_IN
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int remove_particle_effects_in_area(lua_State* L) { // 0x03AE COMMAND_REMOVE_PARTICLE_EFFECTS_IN_AREA (reVC Script4.cpp:1591)
+int remove_particle_effects_in_area(lua_State* L) { // 0x03AE COMMAND_REMOVE_PARTICLE_EFFECTS_IN_AREA (reVC Script4.cpp:1591) — удалить частица эффекты область
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function remove_particle_effects_in_area"; }
@@ -32902,7 +32902,7 @@ int remove_particle_effects_in_area(lua_State* L) { // 0x03AE COMMAND_REMOVE_PAR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_garage_closed(lua_State* L) { // 0x03B1 COMMAND_IS_GARAGE_CLOSED (reVC Script4.cpp:1624)
+int is_garage_closed(lua_State* L) { // 0x03B1 COMMAND_IS_GARAGE_CLOSED (reVC Script4.cpp:1624) — проверить гараж закрыто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_garage_closed"; }
@@ -32911,7 +32911,7 @@ int is_garage_closed(lua_State* L) { // 0x03B1 COMMAND_IS_GARAGE_CLOSED (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int does_object_exist(lua_State* L) { // 0x03CA COMMAND_DOES_OBJECT_EXIST (reVC Script4.cpp:1996)
+int does_object_exist(lua_State* L) { // 0x03CA COMMAND_DOES_OBJECT_EXIST (reVC Script4.cpp:1996) — Объект существовать
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function does_object_exist"; }
@@ -32920,7 +32920,7 @@ int does_object_exist(lua_State* L) { // 0x03CA COMMAND_DOES_OBJECT_EXIST (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_this_big_print(lua_State* L) { // 0x03D6 COMMAND_CLEAR_THIS_BIG_PRINT (reVC Script4.cpp:2085)
+int clear_this_big_print(lua_State* L) { // 0x03D6 COMMAND_CLEAR_THIS_BIG_PRINT (reVC Script4.cpp:2085) — очистить большой вывести текст
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function clear_this_big_print"; }
@@ -32934,7 +32934,7 @@ int clear_this_big_print(lua_State* L) { // 0x03D6 COMMAND_CLEAR_THIS_BIG_PRINT 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int no_special_camera_for_this_garage(lua_State* L) { // 0x03DA COMMAND_NO_SPECIAL_CAMERA_FOR_THIS_GARAGE (reVC Script4.cpp:2109)
+int no_special_camera_for_this_garage(lua_State* L) { // 0x03DA COMMAND_NO_SPECIAL_CAMERA_FOR_THIS_GARAGE (reVC Script4.cpp:2109) — Специальный камера гараж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function no_special_camera_for_this_garage"; }
@@ -32942,7 +32942,7 @@ int no_special_camera_for_this_garage(lua_State* L) { // 0x03DA COMMAND_NO_SPECI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_car_avoid_level_transitions(lua_State* L) { // 0x0428 COMMAND_SET_CAR_AVOID_LEVEL_TRANSITIONS (reVC Script6.cpp:580)
+int set_car_avoid_level_transitions(lua_State* L) { // 0x0428 COMMAND_SET_CAR_AVOID_LEVEL_TRANSITIONS (reVC Script6.cpp:580) — установить авто избегать уровень переходы
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_car_avoid_level_transitions"; }
@@ -32952,7 +32952,7 @@ int set_car_avoid_level_transitions(lua_State* L) { // 0x0428 COMMAND_SET_CAR_AV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_car_model(lua_State* L) { // 0x0441 COMMAND_GET_CAR_MODEL (reVC Script6.cpp:766)
+int get_car_model(lua_State* L) { // 0x0441 COMMAND_GET_CAR_MODEL (reVC Script6.cpp:766) — получить авто модель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_car_model"; }
@@ -32964,7 +32964,7 @@ int get_car_model(lua_State* L) { // 0x0441 COMMAND_GET_CAR_MODEL (reVC Script6.
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int display_text_with_2_numbers(lua_State* L) { // 0x045B COMMAND_DISPLAY_TEXT_WITH_2_NUMBERS (reVC Script6.cpp:1065)
+int display_text_with_2_numbers(lua_State* L) { // 0x045B COMMAND_DISPLAY_TEXT_WITH_2_NUMBERS (reVC Script6.cpp:1065) — Показать текст 2 числа
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function display_text_with_2_numbers"; }
@@ -32986,7 +32986,7 @@ int display_text_with_2_numbers(lua_State* L) { // 0x045B COMMAND_DISPLAY_TEXT_W
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_number_of_followers(lua_State* L) { // 0x046D COMMAND_GET_NUMBER_OF_FOLLOWERS (reVC Script6.cpp:1354)
+int get_number_of_followers(lua_State* L) { // 0x046D COMMAND_GET_NUMBER_OF_FOLLOWERS (reVC Script6.cpp:1354) — получить последователи
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_number_of_followers"; }
@@ -32998,7 +32998,7 @@ int get_number_of_followers(lua_State* L) { // 0x046D COMMAND_GET_NUMBER_OF_FOLL
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_current_char_weapon(lua_State* L) { // 0x0470 COMMAND_GET_CURRENT_CHAR_WEAPON (reVC Script6.cpp:1390)
+int get_current_char_weapon(lua_State* L) { // 0x0470 COMMAND_GET_CURRENT_CHAR_WEAPON (reVC Script6.cpp:1390) — получить текущий персонаж оружие
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_current_char_weapon"; }
@@ -33010,7 +33010,7 @@ int get_current_char_weapon(lua_State* L) { // 0x0470 COMMAND_GET_CURRENT_CHAR_W
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int remove_all_char_weapons(lua_State* L) { // 0x048F COMMAND_REMOVE_ALL_CHAR_WEAPONS (reVC Script6.cpp:1549)
+int remove_all_char_weapons(lua_State* L) { // 0x048F COMMAND_REMOVE_ALL_CHAR_WEAPONS (reVC Script6.cpp:1549) — удалить персонаж оружия
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function remove_all_char_weapons"; }
@@ -33019,7 +33019,7 @@ int remove_all_char_weapons(lua_State* L) { // 0x048F COMMAND_REMOVE_ALL_CHAR_WE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_player_got_weapon(lua_State* L) { // 0x0490 COMMAND_HAS_PLAYER_GOT_WEAPON (reVC Script6.cpp:1557)
+int has_player_got_weapon(lua_State* L) { // 0x0490 COMMAND_HAS_PLAYER_GOT_WEAPON (reVC Script6.cpp:1557) — проверить игрок получено оружие
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function has_player_got_weapon"; }
@@ -33028,7 +33028,7 @@ int has_player_got_weapon(lua_State* L) { // 0x0490 COMMAND_HAS_PLAYER_GOT_WEAPO
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_position_of_analogue_sticks(lua_State* L) { // 0x0494 COMMAND_GET_POSITION_OF_ANALOGUE_STICKS (reVC Script6.cpp:1582)
+int get_position_of_analogue_sticks(lua_State* L) { // 0x0494 COMMAND_GET_POSITION_OF_ANALOGUE_STICKS (reVC Script6.cpp:1582) — получить позиция аналоговый палки
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_position_of_analogue_sticks"; }
@@ -33045,7 +33045,7 @@ int get_position_of_analogue_sticks(lua_State* L) { // 0x0494 COMMAND_GET_POSITI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_object_path_speed(lua_State* L) { // 0x049E COMMAND_SET_OBJECT_PATH_SPEED (reVC Script6.cpp:1668)
+int set_object_path_speed(lua_State* L) { // 0x049E COMMAND_SET_OBJECT_PATH_SPEED (reVC Script6.cpp:1668) — установить объект путь скорость
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_object_path_speed"; }
@@ -33054,7 +33054,7 @@ int set_object_path_speed(lua_State* L) { // 0x049E COMMAND_SET_OBJECT_PATH_SPEE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_closest_straight_road(lua_State* L) { // 0x04B9 COMMAND_GET_CLOSEST_STRAIGHT_ROAD (reVC Script7.cpp:104)
+int get_closest_straight_road(lua_State* L) { // 0x04B9 COMMAND_GET_CLOSEST_STRAIGHT_ROAD (reVC Script7.cpp:104) — получить ближайший прямо дорога
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_closest_straight_road"; }
@@ -33081,7 +33081,7 @@ int get_closest_straight_road(lua_State* L) { // 0x04B9 COMMAND_GET_CLOSEST_STRA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_nth_closest_car_node(lua_State* L) { // 0x04D3 COMMAND_GET_NTH_CLOSEST_CAR_NODE (reVC Script7.cpp:291)
+int get_nth_closest_car_node(lua_State* L) { // 0x04D3 COMMAND_GET_NTH_CLOSEST_CAR_NODE (reVC Script7.cpp:291) — получить n-й ближайший авто узел
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_nth_closest_car_node"; }
@@ -33099,7 +33099,7 @@ int get_nth_closest_car_node(lua_State* L) { // 0x04D3 COMMAND_GET_NTH_CLOSEST_C
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_object_records_collisions(lua_State* L) { // 0x04D9 COMMAND_SET_OBJECT_RECORDS_COLLISIONS (reVC Script7.cpp:334)
+int set_object_records_collisions(lua_State* L) { // 0x04D9 COMMAND_SET_OBJECT_RECORDS_COLLISIONS (reVC Script7.cpp:334) — установить объект рекорды столкновения
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_object_records_collisions"; }
@@ -33109,7 +33109,7 @@ int set_object_records_collisions(lua_State* L) { // 0x04D9 COMMAND_SET_OBJECT_R
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_object_collided_with_anything(lua_State* L) { // 0x04DA COMMAND_HAS_OBJECT_COLLIDED_WITH_ANYTHING (reVC Script7.cpp:342)
+int has_object_collided_with_anything(lua_State* L) { // 0x04DA COMMAND_HAS_OBJECT_COLLIDED_WITH_ANYTHING (reVC Script7.cpp:342) — проверить объект столкнулся что-либо
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_object_collided_with_anything"; }
@@ -33119,7 +33119,7 @@ int has_object_collided_with_anything(lua_State* L) { // 0x04DA COMMAND_HAS_OBJE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_heli_stabiliser(lua_State* L) { // 0x04DF COMMAND_SET_HELI_STABILISER (reVC Script7.cpp:366)
+int set_heli_stabiliser(lua_State* L) { // 0x04DF COMMAND_SET_HELI_STABILISER (reVC Script7.cpp:366) — установить вертолёт стабилизатор
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_heli_stabiliser"; }
@@ -33129,7 +33129,7 @@ int set_heli_stabiliser(lua_State* L) { // 0x04DF COMMAND_SET_HELI_STABILISER (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_object_in_water(lua_State* L) { // 0x04E7 COMMAND_IS_OBJECT_IN_WATER (reVC Script7.cpp:415)
+int is_object_in_water(lua_State* L) { // 0x04E7 COMMAND_IS_OBJECT_IN_WATER (reVC Script7.cpp:415) — проверить объект вода
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_object_in_water"; }
@@ -33139,7 +33139,7 @@ int is_object_in_water(lua_State* L) { // 0x04E7 COMMAND_IS_OBJECT_IN_WATER (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_player_can_do_drive_by(lua_State* L) { // 0x0501 COMMAND_SET_PLAYER_CAN_DO_DRIVE_BY (reVC Script7.cpp:631)
+int set_player_can_do_drive_by(lua_State* L) { // 0x0501 COMMAND_SET_PLAYER_CAN_DO_DRIVE_BY (reVC Script7.cpp:631) — установить игрок может do ездить
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_can_do_drive_by"; }
@@ -33147,7 +33147,7 @@ int set_player_can_do_drive_by(lua_State* L) { // 0x0501 COMMAND_SET_PLAYER_CAN_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int sort_out_object_collision_with_car(lua_State* L) { // 0x050E COMMAND_SORT_OUT_OBJECT_COLLISION_WITH_CAR (reVC Script7.cpp:710)
+int sort_out_object_collision_with_car(lua_State* L) { // 0x050E COMMAND_SORT_OUT_OBJECT_COLLISION_WITH_CAR (reVC Script7.cpp:710) — отсортировать снаружи объект столкновение авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function sort_out_object_collision_with_car"; }
@@ -33158,7 +33158,7 @@ int sort_out_object_collision_with_car(lua_State* L) { // 0x050E COMMAND_SORT_OU
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_help_forever(lua_State* L) { // 0x0512 COMMAND_PRINT_HELP_FOREVER (reVC Script7.cpp:728)
+int print_help_forever(lua_State* L) { // 0x0512 COMMAND_PRINT_HELP_FOREVER (reVC Script7.cpp:728) — вывести помощь навсегда
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_help_forever"; }
@@ -33172,7 +33172,7 @@ int print_help_forever(lua_State* L) { // 0x0512 COMMAND_PRINT_HELP_FOREVER (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_forsale_property_pickup(lua_State* L) { // 0x0518 COMMAND_CREATE_FORSALE_PROPERTY_PICKUP (reVC Script7.cpp:775)
+int create_forsale_property_pickup(lua_State* L) { // 0x0518 COMMAND_CREATE_FORSALE_PROPERTY_PICKUP (reVC Script7.cpp:775) — создать продаётся собственность пикап
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_forsale_property_pickup"; }
@@ -33194,7 +33194,7 @@ int create_forsale_property_pickup(lua_State* L) { // 0x0518 COMMAND_CREATE_FORS
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int increase_player_max_health(lua_State* L) { // 0x055E COMMAND_INCREASE_PLAYER_MAX_HEALTH (reVC Script7.cpp:1162)
+int increase_player_max_health(lua_State* L) { // 0x055E COMMAND_INCREASE_PLAYER_MAX_HEALTH (reVC Script7.cpp:1162) — увеличить игрок максимум здоровье
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function increase_player_max_health"; }
@@ -33202,7 +33202,7 @@ int increase_player_max_health(lua_State* L) { // 0x055E COMMAND_INCREASE_PLAYER
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int increase_player_max_armour(lua_State* L) { // 0x055F COMMAND_INCREASE_PLAYER_MAX_ARMOUR (reVC Script7.cpp:1170)
+int increase_player_max_armour(lua_State* L) { // 0x055F COMMAND_INCREASE_PLAYER_MAX_ARMOUR (reVC Script7.cpp:1170) — увеличить игрок максимум броня
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function increase_player_max_armour"; }
@@ -33210,7 +33210,7 @@ int increase_player_max_armour(lua_State* L) { // 0x055F COMMAND_INCREASE_PLAYER
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_random_char_as_passenger(lua_State* L) { // 0x0561 COMMAND_CREATE_RANDOM_CHAR_AS_PASSENGER (reVC Script7.cpp:1209)
+int create_random_char_as_passenger(lua_State* L) { // 0x0561 COMMAND_CREATE_RANDOM_CHAR_AS_PASSENGER (reVC Script7.cpp:1209) — создать случайный персонаж пассажир
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function create_random_char_as_passenger"; }
@@ -33223,7 +33223,7 @@ int create_random_char_as_passenger(lua_State* L) { // 0x0561 COMMAND_CREATE_RAN
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_object_area_visible(lua_State* L) { // 0x0566 COMMAND_SET_OBJECT_AREA_VISIBLE (reVC Script7.cpp:1280)
+int set_object_area_visible(lua_State* L) { // 0x0566 COMMAND_SET_OBJECT_AREA_VISIBLE (reVC Script7.cpp:1280) — установить объект область видимый
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_object_area_visible"; }
@@ -33233,7 +33233,7 @@ int set_object_area_visible(lua_State* L) { // 0x0566 COMMAND_SET_OBJECT_AREA_VI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_crouch_when_threatened(lua_State* L) { // 0x056B COMMAND_SET_CHAR_CROUCH_WHEN_THREATENED (reVC Script7.cpp:1310)
+int set_char_crouch_when_threatened(lua_State* L) { // 0x056B COMMAND_SET_CHAR_CROUCH_WHEN_THREATENED (reVC Script7.cpp:1310) — установить персонаж присесть под угрозой
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_crouch_when_threatened"; }
@@ -33243,7 +33243,7 @@ int set_char_crouch_when_threatened(lua_State* L) { // 0x056B COMMAND_SET_CHAR_C
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_allow_hurricanes(lua_State* L) { // 0x057C COMMAND_SET_ALLOW_HURRICANES (reVC Script8.cpp:73)
+int set_allow_hurricanes(lua_State* L) { // 0x057C COMMAND_SET_ALLOW_HURRICANES (reVC Script8.cpp:73) — установить разрешить ураганы
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_allow_hurricanes"; }
@@ -33251,7 +33251,7 @@ int set_allow_hurricanes(lua_State* L) { // 0x057C COMMAND_SET_ALLOW_HURRICANES 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int play_announcement(lua_State* L) { // 0x057D COMMAND_PLAY_ANNOUNCEMENT (reVC Script8.cpp:77)
+int play_announcement(lua_State* L) { // 0x057D COMMAND_PLAY_ANNOUNCEMENT (reVC Script8.cpp:77) — проиграть объявление
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function play_announcement"; }
@@ -33259,7 +33259,7 @@ int play_announcement(lua_State* L) { // 0x057D COMMAND_PLAY_ANNOUNCEMENT (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_player(lua_State* L) { // 0x0053 COMMAND_CREATE_PLAYER (reVC Script.cpp:3159)
+int create_player(lua_State* L) { // 0x0053 COMMAND_CREATE_PLAYER (reVC Script.cpp:3159) — создать игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_player"; }
@@ -33273,7 +33273,7 @@ int create_player(lua_State* L) { // 0x0053 COMMAND_CREATE_PLAYER (reVC Script.c
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int generate_random_int(lua_State* L) { // 0x0099 COMMAND_GENERATE_RANDOM_INT (reVC Script.cpp:3637)
+int generate_random_int(lua_State* L) { // 0x0099 COMMAND_GENERATE_RANDOM_INT (reVC Script.cpp:3637) — Создать случайный целое число
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -33283,7 +33283,7 @@ int generate_random_int(lua_State* L) { // 0x0099 COMMAND_GENERATE_RANDOM_INT (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_car_in_area_3d(lua_State* L) { // 0x00B1 COMMAND_IS_CAR_IN_AREA_3D (reVC Script.cpp:4100)
+int is_car_in_area_3d(lua_State* L) { // 0x00B1 COMMAND_IS_CAR_IN_AREA_3D (reVC Script.cpp:4100) — проверить авто область 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_car_in_area_3d"; }
@@ -33300,7 +33300,7 @@ int is_car_in_area_3d(lua_State* L) { // 0x00B1 COMMAND_IS_CAR_IN_AREA_3D (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_minutes_to_time_of_day(lua_State* L) { // 0x00C1 COMMAND_GET_MINUTES_TO_TIME_OF_DAY (reVC Script.cpp:4174)
+int get_minutes_to_time_of_day(lua_State* L) { // 0x00C1 COMMAND_GET_MINUTES_TO_TIME_OF_DAY (reVC Script.cpp:4174) — получить минуты время день
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_minutes_to_time_of_day"; }
@@ -33312,7 +33312,7 @@ int get_minutes_to_time_of_day(lua_State* L) { // 0x00C1 COMMAND_GET_MINUTES_TO_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_in_model(lua_State* L) { // 0x00DD COMMAND_IS_CHAR_IN_MODEL (reVC Script.cpp:4378)
+int is_char_in_model(lua_State* L) { // 0x00DD COMMAND_IS_CHAR_IN_MODEL (reVC Script.cpp:4378) — проверить персонаж модель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_in_model"; }
@@ -33323,7 +33323,7 @@ int is_char_in_model(lua_State* L) { // 0x00DD COMMAND_IS_CHAR_IN_MODEL (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_on_foot_char_2d(lua_State* L) { // 0x00F3 COMMAND_LOCATE_CHAR_ON_FOOT_CHAR_2D (reVC Script.cpp:4444)
+int locate_char_on_foot_char_2d(lua_State* L) { // 0x00F3 COMMAND_LOCATE_CHAR_ON_FOOT_CHAR_2D (reVC Script.cpp:4444) — найти персонаж пешком персонаж 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_char_2d"; }
@@ -33337,7 +33337,7 @@ int locate_char_on_foot_char_2d(lua_State* L) { // 0x00F3 COMMAND_LOCATE_CHAR_ON
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_in_car_3d(lua_State* L) { // 0x0100 COMMAND_LOCATE_CHAR_IN_CAR_3D (reVC Script.cpp:4463)
+int locate_char_in_car_3d(lua_State* L) { // 0x0100 COMMAND_LOCATE_CHAR_IN_CAR_3D (reVC Script.cpp:4463) — найти персонаж в авто 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_in_car_3d"; }
@@ -33354,7 +33354,7 @@ int locate_char_in_car_3d(lua_State* L) { // 0x0100 COMMAND_LOCATE_CHAR_IN_CAR_3
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_stopped_char_on_foot_3d(lua_State* L) { // 0x0102 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_3D (reVC Script.cpp:4465)
+int locate_stopped_char_on_foot_3d(lua_State* L) { // 0x0102 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_3D (reVC Script.cpp:4465) — найти остановлен персонаж пешком 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_stopped_char_on_foot_3d"; }
@@ -33370,7 +33370,7 @@ int locate_stopped_char_on_foot_3d(lua_State* L) { // 0x0102 COMMAND_LOCATE_STOP
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_any_means_char_3d(lua_State* L) { // 0x0104 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_3D (reVC Script.cpp:4469)
+int locate_char_any_means_char_3d(lua_State* L) { // 0x0104 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_3D (reVC Script.cpp:4469) — найти персонаж способ персонаж 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_char_3d"; }
@@ -33385,7 +33385,7 @@ int locate_char_any_means_char_3d(lua_State* L) { // 0x0104 COMMAND_LOCATE_CHAR_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int override_next_restart(lua_State* L) { // 0x016E COMMAND_OVERRIDE_NEXT_RESTART (reVC Script2.cpp:415)
+int override_next_restart(lua_State* L) { // 0x016E COMMAND_OVERRIDE_NEXT_RESTART (reVC Script2.cpp:415) — Переопределить следующий перезапуск
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function override_next_restart"; }
@@ -33396,7 +33396,7 @@ int override_next_restart(lua_State* L) { // 0x016E COMMAND_OVERRIDE_NEXT_RESTAR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int declare_mission_flag(lua_State* L) { // 0x0180 COMMAND_DECLARE_MISSION_FLAG (reVC Script2.cpp:592)
+int declare_mission_flag(lua_State* L) { // 0x0180 COMMAND_DECLARE_MISSION_FLAG (reVC Script2.cpp:592) — Объявить миссия флаг
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function declare_mission_flag"; }
@@ -33404,7 +33404,7 @@ int declare_mission_flag(lua_State* L) { // 0x0180 COMMAND_DECLARE_MISSION_FLAG 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int dont_remove_char(lua_State* L) { // 0x01C5 COMMAND_DONT_REMOVE_CHAR (reVC Script2.cpp:1072)
+int dont_remove_char(lua_State* L) { // 0x01C5 COMMAND_DONT_REMOVE_CHAR (reVC Script2.cpp:1072) — Не удалить персонаж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function dont_remove_char"; }
@@ -33413,14 +33413,14 @@ int dont_remove_char(lua_State* L) { // 0x01C5 COMMAND_DONT_REMOVE_CHAR (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int cancel_override_restart(lua_State* L) { // 0x01F6 COMMAND_CANCEL_OVERRIDE_RESTART (reVC Script3.cpp:59)
+int cancel_override_restart(lua_State* L) { // 0x01F6 COMMAND_CANCEL_OVERRIDE_RESTART (reVC Script3.cpp:59) — отменить переопределить перезапуск
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_CANCEL_OVERRIDE_RESTART>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int start_kill_frenzy(lua_State* L) { // 0x01F9 COMMAND_START_KILL_FRENZY (reVC Script3.cpp:86)
+int start_kill_frenzy(lua_State* L) { // 0x01F9 COMMAND_START_KILL_FRENZY (reVC Script3.cpp:86) — начать убить бешенство
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function start_kill_frenzy"; }
@@ -33450,7 +33450,7 @@ int start_kill_frenzy(lua_State* L) { // 0x01F9 COMMAND_START_KILL_FRENZY (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int read_kill_frenzy_status(lua_State* L) { // 0x01FA COMMAND_READ_KILL_FRENZY_STATUS (reVC Script3.cpp:95)
+int read_kill_frenzy_status(lua_State* L) { // 0x01FA COMMAND_READ_KILL_FRENZY_STATUS (reVC Script3.cpp:95) — прочитать убить бешенство статус
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -33460,7 +33460,7 @@ int read_kill_frenzy_status(lua_State* L) { // 0x01FA COMMAND_READ_KILL_FRENZY_S
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_taxi_lights(lua_State* L) { // 0x0216 COMMAND_SET_TAXI_LIGHTS (reVC Script3.cpp:253)
+int set_taxi_lights(lua_State* L) { // 0x0216 COMMAND_SET_TAXI_LIGHTS (reVC Script3.cpp:253) — установить такси фары
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_taxi_lights"; }
@@ -33470,7 +33470,7 @@ int set_taxi_lights(lua_State* L) { // 0x0216 COMMAND_SET_TAXI_LIGHTS (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_big_q(lua_State* L) { // 0x0217 COMMAND_PRINT_BIG_Q (reVC Script3.cpp:262)
+int print_big_q(lua_State* L) { // 0x0217 COMMAND_PRINT_BIG_Q (reVC Script3.cpp:262) — вывести большой
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_big_q"; }
@@ -33488,7 +33488,7 @@ int print_big_q(lua_State* L) { // 0x0217 COMMAND_PRINT_BIG_Q (reVC Script3.cpp:
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_garage(lua_State* L) { // 0x0219 COMMAND_SET_GARAGE (reVC Script3.cpp:279)
+int set_garage(lua_State* L) { // 0x0219 COMMAND_SET_GARAGE (reVC Script3.cpp:279) — установить гараж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_garage"; }
@@ -33507,7 +33507,7 @@ int set_garage(lua_State* L) { // 0x0219 COMMAND_SET_GARAGE (reVC Script3.cpp:27
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_target_car_for_mission_garage(lua_State* L) { // 0x021B COMMAND_SET_TARGET_CAR_FOR_MISSION_GARAGE (reVC Script3.cpp:311)
+int set_target_car_for_mission_garage(lua_State* L) { // 0x021B COMMAND_SET_TARGET_CAR_FOR_MISSION_GARAGE (reVC Script3.cpp:311) — установить цель авто миссия гараж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_target_car_for_mission_garage"; }
@@ -33517,7 +33517,7 @@ int set_target_car_for_mission_garage(lua_State* L) { // 0x021B COMMAND_SET_TARG
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_gang_car_model(lua_State* L) { // 0x0236 COMMAND_SET_GANG_CAR_MODEL (reVC Script3.cpp:583)
+int set_gang_car_model(lua_State* L) { // 0x0236 COMMAND_SET_GANG_CAR_MODEL (reVC Script3.cpp:583) — установить банда авто модель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_gang_car_model"; }
@@ -33526,21 +33526,21 @@ int set_gang_car_model(lua_State* L) { // 0x0236 COMMAND_SET_GANG_CAR_MODEL (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int store_clock(lua_State* L) { // 0x0253 COMMAND_STORE_CLOCK (reVC Script3.cpp:834)
+int store_clock(lua_State* L) { // 0x0253 COMMAND_STORE_CLOCK (reVC Script3.cpp:834) — сохранить часы
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_STORE_CLOCK>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int reset_num_of_models_killed_by_player(lua_State* L) { // 0x0297 COMMAND_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1235)
+int reset_num_of_models_killed_by_player(lua_State* L) { // 0x0297 COMMAND_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1235) — сбросить модели убит игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_RESET_NUM_OF_MODELS_KILLED_BY_PLAYER>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_num_of_models_killed_by_player(lua_State* L) { // 0x0298 COMMAND_GET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1238)
+int get_num_of_models_killed_by_player(lua_State* L) { // 0x0298 COMMAND_GET_NUM_OF_MODELS_KILLED_BY_PLAYER (reVC Script3.cpp:1238) — получить модели убит игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_num_of_models_killed_by_player"; }
@@ -33551,7 +33551,7 @@ int get_num_of_models_killed_by_player(lua_State* L) { // 0x0298 COMMAND_GET_NUM
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_angled_area_on_foot_3d(lua_State* L) { // 0x02B4 COMMAND_IS_PLAYER_IN_ANGLED_AREA_ON_FOOT_3D (reVC Script3.cpp:1495)
+int is_player_in_angled_area_on_foot_3d(lua_State* L) { // 0x02B4 COMMAND_IS_PLAYER_IN_ANGLED_AREA_ON_FOOT_3D (reVC Script3.cpp:1495) — проверить игрок под углом область пешком 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_in_angled_area_on_foot_3d"; }
@@ -33567,7 +33567,7 @@ int is_player_in_angled_area_on_foot_3d(lua_State* L) { // 0x02B4 COMMAND_IS_PLA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_angled_area_in_car_3d(lua_State* L) { // 0x02B5 COMMAND_IS_PLAYER_IN_ANGLED_AREA_IN_CAR_3D (reVC Script3.cpp:1496)
+int is_player_in_angled_area_in_car_3d(lua_State* L) { // 0x02B5 COMMAND_IS_PLAYER_IN_ANGLED_AREA_IN_CAR_3D (reVC Script3.cpp:1496) — проверить игрок под углом область авто 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_player_in_angled_area_in_car_3d"; }
@@ -33584,7 +33584,7 @@ int is_player_in_angled_area_in_car_3d(lua_State* L) { // 0x02B5 COMMAND_IS_PLAY
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_shooting_in_area(lua_State* L) { // 0x02D5 COMMAND_IS_PLAYER_SHOOTING_IN_AREA (reVC Script3.cpp:1722)
+int is_player_shooting_in_area(lua_State* L) { // 0x02D5 COMMAND_IS_PLAYER_SHOOTING_IN_AREA (reVC Script3.cpp:1722) — проверить игрок стрельба область
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_player_shooting_in_area"; }
@@ -33597,7 +33597,7 @@ int is_player_shooting_in_area(lua_State* L) { // 0x02D5 COMMAND_IS_PLAYER_SHOOT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_random_char_in_zone(lua_State* L) { // 0x02DD COMMAND_GET_RANDOM_CHAR_IN_ZONE (reVC Script3.cpp:1844)
+int get_random_char_in_zone(lua_State* L) { // 0x02DD COMMAND_GET_RANDOM_CHAR_IN_ZONE (reVC Script3.cpp:1844) — получить случайный персонаж зона
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function get_random_char_in_zone"; }
@@ -33617,7 +33617,7 @@ int get_random_char_in_zone(lua_State* L) { // 0x02DD COMMAND_GET_RANDOM_CHAR_IN
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_taxi(lua_State* L) { // 0x02DE COMMAND_IS_PLAYER_IN_TAXI (reVC Script3.cpp:1898)
+int is_player_in_taxi(lua_State* L) { // 0x02DE COMMAND_IS_PLAYER_IN_TAXI (reVC Script3.cpp:1898) — проверить игрок такси
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_IS_PLAYER_IN_TAXI>(CWorld::PlayerInFocus);
@@ -33625,7 +33625,7 @@ int is_player_in_taxi(lua_State* L) { // 0x02DE COMMAND_IS_PLAYER_IN_TAXI (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_collectable1(lua_State* L) { // 0x02EC COMMAND_CREATE_COLLECTABLE1 (reVC Script3.cpp:1993)
+int create_collectable1(lua_State* L) { // 0x02EC COMMAND_CREATE_COLLECTABLE1 (reVC Script3.cpp:1993) — создать собираемый предмет 1
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_collectable1"; }
@@ -33635,7 +33635,7 @@ int create_collectable1(lua_State* L) { // 0x02EC COMMAND_CREATE_COLLECTABLE1 (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_collectable1_total(lua_State* L) { // 0x02ED COMMAND_SET_COLLECTABLE1_TOTAL (reVC Script3.cpp:2002)
+int set_collectable1_total(lua_State* L) { // 0x02ED COMMAND_SET_COLLECTABLE1_TOTAL (reVC Script3.cpp:2002) — установить собираемый предмет 1 всего
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_collectable1_total"; }
@@ -33643,7 +33643,7 @@ int set_collectable1_total(lua_State* L) { // 0x02ED COMMAND_SET_COLLECTABLE1_TO
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_model(lua_State* L) { // 0x02F2 COMMAND_IS_CHAR_MODEL (reVC Script3.cpp:2078)
+int is_char_model(lua_State* L) { // 0x02F2 COMMAND_IS_CHAR_MODEL (reVC Script3.cpp:2078) — проверить персонаж модель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_model"; }
@@ -33654,7 +33654,7 @@ int is_char_model(lua_State* L) { // 0x02F2 COMMAND_IS_CHAR_MODEL (reVC Script3.
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_with_3_numbers(lua_State* L) { // 0x02FF COMMAND_PRINT_WITH_3_NUMBERS (reVC Script3.cpp:2177)
+int print_with_3_numbers(lua_State* L) { // 0x02FF COMMAND_PRINT_WITH_3_NUMBERS (reVC Script3.cpp:2177) — вывести 3 числа
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_3_numbers"; }
@@ -33678,7 +33678,7 @@ int print_with_3_numbers(lua_State* L) { // 0x02FF COMMAND_PRINT_WITH_3_NUMBERS 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_with_4_numbers(lua_State* L) { // 0x0302 COMMAND_PRINT_WITH_4_NUMBERS (reVC Script3.cpp:2200)
+int print_with_4_numbers(lua_State* L) { // 0x0302 COMMAND_PRINT_WITH_4_NUMBERS (reVC Script3.cpp:2200) — вывести 4 числа
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_4_numbers"; }
@@ -33704,7 +33704,7 @@ int print_with_4_numbers(lua_State* L) { // 0x0302 COMMAND_PRINT_WITH_4_NUMBERS 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_with_6_numbers(lua_State* L) { // 0x0308 COMMAND_PRINT_WITH_6_NUMBERS (reVC Script3.cpp:2244)
+int print_with_6_numbers(lua_State* L) { // 0x0308 COMMAND_PRINT_WITH_6_NUMBERS (reVC Script3.cpp:2244) — вывести 6 числа
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_6_numbers"; }
@@ -33734,7 +33734,7 @@ int print_with_6_numbers(lua_State* L) { // 0x0308 COMMAND_PRINT_WITH_6_NUMBERS 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_progress_total(lua_State* L) { // 0x030D COMMAND_SET_PROGRESS_TOTAL (reVC Script3.cpp:2282)
+int set_progress_total(lua_State* L) { // 0x030D COMMAND_SET_PROGRESS_TOTAL (reVC Script3.cpp:2282) — установить прогресс всего
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_progress_total"; }
@@ -33742,7 +33742,7 @@ int set_progress_total(lua_State* L) { // 0x030D COMMAND_SET_PROGRESS_TOTAL (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_jump_distance(lua_State* L) { // 0x030E COMMAND_REGISTER_JUMP_DISTANCE (reVC Script3.cpp:2288)
+int register_jump_distance(lua_State* L) { // 0x030E COMMAND_REGISTER_JUMP_DISTANCE (reVC Script3.cpp:2288) — зарегистрировать прыжок расстояние
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_distance"; }
@@ -33750,7 +33750,7 @@ int register_jump_distance(lua_State* L) { // 0x030E COMMAND_REGISTER_JUMP_DISTA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_jump_height(lua_State* L) { // 0x030F COMMAND_REGISTER_JUMP_HEIGHT (reVC Script3.cpp:2292)
+int register_jump_height(lua_State* L) { // 0x030F COMMAND_REGISTER_JUMP_HEIGHT (reVC Script3.cpp:2292) — зарегистрировать прыжок высота
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_height"; }
@@ -33758,7 +33758,7 @@ int register_jump_height(lua_State* L) { // 0x030F COMMAND_REGISTER_JUMP_HEIGHT 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_jump_flips(lua_State* L) { // 0x0310 COMMAND_REGISTER_JUMP_FLIPS (reVC Script3.cpp:2296)
+int register_jump_flips(lua_State* L) { // 0x0310 COMMAND_REGISTER_JUMP_FLIPS (reVC Script3.cpp:2296) — зарегистрировать прыжок перевороты
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_flips"; }
@@ -33766,7 +33766,7 @@ int register_jump_flips(lua_State* L) { // 0x0310 COMMAND_REGISTER_JUMP_FLIPS (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_jump_spins(lua_State* L) { // 0x0311 COMMAND_REGISTER_JUMP_SPINS (reVC Script3.cpp:2300)
+int register_jump_spins(lua_State* L) { // 0x0311 COMMAND_REGISTER_JUMP_SPINS (reVC Script3.cpp:2300) — зарегистрировать прыжок вращения
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_spins"; }
@@ -33774,7 +33774,7 @@ int register_jump_spins(lua_State* L) { // 0x0311 COMMAND_REGISTER_JUMP_SPINS (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_jump_stunt(lua_State* L) { // 0x0312 COMMAND_REGISTER_JUMP_STUNT (reVC Script3.cpp:2304)
+int register_jump_stunt(lua_State* L) { // 0x0312 COMMAND_REGISTER_JUMP_STUNT (reVC Script3.cpp:2304) — зарегистрировать прыжок трюк
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_jump_stunt"; }
@@ -33782,14 +33782,14 @@ int register_jump_stunt(lua_State* L) { // 0x0312 COMMAND_REGISTER_JUMP_STUNT (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_unique_jump_found(lua_State* L) { // 0x0313 COMMAND_REGISTER_UNIQUE_JUMP_FOUND (reVC Script3.cpp:2308)
+int register_unique_jump_found(lua_State* L) { // 0x0313 COMMAND_REGISTER_UNIQUE_JUMP_FOUND (reVC Script3.cpp:2308) — зарегистрировать уникальный прыжок найден
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_REGISTER_UNIQUE_JUMP_FOUND>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_unique_jumps_total(lua_State* L) { // 0x0314 COMMAND_SET_UNIQUE_JUMPS_TOTAL (reVC Script3.cpp:2311)
+int set_unique_jumps_total(lua_State* L) { // 0x0314 COMMAND_SET_UNIQUE_JUMPS_TOTAL (reVC Script3.cpp:2311) — установить уникальный прыжки всего
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_unique_jumps_total"; }
@@ -33797,14 +33797,14 @@ int set_unique_jumps_total(lua_State* L) { // 0x0314 COMMAND_SET_UNIQUE_JUMPS_TO
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_passenger_dropped_off_taxi(lua_State* L) { // 0x0315 COMMAND_REGISTER_PASSENGER_DROPPED_OFF_TAXI (reVC Script3.cpp:2315)
+int register_passenger_dropped_off_taxi(lua_State* L) { // 0x0315 COMMAND_REGISTER_PASSENGER_DROPPED_OFF_TAXI (reVC Script3.cpp:2315) — зарегистрировать пассажир выпущен такси
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_REGISTER_PASSENGER_DROPPED_OFF_TAXI>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_money_made_taxi(lua_State* L) { // 0x0316 COMMAND_REGISTER_MONEY_MADE_TAXI (reVC Script3.cpp:2318)
+int register_money_made_taxi(lua_State* L) { // 0x0316 COMMAND_REGISTER_MONEY_MADE_TAXI (reVC Script3.cpp:2318) — зарегистрировать деньги сделано такси
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_money_made_taxi"; }
@@ -33812,7 +33812,7 @@ int register_money_made_taxi(lua_State* L) { // 0x0316 COMMAND_REGISTER_MONEY_MA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_player_never_gets_tired(lua_State* L) { // 0x0330 COMMAND_SET_PLAYER_NEVER_GETS_TIRED (reVC Script4.cpp:268)
+int set_player_never_gets_tired(lua_State* L) { // 0x0330 COMMAND_SET_PLAYER_NEVER_GETS_TIRED (reVC Script4.cpp:268) — установить игрок никогда получить устал
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_never_gets_tired"; }
@@ -33820,7 +33820,7 @@ int set_player_never_gets_tired(lua_State* L) { // 0x0330 COMMAND_SET_PLAYER_NEV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int close_garage(lua_State* L) { // 0x0361 COMMAND_CLOSE_GARAGE (reVC Script4.cpp:769)
+int close_garage(lua_State* L) { // 0x0361 COMMAND_CLOSE_GARAGE (reVC Script4.cpp:769) — закрыть гараж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function close_garage"; }
@@ -33828,7 +33828,7 @@ int close_garage(lua_State* L) { // 0x0361 COMMAND_CLOSE_GARAGE (reVC Script4.cp
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int print_with_2_numbers_big(lua_State* L) { // 0x036D COMMAND_PRINT_WITH_2_NUMBERS_BIG (reVC Script4.cpp:963)
+int print_with_2_numbers_big(lua_State* L) { // 0x036D COMMAND_PRINT_WITH_2_NUMBERS_BIG (reVC Script4.cpp:963) — вывести 2 числа большой
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function print_with_2_numbers_big"; }
@@ -33850,7 +33850,7 @@ int print_with_2_numbers_big(lua_State* L) { // 0x036D COMMAND_PRINT_WITH_2_NUMB
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_icecream_jingle_on(lua_State* L) { // 0x0383 COMMAND_IS_ICECREAM_JINGLE_ON (reVC Script4.cpp:1182)
+int is_icecream_jingle_on(lua_State* L) { // 0x0383 COMMAND_IS_ICECREAM_JINGLE_ON (reVC Script4.cpp:1182) — проверить мороженое джингл
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_icecream_jingle_on"; }
@@ -33860,7 +33860,7 @@ int is_icecream_jingle_on(lua_State* L) { // 0x0383 COMMAND_IS_ICECREAM_JINGLE_O
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_male(lua_State* L) { // 0x03A3 COMMAND_IS_CHAR_MALE (reVC Script4.cpp:1533)
+int is_char_male(lua_State* L) { // 0x03A3 COMMAND_IS_CHAR_MALE (reVC Script4.cpp:1533) — проверить персонаж мужской
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_male"; }
@@ -33870,7 +33870,7 @@ int is_char_male(lua_State* L) { // 0x03A3 COMMAND_IS_CHAR_MALE (reVC Script4.cp
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_garage_open(lua_State* L) { // 0x03B0 COMMAND_IS_GARAGE_OPEN (reVC Script4.cpp:1620)
+int is_garage_open(lua_State* L) { // 0x03B0 COMMAND_IS_GARAGE_OPEN (reVC Script4.cpp:1620) — проверить гараж открыть
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_garage_open"; }
@@ -33879,7 +33879,7 @@ int is_garage_open(lua_State* L) { // 0x03B0 COMMAND_IS_GARAGE_OPEN (reVC Script
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int switch_world_processing(lua_State* L) { // 0x03B7 COMMAND_SWITCH_WORLD_PROCESSING (reVC Script4.cpp:1676)
+int switch_world_processing(lua_State* L) { // 0x03B7 COMMAND_SWITCH_WORLD_PROCESSING (reVC Script4.cpp:1676) — Переключатель мир обработка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function switch_world_processing"; }
@@ -33887,14 +33887,14 @@ int switch_world_processing(lua_State* L) { // 0x03B7 COMMAND_SWITCH_WORLD_PROCE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int remove_all_player_weapons(lua_State* L) { // 0x03B8 COMMAND_REMOVE_ALL_PLAYER_WEAPONS (reVC Script4.cpp:1680)
+int remove_all_player_weapons(lua_State* L) { // 0x03B8 COMMAND_REMOVE_ALL_PLAYER_WEAPONS (reVC Script4.cpp:1680) — удалить игрок оружия
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_REMOVE_ALL_PLAYER_WEAPONS>(CWorld::PlayerInFocus); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_rotating_garage_door(lua_State* L) { // 0x03BB COMMAND_SET_ROTATING_GARAGE_DOOR (reVC Script4.cpp:1721)
+int set_rotating_garage_door(lua_State* L) { // 0x03BB COMMAND_SET_ROTATING_GARAGE_DOOR (reVC Script4.cpp:1721) — установить вращение гараж дверь
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_rotating_garage_door"; }
@@ -33902,7 +33902,7 @@ int set_rotating_garage_door(lua_State* L) { // 0x03BB COMMAND_SET_ROTATING_GARA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_random_car_for_car_park(lua_State* L) { // 0x03C5 COMMAND_CREATE_RANDOM_CAR_FOR_CAR_PARK (reVC Script4.cpp:1808)
+int create_random_car_for_car_park(lua_State* L) { // 0x03C5 COMMAND_CREATE_RANDOM_CAR_FOR_CAR_PARK (reVC Script4.cpp:1808) — создать случайный авто парковать
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_random_car_for_car_park"; }
@@ -33913,7 +33913,7 @@ int create_random_car_for_car_park(lua_State* L) { // 0x03C5 COMMAND_CREATE_RAND
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_import_garage_slot_been_filled(lua_State* L) { // 0x03D4 COMMAND_HAS_IMPORT_GARAGE_SLOT_BEEN_FILLED (reVC Script4.cpp:2073)
+int has_import_garage_slot_been_filled(lua_State* L) { // 0x03D4 COMMAND_HAS_IMPORT_GARAGE_SLOT_BEEN_FILLED (reVC Script4.cpp:2073) — проверить импорт гараж слот заполнен
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function has_import_garage_slot_been_filled"; }
@@ -33923,7 +33923,7 @@ int has_import_garage_slot_been_filled(lua_State* L) { // 0x03D4 COMMAND_HAS_IMP
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_save_game_finished(lua_State* L) { // 0x03D9 COMMAND_HAS_SAVE_GAME_FINISHED (reVC Script4.cpp:2106)
+int has_save_game_finished(lua_State* L) { // 0x03D9 COMMAND_HAS_SAVE_GAME_FINISHED (reVC Script4.cpp:2106) — проверить сохранить игра завершено
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_HAS_SAVE_GAME_FINISHED>();
@@ -33931,7 +33931,7 @@ int has_save_game_finished(lua_State* L) { // 0x03D9 COMMAND_HAS_SAVE_GAME_FINIS
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int force_random_ped_type(lua_State* L) { // 0x03DF COMMAND_FORCE_RANDOM_PED_TYPE (reVC Script4.cpp:2152)
+int force_random_ped_type(lua_State* L) { // 0x03DF COMMAND_FORCE_RANDOM_PED_TYPE (reVC Script4.cpp:2152) — Сила случайный пешеход тип
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function force_random_ped_type"; }
@@ -33939,7 +33939,7 @@ int force_random_ped_type(lua_State* L) { // 0x03DF COMMAND_FORCE_RANDOM_PED_TYP
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_collectable1s_collected(lua_State* L) { // 0x03E1 COMMAND_GET_COLLECTABLE1S_COLLECTED (reVC Script4.cpp:2162)
+int get_collectable1s_collected(lua_State* L) { // 0x03E1 COMMAND_GET_COLLECTABLE1S_COLLECTED (reVC Script4.cpp:2162) — получить собираемые предметы 1 собрано
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -33949,7 +33949,7 @@ int get_collectable1s_collected(lua_State* L) { // 0x03E1 COMMAND_GET_COLLECTABL
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_car_colours(lua_State* L) { // 0x03F3 COMMAND_GET_CAR_COLOURS (reVC Script6.cpp:150)
+int get_car_colours(lua_State* L) { // 0x03F3 COMMAND_GET_CAR_COLOURS (reVC Script6.cpp:150) — получить авто цвета
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_car_colours"; }
@@ -33963,7 +33963,7 @@ int get_car_colours(lua_State* L) { // 0x03F3 COMMAND_GET_CAR_COLOURS (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_drunk_input_delay(lua_State* L) { // 0x03FD COMMAND_SET_DRUNK_INPUT_DELAY (reVC Script6.cpp:236)
+int set_drunk_input_delay(lua_State* L) { // 0x03FD COMMAND_SET_DRUNK_INPUT_DELAY (reVC Script6.cpp:236) — установить пьян ввод задержка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_drunk_input_delay"; }
@@ -33972,21 +33972,21 @@ int set_drunk_input_delay(lua_State* L) { // 0x03FD COMMAND_SET_DRUNK_INPUT_DELA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_life_saved(lua_State* L) { // 0x0401 COMMAND_REGISTER_LIFE_SAVED (reVC Script6.cpp:263)
+int register_life_saved(lua_State* L) { // 0x0401 COMMAND_REGISTER_LIFE_SAVED (reVC Script6.cpp:263) — зарегистрировать жизнь сохранено
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_REGISTER_LIFE_SAVED>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_criminal_caught(lua_State* L) { // 0x0402 COMMAND_REGISTER_CRIMINAL_CAUGHT (reVC Script6.cpp:266)
+int register_criminal_caught(lua_State* L) { // 0x0402 COMMAND_REGISTER_CRIMINAL_CAUGHT (reVC Script6.cpp:266) — зарегистрировать преступник пойман
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_REGISTER_CRIMINAL_CAUGHT>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_ambulance_level(lua_State* L) { // 0x0403 COMMAND_REGISTER_AMBULANCE_LEVEL (reVC Script6.cpp:269)
+int register_ambulance_level(lua_State* L) { // 0x0403 COMMAND_REGISTER_AMBULANCE_LEVEL (reVC Script6.cpp:269) — зарегистрировать скорая помощь уровень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_ambulance_level"; }
@@ -33994,14 +33994,14 @@ int register_ambulance_level(lua_State* L) { // 0x0403 COMMAND_REGISTER_AMBULANC
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_fire_extinguished(lua_State* L) { // 0x0404 COMMAND_REGISTER_FIRE_EXTINGUISHED (reVC Script6.cpp:273)
+int register_fire_extinguished(lua_State* L) { // 0x0404 COMMAND_REGISTER_FIRE_EXTINGUISHED (reVC Script6.cpp:273) — зарегистрировать огонь погашен
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_REGISTER_FIRE_EXTINGUISHED>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_total_number_of_kill_frenzies(lua_State* L) { // 0x0408 COMMAND_SET_TOTAL_NUMBER_OF_KILL_FRENZIES (reVC Script6.cpp:296)
+int set_total_number_of_kill_frenzies(lua_State* L) { // 0x0408 COMMAND_SET_TOTAL_NUMBER_OF_KILL_FRENZIES (reVC Script6.cpp:296) — установить всего убить бешенство
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_total_number_of_kill_frenzies"; }
@@ -34009,7 +34009,7 @@ int set_total_number_of_kill_frenzies(lua_State* L) { // 0x0408 COMMAND_SET_TOTA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_free_health_care(lua_State* L) { // 0x0414 COMMAND_SET_FREE_HEALTH_CARE (reVC Script6.cpp:357)
+int set_free_health_care(lua_State* L) { // 0x0414 COMMAND_SET_FREE_HEALTH_CARE (reVC Script6.cpp:357) — установить свободный здоровье забота
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_free_health_care"; }
@@ -34055,7 +34055,7 @@ static bool ma_mission_start_allowed() {
 }
 // === КОНЕЦ ГЛОБАЛЬНОЙ ЗАЩИТЫ ===
 
-int load_and_launch_mission_internal(lua_State* L) { // 0x0417 COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL (reVC Script6.cpp:373)
+int load_and_launch_mission_internal(lua_State* L) { // 0x0417 COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL (reVC Script6.cpp:373) — загрузить запустить миссия внутренний
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function load_and_launch_mission_internal"; }
@@ -34064,7 +34064,7 @@ int load_and_launch_mission_internal(lua_State* L) { // 0x0417 COMMAND_LOAD_AND_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_object_draw_last(lua_State* L) { // 0x0418 COMMAND_SET_OBJECT_DRAW_LAST (reVC Script6.cpp:405)
+int set_object_draw_last(lua_State* L) { // 0x0418 COMMAND_SET_OBJECT_DRAW_LAST (reVC Script6.cpp:405) — установить объект рисовать последний
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_object_draw_last"; }
@@ -34074,7 +34074,7 @@ int set_object_draw_last(lua_State* L) { // 0x0418 COMMAND_SET_OBJECT_DRAW_LAST 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int convert_metres_to_feet(lua_State* L) { // 0x0425 COMMAND_CONVERT_METRES_TO_FEET (reVC Script6.cpp:521)
+int convert_metres_to_feet(lua_State* L) { // 0x0425 COMMAND_CONVERT_METRES_TO_FEET (reVC Script6.cpp:521) — преобразовать метры ноги
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function convert_metres_to_feet"; }
@@ -34085,7 +34085,7 @@ int convert_metres_to_feet(lua_State* L) { // 0x0425 COMMAND_CONVERT_METRES_TO_F
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_total_number_of_missions(lua_State* L) { // 0x042C COMMAND_SET_TOTAL_NUMBER_OF_MISSIONS (reVC Script6.cpp:626)
+int set_total_number_of_missions(lua_State* L) { // 0x042C COMMAND_SET_TOTAL_NUMBER_OF_MISSIONS (reVC Script6.cpp:626) — установить всего миссии
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_total_number_of_missions"; }
@@ -34093,7 +34093,7 @@ int set_total_number_of_missions(lua_State* L) { // 0x042C COMMAND_SET_TOTAL_NUM
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int convert_metres_to_feet_int(lua_State* L) { // 0x042D COMMAND_CONVERT_METRES_TO_FEET_INT (reVC Script6.cpp:630)
+int convert_metres_to_feet_int(lua_State* L) { // 0x042D COMMAND_CONVERT_METRES_TO_FEET_INT (reVC Script6.cpp:630) — преобразовать метры ноги целое число
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function convert_metres_to_feet_int"; }
@@ -34104,7 +34104,7 @@ int convert_metres_to_feet_int(lua_State* L) { // 0x042D COMMAND_CONVERT_METRES_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_is_chris_criminal(lua_State* L) { // 0x0433 COMMAND_SET_CHAR_IS_CHRIS_CRIMINAL (reVC Script6.cpp:665)
+int set_char_is_chris_criminal(lua_State* L) { // 0x0433 COMMAND_SET_CHAR_IS_CHRIS_CRIMINAL (reVC Script6.cpp:665) — установить персонаж Chris преступник
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_is_chris_criminal"; }
@@ -34114,49 +34114,49 @@ int set_char_is_chris_criminal(lua_State* L) { // 0x0433 COMMAND_SET_CHAR_IS_CHR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int start_credits(lua_State* L) { // 0x0434 COMMAND_START_CREDITS (reVC Script6.cpp:673)
+int start_credits(lua_State* L) { // 0x0434 COMMAND_START_CREDITS (reVC Script6.cpp:673) — начать титры
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_START_CREDITS>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int stop_credits(lua_State* L) { // 0x0435 COMMAND_STOP_CREDITS (reVC Script6.cpp:676)
+int stop_credits(lua_State* L) { // 0x0435 COMMAND_STOP_CREDITS (reVC Script6.cpp:676) — остановить титры
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_STOP_CREDITS>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int are_credits_finished(lua_State* L) { // 0x0436 COMMAND_ARE_CREDITS_FINISHED (reVC Script6.cpp:679)
+int are_credits_finished(lua_State* L) { // 0x0436 COMMAND_ARE_CREDITS_FINISHED (reVC Script6.cpp:679) — проверить титры завершено
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_ARE_CREDITS_FINISHED>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int play_end_of_game_tune(lua_State* L) { // 0x043F COMMAND_PLAY_END_OF_GAME_TUNE (reVC Script6.cpp:759)
+int play_end_of_game_tune(lua_State* L) { // 0x043F COMMAND_PLAY_END_OF_GAME_TUNE (reVC Script6.cpp:759) — проиграть конец игра тюнинг
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_PLAY_END_OF_GAME_TUNE>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int stop_end_of_game_tune(lua_State* L) { // 0x0440 COMMAND_STOP_END_OF_GAME_TUNE (reVC Script6.cpp:762)
+int stop_end_of_game_tune(lua_State* L) { // 0x0440 COMMAND_STOP_END_OF_GAME_TUNE (reVC Script6.cpp:762) — остановить конец игра тюнинг
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_STOP_END_OF_GAME_TUNE>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int are_any_car_cheats_activated(lua_State* L) { // 0x0445 COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED (reVC Script6.cpp:798)
+int are_any_car_cheats_activated(lua_State* L) { // 0x0445 COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED (reVC Script6.cpp:798) — проверить авто читы активирован
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int load_splash_screen(lua_State* L) { // 0x044D COMMAND_LOAD_SPLASH_SCREEN (reVC Script6.cpp:902)
+int load_splash_screen(lua_State* L) { // 0x044D COMMAND_LOAD_SPLASH_SCREEN (reVC Script6.cpp:902) — загрузить всплеск экран
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function load_splash_screen"; }
@@ -34170,14 +34170,14 @@ int load_splash_screen(lua_State* L) { // 0x044D COMMAND_LOAD_SPLASH_SCREEN (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int load_end_of_game_tune(lua_State* L) { // 0x0451 COMMAND_LOAD_END_OF_GAME_TUNE (reVC Script6.cpp:940)
+int load_end_of_game_tune(lua_State* L) { // 0x0451 COMMAND_LOAD_END_OF_GAME_TUNE (reVC Script6.cpp:940) — загрузить конец игра тюнинг
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_LOAD_END_OF_GAME_TUNE>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int terminate_all_scripts_with_this_name(lua_State* L) { // 0x0459 COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME (reVC Script6.cpp:1037)
+int terminate_all_scripts_with_this_name(lua_State* L) { // 0x0459 COMMAND_TERMINATE_ALL_SCRIPTS_WITH_THIS_NAME (reVC Script6.cpp:1037) — Прекратить скрипты имя
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function terminate_all_scripts_with_this_name"; }
@@ -34191,7 +34191,7 @@ int terminate_all_scripts_with_this_name(lua_State* L) { // 0x0459 COMMAND_TERMI
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_current_player_weapon(lua_State* L) { // 0x046F COMMAND_GET_CURRENT_PLAYER_WEAPON (reVC Script6.cpp:1381)
+int get_current_player_weapon(lua_State* L) { // 0x046F COMMAND_GET_CURRENT_PLAYER_WEAPON (reVC Script6.cpp:1381) — получить текущий игрок оружие
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -34201,7 +34201,7 @@ int get_current_player_weapon(lua_State* L) { // 0x046F COMMAND_GET_CURRENT_PLAY
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_any_means_object_2d(lua_State* L) { // 0x0471 COMMAND_LOCATE_CHAR_ANY_MEANS_OBJECT_2D (reVC Script6.cpp:1399)
+int locate_char_any_means_object_2d(lua_State* L) { // 0x0471 COMMAND_LOCATE_CHAR_ANY_MEANS_OBJECT_2D (reVC Script6.cpp:1399) — найти персонаж способ объект 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_any_means_object_2d"; }
@@ -34215,7 +34215,7 @@ int locate_char_any_means_object_2d(lua_State* L) { // 0x0471 COMMAND_LOCATE_CHA
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_char_on_foot_object_2d(lua_State* L) { // 0x0472 COMMAND_LOCATE_CHAR_ON_FOOT_OBJECT_2D (reVC Script6.cpp:1400)
+int locate_char_on_foot_object_2d(lua_State* L) { // 0x0472 COMMAND_LOCATE_CHAR_ON_FOOT_OBJECT_2D (reVC Script6.cpp:1400) — найти персонаж пешком объект 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_char_on_foot_object_2d"; }
@@ -34229,7 +34229,7 @@ int locate_char_on_foot_object_2d(lua_State* L) { // 0x0472 COMMAND_LOCATE_CHAR_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int can_char_see_dead_char(lua_State* L) { // 0x0480 COMMAND_CAN_CHAR_SEE_DEAD_CHAR (reVC Script6.cpp:1473)
+int can_char_see_dead_char(lua_State* L) { // 0x0480 COMMAND_CAN_CHAR_SEE_DEAD_CHAR (reVC Script6.cpp:1473) — проверить персонаж видеть мёртв персонаж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function can_char_see_dead_char"; }
@@ -34240,7 +34240,7 @@ int can_char_see_dead_char(lua_State* L) { // 0x0480 COMMAND_CAN_CHAR_SEE_DEAD_C
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_any_pickup_at_coords(lua_State* L) { // 0x048C COMMAND_IS_ANY_PICKUP_AT_COORDS (reVC Script6.cpp:1540)
+int is_any_pickup_at_coords(lua_State* L) { // 0x048C COMMAND_IS_ANY_PICKUP_AT_COORDS (reVC Script6.cpp:1540) — проверить пикап координаты
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_any_pickup_at_coords"; }
@@ -34251,7 +34251,7 @@ int is_any_pickup_at_coords(lua_State* L) { // 0x048C COMMAND_IS_ANY_PICKUP_AT_C
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int initialise_object_path(lua_State* L) { // 0x049C COMMAND_INITIALISE_OBJECT_PATH (reVC Script6.cpp:1649)
+int initialise_object_path(lua_State* L) { // 0x049C COMMAND_INITIALISE_OBJECT_PATH (reVC Script6.cpp:1649) — Инициализировать объект путь
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function initialise_object_path"; }
@@ -34263,7 +34263,7 @@ int initialise_object_path(lua_State* L) { // 0x049C COMMAND_INITIALISE_OBJECT_P
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int start_object_on_path(lua_State* L) { // 0x049D COMMAND_START_OBJECT_ON_PATH (reVC Script6.cpp:1660)
+int start_object_on_path(lua_State* L) { // 0x049D COMMAND_START_OBJECT_ON_PATH (reVC Script6.cpp:1660) — начать объект путь
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function start_object_on_path"; }
@@ -34273,7 +34273,7 @@ int start_object_on_path(lua_State* L) { // 0x049D COMMAND_START_OBJECT_ON_PATH 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_object_path_position(lua_State* L) { // 0x049F COMMAND_SET_OBJECT_PATH_POSITION (reVC Script6.cpp:1674)
+int set_object_path_position(lua_State* L) { // 0x049F COMMAND_SET_OBJECT_PATH_POSITION (reVC Script6.cpp:1674) — установить объект путь позиция
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_object_path_position"; }
@@ -34282,7 +34282,7 @@ int set_object_path_position(lua_State* L) { // 0x049F COMMAND_SET_OBJECT_PATH_P
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_object_path(lua_State* L) { // 0x04A1 COMMAND_CLEAR_OBJECT_PATH (reVC Script6.cpp:1681)
+int clear_object_path(lua_State* L) { // 0x04A1 COMMAND_CLEAR_OBJECT_PATH (reVC Script6.cpp:1681) — очистить объект путь
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function clear_object_path"; }
@@ -34290,14 +34290,14 @@ int clear_object_path(lua_State* L) { // 0x04A1 COMMAND_CLEAR_OBJECT_PATH (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int reset_havoc_caused_by_player(lua_State* L) { // 0x04BE COMMAND_RESET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:155)
+int reset_havoc_caused_by_player(lua_State* L) { // 0x04BE COMMAND_RESET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:155) — сбросить разрушение вызвано игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_RESET_HAVOC_CAUSED_BY_PLAYER>(CWorld::PlayerInFocus); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_havoc_caused_by_player(lua_State* L) { // 0x04BF COMMAND_GET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:161)
+int get_havoc_caused_by_player(lua_State* L) { // 0x04BF COMMAND_GET_HAVOC_CAUSED_BY_PLAYER (reVC Script7.cpp:161) — получить разрушение вызвано игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -34307,7 +34307,7 @@ int get_havoc_caused_by_player(lua_State* L) { // 0x04BF COMMAND_GET_HAVOC_CAUSE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_script_roadblock(lua_State* L) { // 0x04C0 COMMAND_CREATE_SCRIPT_ROADBLOCK (reVC Script7.cpp:168)
+int create_script_roadblock(lua_State* L) { // 0x04C0 COMMAND_CREATE_SCRIPT_ROADBLOCK (reVC Script7.cpp:168) — создать скрипт блокпост
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_script_roadblock"; }
@@ -34320,14 +34320,14 @@ int create_script_roadblock(lua_State* L) { // 0x04C0 COMMAND_CREATE_SCRIPT_ROAD
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_all_script_roadblocks(lua_State* L) { // 0x04C1 COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS (reVC Script7.cpp:174)
+int clear_all_script_roadblocks(lua_State* L) { // 0x04C1 COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS (reVC Script7.cpp:174) — очистить скрипт блокпосты
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_char_been_photographed(lua_State* L) { // 0x04C5 COMMAND_HAS_CHAR_BEEN_PHOTOGRAPHED (reVC Script7.cpp:201)
+int has_char_been_photographed(lua_State* L) { // 0x04C5 COMMAND_HAS_CHAR_BEEN_PHOTOGRAPHED (reVC Script7.cpp:201) — проверить персонаж сфотографирован
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_char_been_photographed"; }
@@ -34337,7 +34337,7 @@ int has_char_been_photographed(lua_State* L) { // 0x04C5 COMMAND_HAS_CHAR_BEEN_P
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_money_spent_on_clothes(lua_State* L) { // 0x04CF COMMAND_ADD_MONEY_SPENT_ON_CLOTHES (reVC Script7.cpp:257)
+int add_money_spent_on_clothes(lua_State* L) { // 0x04CF COMMAND_ADD_MONEY_SPENT_ON_CLOTHES (reVC Script7.cpp:257) — добавить деньги потрачено одежда
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_money_spent_on_clothes"; }
@@ -34345,7 +34345,7 @@ int add_money_spent_on_clothes(lua_State* L) { // 0x04CF COMMAND_ADD_MONEY_SPENT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_heli_orientation(lua_State* L) { // 0x04D0 COMMAND_SET_HELI_ORIENTATION (reVC Script7.cpp:262)
+int set_heli_orientation(lua_State* L) { // 0x04D0 COMMAND_SET_HELI_ORIENTATION (reVC Script7.cpp:262) — установить вертолёт ориентация
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_heli_orientation"; }
@@ -34355,7 +34355,7 @@ int set_heli_orientation(lua_State* L) { // 0x04D0 COMMAND_SET_HELI_ORIENTATION 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_heli_orientation(lua_State* L) { // 0x04D1 COMMAND_CLEAR_HELI_ORIENTATION (reVC Script7.cpp:275)
+int clear_heli_orientation(lua_State* L) { // 0x04D1 COMMAND_CLEAR_HELI_ORIENTATION (reVC Script7.cpp:275) — очистить вертолёт ориентация
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function clear_heli_orientation"; }
@@ -34364,7 +34364,7 @@ int clear_heli_orientation(lua_State* L) { // 0x04D1 COMMAND_CLEAR_HELI_ORIENTAT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_drowns_in_water(lua_State* L) { // 0x04D8 COMMAND_SET_CHAR_DROWNS_IN_WATER (reVC Script7.cpp:326)
+int set_char_drowns_in_water(lua_State* L) { // 0x04D8 COMMAND_SET_CHAR_DROWNS_IN_WATER (reVC Script7.cpp:326) — установить персонаж утопление вода
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_drowns_in_water"; }
@@ -34374,7 +34374,7 @@ int set_char_drowns_in_water(lua_State* L) { // 0x04D8 COMMAND_SET_CHAR_DROWNS_I
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_char_armour(lua_State* L) { // 0x04DD COMMAND_GET_CHAR_ARMOUR (reVC Script7.cpp:356)
+int get_char_armour(lua_State* L) { // 0x04DD COMMAND_GET_CHAR_ARMOUR (reVC Script7.cpp:356) — получить персонаж броня
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function get_char_armour"; }
@@ -34386,7 +34386,7 @@ int get_char_armour(lua_State* L) { // 0x04DD COMMAND_GET_CHAR_ARMOUR (reVC Scri
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_object_2d(lua_State* L) { // 0x04E5 COMMAND_LOCATE_OBJECT_2D (reVC Script7.cpp:411)
+int locate_object_2d(lua_State* L) { // 0x04E5 COMMAND_LOCATE_OBJECT_2D (reVC Script7.cpp:411) — найти объект 2D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function locate_object_2d"; }
@@ -34400,7 +34400,7 @@ int locate_object_2d(lua_State* L) { // 0x04E5 COMMAND_LOCATE_OBJECT_2D (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int locate_object_3d(lua_State* L) { // 0x04E6 COMMAND_LOCATE_OBJECT_3D (reVC Script5.cpp:740)
+int locate_object_3d(lua_State* L) { // 0x04E6 COMMAND_LOCATE_OBJECT_3D (reVC Script5.cpp:740) — найти объект 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function locate_object_3d"; }
@@ -34415,7 +34415,7 @@ int locate_object_3d(lua_State* L) { // 0x04E6 COMMAND_LOCATE_OBJECT_3D (reVC Sc
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_object_in_area_3d(lua_State* L) { // 0x04EA COMMAND_IS_OBJECT_IN_AREA_3D (reVC Script5.cpp:1295)
+int is_object_in_area_3d(lua_State* L) { // 0x04EA COMMAND_IS_OBJECT_IN_AREA_3D (reVC Script5.cpp:1295) — проверить объект область 3D
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function is_object_in_area_3d"; }
@@ -34431,7 +34431,7 @@ int is_object_in_area_3d(lua_State* L) { // 0x04EA COMMAND_IS_OBJECT_IN_AREA_3D 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_set_piece(lua_State* L) { // 0x04F8 COMMAND_ADD_SET_PIECE (reVC Script7.cpp:552)
+int add_set_piece(lua_State* L) { // 0x04F8 COMMAND_ADD_SET_PIECE (reVC Script7.cpp:552) — добавить установить кусок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_set_piece"; }
@@ -34451,7 +34451,7 @@ int add_set_piece(lua_State* L) { // 0x04F8 COMMAND_ADD_SET_PIECE (reVC Script7.
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_wheelie_stats(lua_State* L) { // 0x04FC COMMAND_GET_WHEELIE_STATS (reVC Script7.cpp:574)
+int get_wheelie_stats(lua_State* L) { // 0x04FC COMMAND_GET_WHEELIE_STATS (reVC Script7.cpp:574) — получить вилли статистика
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -34471,7 +34471,7 @@ int get_wheelie_stats(lua_State* L) { // 0x04FC COMMAND_GET_WHEELIE_STATS (reVC 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int switch_lift_camera(lua_State* L) { // 0x0507 COMMAND_SWITCH_LIFT_CAMERA (reVC Script7.cpp:665)
+int switch_lift_camera(lua_State* L) { // 0x0507 COMMAND_SWITCH_LIFT_CAMERA (reVC Script7.cpp:665) — Переключатель подъёмник камера
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function switch_lift_camera"; }
@@ -34479,7 +34479,7 @@ int switch_lift_camera(lua_State* L) { // 0x0507 COMMAND_SWITCH_LIFT_CAMERA (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_locked_property_pickup(lua_State* L) { // 0x0517 COMMAND_CREATE_LOCKED_PROPERTY_PICKUP (reVC Script7.cpp:760)
+int create_locked_property_pickup(lua_State* L) { // 0x0517 COMMAND_CREATE_LOCKED_PROPERTY_PICKUP (reVC Script7.cpp:760) — создать заблокировано собственность пикап
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function create_locked_property_pickup"; }
@@ -34499,7 +34499,7 @@ int create_locked_property_pickup(lua_State* L) { // 0x0517 COMMAND_CREATE_LOCKE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_glass_been_shattered_nearby(lua_State* L) { // 0x0523 COMMAND_HAS_GLASS_BEEN_SHATTERED_NEARBY (reVC Script7.cpp:835)
+int has_glass_been_shattered_nearby(lua_State* L) { // 0x0523 COMMAND_HAS_GLASS_BEEN_SHATTERED_NEARBY (reVC Script7.cpp:835) — проверить стекло разбито рядом
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function has_glass_been_shattered_nearby"; }
@@ -34510,7 +34510,7 @@ int has_glass_been_shattered_nearby(lua_State* L) { // 0x0523 COMMAND_HAS_GLASS_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int attach_cutscene_object_to_component(lua_State* L) { // 0x0525 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_COMPONENT (reVC Script7.cpp:852)
+int attach_cutscene_object_to_component(lua_State* L) { // 0x0525 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_COMPONENT (reVC Script7.cpp:852) — прикрепить объект сцены компонент
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function attach_cutscene_object_to_component"; }
@@ -34530,7 +34530,7 @@ int attach_cutscene_object_to_component(lua_State* L) { // 0x0525 COMMAND_ATTACH
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_money_spent_on_weapons(lua_State* L) { // 0x0528 COMMAND_ADD_MONEY_SPENT_ON_WEAPONS (reVC Script7.cpp:874)
+int add_money_spent_on_weapons(lua_State* L) { // 0x0528 COMMAND_ADD_MONEY_SPENT_ON_WEAPONS (reVC Script7.cpp:874) — добавить деньги потрачено оружия
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_money_spent_on_weapons"; }
@@ -34538,7 +34538,7 @@ int add_money_spent_on_weapons(lua_State* L) { // 0x0528 COMMAND_ADD_MONEY_SPENT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_player_drunkenness(lua_State* L) { // 0x052C COMMAND_SET_PLAYER_DRUNKENNESS (reVC Script7.cpp:893)
+int set_player_drunkenness(lua_State* L) { // 0x052C COMMAND_SET_PLAYER_DRUNKENNESS (reVC Script7.cpp:893) — установить игрок опьянение
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_drunkenness"; }
@@ -34546,7 +34546,7 @@ int set_player_drunkenness(lua_State* L) { // 0x052C COMMAND_SET_PLAYER_DRUNKENN
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_stores_knocked_off(lua_State* L) { // 0x0531 COMMAND_ADD_STORES_KNOCKED_OFF (reVC Script7.cpp:907)
+int add_stores_knocked_off(lua_State* L) { // 0x0531 COMMAND_ADD_STORES_KNOCKED_OFF (reVC Script7.cpp:907) — добавить магазины сбит
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_stores_knocked_off"; }
@@ -34554,7 +34554,7 @@ int add_stores_knocked_off(lua_State* L) { // 0x0531 COMMAND_ADD_STORES_KNOCKED_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_pizzas_delivered(lua_State* L) { // 0x0534 COMMAND_ADD_PIZZAS_DELIVERED (reVC Script7.cpp:916)
+int add_pizzas_delivered(lua_State* L) { // 0x0534 COMMAND_ADD_PIZZAS_DELIVERED (reVC Script7.cpp:916) — добавить пиццы доставлено
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_pizzas_delivered"; }
@@ -34562,7 +34562,7 @@ int add_pizzas_delivered(lua_State* L) { // 0x0534 COMMAND_ADD_PIZZAS_DELIVERED 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_ice_creams_sold(lua_State* L) { // 0x0536 COMMAND_ADD_ICE_CREAMS_SOLD (reVC Script7.cpp:921)
+int add_ice_creams_sold(lua_State* L) { // 0x0536 COMMAND_ADD_ICE_CREAMS_SOLD (reVC Script7.cpp:921) — добавить лёд кремы продано
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_ice_creams_sold"; }
@@ -34570,7 +34570,7 @@ int add_ice_creams_sold(lua_State* L) { // 0x0536 COMMAND_ADD_ICE_CREAMS_SOLD (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_in_players_group_can_fight(lua_State* L) { // 0x053C COMMAND_SET_CHAR_IN_PLAYERS_GROUP_CAN_FIGHT (reVC Script7.cpp:930)
+int set_char_in_players_group_can_fight(lua_State* L) { // 0x053C COMMAND_SET_CHAR_IN_PLAYERS_GROUP_CAN_FIGHT (reVC Script7.cpp:930) — установить персонаж игроки группа может драка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_in_players_group_can_fight"; }
@@ -34580,7 +34580,7 @@ int set_char_in_players_group_can_fight(lua_State* L) { // 0x053C COMMAND_SET_CH
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_random_car_of_type_in_area_no_save(lua_State* L) { // 0x053E COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA_NO_SAVE (reVC Script7.cpp:946)
+int get_random_car_of_type_in_area_no_save(lua_State* L) { // 0x053E COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA_NO_SAVE (reVC Script7.cpp:946) — получить случайный авто тип область сохранить
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_random_car_of_type_in_area_no_save"; }
@@ -34595,7 +34595,7 @@ int get_random_car_of_type_in_area_no_save(lua_State* L) { // 0x053E COMMAND_GET
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_player_auto_aim(lua_State* L) { // 0x0540 COMMAND_SET_PLAYER_AUTO_AIM (reVC Script7.cpp:981)
+int set_player_auto_aim(lua_State* L) { // 0x0540 COMMAND_SET_PLAYER_AUTO_AIM (reVC Script7.cpp:981) — установить игрок авто прицеливание
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_auto_aim"; }
@@ -34603,7 +34603,7 @@ int set_player_auto_aim(lua_State* L) { // 0x0540 COMMAND_SET_PLAYER_AUTO_AIM (r
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_blood_ring_kills(lua_State* L) { // 0x0543 COMMAND_ADD_BLOOD_RING_KILLS (reVC Script7.cpp:1007)
+int add_blood_ring_kills(lua_State* L) { // 0x0543 COMMAND_ADD_BLOOD_RING_KILLS (reVC Script7.cpp:1007) — добавить кровь кольцо убийства
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_blood_ring_kills"; }
@@ -34611,7 +34611,7 @@ int add_blood_ring_kills(lua_State* L) { // 0x0543 COMMAND_ADD_BLOOD_RING_KILLS 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_longest_time_in_blood_ring(lua_State* L) { // 0x0544 COMMAND_SET_LONGEST_TIME_IN_BLOOD_RING (reVC Script7.cpp:1011)
+int set_longest_time_in_blood_ring(lua_State* L) { // 0x0544 COMMAND_SET_LONGEST_TIME_IN_BLOOD_RING (reVC Script7.cpp:1011) — установить самый длинный время кровь кольцо
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_longest_time_in_blood_ring"; }
@@ -34619,14 +34619,14 @@ int set_longest_time_in_blood_ring(lua_State* L) { // 0x0544 COMMAND_SET_LONGEST
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int remove_everything_for_huge_cutscene(lua_State* L) { // 0x0545 COMMAND_REMOVE_EVERYTHING_FOR_HUGE_CUTSCENE (reVC Script7.cpp:1015)
+int remove_everything_for_huge_cutscene(lua_State* L) { // 0x0545 COMMAND_REMOVE_EVERYTHING_FOR_HUGE_CUTSCENE (reVC Script7.cpp:1015) — удалить всё огромный сцена
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_REMOVE_EVERYTHING_FOR_HUGE_CUTSCENE>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_touching_vehicle(lua_State* L) { // 0x0546 COMMAND_IS_PLAYER_TOUCHING_VEHICLE (reVC Script7.cpp:1020)
+int is_player_touching_vehicle(lua_State* L) { // 0x0546 COMMAND_IS_PLAYER_TOUCHING_VEHICLE (reVC Script7.cpp:1020) — проверить игрок касание автомобиль
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_player_touching_vehicle"; }
@@ -34636,7 +34636,7 @@ int is_player_touching_vehicle(lua_State* L) { // 0x0546 COMMAND_IS_PLAYER_TOUCH
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int check_for_ped_model_around_player(lua_State* L) { // 0x0548 COMMAND_CHECK_FOR_PED_MODEL_AROUND_PLAYER (reVC Script7.cpp:1033)
+int check_for_ped_model_around_player(lua_State* L) { // 0x0548 COMMAND_CHECK_FOR_PED_MODEL_AROUND_PLAYER (reVC Script7.cpp:1033) — проверить модель пешехода вокруг игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function check_for_ped_model_around_player"; }
@@ -34648,7 +34648,7 @@ int check_for_ped_model_around_player(lua_State* L) { // 0x0548 COMMAND_CHECK_FO
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int attach_cutscene_object_to_vehicle(lua_State* L) { // 0x054B COMMAND_ATTACH_CUTSCENE_OBJECT_TO_VEHICLE (reVC Script7.cpp:1071)
+int attach_cutscene_object_to_vehicle(lua_State* L) { // 0x054B COMMAND_ATTACH_CUTSCENE_OBJECT_TO_VEHICLE (reVC Script7.cpp:1071) — прикрепить объект сцены автомобиль
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function attach_cutscene_object_to_vehicle"; }
@@ -34659,7 +34659,7 @@ int attach_cutscene_object_to_vehicle(lua_State* L) { // 0x054B COMMAND_ATTACH_C
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_tonights_event(lua_State* L) { // 0x054D COMMAND_SET_TONIGHTS_EVENT (reVC Script7.cpp:1085)
+int set_tonights_event(lua_State* L) { // 0x054D COMMAND_SET_TONIGHTS_EVENT (reVC Script7.cpp:1085) — установить сегодня вечером событие
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_tonights_event"; }
@@ -34667,7 +34667,7 @@ int set_tonights_event(lua_State* L) { // 0x054D COMMAND_SET_TONIGHTS_EVENT (reV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int freeze_object_position(lua_State* L) { // 0x0550 COMMAND_FREEZE_OBJECT_POSITION (reVC Script7.cpp:1102)
+int freeze_object_position(lua_State* L) { // 0x0550 COMMAND_FREEZE_OBJECT_POSITION (reVC Script7.cpp:1102) — заморозить объект позиция
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function freeze_object_position"; }
@@ -34677,7 +34677,7 @@ int freeze_object_position(lua_State* L) { // 0x0550 COMMAND_FREEZE_OBJECT_POSIT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_player_has_met_debbie_harry(lua_State* L) { // 0x0551 COMMAND_SET_PLAYER_HAS_MET_DEBBIE_HARRY (reVC Script7.cpp:1111)
+int set_player_has_met_debbie_harry(lua_State* L) { // 0x0551 COMMAND_SET_PLAYER_HAS_MET_DEBBIE_HARRY (reVC Script7.cpp:1111) — установить игрок имеет встретил Debbie Harry
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_player_has_met_debbie_harry"; }
@@ -34685,7 +34685,7 @@ int set_player_has_met_debbie_harry(lua_State* L) { // 0x0551 COMMAND_SET_PLAYER
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_up_taxi_shortcut(lua_State* L) { // 0x0556 COMMAND_SET_UP_TAXI_SHORTCUT (reVC Script7.cpp:1126)
+int set_up_taxi_shortcut(lua_State* L) { // 0x0556 COMMAND_SET_UP_TAXI_SHORTCUT (reVC Script7.cpp:1126) — установить такси сокращение
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_up_taxi_shortcut"; }
@@ -34700,14 +34700,14 @@ int set_up_taxi_shortcut(lua_State* L) { // 0x0556 COMMAND_SET_UP_TAXI_SHORTCUT 
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int clear_taxi_shortcut(lua_State* L) { // 0x0557 COMMAND_CLEAR_TAXI_SHORTCUT (reVC Script7.cpp:1134)
+int clear_taxi_shortcut(lua_State* L) { // 0x0557 COMMAND_CLEAR_TAXI_SHORTCUT (reVC Script7.cpp:1134) — очистить такси сокращение
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_CLEAR_TAXI_SHORTCUT>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int add_porn_leaflet_to_rubbish(lua_State* L) { // 0x055A COMMAND_ADD_PORN_LEAFLET_TO_RUBBISH (reVC Script7.cpp:1139)
+int add_porn_leaflet_to_rubbish(lua_State* L) { // 0x055A COMMAND_ADD_PORN_LEAFLET_TO_RUBBISH (reVC Script7.cpp:1139) — добавить порно листовка мусор
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function add_porn_leaflet_to_rubbish"; }
@@ -34715,7 +34715,7 @@ int add_porn_leaflet_to_rubbish(lua_State* L) { // 0x055A COMMAND_ADD_PORN_LEAFL
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int make_player_fire_proof(lua_State* L) { // 0x055D COMMAND_MAKE_PLAYER_FIRE_PROOF (reVC Script7.cpp:1155)
+int make_player_fire_proof(lua_State* L) { // 0x055D COMMAND_MAKE_PLAYER_FIRE_PROOF (reVC Script7.cpp:1155) — сделать игрок огонь защита
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function make_player_fire_proof"; }
@@ -34723,7 +34723,7 @@ int make_player_fire_proof(lua_State* L) { // 0x055D COMMAND_MAKE_PLAYER_FIRE_PR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int create_random_char_as_driver(lua_State* L) { // 0x0560 COMMAND_CREATE_RANDOM_CHAR_AS_DRIVER (reVC Script7.cpp:1178)
+int create_random_char_as_driver(lua_State* L) { // 0x0560 COMMAND_CREATE_RANDOM_CHAR_AS_DRIVER (reVC Script7.cpp:1178) — создать случайный персонаж водитель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function create_random_char_as_driver"; }
@@ -34735,7 +34735,7 @@ int create_random_char_as_driver(lua_State* L) { // 0x0560 COMMAND_CREATE_RANDOM
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_ignore_threats_behind_objects(lua_State* L) { // 0x0562 COMMAND_SET_CHAR_IGNORE_THREATS_BEHIND_OBJECTS (reVC Script7.cpp:1239)
+int set_char_ignore_threats_behind_objects(lua_State* L) { // 0x0562 COMMAND_SET_CHAR_IGNORE_THREATS_BEHIND_OBJECTS (reVC Script7.cpp:1239) — установить персонаж игнорировать угрозы позади объекты
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_ignore_threats_behind_objects"; }
@@ -34745,7 +34745,7 @@ int set_char_ignore_threats_behind_objects(lua_State* L) { // 0x0562 COMMAND_SET
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int make_heli_come_crashing_down(lua_State* L) { // 0x0564 COMMAND_MAKE_HELI_COME_CRASHING_DOWN (reVC Script7.cpp:1266)
+int make_heli_come_crashing_down(lua_State* L) { // 0x0564 COMMAND_MAKE_HELI_COME_CRASHING_DOWN (reVC Script7.cpp:1266) — сделать вертолёт прийти авария
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function make_heli_come_crashing_down"; }
@@ -34754,7 +34754,7 @@ int make_heli_come_crashing_down(lua_State* L) { // 0x0564 COMMAND_MAKE_HELI_COM
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_char_stuck(lua_State* L) { // 0x0571 COMMAND_IS_CHAR_STUCK (reVC Script7.cpp:1347)
+int is_char_stuck(lua_State* L) { // 0x0571 COMMAND_IS_CHAR_STUCK (reVC Script7.cpp:1347) — проверить персонаж застрял
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function is_char_stuck"; }
@@ -34764,7 +34764,7 @@ int is_char_stuck(lua_State* L) { // 0x0571 COMMAND_IS_CHAR_STUCK (reVC Script7.
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_all_taxis_have_nitro(lua_State* L) { // 0x0572 COMMAND_SET_ALL_TAXIS_HAVE_NITRO (reVC Script7.cpp:1355)
+int set_all_taxis_have_nitro(lua_State* L) { // 0x0572 COMMAND_SET_ALL_TAXIS_HAVE_NITRO (reVC Script7.cpp:1355) — установить такси иметь нитро
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_all_taxis_have_nitro"; }
@@ -34772,7 +34772,7 @@ int set_all_taxis_have_nitro(lua_State* L) { // 0x0572 COMMAND_SET_ALL_TAXIS_HAV
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_vigilante_level(lua_State* L) { // 0x0578 COMMAND_REGISTER_VIGILANTE_LEVEL (reVC Script8.cpp:35)
+int register_vigilante_level(lua_State* L) { // 0x0578 COMMAND_REGISTER_VIGILANTE_LEVEL (reVC Script8.cpp:35) — зарегистрировать vigilante уровень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_vigilante_level"; }
@@ -34780,7 +34780,7 @@ int register_vigilante_level(lua_State* L) { // 0x0578 COMMAND_REGISTER_VIGILANT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_maximum_number_of_cars_in_garage(lua_State* L) { // 0x057A COMMAND_SET_MAXIMUM_NUMBER_OF_CARS_IN_GARAGE (reVC Script8.cpp:63)
+int set_maximum_number_of_cars_in_garage(lua_State* L) { // 0x057A COMMAND_SET_MAXIMUM_NUMBER_OF_CARS_IN_GARAGE (reVC Script8.cpp:63) — установить максимум авто гараж
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_maximum_number_of_cars_in_garage"; }
@@ -34789,14 +34789,14 @@ int set_maximum_number_of_cars_in_garage(lua_State* L) { // 0x057A COMMAND_SET_M
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int wanted_stars_are_flashing(lua_State* L) { // 0x057B COMMAND_WANTED_STARS_ARE_FLASHING (reVC Script8.cpp:67)
+int wanted_stars_are_flashing(lua_State* L) { // 0x057B COMMAND_WANTED_STARS_ARE_FLASHING (reVC Script8.cpp:67) — Розыск звёзды розыска мигание
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         Command<COMMAND_WANTED_STARS_ARE_FLASHING>(); return 0;
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_bus_fares_collected_by_player(lua_State* L) { // 0x057F COMMAND_GET_BUS_FARES_COLLECTED_BY_PLAYER (reVC Script8.cpp:89)
+int get_bus_fares_collected_by_player(lua_State* L) { // 0x057F COMMAND_GET_BUS_FARES_COLLECTED_BY_PLAYER (reVC Script8.cpp:89) — получить автобус плата за проезд собрано игрок
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -34806,7 +34806,7 @@ int get_bus_fares_collected_by_player(lua_State* L) { // 0x057F COMMAND_GET_BUS_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_best_position(lua_State* L) { // 0x0582 COMMAND_REGISTER_BEST_POSITION (reVC Script8.cpp:126)
+int register_best_position(lua_State* L) { // 0x0582 COMMAND_REGISTER_BEST_POSITION (reVC Script8.cpp:126) — зарегистрировать лучший позиция
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_best_position"; }
@@ -34815,7 +34815,7 @@ int register_best_position(lua_State* L) { // 0x0582 COMMAND_REGISTER_BEST_POSIT
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_info_zone(lua_State* L) { // 0x0583 COMMAND_IS_PLAYER_IN_INFO_ZONE (reVC Script8.cpp:130)
+int is_player_in_info_zone(lua_State* L) { // 0x0583 COMMAND_IS_PLAYER_IN_INFO_ZONE (reVC Script8.cpp:130) — проверить игрок информация зона
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TSTRING != lua_type(L, 1)) { throw "bad argument in function is_player_in_info_zone"; }
@@ -34830,7 +34830,7 @@ int is_player_in_info_zone(lua_State* L) { // 0x0583 COMMAND_IS_PLAYER_IN_INFO_Z
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_char_attempted_attractor(lua_State* L) { // 0x0586 COMMAND_HAS_CHAR_ATTEMPTED_ATTRACTOR (reVC Script8.cpp:155)
+int has_char_attempted_attractor(lua_State* L) { // 0x0586 COMMAND_HAS_CHAR_ATTEMPTED_ATTRACTOR (reVC Script8.cpp:155) — проверить персонаж попытка притягиватель
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_char_attempted_attractor"; }
@@ -34840,7 +34840,7 @@ int has_char_attempted_attractor(lua_State* L) { // 0x0586 COMMAND_HAS_CHAR_ATTE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_load_collision_for_char_flag(lua_State* L) { // 0x0588 COMMAND_SET_LOAD_COLLISION_FOR_CHAR_FLAG (reVC Script8.cpp:186)
+int set_load_collision_for_char_flag(lua_State* L) { // 0x0588 COMMAND_SET_LOAD_COLLISION_FOR_CHAR_FLAG (reVC Script8.cpp:186) — установить загрузить столкновение персонаж флаг
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_load_collision_for_char_flag"; }
@@ -34850,7 +34850,7 @@ int set_load_collision_for_char_flag(lua_State* L) { // 0x0588 COMMAND_SET_LOAD_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int has_char_bought_ice_cream(lua_State* L) { // 0x058B COMMAND_HAS_CHAR_BOUGHT_ICE_CREAM (reVC Script8.cpp:216)
+int has_char_bought_ice_cream(lua_State* L) { // 0x058B COMMAND_HAS_CHAR_BOUGHT_ICE_CREAM (reVC Script8.cpp:216) — проверить персонаж куплено лёд крем
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function has_char_bought_ice_cream"; }
@@ -34860,7 +34860,7 @@ int has_char_bought_ice_cream(lua_State* L) { // 0x058B COMMAND_HAS_CHAR_BOUGHT_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_progress_percentage(lua_State* L) { // 0x058C COMMAND_GET_PROGRESS_PERCENTAGE (reVC Script8.cpp:224)
+int get_progress_percentage(lua_State* L) { // 0x058C COMMAND_GET_PROGRESS_PERCENTAGE (reVC Script8.cpp:224) — получить прогресс процент
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         int out0 = 0;
@@ -34870,7 +34870,7 @@ int get_progress_percentage(lua_State* L) { // 0x058C COMMAND_GET_PROGRESS_PERCE
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_shortcut_pickup_point(lua_State* L) { // 0x058D COMMAND_SET_SHORTCUT_PICKUP_POINT (reVC Script8.cpp:228)
+int set_shortcut_pickup_point(lua_State* L) { // 0x058D COMMAND_SET_SHORTCUT_PICKUP_POINT (reVC Script8.cpp:228) — установить сокращение пикап точка
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function set_shortcut_pickup_point"; }
@@ -34881,7 +34881,7 @@ int set_shortcut_pickup_point(lua_State* L) { // 0x058D COMMAND_SET_SHORTCUT_PIC
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int get_random_ice_cream_customer_in_area(lua_State* L) { // 0x058F COMMAND_GET_RANDOM_ICE_CREAM_CUSTOMER_IN_AREA (reVC Script8.cpp:240)
+int get_random_ice_cream_customer_in_area(lua_State* L) { // 0x058F COMMAND_GET_RANDOM_ICE_CREAM_CUSTOMER_IN_AREA (reVC Script8.cpp:240) — получить случайный лёд крем клиент область
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function get_random_ice_cream_customer_in_area"; }
@@ -34898,7 +34898,7 @@ int get_random_ice_cream_customer_in_area(lua_State* L) { // 0x058F COMMAND_GET_
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int set_char_frightened_in_jacked_car(lua_State* L) { // 0x0593 COMMAND_SET_CHAR_FRIGHTENED_IN_JACKED_CAR (reVC Script8.cpp:314)
+int set_char_frightened_in_jacked_car(lua_State* L) { // 0x0593 COMMAND_SET_CHAR_FRIGHTENED_IN_JACKED_CAR (reVC Script8.cpp:314) — установить персонаж напуган угнан авто
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TLIGHTUSERDATA != lua_type(L, 1)) { throw "bad argument in function set_char_frightened_in_jacked_car"; }
@@ -34908,7 +34908,7 @@ int set_char_frightened_in_jacked_car(lua_State* L) { // 0x0593 COMMAND_SET_CHAR
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int is_player_in_shortcut_taxi(lua_State* L) { // 0x0596 COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI (reVC Script8.cpp:336)
+int is_player_in_shortcut_taxi(lua_State* L) { // 0x0596 COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI (reVC Script8.cpp:336) — проверить игрок сокращение такси
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         bool res = Command<COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI>(CWorld::PlayerInFocus);
@@ -34916,7 +34916,7 @@ int is_player_in_shortcut_taxi(lua_State* L) { // 0x0596 COMMAND_IS_PLAYER_IN_SH
     } catch (const char* x) { writelog(x); }
     return 0;
 }
-int register_fire_level(lua_State* L) { // 0x0599 COMMAND_REGISTER_FIRE_LEVEL (reVC Script8.cpp:370)
+int register_fire_level(lua_State* L) { // 0x0599 COMMAND_REGISTER_FIRE_LEVEL (reVC Script8.cpp:370) — зарегистрировать огонь уровень
     std::lock_guard<std::recursive_mutex> lua_fn_guard_(g_lua_api_mx);
     try {
         if (LUA_TNUMBER != lua_type(L, 1)) { throw "bad argument in function register_fire_level"; }
@@ -34963,241 +34963,241 @@ static unsigned int ma_headlight_addr() { // [0x7E49C0] — указатель �
     unsigned int p = ma_r32(0x7E49C0);
     return p ? p + 0x1F9 : 0;
 }
-int set_headlights_on(lua_State* L) {
+int set_headlights_on(lua_State* L) { // установить фары
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     unsigned int a = ma_headlight_addr(); if (!a) { lua_pushboolean(L,false); return 1; }
     ma_w8(a, 0x50); lua_pushboolean(L,true); return 1;
 }
-int set_headlights_off(lua_State* L) {
+int set_headlights_off(lua_State* L) { // установить фары
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     unsigned int a = ma_headlight_addr(); if (!a) { lua_pushboolean(L,false); return 1; }
     ma_w8(a, 0x10); lua_pushboolean(L,true); return 1;
 }
-int is_headlights_on(lua_State* L) {
+int is_headlights_on(lua_State* L) { // проверить фары
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     unsigned int a = ma_headlight_addr(); lua_pushboolean(L, a && ma_r8(a)==0x50); return 1;
 }
 
-int get_m_timepassingmeby_faster_time(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B87)); return 1; }
-int set_m_timepassingmeby_faster_time(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B87, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_youwonttakemealive_wanted_level(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4ABF4C)); return 1; }
-int set_m_youwonttakemealive_wanted_level(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4ABF4C, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_leavemealone_wanted_level(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4ABFC4)); return 1; }
-int set_m_leavemealone_wanted_level(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4ABFC4, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_apleasantday_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC009)); return 1; }
-int set_m_apleasantday_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC009, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_alovelyday_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC04E)); return 1; }
-int set_m_alovelyday_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC04E, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_abitdrieg_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC099)); return 1; }
-int set_m_abitdrieg_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC099, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_catsanddogs_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC0DE)); return 1; }
-int set_m_catsanddogs_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC0DE, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_cantseeathing_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC129)); return 1; }
-int set_m_cantseeathing_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC129, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_panzer_rhino_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC14B)); return 1; }
-int set_m_panzer_rhino_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC14B, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_travelinstyle_bloodring_a_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC946)); return 1; }
-int set_m_travelinstyle_bloodring_a_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC946, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_thelastride_romero_hearse_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC976)); return 1; }
-int set_m_thelastride_romero_hearse_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC976, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_rockandrollcar_love_fist_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC9A6)); return 1; }
-int set_m_rockandrollcar_love_fist_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC9A6, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_rubbishcar_trashmaster_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC9D6)); return 1; }
-int set_m_rubbishcar_trashmaster_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC9D6, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_gettherefast_sabre_turbo_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACA06)); return 1; }
-int set_m_gettherefast_sabre_turbo_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACA06, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_betterthanwalking_caddy_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACA36)); return 1; }
-int set_m_betterthanwalking_caddy_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACA36, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_gettherequickly_bloodring_b_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACDD6)); return 1; }
-int set_m_gettherequickly_bloodring_b_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACDD6, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_getthereveryfastindeed_hotring_a_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACE06)); return 1; }
-int set_m_getthereveryfastindeed_hotring_a_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACE06, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_getthereamazinglyfast_hotring_b_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACE36)); return 1; }
-int set_m_getthereamazinglyfast_hotring_b_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACE36, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_nuttertools_chainsaw_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AEAEF)); return 1; }
-int set_m_nuttertools_chainsaw_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AEAEF, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_nuttertools_chainsaw_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEB77)); return 1; }
-int set_m_nuttertools_chainsaw_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEB77, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_nuttertools_m4_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEBD4)); return 1; }
-int set_m_nuttertools_m4_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEBD4, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_nuttertools_sniper_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEBE6)); return 1; }
-int set_m_nuttertools_sniper_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEBE6, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_nuttertools_minigun_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEBFB)); return 1; }
-int set_m_nuttertools_minigun_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEBFB, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_professionaltools_katana_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AEC8F)); return 1; }
-int set_m_professionaltools_katana_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AEC8F, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_professionaltools_katana_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AED17)); return 1; }
-int set_m_professionaltools_katana_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AED17, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_professionaltools_m4_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AED74)); return 1; }
-int set_m_professionaltools_m4_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AED74, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_professionaltools_sniper_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AED86)); return 1; }
-int set_m_professionaltools_sniper_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AED86, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_professionaltools_rocket_launcher_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AED98)); return 1; }
-int set_m_professionaltools_rocket_launcher_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AED98, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_thugstools_brass_knuckles_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AEE1F)); return 1; }
-int set_m_thugstools_brass_knuckles_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AEE1F, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_thugstools_brass_knuckles_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEEA7)); return 1; }
-int set_m_thugstools_brass_knuckles_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEEA7, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_thugstools_tec_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEF04)); return 1; }
-int set_m_thugstools_tec_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEF04, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_thugstools_kruger_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEF16)); return 1; }
-int set_m_thugstools_kruger_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEF16, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_thugstools_sniper_rifle_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEF28)); return 1; }
-int set_m_thugstools_sniper_rifle_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEF28, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_thugstools_flame_thrower_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEF38)); return 1; }
-int set_m_thugstools_flame_thrower_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEF38, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_deepfriedmarsbars_programmer_tommy_body(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68E058)); return 1; }
-int set_m_deepfriedmarsbars_programmer_tommy_body(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68E058, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_onspeed_game_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68F1F0)); return 1; }
-int set_m_onspeed_game_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68F1F0, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_onspeed_game_speed_multiplier(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68F1F4)); return 1; }
-int set_m_onspeed_game_speed_multiplier(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68F1F4, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_booooooring_game_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68F1F8)); return 1; }
-int set_m_booooooring_game_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68F1F8, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_booooooring_game_speed_multiplier(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68F1FC)); return 1; }
-int set_m_booooooring_game_speed_multiplier(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68F1FC, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_chasestat(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x97F2C4)); return 1; }
-int set_m_chasestat(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x97F2C4, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_ourgodgivenrighttobeararms(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10AB3)); return 1; }
-int set_m_ourgodgivenrighttobeararms(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10AB3, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_greenlight(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10ADC)); return 1; }
-int set_m_greenlight(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10ADC, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_gripiseverything(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B0F)); return 1; }
-int set_m_gripiseverything(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B0F, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_airship(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B11)); return 1; }
-int set_m_airship(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B11, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_certaindeath(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B23)); return 1; }
-int set_m_certaindeath(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B23, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_ahairdresserscar(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B26)); return 1; }
-int set_m_ahairdresserscar(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B26, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_comeflywithme(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B28)); return 1; }
-int set_m_comeflywithme(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B28, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_used_flag(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B2E)); return 1; }
-int set_m_used_flag(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B2E, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_wheelsareallineed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B30)); return 1; }
-int set_m_wheelsareallineed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B30, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_miamitraffic(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B47)); return 1; }
-int set_m_miamitraffic(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B47, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_fannymagnet(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B5F)); return 1; }
-int set_m_fannymagnet(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B5F, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_seaways(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B81)); return 1; }
-int set_m_seaways(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B81, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_iwantitpaintedblack(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B82)); return 1; }
-int set_m_iwantitpaintedblack(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B82, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_lifeispassingmeby(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B87)); return 1; }
-int set_m_lifeispassingmeby(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B87, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_opcode_de_check_if(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x456046)); return 1; }
-int set_m_opcode_de_check_if(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x456046, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_cash_when_entering_a(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x5B8AB6)); return 1; }
-int set_m_cash_when_entering_a(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x5B8AB6, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_kaufman_cabs_radio_flag(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B7F)); return 1; }
-int set_m_kaufman_cabs_radio_flag(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B7F, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_kaufman_cabs_spawn_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x42AEAC)); return 1; }
-int set_m_kaufman_cabs_spawn_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x42AEAC, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_kaufman_cabs_model_load(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x42AFB3)); return 1; }
-int set_m_kaufman_cabs_model_load(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x42AFB3, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_blue_fade_in_color(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x42B219)); return 1; }
-int set_m_blue_fade_in_color(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x42B219, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_taxi_text_duration(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x42B24E)); return 1; }
-int set_m_taxi_text_duration(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x42B24E, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_x_coord_taxi_destination(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x94DD94)); return 1; }
-int set_m_x_coord_taxi_destination(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x94DD94, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_taxi_spawn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x94EEB8)); return 1; }
-int set_m_taxi_spawn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x94EEB8, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_angle_taxi_destination(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0xA0D378)); return 1; }
-int set_m_angle_taxi_destination(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0xA0D378, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_activate_mission_restart_taxi(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B6D)); return 1; }
-int set_m_activate_mission_restart_taxi(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B6D, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_camera_move_when_entering(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x46B389)); return 1; }
-int set_m_camera_move_when_entering(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x46B389, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_same(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x46B58F)); return 1; }
-int set_m_same(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x46B58F, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_camera_distance_from_only(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r16(0x68AE2E)); return 1; }
-int set_m_camera_distance_from_only(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w16(0x68AE2E, (unsigned short)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_cinema_top_border_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68AEE0)); return 1; }
-int set_m_cinema_top_border_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68AEE0, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_cinema_bottom_border_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68AEE4)); return 1; }
-int set_m_cinema_bottom_border_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68AEE4, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_controls_radar_map(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x68FD02)); return 1; }
-int set_m_controls_radar_map(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x68FD02, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_radar_width(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x68FD16)); return 1; }
-int set_m_radar_width(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x68FD16, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_only_radar_ring_visible(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x68FD17)); return 1; }
-int set_m_only_radar_ring_visible(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x68FD17, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_radar_size_xy(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD28)); return 1; }
-int set_m_radar_size_xy(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD28, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_radar_x_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD2C)); return 1; }
-int set_m_radar_x_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD2C, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_radar_y_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD34)); return 1; }
-int set_m_radar_y_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD34, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_radar_shape(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD38)); return 1; }
-int set_m_radar_shape(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD38, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_addr_68FD3C(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD3C)); return 1; }
-int set_m_addr_68FD3C(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD3C, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_ambient_lighting(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x698A8C)); return 1; }
-int set_m_ambient_lighting(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x698A8C, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_camera_x_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x7E46B8)); return 1; }
-int set_m_camera_x_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x7E46B8, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_camera_y_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x7E46BC)); return 1; }
-int set_m_camera_y_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x7E46BC, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_camera_z_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x7E46C0)); return 1; }
-int set_m_camera_z_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x7E46C0, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_wide_screen_borders(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x7E46F5)); return 1; }
-int set_m_wide_screen_borders(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x7E46F5, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_car_camera(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x7E4764)); return 1; }
-int set_m_car_camera(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x7E4764, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_camera(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x7E47EC)); return 1; }
-int set_m_camera(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x7E47EC, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_frame_limiter(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x869655)); return 1; }
-int set_m_frame_limiter(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x869655, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_subtitles(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x869650)); return 1; }
-int set_m_subtitles(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x869650, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_widescreen(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x869652)); return 1; }
-int set_m_widescreen(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x869652, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_hud_display(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x86963A)); return 1; }
-int set_m_hud_display(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x86963A, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_replay_display(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10AF6)); return 1; }
-int set_m_replay_display(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10AF6, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_white_scanlines(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B68)); return 1; }
-int set_m_white_scanlines(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B68, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_green_scanlines(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B69)); return 1; }
-int set_m_green_scanlines(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B69, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_resolution_width(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0xA0FD04)); return 1; }
-int set_m_resolution_width(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0xA0FD04, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_resolution_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0xA0FD08)); return 1; }
-int set_m_resolution_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0xA0FD08, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_color_bit(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0xA0FD00)); return 1; }
-int set_m_color_bit(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0xA0FD00, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_mouse_x_movement(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x936910)); return 1; }
-int set_m_mouse_x_movement(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x936910, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_mouse_y_movement(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x936914)); return 1; }
-int set_m_mouse_y_movement(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x936914, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_total_stores_knock(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4CC102)); return 1; }
-int set_m_total_stores_knock(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4CC102, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_total_assassination_contracts_complete(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4CC1CD)); return 1; }
-int set_m_total_assassination_contracts_complete(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4CC1CD, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_police_helicopter_state(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10ADB)); return 1; }
-int set_m_police_helicopter_state(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10ADB, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_size_police_em_lights(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x69A633)); return 1; }
-int set_m_size_police_em_lights(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x69A633, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_first_police_car(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x426A21)); return 1; }
-int set_m_first_police_car(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x426A21, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_second_police_car(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x426987)); return 1; }
-int set_m_second_police_car(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x426987, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_enforcer(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x42697E)); return 1; }
-int set_m_enforcer(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x42697E, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_vicechee(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4268B8)); return 1; }
-int set_m_vicechee(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4268B8, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_addr_4268D3(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4268D3)); return 1; }
-int set_m_addr_4268D3(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4268D3, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_addr_4268EE(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4268EE)); return 1; }
-int set_m_addr_4268EE(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4268EE, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_addr_426909(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x426909)); return 1; }
-int set_m_addr_426909(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x426909, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_fbi_rancher(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4269BA)); return 1; }
-int set_m_fbi_rancher(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4269BA, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
-int get_m_barracks_ol(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x426A0A)); return 1; }
-int set_m_barracks_ol(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x426A0A, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; }
+int get_m_timepassingmeby_faster_time(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B87)); return 1; } // получить чит TIMEPASSINGMEBY быстрее время
+int set_m_timepassingmeby_faster_time(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B87, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит TIMEPASSINGMEBY быстрее время
+int get_m_youwonttakemealive_wanted_level(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4ABF4C)); return 1; } // получить чит YOUWONTTAKEMEALIVE розыск уровень
+int set_m_youwonttakemealive_wanted_level(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4ABF4C, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит YOUWONTTAKEMEALIVE розыск уровень
+int get_m_leavemealone_wanted_level(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4ABFC4)); return 1; } // получить чит LEAVEMEALONE розыск уровень
+int set_m_leavemealone_wanted_level(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4ABFC4, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит LEAVEMEALONE розыск уровень
+int get_m_apleasantday_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC009)); return 1; } // получить чит APLEASANTDAY погода
+int set_m_apleasantday_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC009, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит APLEASANTDAY погода
+int get_m_alovelyday_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC04E)); return 1; } // получить чит ALOVELYDAY погода
+int set_m_alovelyday_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC04E, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит ALOVELYDAY погода
+int get_m_abitdrieg_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC099)); return 1; } // получить чит ABITDRIEG погода
+int set_m_abitdrieg_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC099, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит ABITDRIEG погода
+int get_m_catsanddogs_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC0DE)); return 1; } // получить чит CATSANDDOGS погода
+int set_m_catsanddogs_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC0DE, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит CATSANDDOGS погода
+int get_m_cantseeathing_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AC129)); return 1; } // получить чит CANTSEEATHING погода
+int set_m_cantseeathing_weather(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AC129, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит CANTSEEATHING погода
+int get_m_panzer_rhino_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC14B)); return 1; } // получить чит PANZER Rhino модель
+int set_m_panzer_rhino_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC14B, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит PANZER Rhino модель
+int get_m_travelinstyle_bloodring_a_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC946)); return 1; } // получить чит TRAVELINSTYLE Bloodring модель
+int set_m_travelinstyle_bloodring_a_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC946, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит TRAVELINSTYLE Bloodring модель
+int get_m_thelastride_romero_hearse_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC976)); return 1; } // получить чит THELASTRIDE Romero катафалк модель
+int set_m_thelastride_romero_hearse_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC976, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит THELASTRIDE Romero катафалк модель
+int get_m_rockandrollcar_love_fist_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC9A6)); return 1; } // получить чит ROCKANDROLLCAR любовь кулак модель
+int set_m_rockandrollcar_love_fist_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC9A6, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит ROCKANDROLLCAR любовь кулак модель
+int get_m_rubbishcar_trashmaster_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AC9D6)); return 1; } // получить чит RUBBISHCAR мусоровоз модель
+int set_m_rubbishcar_trashmaster_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AC9D6, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит RUBBISHCAR мусоровоз модель
+int get_m_gettherefast_sabre_turbo_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACA06)); return 1; } // получить чит GETTHEREFAST Sabre турбо модель
+int set_m_gettherefast_sabre_turbo_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACA06, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит GETTHEREFAST Sabre турбо модель
+int get_m_betterthanwalking_caddy_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACA36)); return 1; } // получить чит BETTERTHANWALKING Caddy модель
+int set_m_betterthanwalking_caddy_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACA36, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит BETTERTHANWALKING Caddy модель
+int get_m_gettherequickly_bloodring_b_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACDD6)); return 1; } // получить чит GETTHEREQUICKLY Bloodring модель
+int set_m_gettherequickly_bloodring_b_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACDD6, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит GETTHEREQUICKLY Bloodring модель
+int get_m_getthereveryfastindeed_hotring_a_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACE06)); return 1; } // получить чит GETTHEREVERYFASTINDEED Hotring модель
+int set_m_getthereveryfastindeed_hotring_a_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACE06, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит GETTHEREVERYFASTINDEED Hotring модель
+int get_m_getthereamazinglyfast_hotring_b_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4ACE36)); return 1; } // получить чит GETTHEREAMAZINGLYFAST Hotring модель
+int set_m_getthereamazinglyfast_hotring_b_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4ACE36, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит GETTHEREAMAZINGLYFAST Hotring модель
+int get_m_nuttertools_chainsaw_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AEAEF)); return 1; } // получить чит NUTTERTOOLS бензопила модель
+int set_m_nuttertools_chainsaw_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AEAEF, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит NUTTERTOOLS бензопила модель
+int get_m_nuttertools_chainsaw_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEB77)); return 1; } // получить чит NUTTERTOOLS бензопила оружие примечание
+int set_m_nuttertools_chainsaw_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEB77, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит NUTTERTOOLS бензопила оружие примечание
+int get_m_nuttertools_m4_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEBD4)); return 1; } // получить чит NUTTERTOOLS M4 оружие примечание
+int set_m_nuttertools_m4_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEBD4, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит NUTTERTOOLS M4 оружие примечание
+int get_m_nuttertools_sniper_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEBE6)); return 1; } // получить чит NUTTERTOOLS снайпер оружие примечание
+int set_m_nuttertools_sniper_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEBE6, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит NUTTERTOOLS снайпер оружие примечание
+int get_m_nuttertools_minigun_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEBFB)); return 1; } // получить чит NUTTERTOOLS миниган оружие примечание
+int set_m_nuttertools_minigun_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEBFB, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит NUTTERTOOLS миниган оружие примечание
+int get_m_professionaltools_katana_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AEC8F)); return 1; } // получить чит PROFESSIONALTOOLS катана модель
+int set_m_professionaltools_katana_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AEC8F, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит PROFESSIONALTOOLS катана модель
+int get_m_professionaltools_katana_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AED17)); return 1; } // получить чит PROFESSIONALTOOLS катана оружие примечание
+int set_m_professionaltools_katana_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AED17, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит PROFESSIONALTOOLS катана оружие примечание
+int get_m_professionaltools_m4_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AED74)); return 1; } // получить чит PROFESSIONALTOOLS M4 оружие примечание
+int set_m_professionaltools_m4_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AED74, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит PROFESSIONALTOOLS M4 оружие примечание
+int get_m_professionaltools_sniper_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AED86)); return 1; } // получить чит PROFESSIONALTOOLS снайпер оружие примечание
+int set_m_professionaltools_sniper_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AED86, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит PROFESSIONALTOOLS снайпер оружие примечание
+int get_m_professionaltools_rocket_launcher_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AED98)); return 1; } // получить чит PROFESSIONALTOOLS ракета пусковая установка оружие
+int set_m_professionaltools_rocket_launcher_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AED98, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит PROFESSIONALTOOLS ракета пусковая установка оружие
+int get_m_thugstools_brass_knuckles_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4AEE1F)); return 1; } // получить чит THUGSTOOLS латунные кастеты модель
+int set_m_thugstools_brass_knuckles_model(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4AEE1F, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит THUGSTOOLS латунные кастеты модель
+int get_m_thugstools_brass_knuckles_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEEA7)); return 1; } // получить чит THUGSTOOLS латунные кастеты оружие
+int set_m_thugstools_brass_knuckles_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEEA7, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит THUGSTOOLS латунные кастеты оружие
+int get_m_thugstools_tec_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEF04)); return 1; } // получить чит THUGSTOOLS Tec-9 оружие примечание
+int set_m_thugstools_tec_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEF04, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит THUGSTOOLS Tec-9 оружие примечание
+int get_m_thugstools_kruger_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEF16)); return 1; } // получить чит THUGSTOOLS Kruger оружие примечание
+int set_m_thugstools_kruger_weapon_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEF16, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит THUGSTOOLS Kruger оружие примечание
+int get_m_thugstools_sniper_rifle_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEF28)); return 1; } // получить чит THUGSTOOLS снайпер винтовка оружие
+int set_m_thugstools_sniper_rifle_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEF28, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит THUGSTOOLS снайпер винтовка оружие
+int get_m_thugstools_flame_thrower_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4AEF38)); return 1; } // получить чит THUGSTOOLS пламя огнемёт оружие
+int set_m_thugstools_flame_thrower_weapon(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4AEF38, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит THUGSTOOLS пламя огнемёт оружие
+int get_m_deepfriedmarsbars_programmer_tommy_body(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68E058)); return 1; } // получить чит DEEPFRIEDMARSBARS чит PROGRAMMER Томми кузов
+int set_m_deepfriedmarsbars_programmer_tommy_body(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68E058, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить чит DEEPFRIEDMARSBARS чит PROGRAMMER Томми кузов
+int get_m_onspeed_game_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68F1F0)); return 1; } // получить чит ONSPEED игра скорость
+int set_m_onspeed_game_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68F1F0, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить чит ONSPEED игра скорость
+int get_m_onspeed_game_speed_multiplier(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68F1F4)); return 1; } // получить чит ONSPEED игра скорость множитель
+int set_m_onspeed_game_speed_multiplier(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68F1F4, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить чит ONSPEED игра скорость множитель
+int get_m_booooooring_game_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68F1F8)); return 1; } // получить чит BOOOOOORING игра скорость
+int set_m_booooooring_game_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68F1F8, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить чит BOOOOOORING игра скорость
+int get_m_booooooring_game_speed_multiplier(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68F1FC)); return 1; } // получить чит BOOOOOORING игра скорость множитель
+int set_m_booooooring_game_speed_multiplier(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68F1FC, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить чит BOOOOOORING игра скорость множитель
+int get_m_chasestat(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x97F2C4)); return 1; } // получить чит CHASESTAT
+int set_m_chasestat(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x97F2C4, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит CHASESTAT
+int get_m_ourgodgivenrighttobeararms(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10AB3)); return 1; } // получить чит OURGODGIVENRIGHTTOBEARARMS
+int set_m_ourgodgivenrighttobeararms(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10AB3, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит OURGODGIVENRIGHTTOBEARARMS
+int get_m_greenlight(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10ADC)); return 1; } // получить чит GREENLIGHT
+int set_m_greenlight(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10ADC, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит GREENLIGHT
+int get_m_gripiseverything(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B0F)); return 1; } // получить чит GRIPISEVERYTHING
+int set_m_gripiseverything(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B0F, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит GRIPISEVERYTHING
+int get_m_airship(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B11)); return 1; } // получить дирижабль
+int set_m_airship(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B11, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить дирижабль
+int get_m_certaindeath(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B23)); return 1; } // получить чит CERTAINDEATH
+int set_m_certaindeath(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B23, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит CERTAINDEATH
+int get_m_ahairdresserscar(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B26)); return 1; } // получить чит AHAIRDRESSERS CAR
+int set_m_ahairdresserscar(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B26, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит AHAIRDRESSERS CAR
+int get_m_comeflywithme(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B28)); return 1; } // получить чит COMEFLYWITHME
+int set_m_comeflywithme(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B28, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит COMEFLYWITHME
+int get_m_used_flag(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B2E)); return 1; } // получить используется флаг
+int set_m_used_flag(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B2E, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить используется флаг
+int get_m_wheelsareallineed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B30)); return 1; } // получить чит WHEELSAREALLINEED
+int set_m_wheelsareallineed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B30, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит WHEELSAREALLINEED
+int get_m_miamitraffic(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B47)); return 1; } // получить чит MIAMITRAFFIC
+int set_m_miamitraffic(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B47, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит MIAMITRAFFIC
+int get_m_fannymagnet(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B5F)); return 1; } // получить чит FANNYMAGNET
+int set_m_fannymagnet(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B5F, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит FANNYMAGNET
+int get_m_seaways(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B81)); return 1; } // получить чит SEAWAYS
+int set_m_seaways(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B81, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит SEAWAYS
+int get_m_iwantitpaintedblack(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B82)); return 1; } // получить чит IWANTITPAINTEDBLACK
+int set_m_iwantitpaintedblack(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B82, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит IWANTITPAINTEDBLACK
+int get_m_lifeispassingmeby(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B87)); return 1; } // получить чит LIFEISPASSINGMEBY
+int set_m_lifeispassingmeby(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B87, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить чит LIFEISPASSINGMEBY
+int get_m_opcode_de_check_if(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x456046)); return 1; } // получить опкод DE проверить
+int set_m_opcode_de_check_if(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x456046, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить опкод DE проверить
+int get_m_cash_when_entering_a(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x5B8AB6)); return 1; } // получить деньги вход
+int set_m_cash_when_entering_a(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x5B8AB6, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить деньги вход
+int get_m_kaufman_cabs_radio_flag(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B7F)); return 1; } // получить Kaufman такси радио флаг
+int set_m_kaufman_cabs_radio_flag(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B7F, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить Kaufman такси радио флаг
+int get_m_kaufman_cabs_spawn_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x42AEAC)); return 1; } // получить Kaufman такси спавн примечание
+int set_m_kaufman_cabs_spawn_note(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x42AEAC, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить Kaufman такси спавн примечание
+int get_m_kaufman_cabs_model_load(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x42AFB3)); return 1; } // получить Kaufman такси модель загрузить
+int set_m_kaufman_cabs_model_load(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x42AFB3, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить Kaufman такси модель загрузить
+int get_m_blue_fade_in_color(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x42B219)); return 1; } // получить синий затемнение цвет
+int set_m_blue_fade_in_color(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x42B219, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить синий затемнение цвет
+int get_m_taxi_text_duration(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x42B24E)); return 1; } // получить такси текст длительность
+int set_m_taxi_text_duration(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x42B24E, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить такси текст длительность
+int get_m_x_coord_taxi_destination(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x94DD94)); return 1; } // получить X координата такси пункт назначения
+int set_m_x_coord_taxi_destination(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x94DD94, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить X координата такси пункт назначения
+int get_m_taxi_spawn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x94EEB8)); return 1; } // получить такси спавн
+int set_m_taxi_spawn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x94EEB8, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить такси спавн
+int get_m_angle_taxi_destination(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0xA0D378)); return 1; } // получить угол такси пункт назначения
+int set_m_angle_taxi_destination(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0xA0D378, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить угол такси пункт назначения
+int get_m_activate_mission_restart_taxi(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B6D)); return 1; } // получить activate миссия перезапуск такси
+int set_m_activate_mission_restart_taxi(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B6D, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить activate миссия перезапуск такси
+int get_m_camera_move_when_entering(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x46B389)); return 1; } // получить камера переместить вход
+int set_m_camera_move_when_entering(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x46B389, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить камера переместить вход
+int get_m_same(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x46B58F)); return 1; } // получить
+int set_m_same(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x46B58F, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить
+int get_m_camera_distance_from_only(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r16(0x68AE2E)); return 1; } // получить камера расстояние только
+int set_m_camera_distance_from_only(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w16(0x68AE2E, (unsigned short)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить камера расстояние только
+int get_m_cinema_top_border_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68AEE0)); return 1; } // получить кинорежим верх полоса высота
+int set_m_cinema_top_border_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68AEE0, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить кинорежим верх полоса высота
+int get_m_cinema_bottom_border_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68AEE4)); return 1; } // получить кинорежим низ полоса высота
+int set_m_cinema_bottom_border_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68AEE4, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить кинорежим низ полоса высота
+int get_m_controls_radar_map(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x68FD02)); return 1; } // получить управление радар карта
+int set_m_controls_radar_map(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x68FD02, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить управление радар карта
+int get_m_radar_width(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x68FD16)); return 1; } // получить радар ширина
+int set_m_radar_width(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x68FD16, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить радар ширина
+int get_m_only_radar_ring_visible(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x68FD17)); return 1; } // получить только радар кольцо видимый
+int set_m_only_radar_ring_visible(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x68FD17, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить только радар кольцо видимый
+int get_m_radar_size_xy(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD28)); return 1; } // получить радар размер XY
+int set_m_radar_size_xy(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD28, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить радар размер XY
+int get_m_radar_x_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD2C)); return 1; } // получить радар X позиция
+int set_m_radar_x_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD2C, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить радар X позиция
+int get_m_radar_y_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD34)); return 1; } // получить радар Y позиция
+int set_m_radar_y_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD34, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить радар Y позиция
+int get_m_radar_shape(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD38)); return 1; } // получить радар форма
+int set_m_radar_shape(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD38, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить радар форма
+int get_m_addr_68FD3C(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x68FD3C)); return 1; } // получить адрес 68 FD3 C
+int set_m_addr_68FD3C(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x68FD3C, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить адрес 68 FD3 C
+int get_m_ambient_lighting(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x698A8C)); return 1; } // получить окружающий освещение
+int set_m_ambient_lighting(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x698A8C, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить окружающий освещение
+int get_m_camera_x_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x7E46B8)); return 1; } // получить камера X позиция
+int set_m_camera_x_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x7E46B8, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить камера X позиция
+int get_m_camera_y_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x7E46BC)); return 1; } // получить камера Y позиция
+int set_m_camera_y_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x7E46BC, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить камера Y позиция
+int get_m_camera_z_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x7E46C0)); return 1; } // получить камера Z позиция
+int set_m_camera_z_position(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x7E46C0, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить камера Z позиция
+int get_m_wide_screen_borders(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x7E46F5)); return 1; } // получить широкий экран полосы
+int set_m_wide_screen_borders(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x7E46F5, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить широкий экран полосы
+int get_m_car_camera(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x7E4764)); return 1; } // получить авто камера
+int set_m_car_camera(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x7E4764, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить авто камера
+int get_m_camera(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x7E47EC)); return 1; } // получить камера
+int set_m_camera(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x7E47EC, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить камера
+int get_m_frame_limiter(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x869655)); return 1; } // получить кадр ограничитель
+int set_m_frame_limiter(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x869655, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить кадр ограничитель
+int get_m_subtitles(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x869650)); return 1; } // получить субтитры
+int set_m_subtitles(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x869650, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить субтитры
+int get_m_widescreen(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x869652)); return 1; } // получить широкоэкранный
+int set_m_widescreen(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x869652, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить широкоэкранный
+int get_m_hud_display(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x86963A)); return 1; } // получить HUD показать
+int set_m_hud_display(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x86963A, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить HUD показать
+int get_m_replay_display(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10AF6)); return 1; } // получить повтор показать
+int set_m_replay_display(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10AF6, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить повтор показать
+int get_m_white_scanlines(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B68)); return 1; } // получить белый линии развёртки
+int set_m_white_scanlines(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B68, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить белый линии развёртки
+int get_m_green_scanlines(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10B69)); return 1; } // получить зелёный линии развёртки
+int set_m_green_scanlines(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10B69, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить зелёный линии развёртки
+int get_m_resolution_width(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0xA0FD04)); return 1; } // получить разрешение ширина
+int set_m_resolution_width(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0xA0FD04, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить разрешение ширина
+int get_m_resolution_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0xA0FD08)); return 1; } // получить разрешение высота
+int set_m_resolution_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0xA0FD08, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить разрешение высота
+int get_m_color_bit(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0xA0FD00)); return 1; } // получить цвет глубина
+int set_m_color_bit(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0xA0FD00, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить цвет глубина
+int get_m_mouse_x_movement(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x936910)); return 1; } // получить мышь X движение
+int set_m_mouse_x_movement(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x936910, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить мышь X движение
+int get_m_mouse_y_movement(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L,(float)ma_rf(0x936914)); return 1; } // получить мышь Y движение
+int set_m_mouse_y_movement(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_wf(0x936914, (float)lua_tonumber(L,1)); lua_pushboolean(L,true); return 1; } // установить мышь Y движение
+int get_m_total_stores_knock(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4CC102)); return 1; } // получить всего магазины ограбление
+int set_m_total_stores_knock(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4CC102, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить всего магазины ограбление
+int get_m_total_assassination_contracts_complete(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r32(0x4CC1CD)); return 1; } // получить всего убийство контракты завершить
+int set_m_total_assassination_contracts_complete(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w32(0x4CC1CD, (unsigned int)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить всего убийство контракты завершить
+int get_m_police_helicopter_state(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0xA10ADB)); return 1; } // получить полиция вертолёт состояние
+int set_m_police_helicopter_state(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0xA10ADB, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить полиция вертолёт состояние
+int get_m_size_police_em_lights(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x69A633)); return 1; } // получить размер полиция проблесковый фары
+int set_m_size_police_em_lights(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x69A633, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить размер полиция проблесковый фары
+int get_m_first_police_car(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x426A21)); return 1; } // получить первый полиция авто
+int set_m_first_police_car(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x426A21, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить первый полиция авто
+int get_m_second_police_car(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x426987)); return 1; } // получить второй полиция авто
+int set_m_second_police_car(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x426987, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить второй полиция авто
+int get_m_enforcer(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x42697E)); return 1; } // получить Enforcer
+int set_m_enforcer(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x42697E, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить Enforcer
+int get_m_vicechee(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4268B8)); return 1; } // получить Vicechee
+int set_m_vicechee(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4268B8, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить Vicechee
+int get_m_addr_4268D3(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4268D3)); return 1; } // получить адрес 4268 D3
+int set_m_addr_4268D3(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4268D3, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить адрес 4268 D3
+int get_m_addr_4268EE(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4268EE)); return 1; } // получить адрес 4268 EE
+int set_m_addr_4268EE(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4268EE, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить адрес 4268 EE
+int get_m_addr_426909(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x426909)); return 1; } // получить адрес 426909
+int set_m_addr_426909(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x426909, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить адрес 426909
+int get_m_fbi_rancher(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x4269BA)); return 1; } // получить ФБР Rancher
+int set_m_fbi_rancher(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x4269BA, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить ФБР Rancher
+int get_m_barracks_ol(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L,(unsigned int)ma_r8(0x426A0A)); return 1; } // получить казарма OL
+int set_m_barracks_ol(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L,1)) { lua_pushboolean(L,false); return 1; } ma_w8(0x426A0A, (unsigned char)lua_tointeger(L,1)); lua_pushboolean(L,true); return 1; } // установить казарма OL
 // === COMMUNITY ADDRESSES + HEADLIGHTS (20.11) ===
 
 // === ENGINE / LUA INTROSPECTION (21.11) ===
@@ -35205,46 +35205,46 @@ int set_m_barracks_ol(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_
 // Функции, навеянные литературой и CLEO-скриптами из папки «движок»:
 // Lua 5.x books (GC/VM introspection), Vice Lua (SCM_Enable/events),
 // CLEO airbreak (015D set_gamespeed), memory_functions.lua.
-int get_lua_version(lua_State* L) {
+int get_lua_version(lua_State* L) { // получить Lua версия
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_pushstring(L, LUA_VERSION " (" LUA_RELEASE ")"); return 1;
 }
-int lua_memory_used(lua_State* L) {
+int lua_memory_used(lua_State* L) { // Lua память используется
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_pushinteger(L, lua_gc(L, LUA_GCCOUNT, 0)); return 1;
 }
-int lua_gc_collect(lua_State* L) {
+int lua_gc_collect(lua_State* L) { // Lua сбор мусора собирать
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     int before = lua_gc(L, LUA_GCCOUNT, 0);
     lua_gc(L, LUA_GCCOLLECT, 0);
     lua_pushinteger(L, before - lua_gc(L, LUA_GCCOUNT, 0)); return 1;
 }
-int lua_gc_stop(lua_State* L) {
+int lua_gc_stop(lua_State* L) { // остановить Lua сбор мусора
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_gc(L, LUA_GCSTOP, 0); return 0;
 }
-int lua_gc_restart(lua_State* L) {
+int lua_gc_restart(lua_State* L) { // Lua сбор мусора перезапуск
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_gc(L, LUA_GCRESTART, 0); return 0;
 }
-int lua_gc_step(lua_State* L) {
+int lua_gc_step(lua_State* L) { // Lua сбор мусора шаг
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_pushboolean(L, lua_gc(L, LUA_GCSTEP, 0) != 0 ? 1 : 0); return 1;
 }
-int lua_is_yieldable(lua_State* L) {
+int lua_is_yieldable(lua_State* L) { // Lua потоковый
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_pushboolean(L, lua_isyieldable(L) ? 1 : 0); return 1;
 }
-int lua_stack_top(lua_State* L) {
+int lua_stack_top(lua_State* L) { // Lua стопка верх
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_pushinteger(L, lua_gettop(L)); return 1;
 }
-int get_current_script_name(lua_State* L) {
+int get_current_script_name(lua_State* L) { // получить текущий скрипт имя
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     const char* name = wait_script_name(L);
     lua_pushstring(L, name ? name : ""); return 1;
 }
-int get_game_speed(lua_State* L) {
+int get_game_speed(lua_State* L) { // получить игра скорость
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_pushnumber(L, CTimer::ms_fTimeScale); return 1;
 }
@@ -35266,7 +35266,7 @@ int set_actor_health(lua_State* L) { // алиас setpedhealth (CLEO 0223)
 // === LOG LINE (21.11) ===
 // === LOG LINE (21.11) ===
 // Пишет строку в единый журнал lualoader/log.txt (для телеметрии скриптов).
-int log_line(lua_State* L) {
+int log_line(lua_State* L) { // Журнал линия
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     const char* s = (LUA_TSTRING == lua_type(L, 1)) ? lua_tostring(L, 1) : nullptr;
     if (s) writelog(s);
@@ -35278,7 +35278,7 @@ int log_line(lua_State* L) {
 // === AIRSHIP FLIGHT FLAG (21.11) ===
 // 0xA10B11 — флаг чита AIRSHIP / «flying fish» (CVehicle::bCheat8 в реверсе).
 // Именно он заставляет SKIMMER вызывать FlyingControl даже без игрока за рулём.
-int set_airship_cheat(lua_State* L) {
+int set_airship_cheat(lua_State* L) { // установить дирижабль чит
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     bool on = true;
     if (!lua_isnoneornil(L, 1)) {
@@ -35288,7 +35288,7 @@ int set_airship_cheat(lua_State* L) {
     ma_w8(0xA10B11, on ? 1 : 0);
     lua_pushboolean(L, true); return 1;
 }
-int is_airship_cheat(lua_State* L) {
+int is_airship_cheat(lua_State* L) { // проверить дирижабль чит
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_pushboolean(L, ma_r8(0xA10B11) != 0 ? 1 : 0); return 1;
 }
@@ -35299,7 +35299,7 @@ int is_airship_cheat(lua_State* L) {
 // CVehicle::m_fGasPedal, смещение 0x1F0 (SDK VALIDATE_OFFSET).
 // Полётный режим SKIMMER/TellPlaneToGoToCoors берёт тягу из этой педали —
 // без неё самолёт без водителя теряет скорость и плавно опускается.
-int set_car_gas(lua_State* L) {
+int set_car_gas(lua_State* L) { // установить авто газ
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     if (LUA_TLIGHTUSERDATA != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) {
         lua_pushboolean(L, false); return 1;
@@ -35316,7 +35316,7 @@ int set_car_gas(lua_State* L) {
 
 // 0417 LOAD_AND_LAUNCH_MISSION_INTERNAL — запуск миссии по индексу (0..119 в VC).
 // Таблица индексов: GTAMods wiki «0417» (Vice City).
-int start_mission(lua_State* L) {
+int start_mission(lua_State* L) { // начать миссия
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
     int index = (int)lua_tointeger(L, 1);
@@ -35369,7 +35369,7 @@ int start_mission(lua_State* L) {
 }
 // «Оригинальный/подготовленный» запуск: снимает состояния, из-за которых
 // миссия на закрытом острове/в закрытом месте может вылететь или не стартовать.
-int start_mission_orig(lua_State* L) {
+int start_mission_orig(lua_State* L) { // начать миссия оригинал
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; }
     int index = (int)lua_tointeger(L, 1);
@@ -35540,19 +35540,19 @@ static const VcOriginalMission g_vcMissions[97] = {
     {"RCPLNE1", "RC Baron Race"}, // 95
     {"COKERUN", "Checkpoint Charlie"}, // 96
 };
-int get_original_mission_name(lua_State* L) {
+int get_original_mission_name(lua_State* L) { // получить исходный миссия имя
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     int i = (LUA_TNUMBER == lua_type(L, 1)) ? (int)lua_tointeger(L, 1) : -1;
     lua_pushstring(L, (i >= 0 && i < 97) ? g_vcMissions[i].title : "");
     return 1;
 }
-int get_original_mission_script(lua_State* L) {
+int get_original_mission_script(lua_State* L) { // получить исходный миссия скрипт
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     int i = (LUA_TNUMBER == lua_type(L, 1)) ? (int)lua_tointeger(L, 1) : -1;
     lua_pushstring(L, (i >= 0 && i < 97) ? g_vcMissions[i].script : "");
     return 1;
 }
-int show_original_mission(lua_State* L) {
+int show_original_mission(lua_State* L) { // показать исходный миссия
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     int i = (LUA_TNUMBER == lua_type(L, 1)) ? (int)lua_tointeger(L, 1) : -1;
     if (i < 0 || i >= 97) { lua_pushboolean(L, false); return 1; }
@@ -35640,7 +35640,7 @@ int start_mission_original(lua_State* L) { // явное имя: запуск О
 
 // === ПОДГОТОВКА КИНОСТУДИИ (21.11) — по образцу миссии 38 Interglobal Films Buy ===
 // get_model_id_by_name(name) -> id модели (или -1)
-int get_model_id_by_name(lua_State* L) {
+int get_model_id_by_name(lua_State* L) { // получить модель имя
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     if (LUA_TSTRING != lua_type(L, 1)) { lua_pushinteger(L, -1); return 1; }
     int id = -1;
@@ -35650,7 +35650,7 @@ int get_model_id_by_name(lua_State* L) {
 // check_studio_gates() -> пишет в лог состояние трёх объектов киностудии.
 // Хендлы берём из ScriptSpace по смещениям глобальных переменных ($263,$264,$1811),
 // как в оригинальном main.scm: CREATE_OBJECT_NO_OFFSET ... $263 → ScriptSpace[263*4].
-int check_studio_gates(lua_State* L) {
+int check_studio_gates(lua_State* L) { // проверить студия ворота
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     unsigned char* sp = CRunningScript::GetScriptSpaceBase();
     struct G { const char* name; int var; const char* closed; const char* opened; float x,y,z; };
@@ -35678,7 +35678,7 @@ int check_studio_gates(lua_State* L) {
 // Полная копия логики миссии 38 «Interglobal Films Buy» из оригинального main.scm:
 //   DELETE_OBJECT $263/$264/$1811  →  CREATE_OBJECT_NO_OFFSET открытых моделей.
 // Проверка состояния: если модель объекта УЖЕ открытая — ничего не делаем.
-int open_studio_gates(lua_State* L) {
+int open_studio_gates(lua_State* L) { // открыть студия ворота
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     unsigned char* sp = CRunningScript::GetScriptSpaceBase();
     struct G { const char* name; int var; const char* closed; const char* opened; float x,y,z; };
@@ -35730,7 +35730,7 @@ int open_studio_gates(lua_State* L) {
 // === КОНЕЦ ПОДГОТОВКИ КИНОСТУДИИ ===
 
 // 02AA SET_CAR_ONLY_DAMAGED_BY_PLAYER — авто повреждается только игроком (флаги RC из SCM).
-int set_car_only_damaged_by_player(lua_State* L) {
+int set_car_only_damaged_by_player(lua_State* L) { // установить авто только повреждён игрок
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     if (LUA_TLIGHTUSERDATA == lua_type(L, 1) && ma_arg_is_bool(lua_type(L, 2))) {
         CVehicle* car = findcarinpool(lua_topointer(L, 1));
@@ -35786,7 +35786,7 @@ static int diaz_open_point(float bx, float by, float bz, int closedModel,
     writelog(dbg);
     return 1;
 }
-int open_east_diaz_gates(lua_State* L) {
+int open_east_diaz_gates(lua_State* L) { // открыть восток Diaz ворота
     // ВОСТОЧНЫЕ (second bridge): 2447 (-181.5,-472.6,11.4) -> 2443 (-183.8,-473.2,10.15)
     int n = diaz_open_point(-181.5f,-472.6f,11.4f, 2447,
                             -183.8f,-473.2f,10.15f, 2443,
@@ -35795,7 +35795,7 @@ int open_east_diaz_gates(lua_State* L) {
                             "ВОСТОЧНЫЕ");
     lua_pushinteger(L, n); return 1;
 }
-int open_west_diaz_gates(lua_State* L) {
+int open_west_diaz_gates(lua_State* L) { // открыть запад Diaz ворота
     // ЗАПАДНЫЕ (на выходе): 2446 (-712.5,-489.4,12.5) -> 2444 (-712.5,-489.4,10.15)
     // в mod.lua у этих ворот НЕТ вызовов road_on — только удаление/создание
     int n = diaz_open_point(-712.5f,-489.4f,12.5f, 2446,
@@ -35805,7 +35805,7 @@ int open_west_diaz_gates(lua_State* L) {
                             "ЗАПАДНЫЕ");
     lua_pushinteger(L, n); return 1;
 }
-int open_diaz_gates(lua_State* L) {
+int open_diaz_gates(lua_State* L) { // открыть Diaz ворота
     int n = 0;
     n += open_east_diaz_gates(L); lua_pop(L, 1);
     n += open_west_diaz_gates(L); lua_pop(L, 1);
@@ -35815,14 +35815,14 @@ int open_diaz_gates(lua_State* L) {
 // === ЧАСТЬ XIII: УНИВЕРСАЛЬНЫЙ ДОСТУП К ФЛАГАМ ИГРЫ (22.11.2026) ===
 // get_flag(адрес) -> 0/1 ; set_flag(адрес, 0/1) -> bool
 // Адреса из Части XIII справочника (GTA VC 1.0 EN, base 0x400000).
-int get_flag(lua_State* L) {
+int get_flag(lua_State* L) { // получить флаг
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushinteger(L, -1); return 1; }
     unsigned int a = (unsigned int)lua_tointeger(L, 1);
     lua_pushinteger(L, (lua_Integer)ma_r8(a));
     return 1;
 }
-int set_flag(lua_State* L) {
+int set_flag(lua_State* L) { // установить флаг
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
     unsigned int a = (unsigned int)lua_tointeger(L, 1);
@@ -35831,7 +35831,7 @@ int set_flag(lua_State* L) {
     lua_pushboolean(L, true); return 1;
 }
 // Именованные константы флагов (для скриптов)
-int flag_addr(lua_State* L) {
+int flag_addr(lua_State* L) { // Флаг адрес
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     const char* n = luaL_optstring(L, 1, "");
     unsigned int a = 0;
@@ -36092,13 +36092,13 @@ static int find_flag_addr(const char* name) {
     for (const auto& f : g_allFlags) if (!strcmp(f.name, name)) return (int)f.addr;
     return -1;
 }
-int get_flag_named(lua_State* L) {
+int get_flag_named(lua_State* L) { // получить флаг по имени
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     const char* n = luaL_optstring(L, 1, "");
     int a = find_flag_addr(n);
     lua_pushinteger(L, a < 0 ? -1 : (lua_Integer)ma_r8((unsigned int)a)); return 1;
 }
-int set_flag_named(lua_State* L) {
+int set_flag_named(lua_State* L) { // установить флаг по имени
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     const char* n = luaL_optstring(L, 1, "");
     int a = find_flag_addr(n);
@@ -36106,7 +36106,7 @@ int set_flag_named(lua_State* L) {
     ma_w8((unsigned int)a, ma_arg_bool(L, 2) ? 1 : 0);
     lua_pushboolean(L, true); return 1;
 }
-int list_flags(lua_State* L) {
+int list_flags(lua_State* L) { // Список флаги
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     lua_newtable(L);
     int i = 1;
@@ -36123,7 +36123,7 @@ int list_flags(lua_State* L) {
 // с m_nTimeLostRemoteCar, игра ставит m_pRemoteVehicle->bRemoveFromWorld=true
 // и обнуляет m_pRemoteVehicle. Наш long-полёт => краш в рендере.
 // keep_rc(car) каждый такт: m_pRemoteVehicle = car, m_bInRemoteMode = false.
-int keep_rc(lua_State* L) {
+int keep_rc(lua_State* L) { // удерживать радиоуправляемый
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     const void* p = lua_topointer(L, 1);
     CVehicle* car = findcarinpool(p);
@@ -36138,7 +36138,7 @@ int keep_rc(lua_State* L) {
 
 // === АДРЕСА ИЗ deep-research-report.md (22.11.2026) ===
 // get_mem_addr("ИМЯ") -> адрес; затем читать через ma_r* / get_flag
-int get_mem_addr(lua_State* L) {
+int get_mem_addr(lua_State* L) { // получить память адрес
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     const char* n = luaL_optstring(L, 1, "");
     unsigned int a = 0;
@@ -36165,7 +36165,7 @@ int get_mem_addr(lua_State* L) {
 // Проблема: RC Baron при STATUS_PLAYER_REMOTE слушает пульт (FlyingControl RCPLANE)
 // и НЕ реагирует на автопилот plane_goto_coords. Нужно снять remote-режим и
 // поставить STATUS_PHYSICS — тогда SteerAIPlaneTowardsTargetCoors ведёт его к цели.
-int force_rc_autopilot(lua_State* L) {
+int force_rc_autopilot(lua_State* L) { // Сила радиоуправляемый автопилот
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     const void* p = lua_topointer(L, 1);
     CVehicle* car = findcarinpool(p);
@@ -36197,7 +36197,7 @@ int force_rc_autopilot(lua_State* L) {
 // CPad::NewMouseControllerState.lmb — первое поле (offset 0) структуры.
 // press_fire() выставляет lmb=1 на короткое время в игровом потоке,
 // игра читает это как нажатие огня -> RC-самолёт сбрасывает бомбу.
-int press_fire(lua_State* L) {
+int press_fire(lua_State* L) { // стрелять нажать
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     // Адрес NewMouseControllerState из базы (v1.0 EN): 0x9B5F8C (CPad+static).
     // Используем прямой доступ через CPad (надёжнее).
@@ -36211,7 +36211,7 @@ int press_fire(lua_State* L) {
     } catch (...) { lua_pushboolean(L, false); }
     return 1;
 }
-int release_fire(lua_State* L) {
+int release_fire(lua_State* L) { // освободить огонь
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     ma_w8(0x9B5F8C, 0);
     lua_pushboolean(L, true); return 1;
@@ -36220,7 +36220,7 @@ int release_fire(lua_State* L) {
 // === ЗАПИСЬ SCM-ПЕРЕМЕННОЙ (int) по индексу $NNNN (22.11.2026) ===
 // Смещение в ScriptSpace = var_index * 4 (по правилам SCM).
 // Например $5872 (счётчик этапов миссии 61) = ScriptSpace[5872*4].
-int set_script_int(lua_State* L) {
+int set_script_int(lua_State* L) { // установить скрипт целое число
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     int idx = (int)lua_tointeger(L, 1);
     int val = (int)lua_tointeger(L, 2);
@@ -36231,7 +36231,7 @@ int set_script_int(lua_State* L) {
     } else lua_pushboolean(L, false);
     return 1;
 }
-int get_script_int(lua_State* L) {
+int get_script_int(lua_State* L) { // получить скрипт целое число
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     int idx = (int)lua_tointeger(L, 1);
     unsigned int off = (unsigned int)idx * 4;
@@ -36258,7 +36258,7 @@ static int g_saved_mission_timers[k_timer_count] = {};
 static bool g_mission_timers_saved = false;
 static const int k_timers_99_ms = 99 * 60 * 1000;   // 99 минут = 5 940 000 мс
 
-int set_all_timers_99(lua_State* L) {
+int set_all_timers_99(lua_State* L) { // установить timers 99
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     int n = 0;
     for (int i = 0; i < k_timer_count; ++i) {
@@ -36279,7 +36279,7 @@ int set_all_timers_99(lua_State* L) {
     return 1;
 }
 
-int restore_all_timers(lua_State* L) {
+int restore_all_timers(lua_State* L) { // Восстановить timers
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     if (!g_mission_timers_saved) {
         writelog("TIMERS99: нечего восстанавливать — сначала вызови set_all_timers_99()");
@@ -36304,39 +36304,39 @@ int restore_all_timers(lua_State* L) {
 
 // === КАРТА МЕНЮ ПО КЛАВИШЕ H (23.11.2026) ===
 // Обёртки Lua над CMapOverlay: allow scripts to show/hide the map.
-int map_overlay_on(lua_State* L)     { ma_mapoverlay_set(true);  lua_pushboolean(L, true); return 1; }
-int map_overlay_off(lua_State* L)    { ma_mapoverlay_set(false); lua_pushboolean(L, true); return 1; }
-int map_overlay_toggle(lua_State* L) { ma_mapoverlay_set(!ma_mapoverlay_is_on()); lua_pushboolean(L, ma_mapoverlay_is_on()); return 1; }
-int map_overlay_is_on(lua_State* L)  { lua_pushboolean(L, ma_mapoverlay_is_on()); return 1; }
+int map_overlay_on(lua_State* L)     { ma_mapoverlay_set(true);  lua_pushboolean(L, true); return 1; } // Карта overlay
+int map_overlay_off(lua_State* L)    { ma_mapoverlay_set(false); lua_pushboolean(L, true); return 1; } // Карта overlay
+int map_overlay_toggle(lua_State* L) { ma_mapoverlay_set(!ma_mapoverlay_is_on()); lua_pushboolean(L, ma_mapoverlay_is_on()); return 1; } // Карта overlay toggle
+int map_overlay_is_on(lua_State* L)  { lua_pushboolean(L, ma_mapoverlay_is_on()); return 1; } // Карта overlay
 
 // === КООРДИНАТЫ ТОЧКИ КАРТЫ МЕНЮ (23.11.2026) ===
-int map_crosshair_world(lua_State* L) {
+int map_crosshair_world(lua_State* L) { // Карта crosshair мир
     float x = 0.0f, y = 0.0f;
     if (!ma_map_crosshair_world(x, y)) { lua_pushnil(L); return 1; }
     lua_pushnumber(L, x); lua_pushnumber(L, y); return 2;
 }
-int map_coords_diag(lua_State* L) {
+int map_coords_diag(lua_State* L) { // Карта координаты diag
     ma_map_coords_diag(); lua_pushboolean(L, true); return 1;
 }
-int map_cross_set(lua_State* L) {
+int map_cross_set(lua_State* L) { // установить карта cross
     float u = (float)lua_tonumber(L, 1), v = (float)lua_tonumber(L, 2);
     ma_map_cross_set(u, v); lua_pushboolean(L, true); return 1;
 }
 // === ВОСПРОИЗВЕДЕНИЕ WAV ИЗ ПАПКИ ИГРЫ (23.11.2026) ===
 // Аналог 03CF/03D1 из taxi.cs: play_wav_file("Audio/fin_1a.wav").
-int play_wav_file(lua_State* L) {
+int play_wav_file(lua_State* L) { // проиграть wav файл
     const char* path = (LUA_TSTRING == lua_type(L, 1)) ? lua_tostring(L, 1) : "";
     BOOL ok = PlaySoundA(path, NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
     lua_pushboolean(L, ok ? 1 : 0);
     return 1;
 }
-int stop_wav_file(lua_State* L) {
+int stop_wav_file(lua_State* L) { // остановить wav файл
     PlaySoundA(NULL, NULL, SND_PURGE);
     lua_pushboolean(L, true);
     return 1;
 }
 
-int map_cross_get(lua_State* L) {
+int map_cross_get(lua_State* L) { // получить карта cross
     // Разница контрольных точек (приехали -401.1,-383.6 ; надо -446.2,-474.3):
     //   dx = need - arrived = -45.1 ; dy = -90.7
     // Добавляем её к результату ПЕРЕД выводом, как просил пользователь.
@@ -36370,7 +36370,7 @@ int map_cross_get(lua_State* L) {
 // Поля (signed short): LeftStickX @0x0, LeftStickY @0x2, RightStickX @0x4,
 // RightStickY @0x6, ButtonCross @0x20 (газ), ButtonCircle @0x22 (огонь/бомба).
 // set_pad_controls(lx,ly,rx,ry,cross,circle) —directly пишет ввод в игру.
-int set_pad_controls(lua_State* L) {
+int set_pad_controls(lua_State* L) { // установить панель управление
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     static const unsigned int PADS[2] = { 0x9B491C, 0x9B491C + 0x6C }; // NewState и PCTempKeyState
     short lx = (short)lua_tointeger(L, 1);
@@ -36394,13 +36394,13 @@ int set_pad_controls(lua_State* L) {
 // key_down(0x57) / key_up(0x57) — реальное нажатие/отпускание W в Windows/Wine.
 // keybd_event ставит событие в системную очередь ввода, игра получает его
 // как обычную клавишу — это НЕ запись в память CPad.
-int sys_key_down(lua_State* L) {
+int sys_key_down(lua_State* L) { // Система клавиша
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     BYTE vk = (BYTE)lua_tointeger(L, 1);
     keybd_event(vk, 0, 0, 0);                    // KEYEVENTF_KEYDOWN
     lua_pushboolean(L, true); return 1;
 }
-int sys_key_up(lua_State* L) {
+int sys_key_up(lua_State* L) { // Система клавиша
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     BYTE vk = (BYTE)lua_tointeger(L, 1);
     keybd_event(vk, 0, KEYEVENTF_KEYUP, 0);      // отпустить
@@ -36408,12 +36408,12 @@ int sys_key_up(lua_State* L) {
 }
 
 // === СИСТЕМНАЯ ЭМУЛЯЦИЯ ЛКМ (mouse_event, уровень ОС) ===
-int sys_mouse_down(lua_State* L) {
+int sys_mouse_down(lua_State* L) { // Система мышь
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
     lua_pushboolean(L, true); return 1;
 }
-int sys_mouse_up(lua_State* L) {
+int sys_mouse_up(lua_State* L) { // Система мышь
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
     lua_pushboolean(L, true); return 1;
@@ -36421,7 +36421,7 @@ int sys_mouse_up(lua_State* L) {
 
 // === РАДАР: все педы заданной модели из пула (22.11.2026) ===
 // find_ped_by_model возвращает только ПЕРВОГО —这里 перебираем весь пул.
-int find_all_peds_by_model(lua_State* L) {
+int find_all_peds_by_model(lua_State* L) { // найти пешеходы модель
     std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
     int model = (int)lua_tointeger(L, 1);
     lua_newtable(L);
@@ -36440,55 +36440,55 @@ int find_all_peds_by_model(lua_State* L) {
 }
 
 // === (28.11) GTAMods Memory Addresses (VC): 26 новых адресов ===
-int get_m_remove_distant_cars(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x426640)); return 1; }
-int set_m_remove_distant_cars(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x426640, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_spawn_with_siren_horn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x427aac)); return 1; }
-int set_m_spawn_with_siren_horn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x427aac, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_rhino_cannon_reaction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a608)); return 1; }
-int set_m_rhino_cannon_reaction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a608, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_rhino_cannon_range(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a610)); return 1; }
-int set_m_rhino_cannon_range(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a610, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_rhino_firetrail_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a618)); return 1; }
-int set_m_rhino_firetrail_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a618, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_rhino_smoke_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a61c)); return 1; }
-int set_m_rhino_smoke_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a61c, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_rhino_spark_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a630)); return 1; }
-int set_m_rhino_spark_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a630, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_cuban_exhaust_z(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x69a710)); return 1; }
-int set_m_cuban_exhaust_z(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x69a710, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_cuban_exhaust_x(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x69a714)); return 1; }
-int set_m_cuban_exhaust_x(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x69a714, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_cuban_exhaust_y(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x69a71c)); return 1; }
-int set_m_cuban_exhaust_y(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x69a71c, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_radio_font_style(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x5fa178)); return 1; }
-int set_m_radio_font_style(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x5fa178, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_ped_car_accident_chance(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x68723b)); return 1; }
-int set_m_ped_car_accident_chance(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x68723b, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_force_law_seconds(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x68f590)); return 1; }
-int set_m_force_law_seconds(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x68f590, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_tick_rate(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x69102e)); return 1; }
-int set_m_tick_rate(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x69102e, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_entity_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x69154e)); return 1; }
-int set_m_entity_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x69154e, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_moon_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x695680)); return 1; }
-int set_m_moon_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x695680, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_car_friction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x69a61a)); return 1; }
-int set_m_car_friction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x69a61a, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_wheel_camber(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a6a8)); return 1; }
-int set_m_wheel_camber(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a6a8, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_car_door_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69b34a)); return 1; }
-int set_m_car_door_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69b34a, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_max_heli_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69c780)); return 1; }
-int set_m_max_heli_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69c780, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_car_gear(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x7838d1)); return 1; }
-int set_m_car_gear(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x7838d1, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_water_level_1(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x78d658)); return 1; }
-int set_m_water_level_1(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x78d658, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_water_level_2(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x78d65c)); return 1; }
-int set_m_water_level_2(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x78d65c, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_respawn_depth(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x6912dc)); return 1; }
-int set_m_respawn_depth(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x6912dc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_player_pitch(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x7e48bc)); return 1; }
-int set_m_player_pitch(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x7e48bc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
-int get_m_player_yaw(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x7e48cc)); return 1; }
-int set_m_player_yaw(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x7e48cc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_remove_distant_cars(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x426640)); return 1; } // получить удалить далёкий авто
+int set_m_remove_distant_cars(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x426640, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить удалить далёкий авто
+int get_m_spawn_with_siren_horn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x427aac)); return 1; } // получить спавн сирена гудок
+int set_m_spawn_with_siren_horn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x427aac, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить спавн сирена гудок
+int get_m_rhino_cannon_reaction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a608)); return 1; } // получить Rhino пушка реакция
+int set_m_rhino_cannon_reaction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a608, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить Rhino пушка реакция
+int get_m_rhino_cannon_range(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a610)); return 1; } // получить Rhino пушка дальность
+int set_m_rhino_cannon_range(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a610, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить Rhino пушка дальность
+int get_m_rhino_firetrail_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a618)); return 1; } // получить Rhino огненный след радиус
+int set_m_rhino_firetrail_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a618, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить Rhino огненный след радиус
+int get_m_rhino_smoke_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a61c)); return 1; } // получить Rhino дым радиус
+int set_m_rhino_smoke_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a61c, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить Rhino дым радиус
+int get_m_rhino_spark_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a630)); return 1; } // получить Rhino искра радиус
+int set_m_rhino_spark_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a630, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить Rhino искра радиус
+int get_m_cuban_exhaust_z(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x69a710)); return 1; } // получить Cuban выхлоп Z
+int set_m_cuban_exhaust_z(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x69a710, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить Cuban выхлоп Z
+int get_m_cuban_exhaust_x(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x69a714)); return 1; } // получить Cuban выхлоп X
+int set_m_cuban_exhaust_x(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x69a714, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить Cuban выхлоп X
+int get_m_cuban_exhaust_y(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x69a71c)); return 1; } // получить Cuban выхлоп Y
+int set_m_cuban_exhaust_y(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x69a71c, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить Cuban выхлоп Y
+int get_m_radio_font_style(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x5fa178)); return 1; } // получить радио шрифт стиль
+int set_m_radio_font_style(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x5fa178, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить радио шрифт стиль
+int get_m_ped_car_accident_chance(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x68723b)); return 1; } // получить пешеход авто авария шанс
+int set_m_ped_car_accident_chance(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x68723b, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить пешеход авто авария шанс
+int get_m_force_law_seconds(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x68f590)); return 1; } // получить сила закон секунды
+int set_m_force_law_seconds(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x68f590, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить сила закон секунды
+int get_m_tick_rate(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x69102e)); return 1; } // получить тик частота
+int set_m_tick_rate(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x69102e, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить тик частота
+int get_m_entity_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x69154e)); return 1; } // получить сущность размер
+int set_m_entity_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x69154e, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить сущность размер
+int get_m_moon_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x695680)); return 1; } // получить луна размер
+int set_m_moon_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x695680, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить луна размер
+int get_m_car_friction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x69a61a)); return 1; } // получить авто трение
+int set_m_car_friction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x69a61a, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить авто трение
+int get_m_wheel_camber(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a6a8)); return 1; } // получить колесо развал
+int set_m_wheel_camber(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a6a8, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить колесо развал
+int get_m_car_door_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69b34a)); return 1; } // получить авто дверь скорость
+int set_m_car_door_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69b34a, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить авто дверь скорость
+int get_m_max_heli_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69c780)); return 1; } // получить максимум вертолёт высота
+int set_m_max_heli_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69c780, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить максимум вертолёт высота
+int get_m_car_gear(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x7838d1)); return 1; } // получить авто передача
+int set_m_car_gear(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x7838d1, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; } // установить авто передача
+int get_m_water_level_1(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x78d658)); return 1; } // получить вода уровень 1
+int set_m_water_level_1(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x78d658, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить вода уровень 1
+int get_m_water_level_2(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x78d65c)); return 1; } // получить вода уровень 2
+int set_m_water_level_2(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x78d65c, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить вода уровень 2
+int get_m_respawn_depth(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x6912dc)); return 1; } // получить возрождение глубина
+int set_m_respawn_depth(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x6912dc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить возрождение глубина
+int get_m_player_pitch(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x7e48bc)); return 1; } // получить игрок угол наклона
+int set_m_player_pitch(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x7e48bc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить игрок угол наклона
+int get_m_player_yaw(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x7e48cc)); return 1; } // получить игрок угол поворота
+int set_m_player_yaw(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x7e48cc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить игрок угол поворота
