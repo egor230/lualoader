@@ -7557,13 +7557,13 @@ int set_vehicle_wheel_type(lua_State* L) { // установить автомо�
 	if (!v) { lua_pushboolean(L, false); return 1; }
 	v->m_nWheelModelIndex = (short)lua_tointeger(L, 2); lua_pushboolean(L, true); return 1;
 }
-int get_vehicle_engine_type(lua_State* L) { // получить автомобиль двигатель тип
+int get_vehicle_handling_id(lua_State* L) { // получить id обработки авто (модель)
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushnil(L); return 1; }
 	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
 	lua_pushinteger(L, v ? v->m_nHandlingId : -1); return 1;
 }
-int set_vehicle_engine_type(lua_State* L) { // установить автомобиль двигатель тип
+int set_vehicle_handling_id(lua_State* L) { // установить автомобиль двигатель тип
 	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
 	if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
 	CVehicleModelInfo* v = ma_vehicle_model((int)lua_tointeger(L, 1));
@@ -36491,3 +36491,89 @@ int get_m_player_pitch(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g
 int set_m_player_pitch(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x7e48bc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить игрок угол наклона
 int get_m_player_yaw(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x7e48cc)); return 1; } // получить игрок угол поворота
 int set_m_player_yaw(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x7e48cc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; } // установить игрок угол поворота
+
+// === (28.11) ПРИВОД И ТИП ДВИГАТЕЛЯ ИЗ cTransmission ===
+// Plugin-SDK (VALIDATE_OFFSET):
+//   CVehicle::m_pHandlingData             +0x120
+//   tHandlingData::m_transmissionData     +0x34
+//   cTransmission::m_nDriveType           +0x48  ('F' передний, 'R' задний, '4' полный)
+//   cTransmission::m_nEngineType          +0x49  ('P' бензин, 'D' дизель, 'E' электро)
+// reVC HandlingMgr.cpp:307-308 показывает, что в память пишется ASCII-символ
+// из handling.cfg (F/R/4 и P/D/E). Значения меняются у ВСЕХ авто этой модели,
+// потому что m_pHandlingData указывает на общую запись handling.cfg.
+static CVehicle* ma_trans_vehicle(lua_State* L, int* valueIdx) {
+	if (LUA_TLIGHTUSERDATA == lua_type(L, 1)) {
+		if (valueIdx) *valueIdx = 2;
+		return findcarinpool(lua_topointer(L, 1));
+	}
+	if (valueIdx) *valueIdx = 1;
+	return FindPlayerVehicle();
+}
+static unsigned char* ma_trans_field(CVehicle* car, int off) {
+	if (!car || !car->m_pHandlingData) return nullptr;
+	return (unsigned char*)((char*)car->m_pHandlingData + 0x34 + off);
+}
+static bool ma_parse_drive(lua_State* L, int idx, unsigned char& out) {
+	if (LUA_TSTRING == lua_type(L, idx)) {
+		std::string s = lua_tostring(L, idx);
+		for (char& c : s) c = (char)toupper((unsigned char)c);
+		if (s == "F" || s == "FRONT") { out = 'F'; return true; }
+		if (s == "R" || s == "REAR")  { out = 'R'; return true; }
+		if (s == "4" || s == "A" || s == "ALL" || s == "AWD") { out = '4'; return true; }
+		return false;
+	}
+	if (LUA_TNUMBER != lua_type(L, idx)) return false;
+	int n = (int)lua_tointeger(L, idx);
+	if (n == 0 || n == 'F') { out = 'F'; return true; }
+	if (n == 1 || n == 'R') { out = 'R'; return true; }
+	if (n == 2 || n == '4') { out = '4'; return true; }
+	return false;
+}
+static bool ma_parse_engine(lua_State* L, int idx, unsigned char& out) {
+	if (LUA_TSTRING == lua_type(L, idx)) {
+		std::string s = lua_tostring(L, idx);
+		for (char& c : s) c = (char)toupper((unsigned char)c);
+		if (s == "P" || s == "PETROL")    { out = 'P'; return true; }
+		if (s == "D" || s == "DIESEL")    { out = 'D'; return true; }
+		if (s == "E" || s == "ELECTRIC")  { out = 'E'; return true; }
+		return false;
+	}
+	if (LUA_TNUMBER != lua_type(L, idx)) return false;
+	int n = (int)lua_tointeger(L, idx);
+	if (n == 0 || n == 'P') { out = 'P'; return true; }
+	if (n == 1 || n == 'D') { out = 'D'; return true; }
+	if (n == 2 || n == 'E') { out = 'E'; return true; }
+	return false;
+}
+int get_drive_type(lua_State* L) { // получить текущий привод авто (F/R/4)
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	unsigned char* p = ma_trans_field(ma_trans_vehicle(L, nullptr), 0x48);
+	if (!p) { lua_pushnil(L); return 1; }
+	char letter[2] = { (char)*p, 0 };
+	const char* name = *p == 'F' ? "передний привод" : *p == 'R' ? "задний привод" : *p == '4' ? "полный привод" : "неизвестно";
+	lua_pushstring(L, letter); lua_pushstring(L, name); return 2;
+}
+int set_drive_type(lua_State* L) { // установить привод: F/0 передний, R/1 задний, 4/2 полный
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	int vi = 1;
+	unsigned char* p = ma_trans_field(ma_trans_vehicle(L, &vi), 0x48);
+	unsigned char v = 0;
+	if (!p || !ma_parse_drive(L, vi, v)) { lua_pushboolean(L, false); return 1; }
+	*p = v; lua_pushboolean(L, true); return 1;
+}
+int get_engine_type(lua_State* L) { // получить текущий тип двигателя авто (P/D/E)
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	unsigned char* p = ma_trans_field(ma_trans_vehicle(L, nullptr), 0x49);
+	if (!p) { lua_pushnil(L); return 1; }
+	char letter[2] = { (char)*p, 0 };
+	const char* name = *p == 'P' ? "бензиновый" : *p == 'D' ? "дизельный" : *p == 'E' ? "электрический" : "неизвестно";
+	lua_pushstring(L, letter); lua_pushstring(L, name); return 2;
+}
+int set_engine_type(lua_State* L) { // установить тип двигателя: P/0 бензин, D/1 дизель, E/2 электро
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	int vi = 1;
+	unsigned char* p = ma_trans_field(ma_trans_vehicle(L, &vi), 0x49);
+	unsigned char v = 0;
+	if (!p || !ma_parse_engine(L, vi, v)) { lua_pushboolean(L, false); return 1; }
+	*p = v; lua_pushboolean(L, true); return 1;
+}

@@ -1409,8 +1409,13 @@ int get_vehicle_wheel_size(lua_State* L); // получить автомобил
 int set_vehicle_wheel_size(lua_State* L); // установить автомобиль колесо размер
 int get_vehicle_wheel_type(lua_State* L); // получить автомобиль колесо тип
 int set_vehicle_wheel_type(lua_State* L); // установить автомобиль колесо тип
-int get_vehicle_engine_type(lua_State* L); // получить автомобиль двигатель тип
-int set_vehicle_engine_type(lua_State* L); // установить автомобиль двигатель тип
+int get_vehicle_handling_id(lua_State* L); // получить id обработки модели авто (не тип двигателя)
+int set_vehicle_handling_id(lua_State* L); // установить id обработки модели авто
+// (28.11) Привод и тип двигателя из cTransmission авто игрока/заданного авто
+int get_drive_type(lua_State* L); // получить привод (F/R/4) и его название
+int set_drive_type(lua_State* L); // установить привод: F/0/R/1/4/2
+int get_engine_type(lua_State* L); // получить тип двигателя (P/D/E) и название
+int set_engine_type(lua_State* L); // установить тип двигателя: P/0/D/1/E/2
 int getstamina_ped(lua_State* L); // получить выносливость педа.
 int setstamina_ped(lua_State* L); // установить выносливость педа.
 int get_radio_car(lua_State* L); // получить текущую радиостанцию авто.

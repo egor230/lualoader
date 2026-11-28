@@ -2956,8 +2956,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_vehicle_wheel_size", set_vehicle_wheel_size); // 2425 уст. размер колёс
 	lua_register(L, "get_vehicle_wheel_type", get_vehicle_wheel_type); // 2426 тип колёс/модель (+0x44)
 	lua_register(L, "set_vehicle_wheel_type", set_vehicle_wheel_type); // 2427 уст. тип колёс
-	lua_register(L, "get_vehicle_engine_type", get_vehicle_engine_type); // 2428 handling id (+0x46) — получить автомобиль двигатель тип
-	lua_register(L, "set_vehicle_engine_type", set_vehicle_engine_type); // 2429 уст. handling id
+	lua_register(L, "get_vehicle_handling_id", get_vehicle_handling_id); // 2428 id обработки модели (+0x46), не тип двигателя
+	lua_register(L, "set_vehicle_handling_id", set_vehicle_handling_id); // 2429 id обработки модели (+0x46)
 
 
 	lua_register(L, "get_m_remove_distant_cars", get_m_remove_distant_cars); // 2430 0x426640 byte — получить удалить далёкий авто
@@ -3063,6 +3063,10 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_m_player_yaw", get_m_player_yaw); // 2480 0x7e48cc float — получить игрок угол поворота
 
 	lua_register(L, "set_m_player_yaw", set_m_player_yaw); // 2481 0x7e48cc float — установить игрок угол поворота
+	lua_register(L, "get_drive_type", get_drive_type); // 2482 получить текущий привод авто (cTransmission +0x48)
+	lua_register(L, "set_drive_type", set_drive_type); // 2483 установить привод F/R/4
+	lua_register(L, "get_engine_type", get_engine_type); // 2484 получить текущий тип двигателя (+0x49)
+	lua_register(L, "set_engine_type", set_engine_type); // 2485 установить тип двигателя P/D/E
 return 0;
 };
 
