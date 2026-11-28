@@ -2495,6 +2495,109 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_vehicle_wheel_type", set_vehicle_wheel_type); // 2427 уст. тип колёс
 	lua_register(L, "get_vehicle_engine_type", get_vehicle_engine_type); // 2428 handling id (+0x46)
 	lua_register(L, "set_vehicle_engine_type", set_vehicle_engine_type); // 2429 уст. handling id
+	lua_register(L, "get_m_remove_distant_cars", get_m_remove_distant_cars); // 2430 0x426640 byte
+
+	lua_register(L, "set_m_remove_distant_cars", set_m_remove_distant_cars); // 2431 0x426640 byte
+
+	lua_register(L, "get_m_spawn_with_siren_horn", get_m_spawn_with_siren_horn); // 2432 0x427aac int
+
+	lua_register(L, "set_m_spawn_with_siren_horn", set_m_spawn_with_siren_horn); // 2433 0x427aac int
+
+	lua_register(L, "get_m_rhino_cannon_reaction", get_m_rhino_cannon_reaction); // 2434 0x69a608 float
+
+	lua_register(L, "set_m_rhino_cannon_reaction", set_m_rhino_cannon_reaction); // 2435 0x69a608 float
+
+	lua_register(L, "get_m_rhino_cannon_range", get_m_rhino_cannon_range); // 2436 0x69a610 float
+
+	lua_register(L, "set_m_rhino_cannon_range", set_m_rhino_cannon_range); // 2437 0x69a610 float
+
+	lua_register(L, "get_m_rhino_firetrail_radius", get_m_rhino_firetrail_radius); // 2438 0x69a618 float
+
+	lua_register(L, "set_m_rhino_firetrail_radius", set_m_rhino_firetrail_radius); // 2439 0x69a618 float
+
+	lua_register(L, "get_m_rhino_smoke_radius", get_m_rhino_smoke_radius); // 2440 0x69a61c float
+
+	lua_register(L, "set_m_rhino_smoke_radius", set_m_rhino_smoke_radius); // 2441 0x69a61c float
+
+	lua_register(L, "get_m_rhino_spark_radius", get_m_rhino_spark_radius); // 2442 0x69a630 float
+
+	lua_register(L, "set_m_rhino_spark_radius", set_m_rhino_spark_radius); // 2443 0x69a630 float
+
+	lua_register(L, "get_m_cuban_exhaust_z", get_m_cuban_exhaust_z); // 2444 0x69a710 int
+
+	lua_register(L, "set_m_cuban_exhaust_z", set_m_cuban_exhaust_z); // 2445 0x69a710 int
+
+	lua_register(L, "get_m_cuban_exhaust_x", get_m_cuban_exhaust_x); // 2446 0x69a714 int
+
+	lua_register(L, "set_m_cuban_exhaust_x", set_m_cuban_exhaust_x); // 2447 0x69a714 int
+
+	lua_register(L, "get_m_cuban_exhaust_y", get_m_cuban_exhaust_y); // 2448 0x69a71c int
+
+	lua_register(L, "set_m_cuban_exhaust_y", set_m_cuban_exhaust_y); // 2449 0x69a71c int
+
+	lua_register(L, "get_m_radio_font_style", get_m_radio_font_style); // 2450 0x5fa178 byte
+
+	lua_register(L, "set_m_radio_font_style", set_m_radio_font_style); // 2451 0x5fa178 byte
+
+	lua_register(L, "get_m_ped_car_accident_chance", get_m_ped_car_accident_chance); // 2452 0x68723b byte
+
+	lua_register(L, "set_m_ped_car_accident_chance", set_m_ped_car_accident_chance); // 2453 0x68723b byte
+
+	lua_register(L, "get_m_force_law_seconds", get_m_force_law_seconds); // 2454 0x68f590 float
+
+	lua_register(L, "set_m_force_law_seconds", set_m_force_law_seconds); // 2455 0x68f590 float
+
+	lua_register(L, "get_m_tick_rate", get_m_tick_rate); // 2456 0x69102e byte
+
+	lua_register(L, "set_m_tick_rate", set_m_tick_rate); // 2457 0x69102e byte
+
+	lua_register(L, "get_m_entity_size", get_m_entity_size); // 2458 0x69154e byte
+
+	lua_register(L, "set_m_entity_size", set_m_entity_size); // 2459 0x69154e byte
+
+	lua_register(L, "get_m_moon_size", get_m_moon_size); // 2460 0x695680 int
+
+	lua_register(L, "set_m_moon_size", set_m_moon_size); // 2461 0x695680 int
+
+	lua_register(L, "get_m_car_friction", get_m_car_friction); // 2462 0x69a61a byte
+
+	lua_register(L, "set_m_car_friction", set_m_car_friction); // 2463 0x69a61a byte
+
+	lua_register(L, "get_m_wheel_camber", get_m_wheel_camber); // 2464 0x69a6a8 float
+
+	lua_register(L, "set_m_wheel_camber", set_m_wheel_camber); // 2465 0x69a6a8 float
+
+	lua_register(L, "get_m_car_door_speed", get_m_car_door_speed); // 2466 0x69b34a float
+
+	lua_register(L, "set_m_car_door_speed", set_m_car_door_speed); // 2467 0x69b34a float
+
+	lua_register(L, "get_m_max_heli_height", get_m_max_heli_height); // 2468 0x69c780 float
+
+	lua_register(L, "set_m_max_heli_height", set_m_max_heli_height); // 2469 0x69c780 float
+
+	lua_register(L, "get_m_car_gear", get_m_car_gear); // 2470 0x7838d1 byte
+
+	lua_register(L, "set_m_car_gear", set_m_car_gear); // 2471 0x7838d1 byte
+
+	lua_register(L, "get_m_water_level_1", get_m_water_level_1); // 2472 0x78d658 float
+
+	lua_register(L, "set_m_water_level_1", set_m_water_level_1); // 2473 0x78d658 float
+
+	lua_register(L, "get_m_water_level_2", get_m_water_level_2); // 2474 0x78d65c float
+
+	lua_register(L, "set_m_water_level_2", set_m_water_level_2); // 2475 0x78d65c float
+
+	lua_register(L, "get_m_respawn_depth", get_m_respawn_depth); // 2476 0x6912dc float
+
+	lua_register(L, "set_m_respawn_depth", set_m_respawn_depth); // 2477 0x6912dc float
+
+	lua_register(L, "get_m_player_pitch", get_m_player_pitch); // 2478 0x7e48bc float
+
+	lua_register(L, "set_m_player_pitch", set_m_player_pitch); // 2479 0x7e48bc float
+
+	lua_register(L, "get_m_player_yaw", get_m_player_yaw); // 2480 0x7e48cc float
+
+	lua_register(L, "set_m_player_yaw", set_m_player_yaw); // 2481 0x7e48cc float
 return 0;
 };
 

@@ -47187,3 +47187,42 @@ BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.
 `set_m_ambient_lighting(v)`.
 
 BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.
+
+---
+
+## XXXVI. ЕЩЁ 26 АДРЕСОВ ИЗ GTAMods MEMORY ADDRESSES (VC) (28.11.2026)
+
+Все адреса взяты со страницы https://gtamods.com/wiki/Memory_Addresses_(VC) и проверены на отсутствие в плагине. Для каждого адреса добавлены `get_<имя>()` и `set_<имя>(значение)` (регистрации 2430–2481).
+
+| Имя (get_/set_) | Адрес | Тип |
+|---|---|---|
+| `m_remove_distant_cars` | `0x426640` | byte |
+| `m_spawn_with_siren_horn` | `0x427aac` | int |
+| `m_rhino_cannon_reaction` | `0x69a608` | float |
+| `m_rhino_cannon_range` | `0x69a610` | float |
+| `m_rhino_firetrail_radius` | `0x69a618` | float |
+| `m_rhino_smoke_radius` | `0x69a61c` | float |
+| `m_rhino_spark_radius` | `0x69a630` | float |
+| `m_cuban_exhaust_z` | `0x69a710` | int |
+| `m_cuban_exhaust_x` | `0x69a714` | int |
+| `m_cuban_exhaust_y` | `0x69a71c` | int |
+| `m_radio_font_style` | `0x5fa178` | byte |
+| `m_ped_car_accident_chance` | `0x68723b` | byte |
+| `m_force_law_seconds` | `0x68f590` | float |
+| `m_tick_rate` | `0x69102e` | byte |
+| `m_entity_size` | `0x69154e` | byte |
+| `m_moon_size` | `0x695680` | int |
+| `m_car_friction` | `0x69a61a` | byte |
+| `m_wheel_camber` | `0x69a6a8` | float |
+| `m_car_door_speed` | `0x69b34a` | float |
+| `m_max_heli_height` | `0x69c780` | float |
+| `m_car_gear` | `0x7838d1` | byte |
+| `m_water_level_1` | `0x78d658` | float |
+| `m_water_level_2` | `0x78d65c` | float |
+| `m_respawn_depth` | `0x6912dc` | float |
+| `m_player_pitch` | `0x7e48bc` | float |
+| `m_player_yaw` | `0x7e48cc` | float |
+
+Примеры: `set_m_wheel_camber(-0.5)`, `get_m_water_level_1()`, `set_m_tick_rate(1)`, `set_m_max_heli_height(300.0)`.
+
+BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.

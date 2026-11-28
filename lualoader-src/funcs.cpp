@@ -36438,3 +36438,57 @@ int find_all_peds_by_model(lua_State* L) {
     lua_pushinteger(L, n - 1);   // вернуть количество
     return 2;
 }
+
+// === (28.11) GTAMods Memory Addresses (VC): 26 новых адресов ===
+int get_m_remove_distant_cars(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x426640)); return 1; }
+int set_m_remove_distant_cars(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x426640, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_spawn_with_siren_horn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x427aac)); return 1; }
+int set_m_spawn_with_siren_horn(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x427aac, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_rhino_cannon_reaction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a608)); return 1; }
+int set_m_rhino_cannon_reaction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a608, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_rhino_cannon_range(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a610)); return 1; }
+int set_m_rhino_cannon_range(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a610, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_rhino_firetrail_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a618)); return 1; }
+int set_m_rhino_firetrail_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a618, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_rhino_smoke_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a61c)); return 1; }
+int set_m_rhino_smoke_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a61c, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_rhino_spark_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a630)); return 1; }
+int set_m_rhino_spark_radius(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a630, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_cuban_exhaust_z(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x69a710)); return 1; }
+int set_m_cuban_exhaust_z(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x69a710, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_cuban_exhaust_x(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x69a714)); return 1; }
+int set_m_cuban_exhaust_x(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x69a714, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_cuban_exhaust_y(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x69a71c)); return 1; }
+int set_m_cuban_exhaust_y(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x69a71c, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_radio_font_style(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x5fa178)); return 1; }
+int set_m_radio_font_style(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x5fa178, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_ped_car_accident_chance(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x68723b)); return 1; }
+int set_m_ped_car_accident_chance(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x68723b, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_force_law_seconds(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x68f590)); return 1; }
+int set_m_force_law_seconds(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x68f590, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_tick_rate(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x69102e)); return 1; }
+int set_m_tick_rate(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x69102e, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_entity_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x69154e)); return 1; }
+int set_m_entity_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x69154e, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_moon_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r32(0x695680)); return 1; }
+int set_m_moon_size(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w32(0x695680, (unsigned int)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_car_friction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x69a61a)); return 1; }
+int set_m_car_friction(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x69a61a, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_wheel_camber(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69a6a8)); return 1; }
+int set_m_wheel_camber(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69a6a8, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_car_door_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69b34a)); return 1; }
+int set_m_car_door_speed(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69b34a, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_max_heli_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x69c780)); return 1; }
+int set_m_max_heli_height(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x69c780, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_car_gear(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushinteger(L, ma_r8(0x7838d1)); return 1; }
+int set_m_car_gear(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_w8(0x7838d1, (unsigned char)lua_tointeger(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_water_level_1(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x78d658)); return 1; }
+int set_m_water_level_1(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x78d658, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_water_level_2(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x78d65c)); return 1; }
+int set_m_water_level_2(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x78d65c, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_respawn_depth(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x6912dc)); return 1; }
+int set_m_respawn_depth(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x6912dc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_player_pitch(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x7e48bc)); return 1; }
+int set_m_player_pitch(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x7e48bc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
+int get_m_player_yaw(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); lua_pushnumber(L, ma_rf(0x7e48cc)); return 1; }
+int set_m_player_yaw(lua_State* L) { std::lock_guard<std::recursive_mutex> g(g_lua_api_mx); if (LUA_TNUMBER != lua_type(L, 1)) { lua_pushboolean(L, false); return 1; } ma_wf(0x7e48cc, (float)lua_tonumber(L, 1)); lua_pushboolean(L, true); return 1; }
