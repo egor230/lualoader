@@ -145,12 +145,17 @@ while true do wait()
   if inCar and car ~= nil then
     local okDrive = set_drive_type(car, "4")   -- 4 / 2 / "ALL" — полный привод
     local okEng   = set_engine_type(car, "E")  -- E / 2 / "ELECTRIC" — электро
+    -- Звук меняем из функции: патчим таблицу aVehicleSettings в памяти,
+    -- handling.cfg не трогаем. 15 = SFX_BANK_GOLF_CART (электричка).
+    local okSnd   = set_car_sound_bank(car, 15)
     local d, dName = get_drive_type(car)
     local e, eName = get_engine_type(car)
-    log_line(string.format("VK_B: drive=%s (%s) engine=%s (%s), set=%s/%s",
+    local bank = get_car_sound_bank(car)
+    log_line(string.format("VK_B: drive=%s (%s) engine=%s (%s) soundBank=%s, set=%s/%s/%s",
                            tostring(d), tostring(dName), tostring(e), tostring(eName),
-                           tostring(okDrive), tostring(okEng)))
-    printmessage("AWD + electric: " .. tostring(d) .. " / " .. tostring(e), 2500, 1)
+                           tostring(bank), tostring(okDrive), tostring(okEng), tostring(okSnd)))
+    printmessage("AWD + electric + sound: " .. tostring(d) .. " / " .. tostring(e)
+                 .. " / bank " .. tostring(bank), 2500, 1)
     wait(300)  -- чтобы не срабатывало многократно, пока клавиша нажата
   else
     printmessage("not in car", 2000, 1)

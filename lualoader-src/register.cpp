@@ -3067,6 +3067,10 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_drive_type", set_drive_type); // 2483 установить привод F/R/4
 	lua_register(L, "get_engine_type", get_engine_type); // 2484 получить текущий тип двигателя (+0x49)
 	lua_register(L, "set_engine_type", set_engine_type); // 2485 установить тип двигателя P/D/E
+	lua_register(L, "get_vehicle_sound_bank", get_vehicle_sound_bank); // 2486 банк звука модели (0x6AAFA0)
+	lua_register(L, "set_vehicle_sound_bank", set_vehicle_sound_bank); // 2487 установить банк звука модели
+	lua_register(L, "get_car_sound_bank", get_car_sound_bank); // 2488 банк звука авто
+	lua_register(L, "set_car_sound_bank", set_car_sound_bank); // 2489 установить банк звука авто
 return 0;
 };
 

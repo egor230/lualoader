@@ -1416,6 +1416,11 @@ int get_drive_type(lua_State* L); // получить привод (F/R/4) и е
 int set_drive_type(lua_State* L); // установить привод: F/0/R/1/4/2
 int get_engine_type(lua_State* L); // получить тип двигателя (P/D/E) и название
 int set_engine_type(lua_State* L); // установить тип двигателя: P/0/D/1/E/2
+// (28.11) Звук двигателя: патч таблицы aVehicleSettings в памяти (без handling.cfg)
+int get_vehicle_sound_bank(lua_State* L); // банк звука модели (130..239)
+int set_vehicle_sound_bank(lua_State* L); // установить банк звука модели
+int get_car_sound_bank(lua_State* L); // банк звука авто по хендлу
+int set_car_sound_bank(lua_State* L); // установить банк звука авто по хендлу
 int getstamina_ped(lua_State* L); // получить выносливость педа.
 int setstamina_ped(lua_State* L); // установить выносливость педа.
 int get_radio_car(lua_State* L); // получить текущую радиостанцию авто.

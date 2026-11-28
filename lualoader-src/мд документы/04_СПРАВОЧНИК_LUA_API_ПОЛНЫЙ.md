@@ -47545,3 +47545,49 @@ set_drive_type(old)
 `get_vehicle_handling_id(model)` / `set_vehicle_handling_id(model)`.
 Нынешние `get_engine_type` / `set_engine_type` работают с настоящим типом
 двигателя из `cTransmission`.
+
+
+### 37.13. Звук двигателя из функции — без правки `handling.cfg` (28.11.2026)
+
+Поле `m_nEngineType` не влияет на звук (см. 37.12). Звук берётся из жёсткой
+таблицы `aVehicleSettings`, поэтому новые API патчат **таблицу в памяти**:
+
+| Что | Значение |
+|---|---|
+| Таблица `aVehicleSettings` | `0x6AAFA0` (gta-vc.exe 1.0 EN, `.text`: Raw `0xC00`, VA `0x401000`) |
+| Структура `tVehicleSampleData` | 28 байт (`4 * 7`), поле `m_nBank` на `+4` |
+| Индекс | `модель - 130` (`MI_FIRST_VEHICLE = 130`, всего 110 моделей) |
+| Проверка адреса | частота гудков первых записей 26513 / 11487 / 11025; 92 из 110 банков совпали с reVC |
+
+**Банки (PC):** 4 Pontiac, 5 Porsche, 6 Spider, 7 Merc, 8 Truck, 9 Hotrod,
+10 Cobra, 11 Pontiac Slow, 12 Cadillac, 13 Pathfinder, 14 Pacard, 15 Golf Cart,
+16 Chainsaw, 17 RC, 18 RC Heli, 20 V-Twin, 21 Moped, 22 Honda250, 23 Sports Bike.
+
+**Функции (2486–2489):**
+
+```lua
+local b = get_vehicle_sound_bank(191)   -- PCJ600, банк модели
+local c = get_car_sound_bank(car)       -- банк конкретного авто
+
+set_vehicle_sound_bank(191, 22)         -- PCJ600 -> звук Honda250
+set_car_sound_bank(car, 15)             -- авто игрока -> звук Golf Cart
+```
+
+Все четыре возвращают число/ `nil` (геттеры) и `true`/`false` (сеттеры).
+Модель вне диапазона 130–239 и банк вне 0–40 отклоняются.
+
+**Как это выглядит в тесте `VK_B`:** полный привод + электрический двигатель +
+банк `15` (Golf Cart), то есть звук меняется вместе с типом двигателя, но
+`handling.cfg` остаётся нетронутым. На экране:
+`AWD + electric + sound: 4 / E / bank 15`, в журнале — строка `VK_B: ... soundBank=15`.
+
+Патч действует на **все авто этой модели** и живёт до перезапуска игры.
+Перед опытом сохраните старый банк:
+
+```lua
+local car = select(2, incar(findplayer()))
+local old = get_car_sound_bank(car)
+set_car_sound_bank(car, 22)
+-- ... опыт ...
+set_car_sound_bank(car, old)
+```

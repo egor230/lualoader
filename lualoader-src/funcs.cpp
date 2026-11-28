@@ -36577,3 +36577,54 @@ int set_engine_type(lua_State* L) { // установить тип двигат�
 	if (!p || !ma_parse_engine(L, vi, v)) { lua_pushboolean(L, false); return 1; }
 	*p = v; lua_pushboolean(L, true); return 1;
 }
+
+// === (28.11) ЗВУК ДВИГАТЕЛЯ ИЗ ТАБЛИЦЫ МОДЕЛЕЙ (без правки handling.cfg) ===
+// reVC AudioLogic.cpp:1022,2362:
+//   params.m_nIndex = veh->m_modelIndex - MI_FIRST_VEHICLE (130);
+//   engineSoundType = aVehicleSettings[params.m_nIndex].m_nBank;
+// Патч таблицы в памяти: gta-vc.exe 1.0 EN, .text RawPtr=0xC00 VA=0x401000.
+// Банковый байт найден по частотам гудков первых записей (26513/11487/11025)
+// и сверен с reVC (`aVehicleSettings`): 92/110 совпадение (остальные — алиасы enum).
+// struct tVehicleSampleData: 4*7 = 28 байт, m_nBank на +4.
+// Банки (PC): 4 Pontiac, 5 Porsche, 6 Spider, 7 Merc, 8 Truck, 9 Hotrod,
+// 10 Cobra, 11 Pontiac Slow, 12 Cadillac, 13 Pathfinder, 14 Pacard,
+// 15 Golf Cart, 16 Chainsaw, 17 RC, 18 RC Heli, 20 V-Twin, 21 Moped,
+// 22 Honda250, 23 Sports Bike.
+static uintptr_t ma_sound_bank_addr(int model) {
+	if (model < 130 || model >= 130 + 110) return 0;  // MI_FIRST_VEHICLE .. MAX_CARS
+	return (uintptr_t)0x6AAFA0 + (uintptr_t)(model - 130) * 28 + 4;
+}
+int get_vehicle_sound_bank(lua_State* L) { // получить банк звука двигателя модели
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	uintptr_t a = ma_sound_bank_addr((int)lua_tointeger(L, 1));
+	if (!a) { lua_pushnil(L); return 1; }
+	lua_pushinteger(L, (int)ma_r32(a)); return 1;
+}
+int set_vehicle_sound_bank(lua_State* L) { // установить банк звука двигателя модели
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TNUMBER != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
+	uintptr_t a = ma_sound_bank_addr((int)lua_tointeger(L, 1));
+	int bank = (int)lua_tointeger(L, 2);
+	if (!a || bank < 0 || bank > 40) { lua_pushboolean(L, false); return 1; }
+	patch::SetChar(a, (char)bank, true);  // VirtualProtect на время записи
+	lua_pushboolean(L, true); return 1;
+}
+int get_car_sound_bank(lua_State* L) { // получить банк звука авто (по хендлу)
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	CVehicle* car = findcarinpool(lua_topointer(L, 1));
+	if (!car) { lua_pushnil(L); return 1; }
+	uintptr_t a = ma_sound_bank_addr(car->m_nModelIndex);
+	if (!a) { lua_pushnil(L); return 1; }
+	lua_pushinteger(L, (int)ma_r32(a)); return 1;
+}
+int set_car_sound_bank(lua_State* L) { // установить банк звука авто (по хендлу)
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TLIGHTUSERDATA != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
+	CVehicle* car = findcarinpool(lua_topointer(L, 1));
+	if (!car) { lua_pushboolean(L, false); return 1; }
+	uintptr_t a = ma_sound_bank_addr(car->m_nModelIndex);
+	int bank = (int)lua_tointeger(L, 2);
+	if (!a || bank < 0 || bank > 40) { lua_pushboolean(L, false); return 1; }
+	patch::SetChar(a, (char)bank, true);
+	lua_pushboolean(L, true); return 1;
+}
