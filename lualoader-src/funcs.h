@@ -289,6 +289,7 @@ int wait_key(lua_State* L);// (26.10) обработчик нажатия кла
 struct ma_key_state {
 	unsigned char held[256];// клавиша удержана (бит 0x8000) на последнем опросе
 	unsigned char was_held[256];// была удержана кадром раньше (диагностика)
+	unsigned char toggled[256];// бит 0x0001 (NumLock/CapsLock/ScrollLock) — для нумпада
 };
 ma_key_state& ma_keys();// снимок (function-local static в funcs.cpp)
 void ma_keys_poll();// единственный GetAsyncKeyState (игровой поток, задача-клавиатура)

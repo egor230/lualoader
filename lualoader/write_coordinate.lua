@@ -117,8 +117,6 @@ function water_bridge_step()
   end
 
 end
-
-function main()
 -- «Коробка передач»: сначала проверка «игрок в машине», затем параметры.
 local function gear(num, spd, acc)
   local inCar, car = incar(player)
@@ -134,6 +132,8 @@ local function gear(num, spd, acc)
                .. " km/h / " .. tostring(acc) .. " accel", 2000, 1)
   wait(250)  -- чтобы не срабатывало многократно
 end
+
+function main()
 
 i=1
 while true do wait()
@@ -154,6 +154,10 @@ while true do wait()
  i=i+1
  end
 
+ if Keypress("VK_NUMPAD1") then gear(1, 20, 10) end
+ if Keypress("VK_NUMPAD2") then gear(2, 40, 20) end
+ if Keypress("VK_NUMPAD3") then gear(3, 60, 30) end
+ if Keypress("VK_NUMPAD4") then gear(4, 80, 40) end
   if Keypress("VK_B")
   then
   -- Тест новых API: полный привод + электрический двигатель у авто игрока.
@@ -228,10 +232,6 @@ while true do wait()
   end
   -- Коробка передач на NUM-блоке (NumLock должен быть включён):
   -- 1 -> 20/10, 2 -> 40/20, 3 -> 60/30, 4 -> 80/40.
-  if Keypress("VK_NUMPAD1") then gear(1, 20, 10) end
-  if Keypress("VK_NUMPAD2") then gear(2, 40, 20) end
-  if Keypress("VK_NUMPAD3") then gear(3, 60, 30) end
-  if Keypress("VK_NUMPAD4") then gear(4, 80, 40) end
   -- end
  -- if Keypress("VK_S")
  -- then show_save_menu()

@@ -158,10 +158,31 @@ ma_key_state& ma_keys() {
 void ma_keys_poll() {
 	ma_key_state& k = ma_keys();
 	for (int q = 8; q <= 190; q++) {
-		unsigned char h = (GetAsyncKeyState(q) & 0x8000) != 0;
+		SHORT s = GetAsyncKeyState(q);
+		unsigned char h = (s & 0x8000) != 0;
 		k.was_held[q] = k.held[q];
 		k.held[q] = h;
+		k.toggled[q] = (s & 0x0001) != 0;  // состояние NumLock и др.
 	}
+}
+// (28.11) Нумпад работает НЕЗАВИСИМО от NumLock. При выключенном NumLock
+// те же физические клавиши приходят как навигационные VK (1=END, 2=DOWN, ...).
+// Пользователь просит «кнопки на нумпаде» — значит VK_NUMPAD1..9 должны
+// означать физическую клавишу, а не режим ввода цифр.
+static int ma_resolve_key(int key) {
+	if (key >= VK_NUMPAD0 && key <= VK_NUMPAD9) {
+		if (!ma_keys().toggled[VK_NUMLOCK]) {
+			static const int nav[10] = {
+				VK_INSERT, VK_END, VK_DOWN, VK_NEXT, VK_LEFT,
+				VK_CLEAR, VK_RIGHT, VK_HOME, VK_UP, VK_PRIOR
+			};
+			return nav[key - VK_NUMPAD0];
+		}
+	}
+	else if (key == VK_DECIMAL && !ma_keys().toggled[VK_NUMLOCK]) {
+		return VK_DELETE;
+	}
+	return key;
 }
 // ============================================================================
 // (26.10) ОБРАБОТЧИК НАЖАТИЯ КЛАВИШ (краевой) ПОЛНОСТЬЮ ОТКЛЮЧЁН — директива
@@ -178,7 +199,7 @@ int wait_key(lua_State* L) {// обработчик нажатия клавиш 
 	try {
 		if (!g_key_edge_enabled) { lua_pushboolean(L, false); return 1; }// (26.10) обработчик нажатия отключён
 		const char* name = (LUA_TSTRING == lua_type(L, 1)) ? lua_tostring(L, 1) : nullptr;
-		int key = name ? find_in_map(numbers_keys, name) : 0;// номер клавиши (VK).
+		int key = ma_resolve_key(name ? find_in_map(numbers_keys, name) : 0);// номер клавиши (VK) с нумпадом.
 		uint64_t timeout = (LUA_TNUMBER == lua_type(L, 2)) ? (uint64_t)lua_tointeger(L, 2) : 0;// 0 = без таймаута.
 		if (key == 0) {
 			writelog("wait_key: неизвестное имя клавиши");
@@ -1372,7 +1393,7 @@ int keypress(lua_State* L) {// проверка нажатия клавиши. �
 		try {
 			if (LUA_TSTRING == lua_type(L, 1)) {// значение строка.
 				const char* namekey = lua_tostring(L, 1);
-				int key = find_in_map(numbers_keys, namekey);// номер клавиши (VK).
+				int key = ma_resolve_key(find_in_map(numbers_keys, namekey));// номер клавиши (VK), нумпад без NumLock.
 				// (26.10, P1) ЕДИНЫЙ СНИМОК (ma_keys_poll — клавиатурная задача):
 				// читаем состояние без Win32-вызова в пути скриптов. Бит 0x8000
 				// (УДЕРЖАНИЕ) — его нельзя «съесть» (в отличие от одноразового
@@ -1400,7 +1421,7 @@ int keypress(lua_State* L) {// проверка нажатия клавиши. �
 	if (!g_key_edge_enabled) { lua_pushboolean(L, false); return 1; }// отключено — сразу false
 	// Без общего мьютекса: сон потока скрипта, как wait().
 	const char* namekey = lua_tostring(L, 1);
-	int key = find_in_map(numbers_keys, namekey);
+	int key = ma_resolve_key(find_in_map(numbers_keys, namekey));
 	if (key == 0) {
 		writelog("keypress: неизвестное имя клавиши (краевая форма)");
 		lua_pushboolean(L, false);
