@@ -27,6 +27,7 @@
 - [Часть XXVI. WAV и скрипт «Вызов такси»](#часть-xxvi-воспроизведение-wav-и-скрипт-вызов-такси-23112026) — звук, taxi.lua, исправления.
 - [Часть XXVII. Нормализация булевых аргументов](#xxvii-нормализация-булевых-аргументов-23112026) — 1/0 и true/false.
 - **[Часть XXVIII. Макросы с большой буквы и уроки «Вызова такси»](#часть-xxviii-макросы-с-большой-буквы-и-уроки-вызова-такси-23112026)** — создающие функции, режимы вождения, все поломки.
+- **[Часть XXXVII. Практическое руководство по новым API (28.11.2026)](#часть-xxxvii-практическое-руководство-по-новым-api-28112026)** — свет, выносливость, шины/двигатель, адреса, сохранения, чит-код, безопасность.
 
 ---
 
@@ -47226,3 +47227,205 @@ BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.
 Примеры: `set_m_wheel_camber(-0.5)`, `get_m_water_level_1()`, `set_m_tick_rate(1)`, `set_m_max_heli_height(300.0)`.
 
 BUILD-GATE: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.
+
+
+---
+
+## Часть XXXVII. Практическое руководство по новым API (28.11.2026)
+
+Эта часть собрана для быстрого применения: что вызывать, в каком порядке и с какими
+аргументами. Все примеры — на Lua, в стиле скриптов из папки `lualoader/`.
+
+Также приведены в порядок регистрации в `register.cpp`: вместо «обёртка: …» в
+комментариях теперь указан адрес и суть функции (например,
+`// 2274 0x7E46C0 координата Z камеры (установка)`); регистрации разбиты на
+группы по 10 с двумя пустыми строками между группами. Поведение API от этого не
+меняется — это только читаемость исходника.
+
+### 37.1. Каркас любого скрипта
+
+```lua
+require("lualoader/mod")     -- обязательно: Keypress, Createcar и др. из mod.lua
+
+function main()
+  while true do
+    wait(10)                 -- НЕ блокирует игру: у каждого .lua свой поток
+    local player = findplayer()
+    if player == nil then
+      -- игрок ещё не создан (загрузка/меню) — ничего не делаем
+    end
+  end
+end
+```
+
+Правила: не вызывать игровые API из `DllMain`; не делать `while ... do end` без
+`wait()`; проверять `findplayer()` на `nil`; булевы аргументы принимают и `true/false`,
+и `1/0`.
+
+### 37.2. Свет фар и уличное освещение
+
+**Фары конкретного авто:**
+
+```lua
+local ok, car = incar(player)
+if ok and car ~= nil then
+  set_car_lights_on(car, true)          -- вкл
+  local on = get_car_lights_on(car)     -- проверка
+  if on then
+    printmessage("фары включены", 1500, 1)
+  end
+end
+```
+
+**Фары авто игрока (через адрес 0x7E49C0 + 0x1F9):**
+
+```lua
+patch_headlights()        -- один раз: NOP 6 байт по 0x58CD4E, чтобы игра не сбивала свет
+set_headlights_on()       -- 0x50
+-- set_headlights_off()   -- 0x10
+local on = is_headlights_on()
+```
+
+**Уличные фонари.** Отдельного флага в VC нет; `are_street_lights_on()` проверяет
+игровые часы (19:00–06:00). Управление временем и яркостью:
+
+```lua
+set_time_of_day(21, 0)              -- 21:00, ночь
+if are_street_lights_on() then
+  set_m_ambient_lighting(0.45)      -- 0x698A8C — яркость окружения
+end
+set_game_hours(12)                  -- вернуть день
+set_m_ambient_lighting(1.0)
+```
+
+### 37.3. Выносливость
+
+```lua
+local s = get_stamina()              -- текущая (CPed + 0x600)
+local m = get_max_stamina()          -- максимум (+0x604, по умолчанию 150.0)
+local d = get_stamina_duration()     -- длительность (+0x608)
+
+set_stamina(150.0)                   -- полная выносливость
+set_max_stamina(300.0)               -- увеличить предел
+set_stamina_duration(0.0)            -- сбросить накопление
+
+-- Для конкретного педа:
+setstamina_ped(ped, 200.0)
+local sp = getstamina_ped(ped)
+set_player_never_gets_tired(true)    -- 0x0330
+```
+
+### 37.4. Тип шин и двигателя модели авто
+
+Функции работают с **ID модели** (например, 191 = PCJ600), не с хендлом авто.
+Поля из `CVehicleModelInfo`: `+0x40` размер колёс, `+0x44` модель колёс, `+0x46` handling id.
+
+```lua
+local MODEL = 191                    -- PCJ600
+local wheel = get_vehicle_wheel_type(MODEL)
+local eng   = get_vehicle_engine_type(MODEL)
+
+set_vehicle_wheel_size(MODEL, 0.45)  -- размер колёс
+set_vehicle_wheel_type(MODEL, 12)    -- модель колёс
+set_vehicle_engine_type(MODEL, 5)    -- handling id (тип двигателя/управления)
+```
+
+Если модель неvehicle — функции вернут `nil` / `false`. Проверяйте результат,
+прежде чем продолжать.
+
+### 37.5. Платформа-дверь над водой (Демонстрационный example)
+
+Правильный порядок: сначала запросить COL-габариты, потом создать объект с нужным
+Z origin. Для `pw_groundplane` (1569) модель уже горизонтальна — `rotY = 0`.
+
+```lua
+local model = 1569
+local x, y, z = getpedcoordes(player)
+local mnx, mny, mnz, mxx, mxy, mxz = get_model_col_bounds(model)
+local oz = z - 0.1 - (mxz or 0)      -- верх плиты на 0.1 ниже байка
+local obj = create_door_object_no_offset(model, x, y, oz, 0)
+if obj ~= nil then
+  set_object_collision(obj, true)
+  set_object_dynamic(obj, false)
+  dont_remove_object(obj)
+end
+```
+
+Не используйте для плота модель 826 (`dk_camjonesdoor`): её COL — вертикальная
+плоскость нулевой толщины, байк проходит сквозь неё.
+
+### 37.6. Чит-код и сброс ввода
+
+```lua
+if cheat("dido") then        -- слово набрано: вернёт true один раз
+  start_mission_original(28)
+end
+reset_cheat()                 -- очистить строку ввода программно
+```
+
+Пробел очищает строку ввода автоматически (в клавиатурной задаче). Это удобно,
+если игрок ошибся при наборе слова.
+
+### 37.7. Сохранения
+
+```lua
+save_game_slot(1)             -- сохранить в GTAVCsf1.b
+load_game_slot(1)             -- загрузить из GTAVCsf1.b
+show_save_menu()              -- только если игрок жив, не в миссии, не в машине
+```
+
+Слоты указываются 1–8, внутри игры это индексы 0–7 (в имени файла +1).
+
+### 37.8. Миссия 19 «Demolition Man»
+
+`start_mission_original(19)` теперь **сам** перед запуском восстанавливает здание,
+если оно разрушено: грузит модель `-127`, вызывает
+`03B6 SWAP_NEAREST_BUILDING_MODEL(117.991, -362.461, 10.179, 80, -126, -127)`.
+Повторный запуск миссии работает без ручных вызовов:
+
+```lua
+if cheat("destr") then
+  start_mission_original(19)
+end
+```
+
+### 37.9. Примеры работы с новыми адресами (2430–2481)
+
+```lua
+-- Физика и поведение авто
+set_m_remove_distant_cars(0)        -- 0x426640: не удалять далёкие авто
+set_m_wheel_camber(-0.5)            -- 0x69A6A8: развал колёс
+set_m_car_friction(2)               -- 0x69A61A: трение/поверхность
+set_m_car_door_speed(8.0)           -- 0x69B34A: скорость дверей
+set_m_max_heli_height(300.0)        -- 0x69C780: потолок вертолёта
+set_m_spawn_with_siren_horn(1)      -- 0x427AAC: спавн с сиреной
+
+-- Пушка Rhino
+set_m_rhino_cannon_range(150.0)     -- 0x69A610
+set_m_rhino_cannon_reaction(3.0)    -- 0x69A608
+set_m_rhino_smoke_radius(1.5)       -- 0x69A61C
+
+-- Мир
+set_m_moon_size(2.0)                -- 0x695680
+set_m_tick_rate(1)                  -- 0x69102E
+local w1 = get_m_water_level_1()     -- 0x78D658
+set_m_respawn_depth(5.0)            -- 0x6912DC
+set_m_white_scanlines(1)            -- 0xA10B68
+```
+
+Все эти адреса взяты из GTAMods Memory Addresses (VC). Значения по умолчанию не
+известны для всех параметров — сохраняйте исходное значение перед изменением:
+
+```lua
+local old = get_m_wheel_camber()
+-- ... EXPERIMENT ...
+set_m_wheel_camber(old)             -- вернуть как было
+```
+
+### 37.10. Безопасность
+
+1. Не выдумывайте адреса. Если адрес не подтверждён SDK/вики/дизассемблом — не делайте по нему функцию.
+2. Изменения физики сделайте в игровом потоке; Lua-поток вызывает только безопасные API плагина.
+3. Для объектов с коллизией держите модель: `create_door_object` и `create_door_object_no_offset` делают это внутри через C++ `hold_model`; при создании вручную — `loadmodel(id)`, а `releasemodel(id)` только после удаления объекта. Иначе COL может выгрузиться.
+4. После окончания опыта верните старые значения параметров.
+5. BUILD-GATE после всех изменений: `BUILD-GATE OK: _GLOBAL__sub_I=30, .tls=0x24`.

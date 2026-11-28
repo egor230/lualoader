@@ -13,6 +13,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "getpedangle", getpedangle); // 6 получить угол педа.
 	lua_register(L, "worldcoord", worldcoord); // 7 Перевод в мировые координаты.
 	lua_register(L, "getpedcoordinates_on_x", getpedcoordinates_on_x); // 8 Получить мировую координату по x для педа.
+
+
 	lua_register(L, "getpedcoordinates_on_y", getpedcoordinates_on_y); // 9 Получить мировую координату по y для педа.
 	lua_register(L, "setarmour", setarmour); // 10 получить броню.
 	lua_register(L, "stop_car_radio", stop_car_radio);   // выключить играющее радио
@@ -23,6 +25,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "randomfindped", randomfindped); // 15 получить рандомного педа.
 	lua_register(L, "incar", incar); // 16 проверка пед в авто?.
 	lua_register(L, "loadmodel", loadmodel); // 17 загрузить модель.
+
+
 	lua_register(L, "availablemodel", availablemodel); // 18 проверка на загруженность модели.
 	lua_register(L, "releasemodel", releasemodel); // 19 удалить модель из памяти.
 	lua_register(L, "createcar", createcar); // 20 создать авто на координатах на координатах.
@@ -33,6 +37,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_walk_to_point", ped_walk_to_point); // 25 Пед идет к точке.
 	lua_register(L, "kill_ped_on_foot", kill_ped_on_foot); // 26 убить педа пешком.
 	lua_register(L, "kill_char_any_means", kill_char_any_means); // 27 убить педа любыми средствами.
+
+
 	lua_register(L, "ped_aim_at_ped", ped_aim_at_ped); // 28 пед целиться в педе.
  	lua_register(L, "is_current_weapon_ped", is_current_weapon_ped); // 29 проверить текущее оружие.
  	lua_register(L, "set_current_weapon_ped", set_current_weapon_ped); // 30 установить текущее оружие педа (01B9).
@@ -43,6 +49,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_ped_health_greater", is_ped_health_greater); // 35 здоровье педа больше? (0184).
 	lua_register(L, "make_obj_targettable", make_obj_targettable); // 36 в объект можно целиться (035D).
 	lua_register(L, "get_dead_char_pickup_coords", get_dead_char_pickup_coords); // 37 координаты трупного пикапа (04A5).
+
+
 	lua_register(L, "set_ped_mood", set_ped_mood); // 38 настроение педа (04E3).
 	lua_register(L, "request_animation", request_animation); // 39 запросить анимацию (04ED).
 	lua_register(L, "remove_animation", remove_animation); // 40 удалить анимацию (04EF).
@@ -53,6 +61,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "iscar_in_water", iscar_in_water); // 45 проверка авто в воде.
 	lua_register(L, "car_in_water", iscar_in_water); // алиас для совместимости со старыми скриптами.
 	lua_register(L, "set_wanted", set_wanted); // 46 уcтановить уровень розыска.
+
+
 	lua_register(L, "ped_in_point_in_radius", ped_in_point_in_radius); // 47 проверить находится пед в координатах с радиусом.
 	lua_register(L, "create_sphere", create_sphere); // 48 создать сферу.
 	lua_register(L, "clear_wanted", clear_wanted); // 49 убрать уровень розыска.
@@ -63,6 +73,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "kill_ped", kill_ped); // 54 убить педа.
 	lua_register(L, "getflagmission", getflagmission); // 55 проверка флага миссии.
 	lua_register(L, "setflagmission", setflagmission); // 56 уcтановить флага миссии.
+
+
 	lua_register(L, "Getflagmission", Getflagmission); // 57 большая: C++ + сторож миссии.
 	lua_register(L, "Setflagmission", Setflagmission); // 58 большая: C++ + сторож миссии.
 	lua_register(L, "showtext", showtext); // 59 Вывод особого текста на экран.
@@ -73,6 +85,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "isvehicle", isvehicle); // 64 проверка это транспорт?.
 	lua_register(L, "cardrive", cardrive); // 65 авто едет в точку.
 	lua_register(L, "setcarspeed", setcarspeed); // 66 установить скорость авто.
+
+
 	lua_register(L, "opendoorcar", opendoorcar); // 67 открыть дверь авто.
 	lua_register(L, "randomfindcar", randomfindcar); // 68 Найти случайное авто.
 	lua_register(L, "getcarcoordes", getcarcoordes); // 69 получить координаты авто.
@@ -83,6 +97,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "setdrivingstyle", setdrivingstyle); // 74 установить стиль езды авто.
 	lua_register(L, "findped", findped); // 75 найти педа в пуле.
 	lua_register(L, "create_weapon_pickup", create_weapon_pickup); // 76 создать пикап оружие.
+
+
 	lua_register(L, "create_pickup", create_pickup); // 77 создать пикап.
 	lua_register(L, "remove_pickup", remove_pickup); // 78 удалить пикап.
 	lua_register(L, "picked_up", picked_up); // 79 проверка пикап подобран.
@@ -93,6 +109,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "show_text_styled", show_text_styled); // 84 Вывести игровой текст.
 	lua_register(L, "setcarangle", setcarangle); // 85 установить угол авто.
 	lua_register(L, "createmarker", createmarker); // 86 создать маркер на карте.
+
+
 	lua_register(L, "setsizemarker", setsizemarker); // 87 установить размер маркера.
 	lua_register(L, "cheat", checkcheat); // 88 чит код введен.
 	lua_register(L, "destroy", destroy); // 89 удаления объектов из памяти при перезагрузки скрипта.
@@ -103,6 +121,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "setcarseconscolor", setcarseconscolor); // 94 установить второй цвет авто.
 	lua_register(L, "set_traffic", set_traffic); // 95 установить плотномть трафика транспорта.
 	lua_register(L, "create_marker_car", create_marker_car); // 96 создать маркер над авто.
+
+
 	lua_register(L, "car_explode", car_explode); // 97 взрывать авто.
 	lua_register(L, "is_car_stopped", is_car_stopped); // 98 авто остановилось.
 	lua_register(L, "create_explosion", create_explosion); // 99 Создать взрыв на координатах.
@@ -113,6 +133,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "lockstatus", lockstatus); // 104 статус двери авто.
 	lua_register(L, "create_marker_pickup", create_marker_pickup); // 105 создать маркер над пикапом.
 	lua_register(L, "create_obj", createobj); // 106 создать объект.
+
+
 	lua_register(L, "remove_obj", remove_obj); // 107 удалить объект.
 	lua_register(L, "setobjоcoordes", setobjocoordes); // 108 установить координаты для объект.
 	lua_register(L, "setobjocoordes", setobjocoordes);
@@ -123,6 +145,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "setpedangle", setpedangle); // 112 установить угол педа.
 	lua_register(L, "setcaraction", setcaraction); // 113 установить поведение авто.
 	lua_register(L, "move_obj", move_obj); // 114 двигать объект.
+
+
 	lua_register(L, "move_obj_to", move_obj_to); // двигать объект в заданные координаты с заданной скоростью ед/сек (свой поток, скрипт не ждёт).
 	lua_register(L, "move_rotate", move_rotate); // 115 вращать объект.
 	lua_register(L, "getobjangle", getobjangle); // 116 получить угол объекта.
@@ -133,6 +157,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_car_upsidedown", is_car_upsidedown); // 121 01F4: car 12@ flipped если машина перевернута.
 	lua_register(L, "is_car_upright", is_car_upright); // 122 020D: car 12@ flipped если указанный автомобиль стоит на колесах.
 	lua_register(L, "find_road_for_car", find_road_for_car); // 123 найти дорогу.
+
+
 	lua_register(L, "setcarstrong", setcarstrong);
 	lua_register(L, "set_car_only_damaged_by_player", set_car_only_damaged_by_player);
 	lua_register(L, "open_diaz_gates", open_diaz_gates);
@@ -143,6 +169,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "star_timer", star_timer); // 127 включить таймер.
 	lua_register(L, "stop_timer", stop_timer); // 128 остановить таймер.
 	lua_register(L, "timer_donw", timer_donw); // 129 таймер на уменьшение.
+
+
 	lua_register(L, "ped_attack_car", ped_attack_car); // 130 пед атакует авто.
 	lua_register(L, "ped_frozen", ped_frozen); // 131 заморозить игpока.
 	lua_register(L, "hold_cellphone", hold_cellphone); // 132 поднять телефон.
@@ -153,6 +181,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_car_as_driver", ped_car_as_driver); // 137 пед садится в авто как водитель.
 	lua_register(L, "ped_car_as_passenger", ped_car_as_passenger); // 138 пед садится в авто как пассажир.
 	lua_register(L, "ped_atack", ped_atack); // 139 пед бьет.
+
+
 	lua_register(L, "show_text_gtx", show_text_gtx); // 140 вывести игровой текст.
 	lua_register(L, "camera_at_point", camera_at_point); // 141 переместить камеру в координатах.
 	lua_register(L, "restore_camera", restore_camera); // 142 восстановить камеру.
@@ -163,6 +193,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_car_tires", set_car_tires); // 147 проколоть шину.
 	lua_register(L, "create_spec_ped", create_spec_ped); // 148 создать спец педа.
 	lua_register(L, "set_wheel_status", set_wheel_status); // 149 установить состояния шин авто.
+
+
 	lua_register(L, "set_skin", set_skin); // 150 установить скин педа.
 	lua_register(L, "remove_spec_ped", remove_spec_ped); // 151 удалить спец педа.
 	lua_register(L, "go_to_route", go_to_route); // 152 установить маршрут авто.
@@ -173,6 +205,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_current_name_luascript", get_current_name_luascript); // 157 получить имя текущего lua файла.
 	lua_register(L, "star_mission_marker", star_mission_marker); // 158 создать маркер для миссии.
 	lua_register(L, "getobjcoordinates_on_x", getobjcoordinates_on_x); // 159 Получить мировую координату по x для объекта.
+
+
 	lua_register(L, "getobjcoordinates_on_y", getobjcoordinates_on_y); // 160 Получить мировую координату по y для объекта.
 	lua_register(L, "set_widescreen", set_widescreen); // вк // 161 вкл/выкл широкий экран.
 	lua_register(L, "follow_the_leader", follow_the_leader); //149 //01DE // 162 DE / 01DF следовать за лидером.
@@ -190,6 +224,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "createfireoncords", createfireoncords); // 173 создать огонь на координатах.
 	lua_register(L, "remove_fire", remove_fire); // 174 удалить огонь.
 	lua_register(L, "ped_shutdown", ped_shutdown); // 175
+
+
 	lua_register(L, "is_ped_damage_from_ped", is_ped_damage_from_ped); // 176 получил ли пед урон от педа.
 	lua_register(L, "is_targetting_in_ped", is_targetting_in_ped); // 177 игрок целиться в педа.
 	lua_register(L, "Remove_weapon_model", Remove_weapon_model); // 178 удалить оружие у педа.
@@ -200,6 +236,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "Opendoorcar", Opendoorcar); // 182 Макрос открыть все двери авто.
 	lua_register(L, "Create_weapon_pickup", Create_weapon_pickup); // 183 макрос создать пикап оружие.
 	lua_register(L, "Create_pickup", Create_pickup); // 184 макрос создать пикап.
+
+
 	lua_register(L, "Get_model_and_type_current_weapon_ped", Get_model_and_type_current_weapon_ped); // 185 макрос получить модель и тип текущего оружие педа.
 	lua_register(L, "is_ped_in_car", is_ped_in_car); // 186 игрок в авто?
 	lua_register(L, "ped_car", ped_car); // 187 авто педа.
@@ -210,6 +248,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_damage_current_weapon", get_damage_current_weapon); // 192 получить уровень урона текущего оружие.
 	lua_register(L, "set_damage_current_weapon", set_damage_current_weapon); // 193 установить уровень урона текущего оружие педа.
 	lua_register(L, "set_clip_current_weapon", set_clip_current_weapon); // 194 установить объём обоймы текущего оружие педа.
+
+
 	lua_register(L, "get_ped_state", get_ped_state); // 195 получить состояние педа.
 	lua_register(L, "get_ped_last_state", get_ped_last_state); // 196 получить прошлое состояние педа.
 	lua_register(L, "set_ped_state", set_ped_state); // 197 установить состояние педа.
@@ -220,6 +260,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_heading_rate", get_ped_heading_rate); // 202 получить скорость поворота педа.
 	lua_register(L, "get_ped_enter_type", get_ped_enter_type); // 203 получить тип посадки педа в авто.
 	lua_register(L, "get_ped_from_vehicle", get_ped_from_vehicle); // 204 получить авто из которого вышел пед.
+
+
 	lua_register(L, "ped_can_be_deleted", ped_can_be_deleted); // 205 можно ли удалить педа из мира.
 	lua_register(L, "ped_is_gang_member", ped_is_gang_member); // 206 пед член банды.
 	lua_register(L, "ped_is_player", ped_is_player); // 207 пед это игрок.
@@ -230,6 +272,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_dress", ped_dress); // 212 пед надевает одежду.
 	lua_register(L, "ped_calculate_new_orientation", ped_calculate_new_orientation); // 213 пересчитать ориентацию педа.
 	lua_register(L, "ped_set_move_anim", ped_set_move_anim); // 214 задать педу анимацию движения.
+
+
 	lua_register(L, "ped_set_get_up", ped_set_get_up); // 215 пед встает с земли.
 	lua_register(L, "ped_set_jump", ped_set_jump); // 216 пед прыгает.
 	lua_register(L, "ped_set_landing", ped_set_landing); // 217 пед приземляется.
@@ -240,6 +284,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_restore_heading_rate", ped_restore_heading_rate); // 222 вернуть скорость поворота педа.
 	lua_register(L, "ped_restore_head_position", ped_restore_head_position); // 223 вернуть голове положение.
 	lua_register(L, "ped_restore_previous_state", ped_restore_previous_state); // 224 вернуть педу прошлое состояние.
+
+
 	lua_register(L, "ped_restore_previous_objective", ped_restore_previous_objective); // 225 вернуть педу прошлую цель.
 	lua_register(L, "ped_stop_non_partial_anims", ped_stop_non_partial_anims); // 226 остановить базовые анимации педа.
 	lua_register(L, "ped_restart_non_partial_anims", ped_restart_non_partial_anims); // 227 возобновить базовые анимации педа.
@@ -250,6 +296,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_clear_attack_anim", ped_clear_attack_anim); // 232 сбросить атаку с удалением анимации.
 	lua_register(L, "ped_clear_seek", ped_clear_seek); // 233 сбросить у педа поиск цели.
 	lua_register(L, "ped_clear_follow_path", ped_clear_follow_path); // 234 сбросить следование по маршруту.
+
+
 	lua_register(L, "ped_clear_wait_state", ped_clear_wait_state); // 235 сбросить состояние ожидания.
 	lua_register(L, "ped_clear_point_gun_at", ped_clear_point_gun_at); // 236 опустить наведенное оружие.
 	lua_register(L, "ped_answer_mobile", ped_answer_mobile); // 237 пед отвечает на телефон.
@@ -260,6 +308,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_mug", ped_mug); // 242 пед грабит ближайшего педа.
 	lua_register(L, "ped_solicit", ped_solicit); // 243 пед предлагает услуги.
 	lua_register(L, "ped_buy_ice_cream", ped_buy_ice_cream); // 244 пед покупает мороженое.
+
+
 	lua_register(L, "ped_look_for_sexy_cars", ped_look_for_sexy_cars); // 245 пед ищет красивые авто.
 	lua_register(L, "ped_look_for_sexy_peds", ped_look_for_sexy_peds); // 246 пед ищет красивых педов.
 	lua_register(L, "get_car_driver", get_car_driver); // 247 получить водителя авто.
@@ -270,6 +320,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_car_steer_angle", set_car_steer_angle); // 252 установить угол руля авто.
 	lua_register(L, "get_car_gas_pedal", get_car_gas_pedal); // 253 получить педаль газа авто.
 	lua_register(L, "get_car_brake_pedal", get_car_brake_pedal); // 254 получить педаль тормоза авто.
+
+
 	lua_register(L, "get_car_engine_on", get_car_engine_on); // 255 работает ли двигатель авто.
 	lua_register(L, "set_car_engine_on", set_car_engine_on); // 256 вкл/выкл двигатель авто.
 	lua_register(L, "get_car_lights_on", get_car_lights_on); // 257 включены ли фары авто.
@@ -280,6 +332,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_car_locked", set_car_locked); // 262 заблокировать/разблокировать авто.
 	lua_register(L, "get_car_is_van", get_car_is_van); // 263 авто фургон.
 	lua_register(L, "get_car_is_bus", get_car_is_bus); // 264 авто автобус.
+
+
 	lua_register(L, "get_car_is_big", get_car_is_big); // 265 авто большая машина.
 	lua_register(L, "set_car_comedy_controls", set_car_comedy_controls); // 266 шуточное управление авто.
 	lua_register(L, "set_car_hide_occupants", set_car_hide_occupants); // 267 скрыть седоков авто.
@@ -290,6 +344,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_last_damager", get_car_last_damager); // 272 получить последний урон авто.
 	lua_register(L, "get_car_time_of_death", get_car_time_of_death); // 273 получить время смерти авто.
 	lua_register(L, "get_car_weapon_damage", get_car_weapon_damage); // 274 тип оружия последнего урона авто.
+
+
 	lua_register(L, "get_car_vehicle_class", get_car_vehicle_class); // 275 получить класс авто.
 	lua_register(L, "car_play_horn", car_play_horn); // 276 авто сигналит.
 	lua_register(L, "car_extinguish_fire", car_extinguish_fire); // 277 потушить пожар на авто.
@@ -300,6 +356,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_is_upside_down", car_is_upside_down); // 282 авто перевернуто.
 	lua_register(L, "car_is_on_its_side", car_is_on_its_side); // 283 авто на боку.
 	lua_register(L, "car_is_vehicle_normal", car_is_vehicle_normal); // 284 авто в норме.
+
+
 	lua_register(L, "car_can_be_deleted", car_can_be_deleted); // 285 можно удалить авто.
 	lua_register(L, "car_can_ped_enter", car_can_ped_enter); // 286 можно сесть в авто.
 	lua_register(L, "car_can_doors_be_damaged", car_can_doors_be_damaged); // 287 двери могут быть повреждены.
@@ -310,6 +368,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_is_door_ready", car_is_door_ready); // 292 дверь готова открыться.
 	lua_register(L, "car_is_door_fully_open", car_is_door_fully_open); // 293 дверь полностью открыта.
 	lua_register(L, "car_is_door_closed", car_is_door_closed); // 294 дверь закрыта.
+
+
 	lua_register(L, "car_is_door_missing", car_is_door_missing); // 295 дверь отсутствует.
 	lua_register(L, "car_shuffle_passengers", car_shuffle_passengers); // 296 пересадить пассажиров.
 	lua_register(L, "car_update_passenger_list", car_update_passenger_list); // 297 обновить список пассажиров.
@@ -320,6 +380,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_car_wanted_stars_on_enter", set_car_wanted_stars_on_enter); // 302 установить звёзды при входе.
 	lua_register(L, "get_weapon_range", get_weapon_range); // 303 получить дальность оружия.
 	lua_register(L, "set_weapon_range", set_weapon_range); // 304 установить дальность оружия.
+
+
 	lua_register(L, "get_weapon_firing_rate", get_weapon_firing_rate); // 305 получить скорость стрельбы.
 	lua_register(L, "set_weapon_firing_rate", set_weapon_firing_rate); // 306 установить скорость стрельбы.
 	lua_register(L, "get_weapon_reload", get_weapon_reload); // 307 получить время перезарядки.
@@ -330,6 +392,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_weapon_spread", set_weapon_spread); // 312 установить разброс оружия.
 	lua_register(L, "get_weapon_radius", get_weapon_radius); // 313 получить радиус поражения.
 	lua_register(L, "set_weapon_radius", set_weapon_radius); // 314 установить радиус поражения.
+
+
 	lua_register(L, "get_weapon_lifespan", get_weapon_lifespan); // 315 получить время жизни снаряда.
 	lua_register(L, "set_weapon_lifespan", set_weapon_lifespan); // 316 установить время жизни снаряда.
 	lua_register(L, "get_weapon_slot_info", get_weapon_slot_info); // 317 получить слот оружия.
@@ -340,6 +404,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "weapon_is_melee", weapon_is_melee); // 322 оружие рукопашное.
 	lua_register(L, "weapon_is_two_handed", weapon_is_two_handed); // 323 оружие двуручное.
 	lua_register(L, "weapon_has_ammo_to_be_used", weapon_has_ammo_to_be_used); // 324 можно использовать оружие.
+
+
 	lua_register(L, "get_player_money_info", get_player_money_info); // 325 получить деньги игрока.
 	lua_register(L, "set_player_money_info", set_player_money_info); // 326 установить деньги игроку.
 	lua_register(L, "get_player_display_money", get_player_display_money); // 327 получить отображаемые деньги.
@@ -350,6 +416,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_wanted_multiplier", set_wanted_multiplier); // 332 установить множитель розыска.
 	lua_register(L, "get_cops_in_pursuit", get_cops_in_pursuit); // 333 получить копов в погоне.
 	lua_register(L, "get_max_cops_in_pursuit", get_max_cops_in_pursuit); // 334 получить макс копов в погоне.
+
+
 	lua_register(L, "set_max_cops_in_pursuit", set_max_cops_in_pursuit); // 335 установить макс копов.
 	lua_register(L, "get_max_cop_cars_in_pursuit", get_max_cop_cars_in_pursuit); // 336 получить макс полицейских авто.
 	lua_register(L, "set_max_cop_cars_in_pursuit", set_max_cop_cars_in_pursuit); // 337 установить макс полицейских авто.
@@ -360,6 +428,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "wanted_are_army_required", wanted_are_army_required); // 342 нужна ли армия.
 	lua_register(L, "wanted_num_helis_required", wanted_num_helis_required); // 343 нужны ли вертолеты.
 	lua_register(L, "wanted_clear_crimes", wanted_clear_crimes); // 344 очистить очередь преступлений.
+
+
 	lua_register(L, "wanted_reset_police_pursuit", wanted_reset_police_pursuit); // 345 сбросить полицейскую погоню.
 	lua_register(L, "wanted_update_wanted_level", wanted_update_wanted_level); // 346 обновить уровень розыска.
 	lua_register(L, "wanted_set_no_drop", wanted_set_no_drop); // 347 уровень розыска без понижения.
@@ -370,6 +440,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "force_weather_now", force_weather_now); // 352 мгновенно сменить погоду.
 	lua_register(L, "release_weather", release_weather); // 353 отпустить погоду.
 	lua_register(L, "get_old_weather_type", get_old_weather_type); // 354 получить прошлую погоду.
+
+
 	lua_register(L, "get_new_weather_type", get_new_weather_type); // 355 получить текущую погоду.
 	lua_register(L, "set_weather_type", set_weather_type); // 356 установить тип погоды.
 	lua_register(L, "is_lightning_flash", is_lightning_flash); // 357 вспышка молнии.
@@ -380,6 +452,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_game_hours", set_game_hours); // 362 установить часы.
 	lua_register(L, "set_milliseconds_per_game_minute", set_milliseconds_per_game_minute); // 363 скорость хода времени.
 	lua_register(L, "get_milliseconds_per_game_minute", get_milliseconds_per_game_minute); // 364 получить скорость времени.
+
+
 	lua_register(L, "clock_store", clock_store); // 365 запомнить время.
 	lua_register(L, "clock_restore", clock_restore); // 366 восстановить время.
 	lua_register(L, "get_time_until", get_time_until); // 367 минуты до указанного времени.
@@ -390,6 +464,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_far_clip", set_far_clip); // 372 установить дальность прорисовки.
 	lua_register(L, "get_near_clip", get_near_clip); // 373 получить ближнюю границу.
 	lua_register(L, "set_near_clip", set_near_clip); // 374 установить ближнюю границу.
+
+
 	lua_register(L, "get_lod_distance", get_lod_distance); // 375 получить дистанцию LOD.
 	lua_register(L, "set_lod_distance", set_lod_distance); // 376 установить дистанцию LOD.
 	lua_register(L, "get_fade_color", get_fade_color); // 377 получить цвет затемнения.
@@ -400,6 +476,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "camera_calculate_derived_values", camera_calculate_derived_values); // 382 пересчитать камеру.
 	lua_register(L, "camera_dont_process_obbe_cinema", camera_dont_process_obbe_cinema); // 383 отключить кино-камеру.
 	lua_register(L, "get_mouse_accel_vertical", get_mouse_accel_vertical); // 384 вертикальное ускорение мыши.
+
+
 	lua_register(L, "set_mouse_accel_vertical", set_mouse_accel_vertical); // 385 установить ускорение мыши.
 	lua_register(L, "get_mouse_accel_horizontal", get_mouse_accel_horizontal); // 386 горизонтальное ускорение мыши.
 	lua_register(L, "set_mouse_accel_horizontal", set_mouse_accel_horizontal); // 387 установить ускорение мыши.
@@ -410,6 +488,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "weather_render_rain_streaks", weather_render_rain_streaks); // 392 отрисовать полосы дождя.
 	lua_register(L, "get_obj_type", get_obj_type); // 393 получить тип объекта.
 	lua_register(L, "get_obj_bonus_value", get_obj_bonus_value); // 394 получить бонус объекта.
+
+
 	lua_register(L, "set_obj_bonus_value", set_obj_bonus_value); // 395 установить бонус объекта.
 	lua_register(L, "get_obj_cost_value", get_obj_cost_value); // 396 получить стоимость объекта.
 	lua_register(L, "set_obj_cost_value", set_obj_cost_value); // 397 установить стоимость объекта.
@@ -420,6 +500,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_obj_camera_avoids", get_obj_camera_avoids); // 402 камера обходит объект.
 	lua_register(L, "set_obj_camera_avoids", set_obj_camera_avoids); // 403 установить обход камерой.
 	lua_register(L, "get_obj_timer", get_obj_timer); // 404 получить таймер объекта.
+
+
 	lua_register(L, "set_obj_timer", set_obj_timer); // 405 установить таймер объекта.
 	lua_register(L, "get_obj_ref_model_id", get_obj_ref_model_id); // 406 модель на которую ссылается объект.
 	lua_register(L, "obj_can_be_deleted", obj_can_be_deleted); // 407 можно удалить объект.
@@ -430,6 +512,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_obj_attach_force", get_obj_attach_force); // 412 сила прикрепления объекта.
 	lua_register(L, "set_obj_attach_force", set_obj_attach_force); // 413 установить силу прикрепления.
 	lua_register(L, "fire_find_nearest", fire_find_nearest); // 414 найти ближайший пожар.
+
+
 	lua_register(L, "fire_start_on_point", fire_start_on_point); // 415 поджечь точку.
 	lua_register(L, "get_fire_time_to_burn", get_fire_time_to_burn); // 416 время горения пожара.
 	lua_register(L, "set_fire_time_to_burn", set_fire_time_to_burn); // 417 установить время горения.
@@ -440,6 +524,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_blend_anim", ped_blend_anim); // 422 запустить анимацию со смешиванием.
 	lua_register(L, "get_anim_block_index", get_anim_block_index); // 423 индекс блока анимаций.
 	lua_register(L, "anim_set_group_ref", anim_set_group_ref); // 424 задать группу анимаций.
+
+
 	lua_register(L, "get_ped_stat_kills", get_ped_stat_kills); // 425 законные убийства игрока.
 	lua_register(L, "get_ped_stat_cheated", get_ped_stat_cheated); // 426 число читов игрока.
 	lua_register(L, "get_stat_property_destroyed", get_stat_property_destroyed); // 427 разрушенное имущество.
@@ -450,6 +536,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_stat_seagulls_killed", get_stat_seagulls_killed); // 432 убитые чайки.
 	lua_register(L, "get_stat_times_drowned", get_stat_times_drowned); // 433 кол-во утоплений.
 	lua_register(L, "get_stat_flight_time", get_stat_flight_time); // 434 время полетов.
+
+
 	lua_register(L, "get_stat_missions_total", get_stat_missions_total); // 435 общее число миссий.
 	lua_register(L, "get_stat_frenzies_total", get_stat_frenzies_total); // 436 общее число безумий.
 	lua_register(L, "get_stat_frenzies_passed", get_stat_frenzies_passed); // 437 пройденные безумия.
@@ -460,6 +548,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_stat_stores_knocked_off", get_stat_stores_knocked_off); // 442 ограбленные магазины.
 	lua_register(L, "get_stat_loan_sharks", get_stat_loan_sharks); // 443 сделки с ростовщиками.
 	lua_register(L, "get_stat_garbage_pickups", get_stat_garbage_pickups); // 444 собранный мусор.
+
+
 	lua_register(L, "get_stat_weapon_budget", get_stat_weapon_budget); // 445 бюджет на оружие.
 	lua_register(L, "get_stat_fashion_budget", get_stat_fashion_budget); // 446 бюджет на одежду.
 	lua_register(L, "get_stat_property_budget", get_stat_property_budget); // 447 бюджет на собственность.
@@ -470,6 +560,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_stat_top_shooting_score", get_stat_top_shooting_score); // 452 лучший счет в тире.
 	lua_register(L, "get_stat_num_property_owned", get_stat_num_property_owned); // 453 кол-во собственности.
 	lua_register(L, "radar_set_coord_blip", radar_set_coord_blip); // 454 создать метку на карте.
+
+
 	lua_register(L, "radar_set_short_range_blip", radar_set_short_range_blip); // 455 короткая метка.
 	lua_register(L, "radar_set_entity_blip", radar_set_entity_blip); // 456 метка на сущности.
 	lua_register(L, "radar_clear_blip", radar_clear_blip); // 457 удалить метку.
@@ -480,6 +572,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "radar_set_blip_sprite", radar_set_blip_sprite); // 462 иконка метки.
 	lua_register(L, "radar_add_sprite_blip_for_coord", radar_add_sprite_blip_for_coord); // 462а спрайт-блайп на карте (02A8).
 	lua_register(L, "radar_add_blip_for_coord", radar_add_blip_for_coord); // 462б координатный блайп на карте (018A).
+
+
 	lua_register(L, "radar_show_marker", radar_show_marker); // 463 показать маркер в мире.
 	lua_register(L, "radar_set_marker_state", radar_set_marker_state); // 464 состояние маркера миссии.
 	lua_register(L, "radar_draw_radar_sprite", radar_draw_radar_sprite); // 465 отрисовать спрайт радара.
@@ -490,6 +584,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "play_continuous_sound", play_continuous_sound); // 470 непрерывный звук.
 	lua_register(L, "remove_sound_by_id", remove_sound_by_id); // 471 удалить звук.
 	lua_register(L, "set_radio_channel", set_radio_channel); // 472 радиостанция игроку.
+
+
 	lua_register(L, "get_radio_channel", get_radio_channel); // 473 текущая радиостанция.
 	lua_register(L, "set_music_does_fade", set_music_does_fade); // 474 затухание музыки.
 	lua_register(L, "police_radio_message", police_radio_message); // 475 полицейское радио.
@@ -500,6 +596,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_all_random_peds_type", set_all_random_peds_type); // 480 установить тип случайных педов.
 	lua_register(L, "population_manage", population_manage); // 481 обработать популяцию.
 	lua_register(L, "population_remove_peds_full_pool", population_remove_peds_full_pool); // 482 удалить педов при переполнении.
+
+
 	lua_register(L, "population_convert_all_objects_to_dummy", population_convert_all_objects_to_dummy); // 483 конвертировать объекты в dummy.
 	lua_register(L, "population_is_female", population_is_female); // 484 модель педа женская.
 	lua_register(L, "population_is_male", population_is_male); // 485 модель педа мужская.
@@ -510,6 +608,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "world_get_is_line_of_sight_clear", world_get_is_line_of_sight_clear); // 490 прямая видимость между точками.
 	lua_register(L, "world_clear_peds_from_area", world_clear_peds_from_area); // 491 удалить педов из области.
 	lua_register(L, "world_clear_cars_from_area", world_clear_cars_from_area); // 492 удалить авто из области.
+
+
 	lua_register(L, "world_extinguish_all_car_fires_in_area", world_extinguish_all_car_fires_in_area); // 493 потушить пожары в области.
 	lua_register(L, "world_clear_exciting_stuff_from_area", world_clear_exciting_stuff_from_area); // 494 очистить область от эффектов.
 	lua_register(L, "world_call_off_chase_for_area", world_call_off_chase_for_area); // 495 отменить погоню в области.
@@ -520,6 +620,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "angle_to_entity", angle_to_entity);
 	lua_register(L, "get_angle_to_target", get_angle_to_target);
 	lua_register(L, "general_angle_between_points", general_angle_between_points); // 499 угол между точками.
+
+
 	lua_register(L, "general_radian_angle_between_points", general_radian_angle_between_points); // 500 угол между точками в радианах.
 	lua_register(L, "general_limit_angle", general_limit_angle); // 501 нормализовать угол.
 	lua_register(L, "general_limit_radian_angle", general_limit_radian_angle); // 502 нормализовать угол в радианах.
@@ -530,6 +632,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_time_step", get_time_step); // 507 шаг времени кадра.
 	lua_register(L, "is_user_pause", is_user_pause); // 508 игра на паузе.
 	lua_register(L, "gangs_set_weapons", gangs_set_weapons); // 509 оружие банды.
+
+
 	lua_register(L, "gangs_set_vehicle_model", gangs_set_vehicle_model); // 510 авто банды.
 	lua_register(L, "gangs_set_ped_models", gangs_set_ped_models); // 511 модели педов банды.
 	lua_register(L, "gangs_choose_ped_model", gangs_choose_ped_model); // 512 модель педа банды.
@@ -540,6 +644,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "gamelogic_update", gamelogic_update); // 517 обновить логику.
 	lua_register(L, "gamelogic_after_death_arrest_shortcut", gamelogic_after_death_arrest_shortcut); // 518 такси-шорткат после смерти.
 	lua_register(L, "message_add_big", message_add_big); // 519 большое сообщение.
+
+
 	lua_register(L, "message_add_big_queue", message_add_big_queue); // 520 большое сообщение в очередь.
 	lua_register(L, "message_add", message_add); // 521 маленькое сообщение.
 	lua_register(L, "message_add_jump_queue", message_add_jump_queue); // 522 сообщение вне очереди.
@@ -550,6 +656,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "message_clear_this_print", message_clear_this_print); // 527 удалить маленькое сообщение.
 	lua_register(L, "font_set_style", font_set_style); // 528 стиль шрифта.
 	lua_register(L, "font_set_drop_shadow", font_set_drop_shadow); // 529 тень шрифта.
+
+
 	lua_register(L, "font_set_alpha_fade", font_set_alpha_fade); // 530 прозрачность шрифта.
 	lua_register(L, "font_set_centre_size", font_set_centre_size); // 531 размер центр. текста.
 	lua_register(L, "font_set_wrapx", font_set_wrapx); // 532 ширина переноса шрифта.
@@ -560,6 +668,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "font_set_right_justify_on", font_set_right_justify_on); // 537 выравнивание вправо вкл.
 	lua_register(L, "font_set_right_justify_off", font_set_right_justify_off); // 538 выравнивание вправо выкл.
 	lua_register(L, "heli_set_orientation", heli_set_orientation); // 539 установить ориентацию вертолета
+
+
 	lua_register(L, "heli_clear_orientation", heli_clear_orientation); // 540 очистить ориентацию вертолета
 	lua_register(L, "heli_set_stabiliser", heli_set_stabiliser); // 541 установить стабилизатор вертолета
 	lua_register(L, "heli_make_crashing_down", heli_make_crashing_down); // 542 вертолет падает
@@ -570,6 +680,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "catalina_heli_take_off", catalina_heli_take_off); // 547 Catalina взлетает
 	lua_register(L, "catalina_heli_remove", catalina_heli_remove); // 548 удалить Catalina
 	lua_register(L, "catalina_heli_grab", catalina_heli_grab); // 549 сесть в Catalina
+
+
 	lua_register(L, "catalina_heli_fly_away", catalina_heli_fly_away); // 550 Catalina улетает
 	lua_register(L, "catalina_heli_has_shot_down", catalina_heli_has_shot_down); // 551 Catalina сбит
 	lua_register(L, "plane_goto_coords", plane_goto_coords); // 552 самолет летит на координаты
@@ -580,6 +692,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "has_drug_plane_shot_down", has_drug_plane_shot_down); // 557 самолет с наркотиками сбит
 	lua_register(L, "has_drop_off_plane_shot_down", has_drop_off_plane_shot_down); // 558 самолет-доставщик сбит
 	lua_register(L, "boat_goto_coords", boat_goto_coords); // 559 катер плывет на координаты
+
+
 	lua_register(L, "boat_set_cruise_speed", boat_set_cruise_speed); // 560 крейсерская скорость катера
 	lua_register(L, "boat_anchor", boat_anchor); // 561 якорить катер
 	lua_register(L, "boat_start_foam_animation", boat_start_foam_animation); // 562 включить пену катера
@@ -590,6 +704,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "train_catch_char_obj", train_catch_char_obj); // 567 пед ловит поезд
 	lua_register(L, "train_catch_coll_obj", train_catch_coll_obj); // 568 объект ловит поезд
 	lua_register(L, "rc_give_remote_controlled_car_to_player", rc_give_remote_controlled_car_to_player); // 569 выдать RC-машину
+
+
 	lua_register(L, "rc_give_remote_controlled_model_to_player", rc_give_remote_controlled_model_to_player); // 570 выдать RC-модель
 	lua_register(L, "rc_get_remote_controlled_car", rc_get_remote_controlled_car); // 571 получить RC-машину
 	lua_register(L, "rc_buggy_blow_up", rc_buggy_blow_up); // 572 взорвать RC-багги
@@ -600,6 +716,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_fade_jumpcut_after_rc_explosion", set_fade_jumpcut_after_rc_explosion); // 577 затухание после взрыва RC
 	lua_register(L, "bike_is_player_on_any_bike", bike_is_player_on_any_bike); // 578 игрок на любом мотоцикле
 	lua_register(L, "bike_is_char_on_any_bike", bike_is_char_on_any_bike); // 579 пед на любом мотоцикле
+
+
 	lua_register(L, "is_char_in_flying_vehicle", is_char_in_flying_vehicle); // 580 пед в летающем транспорте
 	lua_register(L, "is_player_in_flying_vehicle", is_player_in_flying_vehicle); // 581 игрок в летающем транспорте
 	lua_register(L, "crane_activate", crane_activate); // 582 активировать кран
@@ -610,6 +728,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "zone_get_level_from_position", zone_get_level_from_position); // 587 уровень зоны по позиции
 	lua_register(L, "crusher_crane_activate", crusher_crane_activate); // 588 активировать пресс-кран
 	lua_register(L, "military_crane_activate", military_crane_activate); // 589 активировать военный кран
+
+
 	lua_register(L, "crane_deactivate", crane_deactivate); // 590 деактивировать кран
 	lua_register(L, "crane_military_collected_all", crane_military_collected_all); // 591 военный кран собрал все авто
 	lua_register(L, "crane_is_lifting_car", crane_is_lifting_car); // 592 кран поднимает авто
@@ -620,6 +740,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_set_idle", car_set_idle); // 597 авто в ожидание
 	lua_register(L, "car_wander_randomly", car_wander_randomly); // 598 авто едет случайно
 	lua_register(L, "car_face_coord", car_face_coord); // 599 повернуть к координатам
+
+
 	lua_register(L, "freeze_car_position", freeze_car_position); // 600 заморозить позицию
 	lua_register(L, "freeze_car_no_collide", freeze_car_no_collide); // 601 заморозить без коллизий
 	lua_register(L, "set_car_status", set_car_status); // 602 статус авто
@@ -630,6 +752,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_drive_straight", car_drive_straight); // 607 ехать прямо
 	lua_register(L, "set_car_forward_speed", set_car_forward_speed); // 608 скорость вперед
 	lua_register(L, "car_wait", car_wait); // 609 приказать ждать ms
+
+
 	lua_register(L, "car_route_seed", car_route_seed); // 610 seed маршрута
 	lua_register(L, "car_straight_dist", car_straight_dist); // 611 дистанция прямой линии
 	lua_register(L, "car_convoy", car_convoy); // 612 конвойное авто
@@ -640,6 +764,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_car_visible", set_car_visible); // 617 видимость
 	lua_register(L, "set_car_watertight", set_car_watertight); // 618 водонепроницаемость
 	lua_register(L, "set_car_big_wheels", set_car_big_wheels); // 619 большие колеса
+
+
 	lua_register(L, "set_car_bproof", set_car_bproof); // 620 пуленепробиваемость
 	lua_register(L, "set_car_fproof", set_car_fproof); // 621 огнеупорность
 	lua_register(L, "set_car_rproof", set_car_rproof); // 622 ракетоупорность
@@ -650,6 +776,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_upside_safe", car_upside_safe); // 627 перевернутое не ломается
 	lua_register(L, "car_change_color", car_change_color); // 628 сменить цвет
 	lua_register(L, "car_set_comp", car_set_comp); // 629 компоненты модели
+
+
 	lua_register(L, "set_car_health", set_car_health); // 630 здоровье авто
 	lua_register(L, "get_car_health", get_car_health); // 631 получить здоровье
 	lua_register(L, "get_car_heading", get_car_heading); // 632 получить угол
@@ -660,6 +788,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_health_greater", car_health_greater); // 637 здоровье больше?
 	lua_register(L, "is_car_crushed", is_car_crushed); // 638 прессовано?
 	lua_register(L, "is_car_remap", is_car_remap); // 639 перекрашено?
+
+
 	lua_register(L, "is_car_stuck_roof", is_car_stuck_roof); // 640 на крыше?
 	lua_register(L, "car_is_tire_burst", car_is_tire_burst); // 641 шина пробита?
 	lua_register(L, "is_car_visibly_damaged", is_car_visibly_damaged); // 642 видимо повреждено?
@@ -670,6 +800,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_just_sunk", car_just_sunk); // 647 утонуло?
 	lua_register(L, "car_drowning", car_drowning); // 648 тонет?
 	lua_register(L, "car_has_weapon", car_has_weapon); // 649 оружие на борту?
+
+
 	lua_register(L, "car_any_bomb", car_any_bomb); // 650 есть бомба?
 	lua_register(L, "car_has_bomb", car_has_bomb); // 651 тип бомбы?
 	lua_register(L, "is_car_in_water", is_car_in_water); // 652 в воде?
@@ -680,6 +812,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "was_ever_police", was_ever_police); // 657 был полицейским?
 	lua_register(L, "clear_car_dmg", clear_car_dmg); // 658 очистить урон
 	lua_register(L, "clear_car_wep_dmg", clear_car_wep_dmg); // 659 очистить урон оружием
+
+
 	lua_register(L, "remove_stuck_check", remove_stuck_check); // 660 убрать проверку застревания
 	lua_register(L, "remove_upside_check", remove_upside_check); // 661 убрать проверку переворота
 	lua_register(L, "add_upside_check", add_upside_check); // 662 добавить проверку переворота
@@ -690,6 +824,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "pop_car_boot_physics", pop_car_boot_physics); // 667 открыть физикой
 	lua_register(L, "lock_doors", lock_doors); // 668 запереть двери
 	lua_register(L, "change_car_lock", change_car_lock); // 669 сменить замок
+
+
 	lua_register(L, "get_car_driver_ref", get_car_driver_ref); // 670 водитель
 	lua_register(L, "get_char_in_seat", get_char_in_seat); // 671 пассажир
 	lua_register(L, "order_driver_out", order_driver_out); // 672 выгнать водителя
@@ -700,6 +836,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_ped_in_police_car", is_ped_in_police_car); // 677 в полицейском?
 	lua_register(L, "is_ped_touching_vehicle", is_ped_touching_vehicle); // 678 касается?
 	lua_register(L, "is_ped_leaving_to_die", is_ped_leaving_to_die); // 679 умирает из авто?
+
+
 	lua_register(L, "is_ped_drowning", is_ped_drowning); // 680 тонет?
 	lua_register(L, "is_ped_in_water", is_ped_in_water); // 681 в воде?
 	lua_register(L, "is_ped_in_zone", is_ped_in_zone); // 682 в зоне?
@@ -710,6 +848,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_car_ammo", set_car_ammo); // 687 боезапас
 	lua_register(L, "switch_car_weapons", switch_car_weapons); // 688 переключить оружие
 	lua_register(L, "set_car_weapon", set_car_weapon); // 689 текущее оружие
+
+
 	lua_register(L, "fire_hunter_gun", fire_hunter_gun); // 690 выстрел Hunter
 	lua_register(L, "set_tank_detonate", set_tank_detonate); // 691 танк взрывает авто
 	lua_register(L, "ensure_drive_by", ensure_drive_by); // 692 дать drive-by
@@ -720,6 +860,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_driving_style_op", set_driving_style_op); // 697 стиль вождения (опкод)
 	lua_register(L, "set_char_obj_wait", set_char_obj_wait); // 698 нет задач (ждёт на ногах)
 	lua_register(L, "set_char_obj_flee_coord", set_char_obj_flee_coord); // 699 убежать от точки пешком до безопасности
+
+
 	lua_register(L, "set_char_obj_guard_spot", set_char_obj_guard_spot); // 700 охранять точку
 	lua_register(L, "set_char_obj_guard_area", set_char_obj_guard_area); // 701 охранять зону (радиус)
 	lua_register(L, "set_char_obj_wait_in_car", set_char_obj_wait_in_car); // 702 ждать в машине
@@ -730,6 +872,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_char_obj_destroy_object", set_char_obj_destroy_object); // 707 уничтожить объект
 	lua_register(L, "set_char_obj_goto_area_in_car", set_char_obj_goto_area_in_car); // 708 ехать к зоне
 	lua_register(L, "set_char_obj_follow_car_foot_offset", set_char_obj_follow_car_foot_offset); // 709 следовать за авто пешком смещение
+
+
 	lua_register(L, "set_char_obj_guard_attack", set_char_obj_guard_attack); // 710 охрана — атаковать противника
 	lua_register(L, "set_char_obj_goto_coord_on_foot", set_char_obj_goto_coord_on_foot); // 711 идти к координатам пешком
 	lua_register(L, "set_char_obj_goto_coord_in_car", set_char_obj_goto_coord_in_car); // 712 ехать к координатам
@@ -740,6 +884,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_char_obj_steal_any_car", set_char_obj_steal_any_car); // 717 украсть любую машину
 	lua_register(L, "set_char_obj_leave_any_car", set_char_obj_leave_any_car); // 718 выйти из любого авто
 	lua_register(L, "set_char_obj_flee_car", set_char_obj_flee_car); // 719 убежать от машины
+
+
 	lua_register(L, "set_char_obj_walk_to_char", set_char_obj_walk_to_char); // 720 идти к другому педу
 	lua_register(L, "set_char_obj_steal_any_car_mission", set_char_obj_steal_any_car_mission); // 721 украсть любую миссионную машину
 	lua_register(L, "set_char_obj_sprint_to_coord", set_char_obj_sprint_to_coord); // 722 спринт к координатам
@@ -750,6 +896,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_projectile_pos", get_projectile_pos); // 727 позиция снаряда x,y,z
 	lua_register(L, "set_projectile_pos", set_projectile_pos); // 728 уст позицию снаряда (направление ракеты)
 	lua_register(L, "is_projectile_in_use", is_projectile_in_use); // 729 слот снаряда занят
+
+
 	lua_register(L, "remove_all_projectiles", remove_all_projectiles); // 730 удалить все снаряды
 	lua_register(L, "is_projectile_in_area", is_projectile_in_area); // 731 снаряд в зоне (6 координат)
 	lua_register(L, "destroy_projectiles_in_area", destroy_projectiles_in_area); // 732 уничтожить снаряды в зоне
@@ -760,6 +908,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_vehicle_pool_size", get_vehicle_pool_size); // 737 размер пула транспорта
 	lua_register(L, "get_car_pool_index", get_car_pool_index); // 738 индекс авто в пуле
 	lua_register(L, "get_car_by_pool_index", get_car_by_pool_index); // 739 авто по индексу в пуле
+
+
 	lua_register(L, "get_car_velocity", get_car_velocity); // 740 скорость авто m_vecMoveSpeed (x,y,z)
 	lua_register(L, "set_car_velocity", set_car_velocity); // 741 уст скорость авто m_vecMoveSpeed (x,y,z)
 	lua_register(L, "remove_weapon_from_char", remove_weapon_from_char); // 742 удалить оружие у педа (0x555)
@@ -770,6 +920,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_char_obj_flee_char_on_foot_till_safe", set_char_obj_flee_char_on_foot_till_safe); // 747 убежать от педа до безопасного места
 	lua_register(L, "set_char_obj_flee_char_on_foot_always", set_char_obj_flee_char_on_foot_always); // 748 всегда убегать от педа
 	lua_register(L, "set_char_obj_goto_char_on_foot", set_char_obj_goto_char_on_foot); // 749 идти к педу пешком
+
+
 	lua_register(L, "set_char_obj_aim_gun_at_char", set_char_obj_aim_gun_at_char); // 750 целиться из оружия в педа
 	lua_register(L, "set_char_obj_kill_player_on_foot", set_char_obj_kill_player_on_foot); // 751 убить игрока пешком
 	lua_register(L, "set_char_obj_kill_player_any_means", set_char_obj_kill_player_any_means); // 752 убить игрока любыми средствами
@@ -780,6 +932,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_char_obj_catch_train", set_char_obj_catch_train); // 757 сесть на поезд
 	lua_register(L, "set_char_obj_buy_ice_cream", set_char_obj_buy_ice_cream); // 758 купить мороженое
 	lua_register(L, "set_char_obj_goto_area_on_foot", set_char_obj_goto_area_on_foot); // 759 идти к зоне пешком
+
+
 	lua_register(L, "set_char_obj_destroy_car", set_char_obj_destroy_car); // 760 уничтожить машину
 	lua_register(L, "set_char_obj_fire_at_object_from_vehicle", set_char_obj_fire_at_object_from_vehicle); // 761 стрелять по объекту из авто
 	lua_register(L, "set_char_obj_follow_route", set_char_obj_follow_route); // 762 следовать по маршруту
@@ -790,6 +944,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_heli_searchlight_y", get_heli_searchlight_y); // 767 координата Y прожектора вертолёта
 	lua_register(L, "set_heli_searchlight_y", set_heli_searchlight_y); // 768 уст. координата Y прожектора вертолёта
 	lua_register(L, "get_heli_searchlight_intensity", get_heli_searchlight_intensity); // 769 яркость прожектора вертолёта (0..1)
+
+
 	lua_register(L, "set_heli_searchlight_intensity", set_heli_searchlight_intensity); // 770 уст. яркость прожектора вертолёта (0..1)
 	lua_register(L, "get_heli_rotor_angle", get_heli_rotor_angle); // 771 угол вращения винта вертолёта
 	lua_register(L, "set_heli_rotor_angle", set_heli_rotor_angle); // 772 уст. угол вращения винта вертолёта
@@ -800,6 +956,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "heli_set_catalina_on", heli_set_catalina_on); // 777 вкл/выкл вертолёт Катарины
 	lua_register(L, "get_ped_velocity", get_ped_velocity); // 778 скорость педа m_vecMoveSpeed
 	lua_register(L, "set_ped_velocity", set_ped_velocity); // 779 уст. скорость педа m_vecMoveSpeed
+
+
 	lua_register(L, "get_object_velocity", get_object_velocity); // 780 скорость объекта m_vecMoveSpeed
 	lua_register(L, "set_object_velocity", set_object_velocity); // 781 уст. скорость объекта m_vecMoveSpeed
 	lua_register(L, "get_car_speed", get_car_speed); // 782 скалярная скорость авто (м/с)
@@ -810,6 +968,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ammo_in_char_weapon", get_ammo_in_char_weapon); // 787 патроны в оружии педа
 	lua_register(L, "get_char_weapon_in_slot", get_char_weapon_in_slot); // 788 оружие в слоте педа
 	lua_register(L, "set_player_fast_reload", set_player_fast_reload); // 789 быстрая перезарядка игроку
+
+
 	lua_register(L, "is_char_shooting_in_area", is_char_shooting_in_area); // 790 пед стреляет в зоне
 	lua_register(L, "set_char_stop_shoot_dont_seek_entity", set_char_stop_shoot_dont_seek_entity); // 791 пед перестаёт стрелять и не ищет цель
 	lua_register(L, "add_bullet_trace_radius", add_bullet_trace_radius); // 792 след пули: от точки к точке (радиус, время, прозрачность)
@@ -820,6 +980,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "clear_bullet_traces", clear_bullet_traces); // 797 удалить все следы пуль
 	lua_register(L, "place_3d_marker", place_3d_marker); // 798 3D-маркер (стрелка/цилиндр)
 	lua_register(L, "place_3d_marker_set", place_3d_marker_set); // 799 набор 3D-маркеров
+
+
 	lua_register(L, "get_num_active_3d_markers", get_num_active_3d_markers); // 800 число активных 3D-маркеров
 	lua_register(L, "get_pedstat_m_fFleeDistance", get_pedstat_m_fFleeDistance); // 801 дистанция бегства педа
 	lua_register(L, "set_pedstat_m_fFleeDistance", set_pedstat_m_fFleeDistance); // 802 уст. дистанция бегства педа
@@ -830,6 +992,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_pedstat_m_fDefendWeakness", get_pedstat_m_fDefendWeakness); // 807 слабость защиты педа
 	lua_register(L, "set_pedstat_m_fDefendWeakness", set_pedstat_m_fDefendWeakness); // 808 уст. слабость защиты педа
 	lua_register(L, "get_car_door_status", get_car_door_status); // 809 состояние двери авто
+
+
 	lua_register(L, "set_car_door_status", set_car_door_status); // 810 уст. состояние двери авто
 	lua_register(L, "get_car_panel_status", get_car_panel_status); // 811 состояние панели авто
 	lua_register(L, "get_car_light_status", get_car_light_status); // 812 состояние фары авто
@@ -840,6 +1004,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_car_engine_status", set_car_engine_status); // 817 уст. состояние двигателя авто
 	lua_register(L, "apply_car_damage", apply_car_damage); // 818 повредить компонент авто
 	lua_register(L, "fuck_car_completely", fuck_car_completely); // 819 уничтожить авто визуально
+
+
 	lua_register(L, "reset_car_damage", reset_car_damage); // 820 сбросить повреждения авто
 	lua_register(L, "add_AutoPaintingBudget", add_AutoPaintingBudget); // 821 бюджет на покраску авто
 	lua_register(L, "add_PropertyBudget", add_PropertyBudget); // 822 бюджет на недвижимость
@@ -850,6 +1016,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "add_Assassinations", add_Assassinations); // 827 заказные убийства
 	lua_register(L, "add_MovieStunts", add_MovieStunts); // 828 киноскунты
 	lua_register(L, "add_LoanSharks", add_LoanSharks); // 829 визиты к ростовщикам
+
+
 	lua_register(L, "clear_all_char_anims", clear_all_char_anims); // 830 очистить все анимации педа
 	lua_register(L, "clear_char_follow_path", clear_char_follow_path); // 831 очистить маршрут педа
 	lua_register(L, "clear_char_last_damage_entity", clear_char_last_damage_entity); // 832 забыть последнюю повредившую сущность
@@ -860,6 +1028,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "add_ammo_to_player", add_ammo_to_player); // 837 добавить патронов игроку
 	lua_register(L, "clear_area_of_cars", clear_area_of_cars); // 838 очистить зону от машин
 	lua_register(L, "clear_area_of_chars", clear_area_of_chars); // 839 очистить зону от педов
+
+
 	lua_register(L, "get_population_total_peds", get_population_total_peds); // 840 всего педов в мире
 	lua_register(L, "get_population_civ_peds", get_population_civ_peds); // 841 мирных педов
 	lua_register(L, "get_population_gang_peds", get_population_gang_peds); // 842 бандитских педов
@@ -870,6 +1040,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_population_max_in_use", get_population_max_in_use); // 847 макс. число используемых педов
 	lua_register(L, "get_population_countdown", get_population_countdown); // 848 обратный отсчёт до спавна педов
 	lua_register(L, "get_population_all_random_type", get_population_all_random_type); // 849 тип всех случайных педов
+
+
 	lua_register(L, "set_population_all_random_type", set_population_all_random_type); // 850 уст. тип всех случайных педов
 	lua_register(L, "get_hud_m_WantedTimer", get_hud_m_WantedTimer); // 851 таймер розыска на HUD
 	lua_register(L, "set_hud_m_WantedTimer", set_hud_m_WantedTimer); // 852 таймер розыска на HUD
@@ -880,6 +1052,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_hud_m_DisplayScoreFadeTimer", get_hud_m_DisplayScoreFadeTimer); // 857 таймер затухания счёта
 	lua_register(L, "set_hud_m_DisplayScoreFadeTimer", set_hud_m_DisplayScoreFadeTimer); // 858 таймер затухания счёта
 	lua_register(L, "get_hud_wanted_state", get_hud_wanted_state); // 859 состояние розыска на HUD
+
+
 	lua_register(L, "get_hud_help_message_state", get_hud_help_message_state); // 860 состояние подсказки на HUD
 	lua_register(L, "get_player_taxi_timer", get_player_taxi_timer); // 861 таймер такси игрока
 	lua_register(L, "get_player_death_fade_timer", get_player_death_fade_timer); // 862 таймер затухания при смерти
@@ -890,6 +1064,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_pedik_m_fYaw", get_pedik_m_fYaw); // 867 угол наклона головы педа
 	lua_register(L, "set_pedik_m_fYaw", set_pedik_m_fYaw); // 868 уст. угол наклона головы педа
 	lua_register(L, "get_pedik_m_fPitch", get_pedik_m_fPitch); // 869 наклон головы педа по тангажу
+
+
 	lua_register(L, "set_pedik_m_fPitch", set_pedik_m_fPitch); // 870 уст. наклон головы педа по тангажу
 	lua_register(L, "get_boat_m_fPropRotation", get_boat_m_fPropRotation); // 871 вращение винта лодки
 	lua_register(L, "set_boat_m_fPropRotation", set_boat_m_fPropRotation); // 872 уст. вращение винта лодки
@@ -900,6 +1076,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_boat_m_fBoatGasPedal", get_boat_m_fBoatGasPedal); // 877 газ лодки
 	lua_register(L, "set_boat_m_fBoatGasPedal", set_boat_m_fBoatGasPedal); // 878 уст. газ лодки
 	lua_register(L, "get_boat_m_fBoatSteeringLeftRight", get_boat_m_fBoatSteeringLeftRight); // 879 руль лодки
+
+
 	lua_register(L, "set_boat_m_fBoatSteeringLeftRight", set_boat_m_fBoatSteeringLeftRight); // 880 уст. руль лодки
 	lua_register(L, "get_bike_anim_group", get_bike_anim_group); // 881 группа анимаций мотоцикла
 	lua_register(L, "set_bike_anim_group", set_bike_anim_group); // 882 уст. группу анимаций мотоцикла
@@ -910,6 +1088,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_time_ms_non_clipped", get_time_ms_non_clipped); // 887 время в мс без клиппинга
 	lua_register(L, "is_slow_motion_active", is_slow_motion_active); // 888 активен ли слоумоушен
 	lua_register(L, "get_cycles_per_millisecond", get_cycles_per_millisecond); // 889 циклы на миллисекунду
+
+
 	lua_register(L, "get_clock_hours", get_clock_hours); // 890 часы игрового таймера
 	lua_register(L, "get_clock_minutes", get_clock_minutes); // 891 минуты игрового таймера
 	lua_register(L, "get_clock_seconds", get_clock_seconds); // 892 секунды игрового таймера
@@ -920,6 +1100,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_streaming_disabled", get_streaming_disabled); // 897 стриминг отключён
 	lua_register(L, "set_streaming_disabled", set_streaming_disabled); // 898 отключить стриминг моделей
 	lua_register(L, "get_streaming_models_requested", get_streaming_models_requested); // 899 запрошено моделей
+
+
 	lua_register(L, "get_streaming_priority_requests", get_streaming_priority_requests); // 900 приоритетных запросов
 	lua_register(L, "get_streaming_image_size", get_streaming_image_size); // 901 размер образа стриминга
 	lua_register(L, "get_streaming_buffer_size", get_streaming_buffer_size); // 902 размер буфера стриминга
@@ -930,6 +1112,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_streaming_last_image_read", get_streaming_last_image_read); // 907 последний прочитанный образ
 	lua_register(L, "get_streaming_old_sector_x", get_streaming_old_sector_x); // 908 старый сектор X
 	lua_register(L, "get_streaming_old_sector_y", get_streaming_old_sector_y); // 909 старый сектор Y
+
+
 	lua_register(L, "get_zone_level", get_zone_level); // 910 остров по координатам
 	lua_register(L, "find_information_zone", find_information_zone); // 911 индекс информационной зоны
 	lua_register(L, "get_navigation_zone", get_navigation_zone); // 912 навигационная зона по индексу
@@ -940,6 +1124,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "should_car_stop_for_light", should_car_stop_for_light); // 917 должна ли машина остановиться на свет
 	lua_register(L, "add_gun_flash_big", add_gun_flash_big); // 918 вспышка выстрела крупного оружия
 	lua_register(L, "initialise_weapons", initialise_weapons); // 919 инициализировать оружие
+
+
 	lua_register(L, "shutdown_weapons", shutdown_weapons); // 920 завершить работу оружия
 	lua_register(L, "update_weapons", update_weapons); // 921 обновить оружие
 	lua_register(L, "do_doom_aiming", do_doom_aiming); // 922 аим-траверс для оружия
@@ -950,6 +1136,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "do_mine_effects", do_mine_effects); // 927 эффект мины
 	lua_register(L, "get_obj_m_fAttachForce", get_obj_m_fAttachForce); // 928 сила привязки объекта
 	lua_register(L, "set_obj_m_fAttachForce", set_obj_m_fAttachForce); // 929 уст. сила привязки объекта
+
+
 	lua_register(L, "get_obj_m_CollisionDamageType", get_obj_m_CollisionDamageType); // 930 тип урона от столкновений
 	lua_register(L, "set_obj_m_CollisionDamageType", set_obj_m_CollisionDamageType); // 931 уст. тип урона от столкновений
 	lua_register(L, "get_obj_m_nSpecialCollisionType", get_obj_m_nSpecialCollisionType); // 932 специальный тип столкновений
@@ -960,6 +1148,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_obj_m_dwObjectTimer", set_obj_m_dwObjectTimer); // 937 уст. таймер объекта
 	lua_register(L, "get_radar_range", get_radar_range); // 938 дальность радара
 	lua_register(L, "set_radar_range", set_radar_range); // 939 уст. дальность радара
+
+
 	lua_register(L, "set_sun_blocked_by_clouds", set_sun_blocked_by_clouds); // 940 уст. солнце закрыто облаками
 	lua_register(L, "update_corona_coors", update_corona_coors); // 941 обновить координаты короны
 	lua_register(L, "is_cutscene_running", is_cutscene_running); // 942 катсцена идёт
@@ -970,6 +1160,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "clear_interesting_vehicles", clear_interesting_vehicles); // 947 очистить список интересных машин
 	lua_register(L, "drag_car_to_point", drag_car_to_point); // 948 тащить машину к точке
 	lua_register(L, "find_max_speed_in_traffic", find_max_speed_in_traffic); // 949 макс. скорость машины в трафике
+
+
 	lua_register(L, "get_num_bright_lights", get_num_bright_lights); // 950 число ярких огней
 	lua_register(L, "get_car_m_nPrimaryColor", get_car_m_nPrimaryColor); // 951 m_nPrimaryColor (CVehicle)
 	lua_register(L, "set_car_m_nPrimaryColor", set_car_m_nPrimaryColor); // 952 уст. m_nPrimaryColor (CVehicle)
@@ -980,6 +1172,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_wMissionValue", get_car_m_wMissionValue); // 957 m_wMissionValue (CVehicle)
 	lua_register(L, "set_car_m_wMissionValue", set_car_m_wMissionValue); // 958 уст. m_wMissionValue (CVehicle)
 	lua_register(L, "get_car_m_nNumPassengers", get_car_m_nNumPassengers); // 959 m_nNumPassengers (CVehicle)
+
+
 	lua_register(L, "set_car_m_nNumPassengers", set_car_m_nNumPassengers); // 960 уст. m_nNumPassengers (CVehicle)
 	lua_register(L, "get_car_m_nNumGettingIn", get_car_m_nNumGettingIn); // 961 m_nNumGettingIn (CVehicle)
 	lua_register(L, "set_car_m_nNumGettingIn", set_car_m_nNumGettingIn); // 962 уст. m_nNumGettingIn (CVehicle)
@@ -990,6 +1184,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_nMaxPassengers", get_car_m_nMaxPassengers); // 967 m_nMaxPassengers (CVehicle)
 	lua_register(L, "set_car_m_nMaxPassengers", set_car_m_nMaxPassengers); // 968 уст. m_nMaxPassengers (CVehicle)
 	lua_register(L, "get_car_m_fSteerAngle", get_car_m_fSteerAngle); // 969 m_fSteerAngle (CVehicle)
+
+
 	lua_register(L, "set_car_m_fSteerAngle", set_car_m_fSteerAngle); // 970 уст. m_fSteerAngle (CVehicle)
 	lua_register(L, "get_car_m_fGasPedal", get_car_m_fGasPedal); // 971 m_fGasPedal (CVehicle)
 	lua_register(L, "set_car_m_fGasPedal", set_car_m_fGasPedal); // 972 уст. m_fGasPedal (CVehicle)
@@ -1000,6 +1196,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_nAmmoInClip", get_car_m_nAmmoInClip); // 977 m_nAmmoInClip (CVehicle)
 	lua_register(L, "set_car_m_nAmmoInClip", set_car_m_nAmmoInClip); // 978 уст. m_nAmmoInClip (CVehicle)
 	lua_register(L, "get_car_m_fHealth", get_car_m_fHealth); // 979 m_fHealth (CVehicle)
+
+
 	lua_register(L, "set_car_m_fHealth", set_car_m_fHealth); // 980 уст. m_fHealth (CVehicle)
 	lua_register(L, "get_car_m_nCurrentGear", get_car_m_nCurrentGear); // 981 m_nCurrentGear (CVehicle)
 	lua_register(L, "set_car_m_nCurrentGear", set_car_m_nCurrentGear); // 982 уст. m_nCurrentGear (CVehicle)
@@ -1010,6 +1208,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_wBombTimer", get_car_m_wBombTimer); // 987 m_wBombTimer (CVehicle)
 	lua_register(L, "set_car_m_wBombTimer", set_car_m_wBombTimer); // 988 уст. m_wBombTimer (CVehicle)
 	lua_register(L, "get_car_m_nLastWeaponDamage", get_car_m_nLastWeaponDamage); // 989 m_nLastWeaponDamage (CVehicle)
+
+
 	lua_register(L, "set_car_m_nLastWeaponDamage", set_car_m_nLastWeaponDamage); // 990 уст. m_nLastWeaponDamage (CVehicle)
 	lua_register(L, "get_car_m_nRadioStation", get_car_m_nRadioStation); // 991 m_nRadioStation (CVehicle)
 	lua_register(L, "set_car_m_nRadioStation", set_car_m_nRadioStation); // 992 уст. m_nRadioStation (CVehicle)
@@ -1020,6 +1220,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_nSirenExtra", get_car_m_nSirenExtra); // 997 m_nSirenExtra (CVehicle)
 	lua_register(L, "set_car_m_nSirenExtra", set_car_m_nSirenExtra); // 998 уст. m_nSirenExtra (CVehicle)
 	lua_register(L, "get_car_m_fSteerRatio", get_car_m_fSteerRatio); // 999 m_fSteerRatio (CVehicle)
+
+
 	lua_register(L, "set_car_m_fSteerRatio", set_car_m_fSteerRatio); // 1000 уст. m_fSteerRatio (CVehicle)
 	lua_register(L, "get_car_m_nVehicleClass", get_car_m_nVehicleClass); // 1001 m_nVehicleClass (CVehicle)
 	lua_register(L, "set_car_m_nVehicleClass", set_car_m_nVehicleClass); // 1002 уст. m_nVehicleClass (CVehicle)
@@ -1030,6 +1232,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nPedStatus", get_ped_m_nPedStatus); // 1007 m_nPedStatus (CPed)
 	lua_register(L, "set_ped_m_nPedStatus", set_ped_m_nPedStatus); // 1008 уст. m_nPedStatus (CPed)
 	lua_register(L, "get_ped_m_vecObjective", get_ped_m_vecObjective); // 1009 m_vecObjective (CPed)
+
+
 	lua_register(L, "set_ped_m_vecObjective", set_ped_m_vecObjective); // 1010 уст. m_vecObjective (CPed)
 	lua_register(L, "get_ped_m_fObjectiveAngle", get_ped_m_fObjectiveAngle); // 1011 m_fObjectiveAngle (CPed)
 	lua_register(L, "set_ped_m_fObjectiveAngle", set_ped_m_fObjectiveAngle); // 1012 уст. m_fObjectiveAngle (CPed)
@@ -1040,6 +1244,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nEventType", get_ped_m_nEventType); // 1017 m_nEventType (CPed)
 	lua_register(L, "set_ped_m_nEventType", set_ped_m_nEventType); // 1018 уст. m_nEventType (CPed)
 	lua_register(L, "get_ped_m_fAngleToEvent", get_ped_m_fAngleToEvent); // 1019 m_fAngleToEvent (CPed)
+
+
 	lua_register(L, "set_ped_m_fAngleToEvent", set_ped_m_fAngleToEvent); // 1020 уст. m_fAngleToEvent (CPed)
 	lua_register(L, "get_ped_m_nAnimGroupId", get_ped_m_nAnimGroupId); // 1021 m_nAnimGroupId (CPed)
 	lua_register(L, "set_ped_m_nAnimGroupId", set_ped_m_nAnimGroupId); // 1022 уст. m_nAnimGroupId (CPed)
@@ -1050,6 +1256,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nWaitState", get_ped_m_nWaitState); // 1027 m_nWaitState (CPed)
 	lua_register(L, "set_ped_m_nWaitState", set_ped_m_nWaitState); // 1028 уст. m_nWaitState (CPed)
 	lua_register(L, "get_ped_m_nWaitTimer", get_ped_m_nWaitTimer); // 1029 m_nWaitTimer (CPed)
+
+
 	lua_register(L, "set_ped_m_nWaitTimer", set_ped_m_nWaitTimer); // 1030 уст. m_nWaitTimer (CPed)
 	lua_register(L, "get_ped_m_wPathNodes", get_ped_m_wPathNodes); // 1031 m_wPathNodes (CPed)
 	lua_register(L, "set_ped_m_wPathNodes", set_ped_m_wPathNodes); // 1032 уст. m_wPathNodes (CPed)
@@ -1060,6 +1268,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_vecPathNextNode", get_ped_m_vecPathNextNode); // 1037 m_vecPathNextNode (CPed)
 	lua_register(L, "set_ped_m_vecPathNextNode", set_ped_m_vecPathNextNode); // 1038 уст. m_vecPathNextNode (CPed)
 	lua_register(L, "get_ped_m_fPathNextNodeDir", get_ped_m_fPathNextNodeDir); // 1039 m_fPathNextNodeDir (CPed)
+
+
 	lua_register(L, "set_ped_m_fPathNextNodeDir", set_ped_m_fPathNextNodeDir); // 1040 уст. m_fPathNextNodeDir (CPed)
 	lua_register(L, "get_ped_m_nPathNodeType", get_ped_m_nPathNodeType); // 1041 m_nPathNodeType (CPed)
 	lua_register(L, "set_ped_m_nPathNodeType", set_ped_m_nPathNodeType); // 1042 уст. m_nPathNodeType (CPed)
@@ -1070,6 +1280,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nShadowUpdateTimer", get_ped_m_nShadowUpdateTimer); // 1047 m_nShadowUpdateTimer (CPed)
 	lua_register(L, "set_ped_m_nShadowUpdateTimer", set_ped_m_nShadowUpdateTimer); // 1048 уст. m_nShadowUpdateTimer (CPed)
 	lua_register(L, "get_ped_wRouteLastPoint", get_ped_wRouteLastPoint); // 1049 wRouteLastPoint (CPed)
+
+
 	lua_register(L, "set_ped_wRouteLastPoint", set_ped_wRouteLastPoint); // 1050 уст. wRouteLastPoint (CPed)
 	lua_register(L, "get_ped_wRoutePoints", get_ped_wRoutePoints); // 1051 wRoutePoints (CPed)
 	lua_register(L, "set_ped_wRoutePoints", set_ped_wRoutePoints); // 1052 уст. wRoutePoints (CPed)
@@ -1080,6 +1292,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_wRouteCurDir", get_ped_wRouteCurDir); // 1057 wRouteCurDir (CPed)
 	lua_register(L, "set_ped_wRouteCurDir", set_ped_wRouteCurDir); // 1058 уст. wRouteCurDir (CPed)
 	lua_register(L, "get_ped_m_fHeadingCurrent", get_ped_m_fHeadingCurrent); // 1059 m_fHeadingCurrent (CPed)
+
+
 	lua_register(L, "set_ped_m_fHeadingCurrent", set_ped_m_fHeadingCurrent); // 1060 уст. m_fHeadingCurrent (CPed)
 	lua_register(L, "get_ped_m_fHeadingGoal", get_ped_m_fHeadingGoal); // 1061 m_fHeadingGoal (CPed)
 	lua_register(L, "set_ped_m_fHeadingGoal", set_ped_m_fHeadingGoal); // 1062 уст. m_fHeadingGoal (CPed)
@@ -1090,6 +1304,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nWalkAroundType", get_ped_m_nWalkAroundType); // 1067 m_nWalkAroundType (CPed)
 	lua_register(L, "set_ped_m_nWalkAroundType", set_ped_m_nWalkAroundType); // 1068 уст. m_nWalkAroundType (CPed)
 	lua_register(L, "get_ped_m_vecOffsetFromPhysSurface", get_ped_m_vecOffsetFromPhysSurface); // 1069 m_vecOffsetFromPhysSurface (CPed)
+
+
 	lua_register(L, "set_ped_m_vecOffsetFromPhysSurface", set_ped_m_vecOffsetFromPhysSurface); // 1070 уст. m_vecOffsetFromPhysSurface (CPed)
 	lua_register(L, "get_ped_vecSeekVehicle", get_ped_vecSeekVehicle); // 1071 vecSeekVehicle (CPed)
 	lua_register(L, "set_ped_vecSeekVehicle", set_ped_vecSeekVehicle); // 1072 уст. vecSeekVehicle (CPed)
@@ -1100,6 +1316,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_fSeatPrecisionY", get_ped_m_fSeatPrecisionY); // 1077 m_fSeatPrecisionY (CPed)
 	lua_register(L, "set_ped_m_fSeatPrecisionY", set_ped_m_fSeatPrecisionY); // 1078 уст. m_fSeatPrecisionY (CPed)
 	lua_register(L, "get_ped_m_nSeatType", get_ped_m_nSeatType); // 1079 m_nSeatType (CPed)
+
+
 	lua_register(L, "set_ped_m_nSeatType", set_ped_m_nSeatType); // 1080 уст. m_nSeatType (CPed)
 	lua_register(L, "get_ped_m_bHasPhone", get_ped_m_bHasPhone); // 1081 m_bHasPhone (CPed)
 	lua_register(L, "set_ped_m_bHasPhone", set_ped_m_bHasPhone); // 1082 уст. m_bHasPhone (CPed)
@@ -1110,6 +1328,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nPhoneTalkTimer", get_ped_m_nPhoneTalkTimer); // 1087 m_nPhoneTalkTimer (CPed)
 	lua_register(L, "set_ped_m_nPhoneTalkTimer", set_ped_m_nPhoneTalkTimer); // 1088 уст. m_nPhoneTalkTimer (CPed)
 	lua_register(L, "get_ped_m_fFleeFromPosX", get_ped_m_fFleeFromPosX); // 1089 m_fFleeFromPosX (CPed)
+
+
 	lua_register(L, "set_ped_m_fFleeFromPosX", set_ped_m_fFleeFromPosX); // 1090 уст. m_fFleeFromPosX (CPed)
 	lua_register(L, "get_ped_m_fFleeFromPosY", get_ped_m_fFleeFromPosY); // 1091 m_fFleeFromPosY (CPed)
 	lua_register(L, "set_ped_m_fFleeFromPosY", set_ped_m_fFleeFromPosY); // 1092 уст. m_fFleeFromPosY (CPed)
@@ -1120,6 +1340,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nStateUnused", get_ped_m_nStateUnused); // 1097 m_nStateUnused (CPed)
 	lua_register(L, "set_ped_m_nStateUnused", set_ped_m_nStateUnused); // 1098 уст. m_nStateUnused (CPed)
 	lua_register(L, "get_ped_m_nTimerUnused", get_ped_m_nTimerUnused); // 1099 m_nTimerUnused (CPed)
+
+
 	lua_register(L, "set_ped_m_nTimerUnused", set_ped_m_nTimerUnused); // 1100 уст. m_nTimerUnused (CPed)
 	lua_register(L, "get_ped_m_nAtchStoredWep", get_ped_m_nAtchStoredWep); // 1101 m_nAtchStoredWep (CPed)
 	lua_register(L, "set_ped_m_nAtchStoredWep", set_ped_m_nAtchStoredWep); // 1102 уст. m_nAtchStoredWep (CPed)
@@ -1130,6 +1352,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nCurrentWeapon", get_ped_m_nCurrentWeapon); // 1107 m_nCurrentWeapon (CPed)
 	lua_register(L, "set_ped_m_nCurrentWeapon", set_ped_m_nCurrentWeapon); // 1108 уст. m_nCurrentWeapon (CPed)
 	lua_register(L, "get_ped_m_nWepSkills", get_ped_m_nWepSkills); // 1109 m_nWepSkills (CPed)
+
+
 	lua_register(L, "set_ped_m_nWepSkills", set_ped_m_nWepSkills); // 1110 уст. m_nWepSkills (CPed)
 	lua_register(L, "get_ped_m_nWeaponAccuracy", get_ped_m_nWeaponAccuracy); // 1111 m_nWeaponAccuracy (CPed)
 	lua_register(L, "set_ped_m_nWeaponAccuracy", set_ped_m_nWeaponAccuracy); // 1112 уст. m_nWeaponAccuracy (CPed)
@@ -1140,6 +1364,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nHitCounter", get_ped_m_nHitCounter); // 1117 m_nHitCounter (CPed)
 	lua_register(L, "set_ped_m_nHitCounter", set_ped_m_nHitCounter); // 1118 уст. m_nHitCounter (CPed)
 	lua_register(L, "get_ped_m_nLastHitState", get_ped_m_nLastHitState); // 1119 m_nLastHitState (CPed)
+
+
 	lua_register(L, "set_ped_m_nLastHitState", set_ped_m_nLastHitState); // 1120 уст. m_nLastHitState (CPed)
 	lua_register(L, "get_ped_m_nFightFlags1", get_ped_m_nFightFlags1); // 1121 m_nFightFlags1 (CPed)
 	lua_register(L, "set_ped_m_nFightFlags1", set_ped_m_nFightFlags1); // 1122 уст. m_nFightFlags1 (CPed)
@@ -1150,6 +1376,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nBleedCounter", get_ped_m_nBleedCounter); // 1127 m_nBleedCounter (CPed)
 	lua_register(L, "set_ped_m_nBleedCounter", set_ped_m_nBleedCounter); // 1128 уст. m_nBleedCounter (CPed)
 	lua_register(L, "get_ped_m_fLookDirection", get_ped_m_fLookDirection); // 1129 m_fLookDirection (CPed)
+
+
 	lua_register(L, "set_ped_m_fLookDirection", set_ped_m_fLookDirection); // 1130 уст. m_fLookDirection (CPed)
 	lua_register(L, "get_ped_m_nWepModelID", get_ped_m_nWepModelID); // 1131 m_nWepModelID (CPed)
 	lua_register(L, "set_ped_m_nWepModelID", set_ped_m_nWepModelID); // 1132 уст. m_nWepModelID (CPed)
@@ -1160,6 +1388,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nLookTimer", get_ped_m_nLookTimer); // 1137 m_nLookTimer (CPed)
 	lua_register(L, "set_ped_m_nLookTimer", set_ped_m_nLookTimer); // 1138 уст. m_nLookTimer (CPed)
 	lua_register(L, "get_ped_m_nStandardTimer", get_ped_m_nStandardTimer); // 1139 m_nStandardTimer (CPed)
+
+
 	lua_register(L, "set_ped_m_nStandardTimer", set_ped_m_nStandardTimer); // 1140 уст. m_nStandardTimer (CPed)
 	lua_register(L, "get_ped_m_nAttackTimer", get_ped_m_nAttackTimer); // 1141 m_nAttackTimer (CPed)
 	lua_register(L, "set_ped_m_nAttackTimer", set_ped_m_nAttackTimer); // 1142 уст. m_nAttackTimer (CPed)
@@ -1170,6 +1400,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nObjectiveTimer", get_ped_m_nObjectiveTimer); // 1147 m_nObjectiveTimer (CPed)
 	lua_register(L, "set_ped_m_nObjectiveTimer", set_ped_m_nObjectiveTimer); // 1148 уст. m_nObjectiveTimer (CPed)
 	lua_register(L, "get_ped_m_nDuckTimer", get_ped_m_nDuckTimer); // 1149 m_nDuckTimer (CPed)
+
+
 	lua_register(L, "set_ped_m_nDuckTimer", set_ped_m_nDuckTimer); // 1150 уст. m_nDuckTimer (CPed)
 	lua_register(L, "get_ped_m_nDuckAndCoverTimer", get_ped_m_nDuckAndCoverTimer); // 1151 m_nDuckAndCoverTimer (CPed)
 	lua_register(L, "set_ped_m_nDuckAndCoverTimer", set_ped_m_nDuckAndCoverTimer); // 1152 уст. m_nDuckAndCoverTimer (CPed)
@@ -1180,6 +1412,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nShotTimeAdd", get_ped_m_nShotTimeAdd); // 1157 m_nShotTimeAdd (CPed)
 	lua_register(L, "set_ped_m_nShotTimeAdd", set_ped_m_nShotTimeAdd); // 1158 уст. m_nShotTimeAdd (CPed)
 	lua_register(L, "get_ped_m_nPanicCounter", get_ped_m_nPanicCounter); // 1159 m_nPanicCounter (CPed)
+
+
 	lua_register(L, "set_ped_m_nPanicCounter", set_ped_m_nPanicCounter); // 1160 уст. m_nPanicCounter (CPed)
 	lua_register(L, "get_ped_m_nDeadBleeding", get_ped_m_nDeadBleeding); // 1161 m_nDeadBleeding (CPed)
 	lua_register(L, "set_ped_m_nDeadBleeding", set_ped_m_nDeadBleeding); // 1162 уст. m_nDeadBleeding (CPed)
@@ -1190,6 +1424,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nPedMoney", get_ped_m_nPedMoney); // 1167 m_nPedMoney (CPed)
 	lua_register(L, "set_ped_m_nPedMoney", set_ped_m_nPedMoney); // 1168 уст. m_nPedMoney (CPed)
 	lua_register(L, "get_ped_m_nLastDamWep", get_ped_m_nLastDamWep); // 1169 m_nLastDamWep (CPed)
+
+
 	lua_register(L, "set_ped_m_nLastDamWep", set_ped_m_nLastDamWep); // 1170 уст. m_nLastDamWep (CPed)
 	lua_register(L, "get_ped_m_vecAttachOffset", get_ped_m_vecAttachOffset); // 1171 m_vecAttachOffset (CPed)
 	lua_register(L, "set_ped_m_vecAttachOffset", set_ped_m_vecAttachOffset); // 1172 уст. m_vecAttachOffset (CPed)
@@ -1200,6 +1436,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nAttachWepAmmo", get_ped_m_nAttachWepAmmo); // 1177 m_nAttachWepAmmo (CPed)
 	lua_register(L, "set_ped_m_nAttachWepAmmo", set_ped_m_nAttachWepAmmo); // 1178 уст. m_nAttachWepAmmo (CPed)
 	lua_register(L, "get_ped_m_nThreatFlags", get_ped_m_nThreatFlags); // 1179 m_nThreatFlags (CPed)
+
+
 	lua_register(L, "set_ped_m_nThreatFlags", set_ped_m_nThreatFlags); // 1180 уст. m_nThreatFlags (CPed)
 	lua_register(L, "get_ped_m_nThreatCheck", get_ped_m_nThreatCheck); // 1181 m_nThreatCheck (CPed)
 	lua_register(L, "set_ped_m_nThreatCheck", set_ped_m_nThreatCheck); // 1182 уст. m_nThreatCheck (CPed)
@@ -1210,6 +1448,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_nSayTimer", get_ped_m_nSayTimer); // 1187 m_nSayTimer (CPed)
 	lua_register(L, "set_ped_m_nSayTimer", set_ped_m_nSayTimer); // 1188 уст. m_nSayTimer (CPed)
 	lua_register(L, "get_ped_m_nTalkTimerLast", get_ped_m_nTalkTimerLast); // 1189 m_nTalkTimerLast (CPed)
+
+
 	lua_register(L, "set_ped_m_nTalkTimerLast", set_ped_m_nTalkTimerLast); // 1190 уст. m_nTalkTimerLast (CPed)
 	lua_register(L, "get_ped_m_nTalkTimer", get_ped_m_nTalkTimer); // 1191 m_nTalkTimer (CPed)
 	lua_register(L, "set_ped_m_nTalkTimer", set_ped_m_nTalkTimer); // 1192 уст. m_nTalkTimer (CPed)
@@ -1220,6 +1460,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ped_m_bCanPedTalk", get_ped_m_bCanPedTalk); // 1197 m_bCanPedTalk (CPed)
 	lua_register(L, "set_ped_m_bCanPedTalk", set_ped_m_bCanPedTalk); // 1198 уст. m_bCanPedTalk (CPed)
 	lua_register(L, "get_ped_m_nPedLastComment", get_ped_m_nPedLastComment); // 1199 m_nPedLastComment (CPed)
+
+
 	lua_register(L, "set_ped_m_nPedLastComment", set_ped_m_nPedLastComment); // 1200 уст. m_nPedLastComment (CPed)
 	lua_register(L, "get_ped_m_vecSeekPosEx", get_ped_m_vecSeekPosEx); // 1201 m_vecSeekPosEx (CPed)
 	lua_register(L, "set_ped_m_vecSeekPosEx", set_ped_m_vecSeekPosEx); // 1202 уст. m_vecSeekPosEx (CPed)
@@ -1230,6 +1472,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_obj_m_nBonusValue", get_obj_m_nBonusValue); // 1207 m_nBonusValue (CObject)
 	lua_register(L, "set_obj_m_nBonusValue", set_obj_m_nBonusValue); // 1208 уст. m_nBonusValue (CObject)
 	lua_register(L, "get_obj_m_wCostValue", get_obj_m_wCostValue); // 1209 m_wCostValue (CObject)
+
+
 	lua_register(L, "set_obj_m_wCostValue", set_obj_m_wCostValue); // 1210 уст. m_wCostValue (CObject)
 	lua_register(L, "get_obj_m_fDamageMultiplier", get_obj_m_fDamageMultiplier); // 1211 m_fDamageMultiplier (CObject)
 	lua_register(L, "set_obj_m_fDamageMultiplier", set_obj_m_fDamageMultiplier); // 1212 уст. m_fDamageMultiplier (CObject)
@@ -1240,6 +1484,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_nAudioEntityId", get_car_m_nAudioEntityId); // 1217 m_nAudioEntityId (CPhysical)
 	lua_register(L, "set_car_m_nAudioEntityId", set_car_m_nAudioEntityId); // 1218 уст. m_nAudioEntityId (CPhysical)
 	lua_register(L, "get_car_m_vecMoveSpeed", get_car_m_vecMoveSpeed); // 1219 m_vecMoveSpeed (CPhysical)
+
+
 	lua_register(L, "set_car_m_vecMoveSpeed", set_car_m_vecMoveSpeed); // 1220 уст. m_vecMoveSpeed (CPhysical)
 	lua_register(L, "get_car_m_vecTurnSpeed", get_car_m_vecTurnSpeed); // 1221 m_vecTurnSpeed (CPhysical)
 	lua_register(L, "set_car_m_vecTurnSpeed", set_car_m_vecTurnSpeed); // 1222 уст. m_vecTurnSpeed (CPhysical)
@@ -1250,6 +1496,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_vecForce", get_car_m_vecForce); // 1227 m_vecForce (CPhysical)
 	lua_register(L, "set_car_m_vecForce", set_car_m_vecForce); // 1228 уст. m_vecForce (CPhysical)
 	lua_register(L, "get_car_m_vecTorque", get_car_m_vecTorque); // 1229 m_vecTorque (CPhysical)
+
+
 	lua_register(L, "set_car_m_vecTorque", set_car_m_vecTorque); // 1230 уст. m_vecTorque (CPhysical)
 	lua_register(L, "get_car_m_fMass", get_car_m_fMass); // 1231 m_fMass (CPhysical)
 	lua_register(L, "set_car_m_fMass", set_car_m_fMass); // 1232 уст. m_fMass (CPhysical)
@@ -1260,6 +1508,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_fAirResistance", get_car_m_fAirResistance); // 1237 m_fAirResistance (CPhysical)
 	lua_register(L, "set_car_m_fAirResistance", set_car_m_fAirResistance); // 1238 уст. m_fAirResistance (CPhysical)
 	lua_register(L, "get_car_m_fElasticity", get_car_m_fElasticity); // 1239 m_fElasticity (CPhysical)
+
+
 	lua_register(L, "set_car_m_fElasticity", set_car_m_fElasticity); // 1240 уст. m_fElasticity (CPhysical)
 	lua_register(L, "get_car_m_fBuoyancyConstant", get_car_m_fBuoyancyConstant); // 1241 m_fBuoyancyConstant (CPhysical)
 	lua_register(L, "set_car_m_fBuoyancyConstant", set_car_m_fBuoyancyConstant); // 1242 уст. m_fBuoyancyConstant (CPhysical)
@@ -1270,6 +1520,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_fTotSpeed", get_car_m_fTotSpeed); // 1247 m_fTotSpeed (CPhysical)
 	lua_register(L, "set_car_m_fTotSpeed", set_car_m_fTotSpeed); // 1248 уст. m_fTotSpeed (CPhysical)
 	lua_register(L, "get_car_m_fCollisionPower", get_car_m_fCollisionPower); // 1249 m_fCollisionPower (CPhysical)
+
+
 	lua_register(L, "set_car_m_fCollisionPower", set_car_m_fCollisionPower); // 1250 уст. m_fCollisionPower (CPhysical)
 	lua_register(L, "get_car_m_vecCollisionPower", get_car_m_vecCollisionPower); // 1251 m_vecCollisionPower (CPhysical)
 	lua_register(L, "set_car_m_vecCollisionPower", set_car_m_vecCollisionPower); // 1252 уст. m_vecCollisionPower (CPhysical)
@@ -1280,6 +1532,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_nCollFlags", get_car_m_nCollFlags); // 1257 m_nCollFlags (CPhysical)
 	lua_register(L, "set_car_m_nCollFlags", set_car_m_nCollFlags); // 1258 уст. m_nCollFlags (CPhysical)
 	lua_register(L, "get_car_m_nLastCollType", get_car_m_nLastCollType); // 1259 m_nLastCollType (CPhysical)
+
+
 	lua_register(L, "set_car_m_nLastCollType", set_car_m_nLastCollType); // 1260 уст. m_nLastCollType (CPhysical)
 	lua_register(L, "get_car_m_nZoneLevel", get_car_m_nZoneLevel); // 1261 m_nZoneLevel (CPhysical)
 	lua_register(L, "set_car_m_nZoneLevel", set_car_m_nZoneLevel); // 1262 уст. m_nZoneLevel (CPhysical)
@@ -1290,6 +1544,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_fSpecialWepRotH", get_car_fSpecialWepRotH); // 1267 fSpecialWepRotH (CAutomobile)
 	lua_register(L, "set_car_fSpecialWepRotH", set_car_fSpecialWepRotH); // 1268 уст. fSpecialWepRotH (CAutomobile)
 	lua_register(L, "get_car_fSpecialWepRotV", get_car_fSpecialWepRotV); // 1269 fSpecialWepRotV (CAutomobile)
+
+
 	lua_register(L, "set_car_fSpecialWepRotV", set_car_fSpecialWepRotV); // 1270 уст. fSpecialWepRotV (CAutomobile)
 	lua_register(L, "get_car_fSpecialSteering", get_car_fSpecialSteering); // 1271 fSpecialSteering (CAutomobile)
 	lua_register(L, "set_car_fSpecialSteering", set_car_fSpecialSteering); // 1272 уст. fSpecialSteering (CAutomobile)
@@ -1300,6 +1556,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_fPropRotation", get_car_m_fPropRotation); // 1277 m_fPropRotation (CBoat)
 	lua_register(L, "set_car_m_fPropRotation", set_car_m_fPropRotation); // 1278 уст. m_fPropRotation (CBoat)
 	lua_register(L, "get_car_m_fPropSpeed", get_car_m_fPropSpeed); // 1279 m_fPropSpeed (CBoat)
+
+
 	lua_register(L, "set_car_m_fPropSpeed", set_car_m_fPropSpeed); // 1280 уст. m_fPropSpeed (CBoat)
 	lua_register(L, "get_car_m_fForcedZRotation", get_car_m_fForcedZRotation); // 1281 m_fForcedZRotation (CBoat)
 	lua_register(L, "set_car_m_fForcedZRotation", set_car_m_fForcedZRotation); // 1282 уст. m_fForcedZRotation (CBoat)
@@ -1310,6 +1568,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_fBoatGasPedal", get_car_m_fBoatGasPedal); // 1287 m_fBoatGasPedal (CBoat)
 	lua_register(L, "set_car_m_fBoatGasPedal", set_car_m_fBoatGasPedal); // 1288 уст. m_fBoatGasPedal (CBoat)
 	lua_register(L, "get_car_m_fBoatBrakePedal", get_car_m_fBoatBrakePedal); // 1289 m_fBoatBrakePedal (CBoat)
+
+
 	lua_register(L, "set_car_m_fBoatBrakePedal", set_car_m_fBoatBrakePedal); // 1290 уст. m_fBoatBrakePedal (CBoat)
 	lua_register(L, "get_car_m_fBoatSteeringLeftRight", get_car_m_fBoatSteeringLeftRight); // 1291 m_fBoatSteeringLeftRight (CBoat)
 	lua_register(L, "set_car_m_fBoatSteeringLeftRight", set_car_m_fBoatSteeringLeftRight); // 1292 уст. m_fBoatSteeringLeftRight (CBoat)
@@ -1320,6 +1580,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_nBikeAnimGroup", get_car_nBikeAnimGroup); // 1297 nBikeAnimGroup (CBike)
 	lua_register(L, "set_car_nBikeAnimGroup", set_car_nBikeAnimGroup); // 1298 уст. nBikeAnimGroup (CBike)
 	lua_register(L, "get_car_m_nDamageFlags", get_car_m_nDamageFlags); // 1299 m_nDamageFlags (CBike)
+
+
 	lua_register(L, "set_car_m_nDamageFlags", set_car_m_nDamageFlags); // 1300 уст. m_nDamageFlags (CBike)
 	lua_register(L, "get_car_m_fSearchLightX", get_car_m_fSearchLightX); // 1301 m_fSearchLightX (CHeli)
 	lua_register(L, "set_car_m_fSearchLightX", set_car_m_fSearchLightX); // 1302 уст. m_fSearchLightX (CHeli)
@@ -1330,6 +1592,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_car_m_fRotationX", get_car_m_fRotationX); // 1307 m_fRotationX (CHeli)
 	lua_register(L, "set_car_m_fRotationX", set_car_m_fRotationX); // 1308 уст. m_fRotationX (CHeli)
 	lua_register(L, "get_car_m_fHeliForcedZ", get_car_m_fHeliForcedZ); // 1309 m_fHeliForcedZ (CHeli)
+
+
 	lua_register(L, "set_car_m_fHeliForcedZ", set_car_m_fHeliForcedZ); // 1310 уст. m_fHeliForcedZ (CHeli)
 	lua_register(L, "get_car_m_fSearchLightIntensity", get_car_m_fSearchLightIntensity); // 1311 m_fSearchLightIntensity (CHeli)
 	lua_register(L, "set_car_m_fSearchLightIntensity", set_car_m_fSearchLightIntensity); // 1312 уст. m_fSearchLightIntensity (CHeli)
@@ -1340,6 +1604,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_wanted_m_nLastTimeWantedDecreased", get_wanted_m_nLastTimeWantedDecreased); // 1317 последнее снижение розыска
 	lua_register(L, "get_wanted_m_nLastTimeWantedLevelChanged", get_wanted_m_nLastTimeWantedLevelChanged); // 1318 последняя смена уровня розыска
 	lua_register(L, "get_wanted_m_dwTimeOfParole", get_wanted_m_dwTimeOfParole); // 1319 таймер условного освобождения
+
+
 	lua_register(L, "set_wanted_m_dwTimeOfParole", set_wanted_m_dwTimeOfParole); // 1320 уст. таймер условного освобождения
 	lua_register(L, "get_wanted_m_fMultiplier", get_wanted_m_fMultiplier); // 1321 множитель розыска
 	lua_register(L, "set_wanted_m_fMultiplier", set_wanted_m_fMultiplier); // 1322 уст. множитель розыска
@@ -1350,6 +1616,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_wanted_m_nMaxCopCarsInPursuit", set_wanted_m_nMaxCopCarsInPursuit); // 1327 уст. макс. машин копов в погоне
 	lua_register(L, "get_wanted_m_nCopsBeatingSuspect", get_wanted_m_nCopsBeatingSuspect); // 1328 копов избивают подозреваемого
 	lua_register(L, "choose_gang_ped_model", choose_gang_ped_model); // 1329 выбрать модель педа банды
+
+
 	lua_register(L, "set_gang_attack_player_with_cops", set_gang_attack_player_with_cops); // 1330 банда атакует игрока с копами
 	lua_register(L, "init_gangs", init_gangs); // 1331 инициализировать банды
 	lua_register(L, "register_motion_streak", register_motion_streak); // 1332 размытие-полоса (id, левая/правая точки, rgb)
@@ -1360,6 +1628,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "Ped_in_targetting", Ped_in_targetting); // 1337 макрос пед на прицеле.
 	lua_register(L, "Get_model_and_type_ped", Get_model_and_type_ped); // 1338 макрос получить модель и тип педа.
 	lua_register(L, "get_model_ped", get_model_ped); // 1339 получить модель педа.
+
+
 	lua_register(L, "get_type_ped", get_type_ped); // 1340 получить тип педа.
 	lua_register(L, "ped_clear_investigate_event", ped_clear_investigate_event); // 1341 пед уходит, опустить педа.
 	lua_register(L, "ped_clear_objective", ped_clear_objective); // 1342 снять задачи с педа.
@@ -1370,6 +1640,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ishorncar", ishorncar); // 1347 проверить гудит ли авто.
 	lua_register(L, "getcarfirstcolor", getcarfirstcolor); // 1348 получить первый цвет авто.
 	lua_register(L, "getcarseconscolor", getcarseconscolor); // 1349 получить второй цвет авто.
+
+
 	lua_register(L, "ped_char_spotted_player", ped_char_spotted_player); // 1350 если пед увидел игрока.
 	lua_register(L, "set_timer_bomb_car", set_timer_bomb_car); // 1351 установить таймер на взрыв бомбы в авто.
 	lua_register(L, "is_ped_objective", is_ped_objective); // 1352 если пед выполнил задачу.
@@ -1380,6 +1652,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "setstamina_ped", setstamina_ped); // 1357 установить выносливость педа.
 	lua_register(L, "get_radio_car", get_radio_car); // 1358 получить текущую радиостанцию авто.
 	lua_register(L, "is_ped_passenger_car", is_ped_passenger_car); // 1359 пед пассажир авто.
+
+
 	lua_register(L, "is_ped_driver_car", is_ped_driver_car); // 1360 пед пассажир авто.
 	lua_register(L, "ped_in_turret_on_car", ped_in_turret_on_car); // 1361 переместить педа в турель авто.
 	lua_register(L, "ped_from_turret_on_car", ped_from_turret_on_car); // 1362 убрать педа из турели авто.
@@ -1390,6 +1664,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "getgravity", getgravity); // 1367 получить значения гравитации.
 	lua_register(L, "setgravity", setgravity); // 1368 установить значения гравитации.
 	lua_register(L, "gravity_default", gravity_default); // 1369 вернуть значения по умолчанию гравитации.
+
+
 	lua_register(L, "create_shots_on_ped", create_shots_on_ped); // 1370 создать выстрелы.
 	lua_register(L, "get_wheel_status", get_wheel_status); // 1371 получить состояния шины авто.
 	lua_register(L, "create_shots_on_car", create_shots_on_car); // 1372 создать выстрелы.
@@ -1400,6 +1676,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "save_car_color", save_car_color); // 1377 авто сохраняет цвет при перекраске.
 	lua_register(L, "is_car_passenger_free", is_car_passenger_free); // 1378 Проверяет, свободно ли место пассажира в авто.
 	lua_register(L, "set_ped_bleeding", set_ped_bleeding); // 1379 вкл\выкл крованные у педа.
+
+
 	lua_register(L, "all_exit_from_car", all_exit_from_car); // 1380 все педы выходят из авто.
 	lua_register(L, "is_ped_duck", is_ped_duck); // 1381 Проверяет, пед присел.
 	lua_register(L, "set_car_tank", set_car_tank); // 1382 установить способность танка детонировать авто при контакте.
@@ -1410,6 +1688,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_ped_immunities", set_ped_immunities); // 1387 уст иммунитеты педу.
 	lua_register(L, "set_car_immunities", set_car_immunities); // 1388 уст иммунитеты авто.
 	lua_register(L, "setcolourmarker", setcolourmarker); // 1389 установить цвет маркера.
+
+
 	lua_register(L, "set_camera_on_car", set_camera_on_car); // 1390 уст камеру на авто.
 	lua_register(L, "ped_run_to_point", ped_run_to_point); // 1391 пед бежит к точке пешком.
 	lua_register(L, "select_interiour", select_interiour); // 1392 уcтановить интерьер.
@@ -1420,6 +1700,8 @@ int funs(lua_State* L) {// список функций.
  	lua_register(L, "set_camera_near_clip", set_camera_near_clip); // 1397 установить обрезку камеры.
 	lua_register(L, "setpedcrouch", setpedcrouch); // 1398 пед сел.
 	lua_register(L, "is_ped_incar", is_ped_incar); // 1399 пед в авто или нет?
+
+
 	lua_register(L, "delete_entity", delete_entity); // 1400 удалить сущность сразу.
 	lua_register(L, "clean_leader", clean_leader); // 1401 перестать следовать за лидером.
 	lua_register(L, "show_save_menu", show_save_menu); // 1402 меню сохранения (жив, не в миссии, не в машине).
@@ -1430,6 +1712,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_ped_reaction_threat", set_ped_reaction_threat); // 1407 уст реакцию педа на ответную угрозу.
 	lua_register(L, "obj_target", obj_target); // 1408 в объект можно целиться.
 	lua_register(L, "clean_ped_wait", clean_ped_wait); // 1409 пед больше не ждет.
+
+
 	lua_register(L, "set_ped_accuracy", set_ped_accuracy); // 1410 уст меткость педу.
 	lua_register(L, "textbox", textbox); // 1411 вывести сообщение в textbox.
 	lua_register(L, "remove_textbox", remove_textbox); // 1412 удалить сообщение на textbox.
@@ -1440,6 +1724,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "check_car_resray", check_car_resray); // 1417 проверить авто игрока было перекрашена в гараже.
 	lua_register(L, "set_car_range", set_car_range); // 1418 установить множитель диапазона на угрозу для автомобиля.
 	lua_register(L, "set_ped_range", set_ped_range); // 1419 установить множитель диапазона на угрозу для педа.
+
+
 	lua_register(L, "getcarangle", getcarangle); // 1420 получить угол авто.
 	lua_register(L, "create_newthread", create_newthread); // 1421 создания нового потока.
 	lua_register(L, "cleanarea", cleanarea); // 1422 очистить арену.
@@ -1450,6 +1736,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ispedscreen", ispedscreen); // 1427 пед виден.
 	lua_register(L, "iscarscreen", iscarscreen); // 1428 авто видно.
 	lua_register(L, "isobjscreen", isobjscreen); // 1429 объект виден.
+
+
 	lua_register(L, "ispeddead", ispeddead); // 1430 пед мертв.
 	lua_register(L, "iscardead", iscardead); // 1431 авто уничтожено.
 	lua_register(L, "ped_follow_ped", ped_follow_ped); // 1432 пед следует за педом.
@@ -1460,6 +1748,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_ped_damaged_gang", set_ped_damaged_gang); // 1437 уст педа уязвимым для членов банды.
 	lua_register(L, "is_ped_damaged_weapon", is_ped_damaged_weapon); // 1438 пед получает от определенного вида оружие.
 	lua_register(L, "is_car_damaged_weapon", is_car_damaged_weapon); // 1439 авто получает от определенного вида оружие.
+
+
 	lua_register(L, "isped_in_air", isped_in_air); // 1440 пед в воздухе.
 	lua_register(L, "set_threat_for_ped_type", set_threat_for_ped_type); // 1441 уст враждебность типа педа к другим типам педа.
 	lua_register(L, "clean_threat_for_ped_type", clean_threat_for_ped_type); // 1442 Убрать враждебность типа педа к другим типам педа.
@@ -1470,6 +1760,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "write_memory", write_memory); // 1447 записать адрес памяти.
 	lua_register(L, "is_sphere_onscreen", is_sphere_onscreen); // 1448 видна точка на радаре.
 	lua_register(L, "set_ped_can_shot_in_car", set_ped_can_shot_in_car); // 1449 водитель авто может получить пули.
+
+
 	lua_register(L, "iscarfire", iscarfire); // 1450 авто горит?
 	lua_register(L, "is_car_damage_by_car", is_car_damage_by_car); // 1451 Если авто получило урон от другого авто.
 	lua_register(L, "show_text_gtx_table", show_text_gtx_table);
@@ -1480,6 +1772,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_road_on", car_road_on); // 1456 вкл путь авто.
 	lua_register(L, "getcardamage", getcardamage); // 1457 получить кол-во урона авто.
 	lua_register(L, "randomfindobj", randomfindobj); // 1458 найти случайный объект в радиусе.
+
+
 	lua_register(L, "findped_in_cord", findped_in_cord); // 1459 найти педа в радиусе с координатами.
 	lua_register(L, "findcar_in_cord", findcar_in_cord); // 1460 найти авто в радиусе с координатами.
 	lua_register(L, "findobj_in_cord", findobj_in_cord); // 1461 найти объект в радиусе с координатами.
@@ -1490,6 +1784,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "check_ped_in_cord", check_ped_in_cord); // 1466 есть ли педа в радиусе с координатами.
 	lua_register(L, "get_ped_in_cord", get_ped_in_cord); // 1467 получить педа в радиусе с координатами.
 	lua_register(L, "check_car_in_cord", check_car_in_cord); // 1468 есть ли авто в радиусе с координатами.
+
+
 	lua_register(L, "get_car_in_cord", get_car_in_cord); // 1469 найти авто в радиусе с координатами.
 	lua_register(L, "check_obj_in_cord", check_obj_in_cord); // 1470 есть ли объект в радиусе с координатами.
 	lua_register(L, "get_obj_in_cord", get_obj_in_cord); // 1471 получить объект в радиусе с координатам.
@@ -1500,6 +1796,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_turn_speed", car_turn_speed); // 1476 повернуть авто с применением скорости.
 	lua_register(L, "carturnfrictionforce", carturnfrictionforce); // 1477 повернуть авто с силой трения.
 	lua_register(L, "car_move_speed", car_move_speed); // 1478 двигать авто с применением скорости.
+
 
 	lua_register(L, "car_turnforce_on_x", car_turnforce_on_x); // 1479 Повернуть авто по оси x (вверх).
 	lua_register(L, "car_turnforce_on_y", car_turnforce_on_y); // 1480 Повернуть авто по оси y (вбок).
@@ -1571,6 +1868,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "ped_point_gun_at", ped_point_gun_at); // 1531 пед целится оружием в сущность.
 	lua_register(L, "car_join_road_system", car_join_road_system); // 1532 встроить авто в систему дорог.
 	lua_register(L, "car_join_road_goto", car_join_road_goto); // 1533 авто в дороги с целью ехать к точке.
+
+
 	lua_register(L, "car_switch_real_physics", car_switch_real_physics); // 1534 вернуть авто настоящую физику.
 	lua_register(L, "car_update_on_rails", car_update_on_rails); // 1535 движение авто по рельсам.
 	lua_register(L, "car_set_component_rotation", car_set_component_rotation); // 1536 повернуть компонент авто.
@@ -1581,6 +1880,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "clear_adrenaline", clear_adrenaline); // 1541 снять адреналин игрока.
 	lua_register(L, "annoy_player_ped", annoy_player_ped); // 1542 разозлить педа на игрока.
 	lua_register(L, "set_max_wanted_level", set_max_wanted_level); // 1543 задать максимум уровня розыска.
+
+
 	lua_register(L, "register_crime", register_crime); // 1544 зарегистрировать преступление игрока.
 	lua_register(L, "register_crime_immediately", register_crime_immediately); // 1545 мгновенно зарегистрировать преступление.
 	lua_register(L, "pad_shake", pad_shake); // 1546 тряска геймпада игрока.
@@ -1591,6 +1892,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "remove_script_fire", remove_script_fire); // 1551 удалить скриптовый огонь по индексу.
 	lua_register(L, "remove_all_script_fires", remove_all_script_fires); // 1552 удалить все скриптовые огни.
 	lua_register(L, "start_script_fire", start_script_fire); // 1553 запустить скриптовый огонь в точке.
+
+
 	lua_register(L, "set_help_message", set_help_message); // 1554 показать сообщение помощи.
 	lua_register(L, "get_percentage_progress", get_percentage_progress); // 1555 процент прохождения игры.
 	lua_register(L, "get_criminal_rating", get_criminal_rating); // 1556 уровень преступника.
@@ -1609,6 +1912,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "dont_remove_object", dont_remove_object); // 1568 01C7 не удалять объект движком.
 	lua_register(L, "char_follow_path", char_follow_path); // 1569 009E пед идёт по пути к точке.
 	lua_register(L, "is_char_wander_path_clear", is_char_wander_path_clear); // 1570 0510 свободен ли путь педа.
+
+
 	lua_register(L, "turn_player_to_face_char", turn_player_to_face_char); // 1571 0210 игрок лицом к педу.
 	lua_register(L, "turn_char_to_face_player", turn_char_to_face_player); // 1572 020F пед лицом к игроку.
 	lua_register(L, "turn_char_to_face_coord", turn_char_to_face_coord); // 1573 01BE пед лицом к координате.
@@ -1639,6 +1944,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "alter_wanted_level_no_drop", alter_wanted_level_no_drop); // 1600 010E уровень розыска без авто-спада.
 	lua_register(L, "is_wanted_level_greater", is_wanted_level_greater); // 1601 010F розыск выше N?
 	lua_register(L, "remove_char_elegantly", remove_char_elegantly); // 1602 034F мягкое удаление педа (MISSION→RANDOM+fade).
+
+
 	lua_register(L, "locate_char_any_means_2d", locate_char_any_means_2d); // 1603 00EC пед (пешком/в авто) в круге.
 	lua_register(L, "locate_char_any_means_3d", locate_char_any_means_3d); // 1604 00FE пед (пешком/в авто) в сфере.
 	lua_register(L, "locate_player_any_means_char_2d", locate_player_any_means_char_2d); // 1605 00E9 игрок рядом с педом (2D).
@@ -1649,6 +1956,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "save_game_slot", save_game_slot); // 1610 0x61D8B0 сохранить игру в слот 1..8 (игровой поток).
 	lua_register(L, "save_to_slot", save_game_slot);   // 1611 псевдоним save_game_slot.
 	lua_register(L, "load_game_slot", load_game_slot); // 1612 0x61A6C0 загрузить игру из слота 1..8 (игровой поток).
+
+
 	lua_register(L, "load_from_slot", load_game_slot); // 1613 псевдоним load_game_slot.
 
 
@@ -1663,6 +1972,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_temp_action_reverse", car_temp_action_reverse); // 1621 временное действие авто: reverse
 	lua_register(L, "car_temp_action_handbrake_turn_left", car_temp_action_handbrake_turn_left); // 1622 временное действие авто: handbrake turn left
 	lua_register(L, "car_temp_action_handbrake_turn_right", car_temp_action_handbrake_turn_right); // 1623 временное действие авто: handbrake turn right
+
+
 	lua_register(L, "car_temp_action_handbrake_straight", car_temp_action_handbrake_straight); // 1624 временное действие авто: handbrake straight
 	lua_register(L, "car_temp_action_turn_left", car_temp_action_turn_left); // 1625 временное действие авто: turn left
 	lua_register(L, "car_temp_action_turn_right", car_temp_action_turn_right); // 1626 временное действие авто: turn right
@@ -1673,6 +1984,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_mission_cruise", car_mission_cruise); // 1631 поведение авто в миссии: cruise
 	lua_register(L, "car_mission_ram_player_faraway", car_mission_ram_player_faraway); // 1632 поведение авто в миссии: ram player faraway
 	lua_register(L, "car_mission_ram_player_close", car_mission_ram_player_close); // 1633 поведение авто в миссии: ram player close
+
+
 	lua_register(L, "car_mission_block_player_faraway", car_mission_block_player_faraway); // 1634 поведение авто в миссии: block player faraway
 	lua_register(L, "car_mission_block_player_close", car_mission_block_player_close); // 1635 поведение авто в миссии: block player close
 	lua_register(L, "car_mission_block_player_handbrake_stop", car_mission_block_player_handbrake_stop); // 1636 поведение авто в миссии: block player handbrake stop
@@ -1683,6 +1996,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_mission_stop_forever", car_mission_stop_forever); // 1641 поведение авто в миссии: stop forever
 	lua_register(L, "car_mission_goto_coords_accurate", car_mission_goto_coords_accurate); // 1642 поведение авто в миссии: goto coords accurate
 	lua_register(L, "car_mission_goto_coords_straight_accurate", car_mission_goto_coords_straight_accurate); // 1643 поведение авто в миссии: goto coords straight accurate
+
+
 	lua_register(L, "car_mission_goto_coords_as_the_crow_swims", car_mission_goto_coords_as_the_crow_swims); // 1644 поведение авто в миссии: goto coords as the crow swims
 	lua_register(L, "car_mission_ram_car_faraway", car_mission_ram_car_faraway); // 1645 поведение авто в миссии: ram car faraway
 	lua_register(L, "car_mission_ram_car_close", car_mission_ram_car_close); // 1646 поведение авто в миссии: ram car close
@@ -1693,6 +2008,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "car_mission_attack_player", car_mission_attack_player); // 1651 поведение авто в миссии: attack player
 	lua_register(L, "car_mission_plane_fly_to_coords", car_mission_plane_fly_to_coords); // 1652 поведение авто в миссии: plane fly to coords
 	lua_register(L, "car_mission_heli_land", car_mission_heli_land); // 1653 поведение авто в миссии: heli land
+
+
 	lua_register(L, "car_mission_slowly_drive_towards_player_1", car_mission_slowly_drive_towards_player_1); // 1654 поведение авто в миссии: slowly drive towards player 1
 	lua_register(L, "car_mission_slowly_drive_towards_player_2", car_mission_slowly_drive_towards_player_2); // 1655 поведение авто в миссии: slowly drive towards player 2
 	lua_register(L, "car_mission_block_player_forward_and_back", car_mission_block_player_forward_and_back); // 1656 поведение авто в миссии: block player forward and back
@@ -1709,6 +2026,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_ped_stat_medic", set_ped_stat_medic); // 1664 назначить pedstat: medic
 	lua_register(L, "set_ped_stat_fire", set_ped_stat_fire); // 1665 назначить pedstat: fire
 	lua_register(L, "set_ped_stat_gang1", set_ped_stat_gang1); // 1666 назначить pedstat: gang1
+
+
 	lua_register(L, "set_ped_stat_gang2", set_ped_stat_gang2); // 1667 назначить pedstat: gang2
 	lua_register(L, "set_ped_stat_gang3", set_ped_stat_gang3); // 1668 назначить pedstat: gang3
 	lua_register(L, "set_ped_stat_gang4", set_ped_stat_gang4); // 1669 назначить pedstat: gang4
@@ -1719,6 +2038,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_ped_stat_suit_guy", set_ped_stat_suit_guy); // 1674 назначить pedstat: suit guy
 	lua_register(L, "set_ped_stat_sensible_guy", set_ped_stat_sensible_guy); // 1675 назначить pedstat: sensible guy
 	lua_register(L, "set_ped_stat_geek_guy", set_ped_stat_geek_guy); // 1676 назначить pedstat: geek guy
+
+
 	lua_register(L, "set_ped_stat_old_guy", set_ped_stat_old_guy); // 1677 назначить pedstat: old guy
 	lua_register(L, "set_ped_stat_tough_guy", set_ped_stat_tough_guy); // 1678 назначить pedstat: tough guy
 	lua_register(L, "set_ped_stat_street_girl", set_ped_stat_street_girl); // 1679 назначить pedstat: street girl
@@ -1729,6 +2050,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_ped_stat_tough_girl", set_ped_stat_tough_girl); // 1684 назначить pedstat: tough girl
 	lua_register(L, "set_ped_stat_tramp_male", set_ped_stat_tramp_male); // 1685 назначить pedstat: tramp male
 	lua_register(L, "set_ped_stat_tramp_female", set_ped_stat_tramp_female); // 1686 назначить pedstat: tramp female
+
+
 	lua_register(L, "set_ped_stat_tourist", set_ped_stat_tourist); // 1687 назначить pedstat: tourist
 	lua_register(L, "set_ped_stat_prostitute", set_ped_stat_prostitute); // 1688 назначить pedstat: prostitute
 	lua_register(L, "set_ped_stat_criminal", set_ped_stat_criminal); // 1689 назначить pedstat: criminal
@@ -1739,6 +2062,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_ped_stat_sportsfan", set_ped_stat_sportsfan); // 1694 назначить pedstat: sportsfan
 	lua_register(L, "set_ped_stat_shopper", set_ped_stat_shopper); // 1695 назначить pedstat: shopper
 	lua_register(L, "set_ped_stat_oldshopper", set_ped_stat_oldshopper); // 1696 назначить pedstat: oldshopper
+
+
 	lua_register(L, "set_ped_stat_beach_guy", set_ped_stat_beach_guy); // 1697 назначить pedstat: beach guy
 	lua_register(L, "set_ped_stat_beach_girl", set_ped_stat_beach_girl); // 1698 назначить pedstat: beach girl
 	lua_register(L, "set_ped_stat_skater", set_ped_stat_skater); // 1699 назначить pedstat: skater
@@ -1746,7 +2071,7 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_ped_stat_coward", set_ped_stat_coward); // 1701 назначить pedstat: coward
 	lua_register(L, "gang_enable_attack_player_with_cops", gang_enable_attack_player_with_cops); // 1702 поведение банды: enable attack player with cops
 	lua_register(L, "gang_disable_attack_player_with_cops", gang_disable_attack_player_with_cops); // 1703 поведение банды: disable attack player with cops
-	lua_register(L, "reset_gangs", reset_gangs); // 1704 обёртка: reset gangs
+	lua_register(L, "reset_gangs", reset_gangs); // 1704 сбросить все банды
 
 	// (20.11) Реализации, которые существовали в funcs.cpp, но НЕ были зарегистрированы.
 	// Параметры сверены с reVC/телом функции; неполные create_rope2..11 НЕ регистрируются.
@@ -1772,6 +2097,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_cutscene_offset", set_cutscene_offset); // 1720 0x0244 COMMAND_SET_CUTSCENE_OFFSET (reVC Script3.cpp:729)
 	lua_register(L, "load_cutscene", load_cutscene); // 1721 0x02E4 COMMAND_LOAD_CUTSCENE (reVC Script3.cpp:1950)
 	lua_register(L, "create_cutscene_object", create_cutscene_object); // 1722 0x02E5 COMMAND_CREATE_CUTSCENE_OBJECT (reVC Script3.cpp:1958)
+
+
 	lua_register(L, "set_cutscene_anim", set_cutscene_anim); // 1723 0x02E6 COMMAND_SET_CUTSCENE_ANIM (reVC Script3.cpp:1966)
 	lua_register(L, "start_cutscene", start_cutscene); // 1724 0x02E7 COMMAND_START_CUTSCENE (reVC Script3.cpp:1977)
 	lua_register(L, "get_cutscene_time", get_cutscene_time); // 1725 0x02E8 COMMAND_GET_CUTSCENE_TIME (reVC Script3.cpp:1980)
@@ -1782,6 +2109,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_player_in_car", is_player_in_car); // 1730 0x00DC COMMAND_IS_PLAYER_IN_CAR (reVC Script.cpp:4370)
 	lua_register(L, "get_player_coordinates", get_player_coordinates); // 1731 0x0054 COMMAND_GET_PLAYER_COORDINATES (reVC Script.cpp:3183)
 	lua_register(L, "load_special_model", load_special_model); // 1732 0x02F3 COMMAND_LOAD_SPECIAL_MODEL (reVC Script3.cpp:2086)
+
+
 	lua_register(L, "is_char_in_car", is_char_in_car); // 1733 0x00DB COMMAND_IS_CHAR_IN_CAR (reVC Script.cpp:4361)
 	lua_register(L, "is_char_in_any_car", is_char_in_any_car); // 1734 0x00DF COMMAND_IS_CHAR_IN_ANY_CAR (reVC Script.cpp:4393)
 	lua_register(L, "locate_player_any_means_3d", locate_player_any_means_3d); // 1735 0x00F5 COMMAND_LOCATE_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4448)
@@ -1792,6 +2121,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "register_oddjob_mission_passed", register_oddjob_mission_passed); // 1740 0x0595 COMMAND_REGISTER_ODDJOB_MISSION_PASSED (reVC Script8.cpp:330)
 	lua_register(L, "locate_char_on_foot_2d", locate_char_on_foot_2d); // 1741 0x00ED COMMAND_LOCATE_CHAR_ON_FOOT_2D (reVC Script.cpp:4436)
 	lua_register(L, "locate_car_2d", locate_car_2d); // 1742 0x01AD COMMAND_LOCATE_CAR_2D (reVC Script2.cpp:881)
+
+
 	lua_register(L, "display_onscreen_counter_with_string", display_onscreen_counter_with_string); // 1743 0x03C4 COMMAND_DISPLAY_ONSCREEN_COUNTER_WITH_STRING (reVC Script4.cpp:1797)
 	lua_register(L, "set_extra_colours", set_extra_colours); // 1744 0x04F9 COMMAND_SET_EXTRA_COLOURS (reVC Script7.cpp:561)
 	lua_register(L, "set_char_obj_enter_car_as_driver", set_char_obj_enter_car_as_driver); // 1745 0x01D5 COMMAND_SET_CHAR_OBJ_ENTER_CAR_AS_DRIVER (reVC Script2.cpp:1285)
@@ -1802,6 +2133,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_char_coordinates", get_char_coordinates); // 1750 0x00A0 COMMAND_GET_CHAR_COORDINATES (reVC Script.cpp:3759)
 	lua_register(L, "register_fastest_time", register_fastest_time); // 1751 0x042E COMMAND_REGISTER_FASTEST_TIME (reVC Script6.cpp:635)
 	lua_register(L, "print", print); // 1752 0x00BB COMMAND_PRINT (reVC Script.cpp:4139)
+
+
 	lua_register(L, "display_onscreen_timer", display_onscreen_timer); // 1753 0x014E COMMAND_DISPLAY_ONSCREEN_TIMER (reVC Script2.cpp:169)
 	lua_register(L, "locate_player_in_car_3d", locate_player_in_car_3d); // 1754 0x00F7 COMMAND_LOCATE_PLAYER_IN_CAR_3D (reVC Script.cpp:4450)
 	lua_register(L, "locate_player_any_means_car_2d", locate_player_any_means_car_2d); // 1755 0x01FC COMMAND_LOCATE_PLAYER_ANY_MEANS_CAR_2D (reVC Script3.cpp:108)
@@ -1812,6 +2145,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "turn_char_to_face_char", turn_char_to_face_char); // 1760 0x020E COMMAND_TURN_CHAR_TO_FACE_CHAR (reVC Script3.cpp:163)
 	lua_register(L, "is_player_playing", is_player_playing); // 1761 0x0256 COMMAND_IS_PLAYER_PLAYING (reVC Script3.cpp:854)
 	lua_register(L, "is_point_obscured_by_a_mission_entity", is_point_obscured_by_a_mission_entity); // 1762 0x038A COMMAND_IS_POINT_OBSCURED_BY_A_MISSION_ENTITY (reVC Script4.cpp:1262)
+
+
 	lua_register(L, "sqrt", sqrt); // 1763 0x01FB COMMAND_SQRT (reVC Script3.cpp:101)
 	lua_register(L, "set_camera_in_front_of_player", set_camera_in_front_of_player); // 1764 0x03C8 COMMAND_SET_CAMERA_IN_FRONT_OF_PLAYER (reVC Script4.cpp:1983)
 	lua_register(L, "locate_char_on_foot_3d", locate_char_on_foot_3d); // 1765 0x00FF COMMAND_LOCATE_CHAR_ON_FOOT_3D (reVC Script.cpp:4462)
@@ -1822,6 +2157,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_property_as_owned", set_property_as_owned); // 1770 0x0542 COMMAND_SET_PROPERTY_AS_OWNED (reVC Script7.cpp:1003)
 	lua_register(L, "get_object_coordinates", get_object_coordinates); // 1771 0x01BB COMMAND_GET_OBJECT_COORDINATES (reVC Script2.cpp:951)
 	lua_register(L, "generate_random_int_in_range", generate_random_int_in_range); // 1772 0x0209 COMMAND_GENERATE_RANDOM_INT_IN_RANGE (reVC Script3.cpp:129)
+
+
 	lua_register(L, "set_char_cant_be_dragged_out", set_char_cant_be_dragged_out); // 1773 0x039E COMMAND_SET_CHAR_CANT_BE_DRAGGED_OUT (reVC Script4.cpp:1485)
 	lua_register(L, "set_cutscene_anim_to_loop", set_cutscene_anim_to_loop); // 1774 0x04BC COMMAND_SET_CUTSCENE_ANIM_TO_LOOP (reVC Script7.cpp:139)
 	lua_register(L, "is_player_in_area_2d", is_player_in_area_2d); // 1775 0x0056 COMMAND_IS_PLAYER_IN_AREA_2D (reVC Script.cpp:3248)
@@ -1832,6 +2169,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "store_car_char_is_in", store_car_char_is_in); // 1780 0x00D9 COMMAND_STORE_CAR_CHAR_IS_IN (reVC Script.cpp:4258)
 	lua_register(L, "locate_player_any_means_2d", locate_player_any_means_2d); // 1781 0x00E3 COMMAND_LOCATE_PLAYER_ANY_MEANS_2D (reVC Script.cpp:4422)
 	lua_register(L, "locate_stopped_player_on_foot_3d", locate_stopped_player_on_foot_3d); // 1782 0x00F9 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_3D (reVC Script.cpp:4452)
+
+
 	lua_register(L, "set_player_as_leader", set_player_as_leader); // 1783 0x01DF COMMAND_SET_PLAYER_AS_LEADER (reVC Script2.cpp:1357)
 	lua_register(L, "add_short_range_sprite_blip_for_coord", add_short_range_sprite_blip_for_coord); // 1784 0x04CE COMMAND_ADD_SHORT_RANGE_SPRITE_BLIP_FOR_COORD (reVC Script7.cpp:244)
 	lua_register(L, "stop_char_looking", stop_char_looking); // 1785 0x022F COMMAND_STOP_CHAR_LOOKING (reVC Script3.cpp:548)
@@ -1842,6 +2181,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_char_in_players_group", is_char_in_players_group); // 1790 0x0320 COMMAND_IS_CHAR_IN_PLAYERS_GROUP (reVC Script4.cpp:65)
 	lua_register(L, "make_player_safe_for_cutscene", make_player_safe_for_cutscene); // 1791 0x03EF COMMAND_MAKE_PLAYER_SAFE_FOR_CUTSCENE (reVC Script6.cpp:125)
 	lua_register(L, "create_protection_pickup", create_protection_pickup); // 1792 0x04A6 COMMAND_CREATE_PROTECTION_PICKUP (reVC Script6.cpp:1719)
+
+
 	lua_register(L, "locate_stopped_player_any_means_3d", locate_stopped_player_any_means_3d); // 1793 0x00F8 COMMAND_LOCATE_STOPPED_PLAYER_ANY_MEANS_3D (reVC Script.cpp:4451)
 	lua_register(L, "char_look_at_player_always", char_look_at_player_always); // 1794 0x022D COMMAND_CHAR_LOOK_AT_PLAYER_ALWAYS (reVC Script3.cpp:526)
 	lua_register(L, "stop_player_looking", stop_player_looking); // 1795 0x0230 COMMAND_STOP_PLAYER_LOOKING (reVC Script3.cpp:559)
@@ -1852,6 +2193,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "does_char_exist", does_char_exist); // 1800 0x056D COMMAND_DOES_CHAR_EXIST (reVC Script7.cpp:1328)
 	lua_register(L, "point_camera_at_player", point_camera_at_player); // 1801 0x0157 COMMAND_POINT_CAMERA_AT_PLAYER (reVC Script2.cpp:244)
 	lua_register(L, "mark_object_as_no_longer_needed", mark_object_as_no_longer_needed); // 1802 0x01C4 COMMAND_MARK_OBJECT_AS_NO_LONGER_NEEDED (reVC Script2.cpp:1063)
+
+
 	lua_register(L, "get_player_char", get_player_char); // 1803 0x01F5 COMMAND_GET_PLAYER_CHAR (reVC Script3.cpp:50)
 	lua_register(L, "get_ground_z_for_3d_coord", get_ground_z_for_3d_coord); // 1804 0x02CE COMMAND_GET_GROUND_Z_FOR_3D_COORD (reVC Script3.cpp:1654)
 	lua_register(L, "place_object_relative_to_car", place_object_relative_to_car); // 1805 0x035C COMMAND_PLACE_OBJECT_RELATIVE_TO_CAR (reVC Script4.cpp:726)
@@ -1862,6 +2205,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_char_on_foot", is_char_on_foot); // 1810 0x044B COMMAND_IS_CHAR_ON_FOOT (reVC Script6.cpp:846)
 	lua_register(L, "is_car_in_area_2d", is_car_in_area_2d); // 1811 0x00B0 COMMAND_IS_CAR_IN_AREA_2D (reVC Script.cpp:4084)
 	lua_register(L, "locate_player_on_foot_2d", locate_player_on_foot_2d); // 1812 0x00E4 COMMAND_LOCATE_PLAYER_ON_FOOT_2D (reVC Script.cpp:4423)
+
+
 	lua_register(L, "locate_stopped_char_any_means_3d", locate_stopped_char_any_means_3d); // 1813 0x0101 COMMAND_LOCATE_STOPPED_CHAR_ANY_MEANS_3D (reVC Script.cpp:4464)
 	lua_register(L, "set_char_as_leader", set_char_as_leader); // 1814 0x01DE COMMAND_SET_CHAR_AS_LEADER (reVC Script2.cpp:1348)
 	lua_register(L, "locate_char_any_means_car_2d", locate_char_any_means_car_2d); // 1815 0x0202 COMMAND_LOCATE_CHAR_ANY_MEANS_CAR_2D (reVC Script3.cpp:116)
@@ -1872,6 +2217,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_player_in_angled_area_3d", is_player_in_angled_area_3d); // 1820 0x02B3 COMMAND_IS_PLAYER_IN_ANGLED_AREA_3D (reVC Script3.cpp:1494)
 	lua_register(L, "get_closest_char_node", get_closest_char_node); // 1821 0x02C0 COMMAND_GET_CLOSEST_CHAR_NODE (reVC Script3.cpp:1547)
 	lua_register(L, "add_to_object_velocity", add_to_object_velocity); // 1822 0x038C COMMAND_ADD_TO_OBJECT_VELOCITY (reVC Script4.cpp:1304)
+
+
 	lua_register(L, "is_player_sitting_in_any_car", is_player_sitting_in_any_car); // 1823 0x0443 COMMAND_IS_PLAYER_SITTING_IN_ANY_CAR (reVC Script6.cpp:784)
 	lua_register(L, "is_char_sitting_in_any_car", is_char_sitting_in_any_car); // 1824 0x0449 COMMAND_IS_CHAR_SITTING_IN_ANY_CAR (reVC Script6.cpp:829)
 	lua_register(L, "disable_cutscene_shadows", disable_cutscene_shadows); // 1825 0x0522 COMMAND_DISABLE_CUTSCENE_SHADOWS (reVC Script7.cpp:830)
@@ -1882,6 +2229,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_player_dead", is_player_dead); // 1830 0x0117 COMMAND_IS_PLAYER_DEAD (reVC Script.cpp:4577)
 	lua_register(L, "set_char_obj_wait_on_foot", set_char_obj_wait_on_foot); // 1831 0x0192 COMMAND_SET_CHAR_OBJ_WAIT_ON_FOOT (reVC Script2.cpp:786)
 	lua_register(L, "add_route_point", add_route_point); // 1832 0x01E2 COMMAND_ADD_ROUTE_POINT (reVC Script2.cpp:1383)
+
+
 	lua_register(L, "get_maximum_number_of_passengers", get_maximum_number_of_passengers); // 1833 0x01EA COMMAND_GET_MAXIMUM_NUMBER_OF_PASSENGERS (reVC Script2.cpp:1468)
 	lua_register(L, "get_random_car_of_type_in_area", get_random_car_of_type_in_area); // 1834 0x0327 COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA (reVC Script4.cpp:134)
 	lua_register(L, "remove_route", remove_route); // 1835 0x03AC COMMAND_REMOVE_ROUTE (reVC Script4.cpp:1583)
@@ -1892,6 +2241,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_distance_between_coords_2d", get_distance_between_coords_2d); // 1840 0x0509 COMMAND_GET_DISTANCE_BETWEEN_COORDS_2D (reVC Script7.cpp:679)
 	lua_register(L, "shake_cam", shake_cam); // 1841 0x0003 COMMAND_SHAKE_CAM (reVC Script.cpp:2629)
 	lua_register(L, "is_char_in_area_2d", is_char_in_area_2d); // 1842 0x00A3 COMMAND_IS_CHAR_IN_AREA_2D (reVC Script.cpp:3821)
+
+
 	lua_register(L, "set_zone_car_info", set_zone_car_info); // 1843 0x0152 COMMAND_SET_ZONE_CAR_INFO (reVC Script2.cpp:201)
 	lua_register(L, "add_blip_for_car_old", add_blip_for_car_old); // 1844 0x0161 COMMAND_ADD_BLIP_FOR_CAR_OLD (reVC Script2.cpp:325)
 	lua_register(L, "add_blip_for_char_old", add_blip_for_char_old); // 1845 0x0162 COMMAND_ADD_BLIP_FOR_CHAR_OLD (reVC Script2.cpp:335)
@@ -1902,6 +2253,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_player_health", set_player_health); // 1850 0x0222 COMMAND_SET_PLAYER_HEALTH (reVC Script3.cpp:385)
 	lua_register(L, "get_player_health", get_player_health); // 1851 0x0225 COMMAND_GET_PLAYER_HEALTH (reVC Script3.cpp:419)
 	lua_register(L, "sin", sin); // 1852 0x02F6 COMMAND_SIN (reVC Script3.cpp:2099)
+
+
 	lua_register(L, "cos", cos); // 1853 0x02F7 COMMAND_COS (reVC Script3.cpp:2104)
 	lua_register(L, "explode_player_head", explode_player_head); // 1854 0x0322 COMMAND_EXPLODE_PLAYER_HEAD (reVC Script4.cpp:83)
 	lua_register(L, "is_area_occupied", is_area_occupied); // 1855 0x0339 COMMAND_IS_AREA_OCCUPIED (reVC Script4.cpp:340)
@@ -1912,6 +2265,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_ammo_in_player_weapon", get_ammo_in_player_weapon); // 1860 0x0419 COMMAND_GET_AMMO_IN_PLAYER_WEAPON (reVC Script6.cpp:413)
 	lua_register(L, "freeze_char_position", freeze_char_position); // 1861 0x04D7 COMMAND_FREEZE_CHAR_POSITION (reVC Script7.cpp:318)
 	lua_register(L, "add_big_gun_flash", add_big_gun_flash); // 1862 0x058A COMMAND_ADD_BIG_GUN_FLASH (reVC Script8.cpp:210)
+
+
 	lua_register(L, "is_player_pressing_horn", is_player_pressing_horn); // 1863 0x0122 COMMAND_IS_PLAYER_PRESSING_HORN (reVC Script.cpp:4631)
 	lua_register(L, "point_camera_at_char", point_camera_at_char); // 1864 0x0159 COMMAND_POINT_CAMERA_AT_CHAR (reVC Script2.cpp:259)
 	lua_register(L, "set_player_ammo", set_player_ammo); // 1865 0x017A COMMAND_SET_PLAYER_AMMO (reVC Script2.cpp:573)
@@ -1922,6 +2277,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_char_in_chars_group", is_char_in_chars_group); // 1870 0x031F COMMAND_IS_CHAR_IN_CHARS_GROUP (reVC Script3.cpp:2398)
 	lua_register(L, "set_camera_zoom", set_camera_zoom); // 1871 0x032A COMMAND_SET_CAMERA_ZOOM (reVC Script4.cpp:208)
 	lua_register(L, "set_text_scale", set_text_scale); // 1872 0x033F COMMAND_SET_TEXT_SCALE (reVC Script4.cpp:396)
+
+
 	lua_register(L, "set_text_colour", set_text_colour); // 1873 0x0340 COMMAND_SET_TEXT_COLOUR (reVC Script4.cpp:403)
 	lua_register(L, "set_text_justify", set_text_justify); // 1874 0x0341 COMMAND_SET_TEXT_JUSTIFY (reVC Script4.cpp:410)
 	lua_register(L, "set_text_centre", set_text_centre); // 1875 0x0342 COMMAND_SET_TEXT_CENTRE (reVC Script4.cpp:416)
@@ -1932,6 +2289,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "draw_sphere", draw_sphere); // 1880 0x03A1 COMMAND_DRAW_SPHERE (reVC Script4.cpp:1514)
 	lua_register(L, "set_text_right_justify", set_text_right_justify); // 1881 0x03E4 COMMAND_SET_TEXT_RIGHT_JUSTIFY (reVC Script4.cpp:2179)
 	lua_register(L, "set_generate_cars_around_camera", set_generate_cars_around_camera); // 1882 0x03EA COMMAND_SET_GENERATE_CARS_AROUND_CAMERA (reVC Script6.cpp:95)
+
+
 	lua_register(L, "use_text_commands", use_text_commands); // 1883 0x03F0 COMMAND_USE_TEXT_COMMANDS (reVC Script6.cpp:138)
 	lua_register(L, "set_car_can_be_damaged", set_car_can_be_damaged); // 1884 0x03F5 COMMAND_SET_CAR_CAN_BE_DAMAGED (reVC Script6.cpp:166)
 	lua_register(L, "get_offset_from_object_in_world_coords", get_offset_from_object_in_world_coords); // 1885 0x0400 COMMAND_GET_OFFSET_FROM_OBJECT_IN_WORLD_COORDS (reVC Script6.cpp:253)
@@ -1942,6 +2301,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "display_text_with_number", display_text_with_number); // 1890 0x045A COMMAND_DISPLAY_TEXT_WITH_NUMBER (reVC Script6.cpp:1054)
 	lua_register(L, "get_random_cop_in_area", get_random_cop_in_area); // 1891 0x0469 COMMAND_GET_RANDOM_COP_IN_AREA (reVC Script6.cpp:1233)
 	lua_register(L, "get_offset_from_char_in_world_coords", get_offset_from_char_in_world_coords); // 1892 0x04C4 COMMAND_GET_OFFSET_FROM_CHAR_IN_WORLD_COORDS (reVC Script7.cpp:191)
+
+
 	lua_register(L, "switch_security_camera", switch_security_camera); // 1893 0x04C7 COMMAND_SWITCH_SECURITY_CAMERA (reVC Script7.cpp:225)
 	lua_register(L, "set_zone_civilian_car_info", set_zone_civilian_car_info); // 1894 0x04EC COMMAND_SET_ZONE_CIVILIAN_CAR_INFO (reVC Script7.cpp:443)
 	lua_register(L, "is_char_waiting_for_world_collision", is_char_waiting_for_world_collision); // 1895 0x04F0 COMMAND_IS_CHAR_WAITING_FOR_WORLD_COLLISION (reVC Script7.cpp:492)
@@ -1952,6 +2313,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "char_wander_dir", char_wander_dir); // 1900 0x009C COMMAND_CHAR_WANDER_DIR (reVC Script.cpp:3709)
 	lua_register(L, "get_time_of_day", get_time_of_day); // 1901 0x00BF COMMAND_GET_TIME_OF_DAY (reVC Script.cpp:4165)
 	lua_register(L, "locate_player_in_car_2d", locate_player_in_car_2d); // 1902 0x00E5 COMMAND_LOCATE_PLAYER_IN_CAR_2D (reVC Script.cpp:4424)
+
+
 	lua_register(L, "locate_stopped_player_on_foot_2d", locate_stopped_player_on_foot_2d); // 1903 0x00E7 COMMAND_LOCATE_STOPPED_PLAYER_ON_FOOT_2D (reVC Script.cpp:4426)
 	lua_register(L, "locate_player_on_foot_char_2d", locate_player_on_foot_char_2d); // 1904 0x00EA COMMAND_LOCATE_PLAYER_ON_FOOT_CHAR_2D (reVC Script.cpp:4431)
 	lua_register(L, "locate_player_in_car_char_2d", locate_player_in_car_char_2d); // 1905 0x00EB COMMAND_LOCATE_PLAYER_IN_CAR_CHAR_2D (reVC Script.cpp:4432)
@@ -1962,6 +2325,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "store_score", store_score); // 1910 0x010B COMMAND_STORE_SCORE (reVC Script.cpp:4522)
 	lua_register(L, "set_deatharrest_state", set_deatharrest_state); // 1911 0x0111 COMMAND_SET_DEATHARREST_STATE (reVC Script.cpp:4552)
 	lua_register(L, "create_car_generator", create_car_generator); // 1912 0x014B COMMAND_CREATE_CAR_GENERATOR (reVC Script2.cpp:133)
+
+
 	lua_register(L, "add_hospital_restart", add_hospital_restart); // 1913 0x016C COMMAND_ADD_HOSPITAL_RESTART (reVC Script2.cpp:395)
 	lua_register(L, "add_police_restart", add_police_restart); // 1914 0x016D COMMAND_ADD_POLICE_RESTART (reVC Script2.cpp:405)
 	lua_register(L, "add_blip_for_contact_point", add_blip_for_contact_point); // 1915 0x0189 COMMAND_ADD_BLIP_FOR_CONTACT_POINT (reVC Script2.cpp:657)
@@ -1972,6 +2337,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_player_in_angled_area_2d", is_player_in_angled_area_2d); // 1920 0x02AD COMMAND_IS_PLAYER_IN_ANGLED_AREA_2D (reVC Script3.cpp:1488)
 	lua_register(L, "set_zone_group", set_zone_group); // 1921 0x0324 COMMAND_SET_ZONE_GROUP (reVC Script4.cpp:99)
 	lua_register(L, "display_text", display_text); // 1922 0x033E COMMAND_DISPLAY_TEXT (reVC Script4.cpp:382)
+
+
 	lua_register(L, "open_garage", open_garage); // 1923 0x0360 COMMAND_OPEN_GARAGE (reVC Script4.cpp:763)
 	lua_register(L, "is_sniper_bullet_in_area", is_sniper_bullet_in_area); // 1924 0x037E COMMAND_IS_SNIPER_BULLET_IN_AREA (reVC Script4.cpp:1131)
 	lua_register(L, "print_string_in_string_now", print_string_in_string_now); // 1925 0x0384 COMMAND_PRINT_STRING_IN_STRING_NOW (reVC Script4.cpp:1205)
@@ -1982,6 +2349,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "no_special_camera_for_this_garage", no_special_camera_for_this_garage); // 1930 0x03DA COMMAND_NO_SPECIAL_CAMERA_FOR_THIS_GARAGE (reVC Script4.cpp:2109)
 	lua_register(L, "set_car_avoid_level_transitions", set_car_avoid_level_transitions); // 1931 0x0428 COMMAND_SET_CAR_AVOID_LEVEL_TRANSITIONS (reVC Script6.cpp:580)
 	lua_register(L, "get_car_model", get_car_model); // 1932 0x0441 COMMAND_GET_CAR_MODEL (reVC Script6.cpp:766)
+
+
 	lua_register(L, "display_text_with_2_numbers", display_text_with_2_numbers); // 1933 0x045B COMMAND_DISPLAY_TEXT_WITH_2_NUMBERS (reVC Script6.cpp:1065)
 	lua_register(L, "get_number_of_followers", get_number_of_followers); // 1934 0x046D COMMAND_GET_NUMBER_OF_FOLLOWERS (reVC Script6.cpp:1354)
 	lua_register(L, "get_current_char_weapon", get_current_char_weapon); // 1935 0x0470 COMMAND_GET_CURRENT_CHAR_WEAPON (reVC Script6.cpp:1390)
@@ -1992,6 +2361,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_closest_straight_road", get_closest_straight_road); // 1940 0x04B9 COMMAND_GET_CLOSEST_STRAIGHT_ROAD (reVC Script7.cpp:104)
 	lua_register(L, "get_nth_closest_car_node", get_nth_closest_car_node); // 1941 0x04D3 COMMAND_GET_NTH_CLOSEST_CAR_NODE (reVC Script7.cpp:291)
 	lua_register(L, "set_object_records_collisions", set_object_records_collisions); // 1942 0x04D9 COMMAND_SET_OBJECT_RECORDS_COLLISIONS (reVC Script7.cpp:334)
+
+
 	lua_register(L, "has_object_collided_with_anything", has_object_collided_with_anything); // 1943 0x04DA COMMAND_HAS_OBJECT_COLLIDED_WITH_ANYTHING (reVC Script7.cpp:342)
 	lua_register(L, "set_heli_stabiliser", set_heli_stabiliser); // 1944 0x04DF COMMAND_SET_HELI_STABILISER (reVC Script7.cpp:366)
 	lua_register(L, "is_object_in_water", is_object_in_water); // 1945 0x04E7 COMMAND_IS_OBJECT_IN_WATER (reVC Script7.cpp:415)
@@ -2002,6 +2373,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "increase_player_max_health", increase_player_max_health); // 1950 0x055E COMMAND_INCREASE_PLAYER_MAX_HEALTH (reVC Script7.cpp:1162)
 	lua_register(L, "increase_player_max_armour", increase_player_max_armour); // 1951 0x055F COMMAND_INCREASE_PLAYER_MAX_ARMOUR (reVC Script7.cpp:1170)
 	lua_register(L, "create_random_char_as_passenger", create_random_char_as_passenger); // 1952 0x0561 COMMAND_CREATE_RANDOM_CHAR_AS_PASSENGER (reVC Script7.cpp:1209)
+
+
 	lua_register(L, "set_object_area_visible", set_object_area_visible); // 1953 0x0566 COMMAND_SET_OBJECT_AREA_VISIBLE (reVC Script7.cpp:1280)
 	lua_register(L, "set_char_crouch_when_threatened", set_char_crouch_when_threatened); // 1954 0x056B COMMAND_SET_CHAR_CROUCH_WHEN_THREATENED (reVC Script7.cpp:1310)
 	lua_register(L, "set_allow_hurricanes", set_allow_hurricanes); // 1955 0x057C COMMAND_SET_ALLOW_HURRICANES (reVC Script8.cpp:73)
@@ -2012,6 +2385,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_minutes_to_time_of_day", get_minutes_to_time_of_day); // 1960 0x00C1 COMMAND_GET_MINUTES_TO_TIME_OF_DAY (reVC Script.cpp:4174)
 	lua_register(L, "is_char_in_model", is_char_in_model); // 1961 0x00DD COMMAND_IS_CHAR_IN_MODEL (reVC Script.cpp:4378)
 	lua_register(L, "locate_char_on_foot_char_2d", locate_char_on_foot_char_2d); // 1962 0x00F3 COMMAND_LOCATE_CHAR_ON_FOOT_CHAR_2D (reVC Script.cpp:4444)
+
+
 	lua_register(L, "locate_char_in_car_3d", locate_char_in_car_3d); // 1963 0x0100 COMMAND_LOCATE_CHAR_IN_CAR_3D (reVC Script.cpp:4463)
 	lua_register(L, "locate_stopped_char_on_foot_3d", locate_stopped_char_on_foot_3d); // 1964 0x0102 COMMAND_LOCATE_STOPPED_CHAR_ON_FOOT_3D (reVC Script.cpp:4465)
 	lua_register(L, "locate_char_any_means_char_3d", locate_char_any_means_char_3d); // 1965 0x0104 COMMAND_LOCATE_CHAR_ANY_MEANS_CHAR_3D (reVC Script.cpp:4469)
@@ -2022,6 +2397,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "start_kill_frenzy", start_kill_frenzy); // 1970 0x01F9 COMMAND_START_KILL_FRENZY (reVC Script3.cpp:86)
 	lua_register(L, "read_kill_frenzy_status", read_kill_frenzy_status); // 1971 0x01FA COMMAND_READ_KILL_FRENZY_STATUS (reVC Script3.cpp:95)
 	lua_register(L, "set_taxi_lights", set_taxi_lights); // 1972 0x0216 COMMAND_SET_TAXI_LIGHTS (reVC Script3.cpp:253)
+
+
 	lua_register(L, "print_big_q", print_big_q); // 1973 0x0217 COMMAND_PRINT_BIG_Q (reVC Script3.cpp:262)
 	lua_register(L, "set_garage", set_garage); // 1974 0x0219 COMMAND_SET_GARAGE (reVC Script3.cpp:279)
 	lua_register(L, "set_target_car_for_mission_garage", set_target_car_for_mission_garage); // 1975 0x021B COMMAND_SET_TARGET_CAR_FOR_MISSION_GARAGE (reVC Script3.cpp:311)
@@ -2032,6 +2409,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_player_in_angled_area_on_foot_3d", is_player_in_angled_area_on_foot_3d); // 1980 0x02B4 COMMAND_IS_PLAYER_IN_ANGLED_AREA_ON_FOOT_3D (reVC Script3.cpp:1495)
 	lua_register(L, "is_player_in_angled_area_in_car_3d", is_player_in_angled_area_in_car_3d); // 1981 0x02B5 COMMAND_IS_PLAYER_IN_ANGLED_AREA_IN_CAR_3D (reVC Script3.cpp:1496)
 	lua_register(L, "is_player_shooting_in_area", is_player_shooting_in_area); // 1982 0x02D5 COMMAND_IS_PLAYER_SHOOTING_IN_AREA (reVC Script3.cpp:1722)
+
+
 	lua_register(L, "get_random_char_in_zone", get_random_char_in_zone); // 1983 0x02DD COMMAND_GET_RANDOM_CHAR_IN_ZONE (reVC Script3.cpp:1844)
 	lua_register(L, "is_player_in_taxi", is_player_in_taxi); // 1984 0x02DE COMMAND_IS_PLAYER_IN_TAXI (reVC Script3.cpp:1898)
 	lua_register(L, "create_collectable1", create_collectable1); // 1985 0x02EC COMMAND_CREATE_COLLECTABLE1 (reVC Script3.cpp:1993)
@@ -2042,6 +2421,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "print_with_6_numbers", print_with_6_numbers); // 1990 0x0308 COMMAND_PRINT_WITH_6_NUMBERS (reVC Script3.cpp:2244)
 	lua_register(L, "set_progress_total", set_progress_total); // 1991 0x030D COMMAND_SET_PROGRESS_TOTAL (reVC Script3.cpp:2282)
 	lua_register(L, "register_jump_distance", register_jump_distance); // 1992 0x030E COMMAND_REGISTER_JUMP_DISTANCE (reVC Script3.cpp:2288)
+
+
 	lua_register(L, "register_jump_height", register_jump_height); // 1993 0x030F COMMAND_REGISTER_JUMP_HEIGHT (reVC Script3.cpp:2292)
 	lua_register(L, "register_jump_flips", register_jump_flips); // 1994 0x0310 COMMAND_REGISTER_JUMP_FLIPS (reVC Script3.cpp:2296)
 	lua_register(L, "register_jump_spins", register_jump_spins); // 1995 0x0311 COMMAND_REGISTER_JUMP_SPINS (reVC Script3.cpp:2300)
@@ -2052,6 +2433,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "register_money_made_taxi", register_money_made_taxi); // 2000 0x0316 COMMAND_REGISTER_MONEY_MADE_TAXI (reVC Script3.cpp:2318)
 	lua_register(L, "set_player_never_gets_tired", set_player_never_gets_tired); // 2001 0x0330 COMMAND_SET_PLAYER_NEVER_GETS_TIRED (reVC Script4.cpp:268)
 	lua_register(L, "close_garage", close_garage); // 2002 0x0361 COMMAND_CLOSE_GARAGE (reVC Script4.cpp:769)
+
+
 	lua_register(L, "print_with_2_numbers_big", print_with_2_numbers_big); // 2003 0x036D COMMAND_PRINT_WITH_2_NUMBERS_BIG (reVC Script4.cpp:963)
 	lua_register(L, "is_icecream_jingle_on", is_icecream_jingle_on); // 2004 0x0383 COMMAND_IS_ICECREAM_JINGLE_ON (reVC Script4.cpp:1182)
 	lua_register(L, "is_char_male", is_char_male); // 2005 0x03A3 COMMAND_IS_CHAR_MALE (reVC Script4.cpp:1533)
@@ -2062,6 +2445,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "create_random_car_for_car_park", create_random_car_for_car_park); // 2010 0x03C5 COMMAND_CREATE_RANDOM_CAR_FOR_CAR_PARK (reVC Script4.cpp:1808)
 	lua_register(L, "has_import_garage_slot_been_filled", has_import_garage_slot_been_filled); // 2011 0x03D4 COMMAND_HAS_IMPORT_GARAGE_SLOT_BEEN_FILLED (reVC Script4.cpp:2073)
 	lua_register(L, "has_save_game_finished", has_save_game_finished); // 2012 0x03D9 COMMAND_HAS_SAVE_GAME_FINISHED (reVC Script4.cpp:2106)
+
+
 	lua_register(L, "force_random_ped_type", force_random_ped_type); // 2013 0x03DF COMMAND_FORCE_RANDOM_PED_TYPE (reVC Script4.cpp:2152)
 	lua_register(L, "get_collectable1s_collected", get_collectable1s_collected); // 2014 0x03E1 COMMAND_GET_COLLECTABLE1S_COLLECTED (reVC Script4.cpp:2162)
 	lua_register(L, "get_car_colours", get_car_colours); // 2015 0x03F3 COMMAND_GET_CAR_COLOURS (reVC Script6.cpp:150)
@@ -2072,6 +2457,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "register_fire_extinguished", register_fire_extinguished); // 2020 0x0404 COMMAND_REGISTER_FIRE_EXTINGUISHED (reVC Script6.cpp:273)
 	lua_register(L, "set_total_number_of_kill_frenzies", set_total_number_of_kill_frenzies); // 2021 0x0408 COMMAND_SET_TOTAL_NUMBER_OF_KILL_FRENZIES (reVC Script6.cpp:296)
 	lua_register(L, "set_free_health_care", set_free_health_care); // 2022 0x0414 COMMAND_SET_FREE_HEALTH_CARE (reVC Script6.cpp:357)
+
+
 	lua_register(L, "load_and_launch_mission_internal", load_and_launch_mission_internal); // 2023 0x0417 COMMAND_LOAD_AND_LAUNCH_MISSION_INTERNAL (reVC Script6.cpp:373)
 	lua_register(L, "set_object_draw_last", set_object_draw_last); // 2024 0x0418 COMMAND_SET_OBJECT_DRAW_LAST (reVC Script6.cpp:405)
 	lua_register(L, "convert_metres_to_feet", convert_metres_to_feet); // 2025 0x0425 COMMAND_CONVERT_METRES_TO_FEET (reVC Script6.cpp:521)
@@ -2082,6 +2469,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "stop_credits", stop_credits); // 2030 0x0435 COMMAND_STOP_CREDITS (reVC Script6.cpp:676)
 	lua_register(L, "are_credits_finished", are_credits_finished); // 2031 0x0436 COMMAND_ARE_CREDITS_FINISHED (reVC Script6.cpp:679)
 	lua_register(L, "play_end_of_game_tune", play_end_of_game_tune); // 2032 0x043F COMMAND_PLAY_END_OF_GAME_TUNE (reVC Script6.cpp:759)
+
+
 	lua_register(L, "stop_end_of_game_tune", stop_end_of_game_tune); // 2033 0x0440 COMMAND_STOP_END_OF_GAME_TUNE (reVC Script6.cpp:762)
 	lua_register(L, "are_any_car_cheats_activated", are_any_car_cheats_activated); // 2034 0x0445 COMMAND_ARE_ANY_CAR_CHEATS_ACTIVATED (reVC Script6.cpp:798)
 	lua_register(L, "load_splash_screen", load_splash_screen); // 2035 0x044D COMMAND_LOAD_SPLASH_SCREEN (reVC Script6.cpp:902)
@@ -2092,6 +2481,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "locate_char_on_foot_object_2d", locate_char_on_foot_object_2d); // 2040 0x0472 COMMAND_LOCATE_CHAR_ON_FOOT_OBJECT_2D (reVC Script6.cpp:1400)
 	lua_register(L, "can_char_see_dead_char", can_char_see_dead_char); // 2041 0x0480 COMMAND_CAN_CHAR_SEE_DEAD_CHAR (reVC Script6.cpp:1473)
 	lua_register(L, "is_any_pickup_at_coords", is_any_pickup_at_coords); // 2042 0x048C COMMAND_IS_ANY_PICKUP_AT_COORDS (reVC Script6.cpp:1540)
+
+
 	lua_register(L, "initialise_object_path", initialise_object_path); // 2043 0x049C COMMAND_INITIALISE_OBJECT_PATH (reVC Script6.cpp:1649)
 	lua_register(L, "start_object_on_path", start_object_on_path); // 2044 0x049D COMMAND_START_OBJECT_ON_PATH (reVC Script6.cpp:1660)
 	lua_register(L, "set_object_path_position", set_object_path_position); // 2045 0x049F COMMAND_SET_OBJECT_PATH_POSITION (reVC Script6.cpp:1674)
@@ -2102,6 +2493,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "clear_all_script_roadblocks", clear_all_script_roadblocks); // 2050 0x04C1 COMMAND_CLEAR_ALL_SCRIPT_ROADBLOCKS (reVC Script7.cpp:174)
 	lua_register(L, "has_char_been_photographed", has_char_been_photographed); // 2051 0x04C5 COMMAND_HAS_CHAR_BEEN_PHOTOGRAPHED (reVC Script7.cpp:201)
 	lua_register(L, "add_money_spent_on_clothes", add_money_spent_on_clothes); // 2052 0x04CF COMMAND_ADD_MONEY_SPENT_ON_CLOTHES (reVC Script7.cpp:257)
+
+
 	lua_register(L, "set_heli_orientation", set_heli_orientation); // 2053 0x04D0 COMMAND_SET_HELI_ORIENTATION (reVC Script7.cpp:262)
 	lua_register(L, "clear_heli_orientation", clear_heli_orientation); // 2054 0x04D1 COMMAND_CLEAR_HELI_ORIENTATION (reVC Script7.cpp:275)
 	lua_register(L, "set_char_drowns_in_water", set_char_drowns_in_water); // 2055 0x04D8 COMMAND_SET_CHAR_DROWNS_IN_WATER (reVC Script7.cpp:326)
@@ -2112,6 +2505,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "add_set_piece", add_set_piece); // 2060 0x04F8 COMMAND_ADD_SET_PIECE (reVC Script7.cpp:552)
 	lua_register(L, "get_wheelie_stats", get_wheelie_stats); // 2061 0x04FC COMMAND_GET_WHEELIE_STATS (reVC Script7.cpp:574)
 	lua_register(L, "switch_lift_camera", switch_lift_camera); // 2062 0x0507 COMMAND_SWITCH_LIFT_CAMERA (reVC Script7.cpp:665)
+
+
 	lua_register(L, "create_locked_property_pickup", create_locked_property_pickup); // 2063 0x0517 COMMAND_CREATE_LOCKED_PROPERTY_PICKUP (reVC Script7.cpp:760)
 	lua_register(L, "has_glass_been_shattered_nearby", has_glass_been_shattered_nearby); // 2064 0x0523 COMMAND_HAS_GLASS_BEEN_SHATTERED_NEARBY (reVC Script7.cpp:835)
 	lua_register(L, "attach_cutscene_object_to_component", attach_cutscene_object_to_component); // 2065 0x0525 COMMAND_ATTACH_CUTSCENE_OBJECT_TO_COMPONENT (reVC Script7.cpp:852)
@@ -2122,6 +2517,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "add_ice_creams_sold", add_ice_creams_sold); // 2070 0x0536 COMMAND_ADD_ICE_CREAMS_SOLD (reVC Script7.cpp:921)
 	lua_register(L, "set_char_in_players_group_can_fight", set_char_in_players_group_can_fight); // 2071 0x053C COMMAND_SET_CHAR_IN_PLAYERS_GROUP_CAN_FIGHT (reVC Script7.cpp:930)
 	lua_register(L, "get_random_car_of_type_in_area_no_save", get_random_car_of_type_in_area_no_save); // 2072 0x053E COMMAND_GET_RANDOM_CAR_OF_TYPE_IN_AREA_NO_SAVE (reVC Script7.cpp:946)
+
+
 	lua_register(L, "set_player_auto_aim", set_player_auto_aim); // 2073 0x0540 COMMAND_SET_PLAYER_AUTO_AIM (reVC Script7.cpp:981)
 	lua_register(L, "add_blood_ring_kills", add_blood_ring_kills); // 2074 0x0543 COMMAND_ADD_BLOOD_RING_KILLS (reVC Script7.cpp:1007)
 	lua_register(L, "set_longest_time_in_blood_ring", set_longest_time_in_blood_ring); // 2075 0x0544 COMMAND_SET_LONGEST_TIME_IN_BLOOD_RING (reVC Script7.cpp:1011)
@@ -2132,6 +2529,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_tonights_event", set_tonights_event); // 2080 0x054D COMMAND_SET_TONIGHTS_EVENT (reVC Script7.cpp:1085)
 	lua_register(L, "freeze_object_position", freeze_object_position); // 2081 0x0550 COMMAND_FREEZE_OBJECT_POSITION (reVC Script7.cpp:1102)
 	lua_register(L, "set_player_has_met_debbie_harry", set_player_has_met_debbie_harry); // 2082 0x0551 COMMAND_SET_PLAYER_HAS_MET_DEBBIE_HARRY (reVC Script7.cpp:1111)
+
+
 	lua_register(L, "set_up_taxi_shortcut", set_up_taxi_shortcut); // 2083 0x0556 COMMAND_SET_UP_TAXI_SHORTCUT (reVC Script7.cpp:1126)
 	lua_register(L, "clear_taxi_shortcut", clear_taxi_shortcut); // 2084 0x0557 COMMAND_CLEAR_TAXI_SHORTCUT (reVC Script7.cpp:1134)
 	lua_register(L, "add_porn_leaflet_to_rubbish", add_porn_leaflet_to_rubbish); // 2085 0x055A COMMAND_ADD_PORN_LEAFLET_TO_RUBBISH (reVC Script7.cpp:1139)
@@ -2142,6 +2541,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "is_char_stuck", is_char_stuck); // 2090 0x0571 COMMAND_IS_CHAR_STUCK (reVC Script7.cpp:1347)
 	lua_register(L, "set_all_taxis_have_nitro", set_all_taxis_have_nitro); // 2091 0x0572 COMMAND_SET_ALL_TAXIS_HAVE_NITRO (reVC Script7.cpp:1355)
 	lua_register(L, "register_vigilante_level", register_vigilante_level); // 2092 0x0578 COMMAND_REGISTER_VIGILANTE_LEVEL (reVC Script8.cpp:35)
+
+
 	lua_register(L, "set_maximum_number_of_cars_in_garage", set_maximum_number_of_cars_in_garage); // 2093 0x057A COMMAND_SET_MAXIMUM_NUMBER_OF_CARS_IN_GARAGE (reVC Script8.cpp:63)
 	lua_register(L, "wanted_stars_are_flashing", wanted_stars_are_flashing); // 2094 0x057B COMMAND_WANTED_STARS_ARE_FLASHING (reVC Script8.cpp:67)
 	lua_register(L, "get_bus_fares_collected_by_player", get_bus_fares_collected_by_player); // 2095 0x057F COMMAND_GET_BUS_FARES_COLLECTED_BY_PLAYER (reVC Script8.cpp:89)
@@ -2152,6 +2553,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "has_char_bought_ice_cream", has_char_bought_ice_cream); // 2100 0x058B COMMAND_HAS_CHAR_BOUGHT_ICE_CREAM (reVC Script8.cpp:216)
 	lua_register(L, "get_progress_percentage", get_progress_percentage); // 2101 0x058C COMMAND_GET_PROGRESS_PERCENTAGE (reVC Script8.cpp:224)
 	lua_register(L, "set_shortcut_pickup_point", set_shortcut_pickup_point); // 2102 0x058D COMMAND_SET_SHORTCUT_PICKUP_POINT (reVC Script8.cpp:228)
+
+
 	lua_register(L, "get_random_ice_cream_customer_in_area", get_random_ice_cream_customer_in_area); // 2103 0x058F COMMAND_GET_RANDOM_ICE_CREAM_CUSTOMER_IN_AREA (reVC Script8.cpp:240)
 	lua_register(L, "set_char_frightened_in_jacked_car", set_char_frightened_in_jacked_car); // 2104 0x0593 COMMAND_SET_CHAR_FRIGHTENED_IN_JACKED_CAR (reVC Script8.cpp:314)
 	lua_register(L, "is_player_in_shortcut_taxi", is_player_in_shortcut_taxi); // 2105 0x0596 COMMAND_IS_PLAYER_IN_SHORTCUT_TAXI (reVC Script8.cpp:336)
@@ -2160,229 +2563,273 @@ int funs(lua_State* L) {// список функций.
 
 	// === COMMUNITY ADDRESSES + HEADLIGHTS (20.11) ===
 	lua_register(L, "patch_headlights", patch_headlights); // 2107 GTAForums 0x58CD4E
-	lua_register(L, "set_headlights_on", set_headlights_on); // 2108 обёртка: set headlights on
-	lua_register(L, "set_headlights_off", set_headlights_off); // 2109 обёртка: set headlights off
-	lua_register(L, "is_headlights_on", is_headlights_on); // 2110 обёртка: is headlights on
-	lua_register(L, "get_m_timepassingmeby_faster_time", get_m_timepassingmeby_faster_time); // 2111 0xA10B87 TIMEPASSINGMEBY faster time
-	lua_register(L, "set_m_timepassingmeby_faster_time", set_m_timepassingmeby_faster_time); // 2112 обёртка: set m timepassingmeby faster time
-	lua_register(L, "get_m_youwonttakemealive_wanted_level", get_m_youwonttakemealive_wanted_level); // 2113 0x4ABF4C YOUWONTTAKEMEALIVE set wanted level
-	lua_register(L, "set_m_youwonttakemealive_wanted_level", set_m_youwonttakemealive_wanted_level); // 2114 обёртка: set m youwonttakemealive wanted level
-	lua_register(L, "get_m_leavemealone_wanted_level", get_m_leavemealone_wanted_level); // 2115 0x4ABFC4 LEAVEMEALONE set wanted level
-	lua_register(L, "set_m_leavemealone_wanted_level", set_m_leavemealone_wanted_level); // 2116 обёртка: set m leavemealone wanted level
-	lua_register(L, "get_m_apleasantday_weather", get_m_apleasantday_weather); // 2117 0x4AC009 APLEASANTDAY set weather
-	lua_register(L, "set_m_apleasantday_weather", set_m_apleasantday_weather); // 2118 обёртка: set m apleasantday weather
-	lua_register(L, "get_m_alovelyday_weather", get_m_alovelyday_weather); // 2119 0x4AC04E ALOVELYDAY set weather
-	lua_register(L, "set_m_alovelyday_weather", set_m_alovelyday_weather); // 2120 обёртка: set m alovelyday weather
-	lua_register(L, "get_m_abitdrieg_weather", get_m_abitdrieg_weather); // 2121 0x4AC099 ABITDRIEG set weather
-	lua_register(L, "set_m_abitdrieg_weather", set_m_abitdrieg_weather); // 2122 обёртка: set m abitdrieg weather
-	lua_register(L, "get_m_catsanddogs_weather", get_m_catsanddogs_weather); // 2123 0x4AC0DE CATSANDDOGS set weather
-	lua_register(L, "set_m_catsanddogs_weather", set_m_catsanddogs_weather); // 2124 обёртка: set m catsanddogs weather
-	lua_register(L, "get_m_cantseeathing_weather", get_m_cantseeathing_weather); // 2125 0x4AC129 CANTSEEATHING set weather
-	lua_register(L, "set_m_cantseeathing_weather", set_m_cantseeathing_weather); // 2126 обёртка: set m cantseeathing weather
-	lua_register(L, "get_m_panzer_rhino_model", get_m_panzer_rhino_model); // 2127 0x4AC14B PANZER Rhino model
-	lua_register(L, "set_m_panzer_rhino_model", set_m_panzer_rhino_model); // 2128 обёртка: set m panzer rhino model
+	lua_register(L, "set_headlights_on", set_headlights_on); // 2108 включить фары авто игрока (0x7E49C0+0x1F9=0x50)
+	lua_register(L, "set_headlights_off", set_headlights_off); // 2109 выключить фары авто игрока (0x7E49C0+0x1F9=0x10)
+	lua_register(L, "is_headlights_on", is_headlights_on); // 2110 проверить, включены ли фары авто игрока
+	lua_register(L, "get_m_timepassingmeby_faster_time", get_m_timepassingmeby_faster_time); // 2111 0xA10B87 TIMEPASSINGMEBY ускорение времени
+	lua_register(L, "set_m_timepassingmeby_faster_time", set_m_timepassingmeby_faster_time); // 2112 0xA10B87 TIMEPASSINGMEBY ускорение времени (установка)
+	lua_register(L, "get_m_youwonttakemealive_wanted_level", get_m_youwonttakemealive_wanted_level); // 2113 0x4ABF4C YOUWONTTAKEMEALIVE уровень розыска
+	lua_register(L, "set_m_youwonttakemealive_wanted_level", set_m_youwonttakemealive_wanted_level); // 2114 0x4ABF4C YOUWONTTAKEMEALIVE уровень розыска (установка)
+	lua_register(L, "get_m_leavemealone_wanted_level", get_m_leavemealone_wanted_level); // 2115 0x4ABFC4 LEAVEMEALONE уровень розыска
+	lua_register(L, "set_m_leavemealone_wanted_level", set_m_leavemealone_wanted_level); // 2116 0x4ABFC4 LEAVEMEALONE уровень розыска (установка)
+
+
+	lua_register(L, "get_m_apleasantday_weather", get_m_apleasantday_weather); // 2117 0x4AC009 APLEASANTDAY погода
+	lua_register(L, "set_m_apleasantday_weather", set_m_apleasantday_weather); // 2118 0x4AC009 APLEASANTDAY погода (установка)
+	lua_register(L, "get_m_alovelyday_weather", get_m_alovelyday_weather); // 2119 0x4AC04E ALOVELYDAY погода
+	lua_register(L, "set_m_alovelyday_weather", set_m_alovelyday_weather); // 2120 0x4AC04E ALOVELYDAY погода (установка)
+	lua_register(L, "get_m_abitdrieg_weather", get_m_abitdrieg_weather); // 2121 0x4AC099 ABITDRIEG погода
+	lua_register(L, "set_m_abitdrieg_weather", set_m_abitdrieg_weather); // 2122 0x4AC099 ABITDRIEG погода (установка)
+	lua_register(L, "get_m_catsanddogs_weather", get_m_catsanddogs_weather); // 2123 0x4AC0DE CATSANDDOGS погода
+	lua_register(L, "set_m_catsanddogs_weather", set_m_catsanddogs_weather); // 2124 0x4AC0DE CATSANDDOGS погода (установка)
+	lua_register(L, "get_m_cantseeathing_weather", get_m_cantseeathing_weather); // 2125 0x4AC129 CANTSEEATHING погода
+	lua_register(L, "set_m_cantseeathing_weather", set_m_cantseeathing_weather); // 2126 0x4AC129 CANTSEEATHING погода (установка)
+
+
+	lua_register(L, "get_m_panzer_rhino_model", get_m_panzer_rhino_model); // 2127 0x4AC14B PANZER модель Rhino
+	lua_register(L, "set_m_panzer_rhino_model", set_m_panzer_rhino_model); // 2128 0x4AC14B PANZER модель Rhino (установка)
 	lua_register(L, "get_m_travelinstyle_bloodring_a_model", get_m_travelinstyle_bloodring_a_model); // 2129 0x4AC946 TRAVELINSTYLE Bloodring A model
-	lua_register(L, "set_m_travelinstyle_bloodring_a_model", set_m_travelinstyle_bloodring_a_model); // 2130 обёртка: set m travelinstyle bloodring a model
+	lua_register(L, "set_m_travelinstyle_bloodring_a_model", set_m_travelinstyle_bloodring_a_model); // 2130 0x4AC946 TRAVELINSTYLE Bloodring A model (установка)
 	lua_register(L, "get_m_thelastride_romero_hearse_model", get_m_thelastride_romero_hearse_model); // 2131 0x4AC976 THELASTRIDE Romero's Hearse model
-	lua_register(L, "set_m_thelastride_romero_hearse_model", set_m_thelastride_romero_hearse_model); // 2132 обёртка: set m thelastride romero hearse model
+	lua_register(L, "set_m_thelastride_romero_hearse_model", set_m_thelastride_romero_hearse_model); // 2132 0x4AC976 THELASTRIDE Romero's Hearse model (установка)
 	lua_register(L, "get_m_rockandrollcar_love_fist_model", get_m_rockandrollcar_love_fist_model); // 2133 0x4AC9A6 ROCKANDROLLCAR Love Fist model
-	lua_register(L, "set_m_rockandrollcar_love_fist_model", set_m_rockandrollcar_love_fist_model); // 2134 обёртка: set m rockandrollcar love fist model
+	lua_register(L, "set_m_rockandrollcar_love_fist_model", set_m_rockandrollcar_love_fist_model); // 2134 0x4AC9A6 ROCKANDROLLCAR Love Fist model (установка)
 	lua_register(L, "get_m_rubbishcar_trashmaster_model", get_m_rubbishcar_trashmaster_model); // 2135 0x4AC9D6 RUBBISHCAR Trashmaster model
-	lua_register(L, "set_m_rubbishcar_trashmaster_model", set_m_rubbishcar_trashmaster_model); // 2136 обёртка: set m rubbishcar trashmaster model
+	lua_register(L, "set_m_rubbishcar_trashmaster_model", set_m_rubbishcar_trashmaster_model); // 2136 0x4AC9D6 RUBBISHCAR Trashmaster model (установка)
+
+
 	lua_register(L, "get_m_gettherefast_sabre_turbo_model", get_m_gettherefast_sabre_turbo_model); // 2137 0x4ACA06 GETTHEREFAST Sabre Turbo model
-	lua_register(L, "set_m_gettherefast_sabre_turbo_model", set_m_gettherefast_sabre_turbo_model); // 2138 обёртка: set m gettherefast sabre turbo model
-	lua_register(L, "get_m_betterthanwalking_caddy_model", get_m_betterthanwalking_caddy_model); // 2139 0x4ACA36 BETTERTHANWALKING Caddy model
-	lua_register(L, "set_m_betterthanwalking_caddy_model", set_m_betterthanwalking_caddy_model); // 2140 обёртка: set m betterthanwalking caddy model
+	lua_register(L, "set_m_gettherefast_sabre_turbo_model", set_m_gettherefast_sabre_turbo_model); // 2138 0x4ACA06 GETTHEREFAST Sabre Turbo model (установка)
+	lua_register(L, "get_m_betterthanwalking_caddy_model", get_m_betterthanwalking_caddy_model); // 2139 0x4ACA36 BETTERTHANWALKING модель Caddy
+	lua_register(L, "set_m_betterthanwalking_caddy_model", set_m_betterthanwalking_caddy_model); // 2140 0x4ACA36 BETTERTHANWALKING модель Caddy (установка)
 	lua_register(L, "get_m_gettherequickly_bloodring_b_model", get_m_gettherequickly_bloodring_b_model); // 2141 0x4ACDD6 GETTHEREQUICKLY Bloodring B model
-	lua_register(L, "set_m_gettherequickly_bloodring_b_model", set_m_gettherequickly_bloodring_b_model); // 2142 обёртка: set m gettherequickly bloodring b model
+	lua_register(L, "set_m_gettherequickly_bloodring_b_model", set_m_gettherequickly_bloodring_b_model); // 2142 0x4ACDD6 GETTHEREQUICKLY Bloodring B model (установка)
 	lua_register(L, "get_m_getthereveryfastindeed_hotring_a_model", get_m_getthereveryfastindeed_hotring_a_model); // 2143 0x4ACE06 GETTHEREVERYFASTINDEED Hotring A model
-	lua_register(L, "set_m_getthereveryfastindeed_hotring_a_model", set_m_getthereveryfastindeed_hotring_a_model); // 2144 обёртка: set m getthereveryfastindeed hotring a model
+	lua_register(L, "set_m_getthereveryfastindeed_hotring_a_model", set_m_getthereveryfastindeed_hotring_a_model); // 2144 0x4ACE06 GETTHEREVERYFASTINDEED Hotring A model (установка)
 	lua_register(L, "get_m_getthereamazinglyfast_hotring_b_model", get_m_getthereamazinglyfast_hotring_b_model); // 2145 0x4ACE36 GETTHEREAMAZINGLYFAST Hotring B model
-	lua_register(L, "set_m_getthereamazinglyfast_hotring_b_model", set_m_getthereamazinglyfast_hotring_b_model); // 2146 обёртка: set m getthereamazinglyfast hotring b model
+	lua_register(L, "set_m_getthereamazinglyfast_hotring_b_model", set_m_getthereamazinglyfast_hotring_b_model); // 2146 0x4ACE36 GETTHEREAMAZINGLYFAST Hotring B model (установка)
+
+
 	lua_register(L, "get_m_nuttertools_chainsaw_model", get_m_nuttertools_chainsaw_model); // 2147 0x4AEAEF NUTTERTOOLS Chainsaw model
-	lua_register(L, "set_m_nuttertools_chainsaw_model", set_m_nuttertools_chainsaw_model); // 2148 обёртка: set m nuttertools chainsaw model
-	lua_register(L, "get_m_nuttertools_chainsaw_weapon_note", get_m_nuttertools_chainsaw_weapon_note); // 2149 0x4AEB77 NUTTERTOOLS Chainsaw weapon number (NOTE: Model needs to be
-	lua_register(L, "set_m_nuttertools_chainsaw_weapon_note", set_m_nuttertools_chainsaw_weapon_note); // 2150 обёртка: set m nuttertools chainsaw weapon note
-	lua_register(L, "get_m_nuttertools_m4_weapon_note", get_m_nuttertools_m4_weapon_note); // 2151 0x4AEBD4 NUTTERTOOLS M4 weapon number (NOTE: Model needs to be loaded
-	lua_register(L, "set_m_nuttertools_m4_weapon_note", set_m_nuttertools_m4_weapon_note); // 2152 обёртка: set m nuttertools m4 weapon note
-	lua_register(L, "get_m_nuttertools_sniper_weapon_note", get_m_nuttertools_sniper_weapon_note); // 2153 0x4AEBE6 NUTTERTOOLS .308 Sniper weapon number (NOTE: Model needs to
-	lua_register(L, "set_m_nuttertools_sniper_weapon_note", set_m_nuttertools_sniper_weapon_note); // 2154 обёртка: set m nuttertools sniper weapon note
-	lua_register(L, "get_m_nuttertools_minigun_weapon_note", get_m_nuttertools_minigun_weapon_note); // 2155 0x4AEBFB NUTTERTOOLS Minigun weapon number (NOTE: Model needs to be l
-	lua_register(L, "set_m_nuttertools_minigun_weapon_note", set_m_nuttertools_minigun_weapon_note); // 2156 обёртка: set m nuttertools minigun weapon note
+	lua_register(L, "set_m_nuttertools_chainsaw_model", set_m_nuttertools_chainsaw_model); // 2148 0x4AEAEF NUTTERTOOLS Chainsaw model (установка)
+	lua_register(L, "get_m_nuttertools_chainsaw_weapon_note", get_m_nuttertools_chainsaw_weapon_note); // 2149 0x4AEB77 NUTTERTOOLS Chainsaw номер оружия (модель должна быть загружена
+	lua_register(L, "set_m_nuttertools_chainsaw_weapon_note", set_m_nuttertools_chainsaw_weapon_note); // 2150 0x4AEB77 NUTTERTOOLS Chainsaw номер оружия (модель должна быть загружена (установка)
+	lua_register(L, "get_m_nuttertools_m4_weapon_note", get_m_nuttertools_m4_weapon_note); // 2151 0x4AEBD4 NUTTERTOOLS M4 номер оружия (модель должна быть загружена
+	lua_register(L, "set_m_nuttertools_m4_weapon_note", set_m_nuttertools_m4_weapon_note); // 2152 0x4AEBD4 NUTTERTOOLS M4 номер оружия (модель должна быть загружена (установка)
+	lua_register(L, "get_m_nuttertools_sniper_weapon_note", get_m_nuttertools_sniper_weapon_note); // 2153 0x4AEBE6 NUTTERTOOLS .308 Sniper номер оружия (NOTE: Model needs to
+	lua_register(L, "set_m_nuttertools_sniper_weapon_note", set_m_nuttertools_sniper_weapon_note); // 2154 0x4AEBE6 NUTTERTOOLS .308 Sniper номер оружия (NOTE: Model needs to (установка)
+	lua_register(L, "get_m_nuttertools_minigun_weapon_note", get_m_nuttertools_minigun_weapon_note); // 2155 0x4AEBFB NUTTERTOOLS Minigun номер оружия (модель должна быть загружена l
+	lua_register(L, "set_m_nuttertools_minigun_weapon_note", set_m_nuttertools_minigun_weapon_note); // 2156 0x4AEBFB NUTTERTOOLS Minigun номер оружия (модель должна быть загружена l (установка)
+
+
 	lua_register(L, "get_m_professionaltools_katana_model", get_m_professionaltools_katana_model); // 2157 0x4AEC8F PROFESSIONALTOOLS Katana model
-	lua_register(L, "set_m_professionaltools_katana_model", set_m_professionaltools_katana_model); // 2158 обёртка: set m professionaltools katana model
-	lua_register(L, "get_m_professionaltools_katana_weapon_note", get_m_professionaltools_katana_weapon_note); // 2159 0x4AED17 PROFESSIONALTOOLS Katana weapon number (NOTE: Model needs to
-	lua_register(L, "set_m_professionaltools_katana_weapon_note", set_m_professionaltools_katana_weapon_note); // 2160 обёртка: set m professionaltools katana weapon note
-	lua_register(L, "get_m_professionaltools_m4_weapon_note", get_m_professionaltools_m4_weapon_note); // 2161 0x4AED74 PROFESSIONALTOOLS M4 weapon number (NOTE: Model needs to be
-	lua_register(L, "set_m_professionaltools_m4_weapon_note", set_m_professionaltools_m4_weapon_note); // 2162 обёртка: set m professionaltools m4 weapon note
-	lua_register(L, "get_m_professionaltools_sniper_weapon_note", get_m_professionaltools_sniper_weapon_note); // 2163 0x4AED86 PROFESSIONALTOOLS .308 Sniper weapon number (NOTE: Model nee
-	lua_register(L, "set_m_professionaltools_sniper_weapon_note", set_m_professionaltools_sniper_weapon_note); // 2164 обёртка: set m professionaltools sniper weapon note
-	lua_register(L, "get_m_professionaltools_rocket_launcher_weapon", get_m_professionaltools_rocket_launcher_weapon); // 2165 0x4AED98 PROFESSIONALTOOLS Rocket Launcher weapon number (NOTE: Model
-	lua_register(L, "set_m_professionaltools_rocket_launcher_weapon", set_m_professionaltools_rocket_launcher_weapon); // 2166 обёртка: set m professionaltools rocket launcher weapon
+	lua_register(L, "set_m_professionaltools_katana_model", set_m_professionaltools_katana_model); // 2158 0x4AEC8F PROFESSIONALTOOLS Katana model (установка)
+	lua_register(L, "get_m_professionaltools_katana_weapon_note", get_m_professionaltools_katana_weapon_note); // 2159 0x4AED17 PROFESSIONALTOOLS Katana номер оружия (NOTE: Model needs to
+	lua_register(L, "set_m_professionaltools_katana_weapon_note", set_m_professionaltools_katana_weapon_note); // 2160 0x4AED17 PROFESSIONALTOOLS Katana номер оружия (NOTE: Model needs to (установка)
+	lua_register(L, "get_m_professionaltools_m4_weapon_note", get_m_professionaltools_m4_weapon_note); // 2161 0x4AED74 PROFESSIONALTOOLS M4 номер оружия (модель должна быть загружена
+	lua_register(L, "set_m_professionaltools_m4_weapon_note", set_m_professionaltools_m4_weapon_note); // 2162 0x4AED74 PROFESSIONALTOOLS M4 номер оружия (модель должна быть загружена (установка)
+	lua_register(L, "get_m_professionaltools_sniper_weapon_note", get_m_professionaltools_sniper_weapon_note); // 2163 0x4AED86 PROFESSIONALTOOLS .308 Sniper номер оружия (NOTE: Model nee
+	lua_register(L, "set_m_professionaltools_sniper_weapon_note", set_m_professionaltools_sniper_weapon_note); // 2164 0x4AED86 PROFESSIONALTOOLS .308 Sniper номер оружия (NOTE: Model nee (установка)
+	lua_register(L, "get_m_professionaltools_rocket_launcher_weapon", get_m_professionaltools_rocket_launcher_weapon); // 2165 0x4AED98 PROFESSIONALTOOLS Rocket Launcher номер оружия (NOTE: Model
+	lua_register(L, "set_m_professionaltools_rocket_launcher_weapon", set_m_professionaltools_rocket_launcher_weapon); // 2166 0x4AED98 PROFESSIONALTOOLS Rocket Launcher номер оружия (NOTE: Model (установка)
+
+
 	lua_register(L, "get_m_thugstools_brass_knuckles_model", get_m_thugstools_brass_knuckles_model); // 2167 0x4AEE1F THUGSTOOLS Brass Knuckles model
-	lua_register(L, "set_m_thugstools_brass_knuckles_model", set_m_thugstools_brass_knuckles_model); // 2168 обёртка: set m thugstools brass knuckles model
-	lua_register(L, "get_m_thugstools_brass_knuckles_weapon", get_m_thugstools_brass_knuckles_weapon); // 2169 0x4AEEA7 THUGSTOOLS Brass Knuckles weapon number (NOTE: Model needs t
-	lua_register(L, "set_m_thugstools_brass_knuckles_weapon", set_m_thugstools_brass_knuckles_weapon); // 2170 обёртка: set m thugstools brass knuckles weapon
-	lua_register(L, "get_m_thugstools_tec_weapon_note", get_m_thugstools_tec_weapon_note); // 2171 0x4AEF04 THUGSTOOLS Tec 9 weapon number (NOTE: Model needs to be load
-	lua_register(L, "set_m_thugstools_tec_weapon_note", set_m_thugstools_tec_weapon_note); // 2172 обёртка: set m thugstools tec weapon note
-	lua_register(L, "get_m_thugstools_kruger_weapon_note", get_m_thugstools_kruger_weapon_note); // 2173 0x4AEF16 THUGSTOOLS Kruger weapon number (NOTE: Model needs to be loa
-	lua_register(L, "set_m_thugstools_kruger_weapon_note", set_m_thugstools_kruger_weapon_note); // 2174 обёртка: set m thugstools kruger weapon note
-	lua_register(L, "get_m_thugstools_sniper_rifle_weapon", get_m_thugstools_sniper_rifle_weapon); // 2175 0x4AEF28 THUGSTOOLS Sniper Rifle weapon number (NOTE: Model needs to
-	lua_register(L, "set_m_thugstools_sniper_rifle_weapon", set_m_thugstools_sniper_rifle_weapon); // 2176 обёртка: set m thugstools sniper rifle weapon
-	lua_register(L, "get_m_thugstools_flame_thrower_weapon", get_m_thugstools_flame_thrower_weapon); // 2177 0x4AEF38 THUGSTOOLS Flame Thrower weapon number (NOTE: Model needs to
-	lua_register(L, "set_m_thugstools_flame_thrower_weapon", set_m_thugstools_flame_thrower_weapon); // 2178 обёртка: set m thugstools flame thrower weapon
-	lua_register(L, "get_m_deepfriedmarsbars_programmer_tommy_body", get_m_deepfriedmarsbars_programmer_tommy_body); // 2179 0x68E058 DEEPFRIEDMARSBARS/PROGRAMMER Tommy's body width
-	lua_register(L, "set_m_deepfriedmarsbars_programmer_tommy_body", set_m_deepfriedmarsbars_programmer_tommy_body); // 2180 обёртка: set m deepfriedmarsbars programmer tommy body
-	lua_register(L, "get_m_onspeed_game_speed", get_m_onspeed_game_speed); // 2181 0x68F1F0 ONSPEED set game speed
-	lua_register(L, "set_m_onspeed_game_speed", set_m_onspeed_game_speed); // 2182 обёртка: set m onspeed game speed
-	lua_register(L, "get_m_onspeed_game_speed_multiplier", get_m_onspeed_game_speed_multiplier); // 2183 0x68F1F4 ONSPEED game speed multiplier
-	lua_register(L, "set_m_onspeed_game_speed_multiplier", set_m_onspeed_game_speed_multiplier); // 2184 обёртка: set m onspeed game speed multiplier
-	lua_register(L, "get_m_booooooring_game_speed", get_m_booooooring_game_speed); // 2185 0x68F1F8 BOOOOOORING set game speed
-	lua_register(L, "set_m_booooooring_game_speed", set_m_booooooring_game_speed); // 2186 обёртка: set m booooooring game speed
-	lua_register(L, "get_m_booooooring_game_speed_multiplier", get_m_booooooring_game_speed_multiplier); // 2187 0x68F1FC BOOOOOORING game speed multiplier
-	lua_register(L, "set_m_booooooring_game_speed_multiplier", set_m_booooooring_game_speed_multiplier); // 2188 обёртка: set m booooooring game speed multiplier
-	lua_register(L, "get_m_chasestat", get_m_chasestat); // 2189 0x97F2C4 CHASESTAT cheat switch
-	lua_register(L, "set_m_chasestat", set_m_chasestat); // 2190 обёртка: set m chasestat
-	lua_register(L, "get_m_ourgodgivenrighttobeararms", get_m_ourgodgivenrighttobeararms); // 2191 0xA10AB3 OURGODGIVENRIGHTTOBEARARMS cheat switch
-	lua_register(L, "set_m_ourgodgivenrighttobeararms", set_m_ourgodgivenrighttobeararms); // 2192 обёртка: set m ourgodgivenrighttobeararms
-	lua_register(L, "get_m_greenlight", get_m_greenlight); // 2193 0xA10ADC GREENLIGHT cheat switch
-	lua_register(L, "set_m_greenlight", set_m_greenlight); // 2194 обёртка: set m greenlight
-	lua_register(L, "get_m_gripiseverything", get_m_gripiseverything); // 2195 0xA10B0F GRIPISEVERYTHING cheat switch
-	lua_register(L, "set_m_gripiseverything", set_m_gripiseverything); // 2196 обёртка: set m gripiseverything
-	lua_register(L, "get_m_airship", get_m_airship); // 2197 0xA10B11 AIRSHIP cheat switch
-	lua_register(L, "set_m_airship", set_m_airship); // 2198 обёртка: set m airship
-	lua_register(L, "get_m_certaindeath", get_m_certaindeath); // 2199 0xA10B23 CERTAINDEATH cheat switch
-	lua_register(L, "set_m_certaindeath", set_m_certaindeath); // 2200 обёртка: set m certaindeath
-	lua_register(L, "get_m_ahairdresserscar", get_m_ahairdresserscar); // 2201 0xA10B26 AHAIRDRESSERSCAR cheat switch
-	lua_register(L, "set_m_ahairdresserscar", set_m_ahairdresserscar); // 2202 обёртка: set m ahairdresserscar
-	lua_register(L, "get_m_comeflywithme", get_m_comeflywithme); // 2203 0xA10B28 COMEFLYWITHME cheat switch
-	lua_register(L, "set_m_comeflywithme", set_m_comeflywithme); // 2204 обёртка: set m comeflywithme
-	lua_register(L, "get_m_used_flag", get_m_used_flag); // 2205 0xA10B2E Cheat is used flag
-	lua_register(L, "set_m_used_flag", set_m_used_flag); // 2206 обёртка: set m used flag
-	lua_register(L, "get_m_wheelsareallineed", get_m_wheelsareallineed); // 2207 0xA10B30 WHEELSAREALLINEED cheat switch
-	lua_register(L, "set_m_wheelsareallineed", set_m_wheelsareallineed); // 2208 обёртка: set m wheelsareallineed
-	lua_register(L, "get_m_miamitraffic", get_m_miamitraffic); // 2209 0xA10B47 MIAMITRAFFIC cheat switch
-	lua_register(L, "set_m_miamitraffic", set_m_miamitraffic); // 2210 обёртка: set m miamitraffic
-	lua_register(L, "get_m_fannymagnet", get_m_fannymagnet); // 2211 0xA10B5F FANNYMAGNET cheat switch
-	lua_register(L, "set_m_fannymagnet", set_m_fannymagnet); // 2212 обёртка: set m fannymagnet
-	lua_register(L, "get_m_seaways", get_m_seaways); // 2213 0xA10B81 SEAWAYS cheat switch
-	lua_register(L, "set_m_seaways", set_m_seaways); // 2214 обёртка: set m seaways
-	lua_register(L, "get_m_iwantitpaintedblack", get_m_iwantitpaintedblack); // 2215 0xA10B82 IWANTITPAINTEDBLACK cheat switch
-	lua_register(L, "set_m_iwantitpaintedblack", set_m_iwantitpaintedblack); // 2216 обёртка: set m iwantitpaintedblack
+	lua_register(L, "set_m_thugstools_brass_knuckles_model", set_m_thugstools_brass_knuckles_model); // 2168 0x4AEE1F THUGSTOOLS Brass Knuckles model (установка)
+	lua_register(L, "get_m_thugstools_brass_knuckles_weapon", get_m_thugstools_brass_knuckles_weapon); // 2169 0x4AEEA7 THUGSTOOLS Brass Knuckles номер оружия (NOTE: Model needs t
+	lua_register(L, "set_m_thugstools_brass_knuckles_weapon", set_m_thugstools_brass_knuckles_weapon); // 2170 0x4AEEA7 THUGSTOOLS Brass Knuckles номер оружия (NOTE: Model needs t (установка)
+	lua_register(L, "get_m_thugstools_tec_weapon_note", get_m_thugstools_tec_weapon_note); // 2171 0x4AEF04 THUGSTOOLS Tec 9 номер оружия (модель должна быть загружена load
+	lua_register(L, "set_m_thugstools_tec_weapon_note", set_m_thugstools_tec_weapon_note); // 2172 0x4AEF04 THUGSTOOLS Tec 9 номер оружия (модель должна быть загружена load (установка)
+	lua_register(L, "get_m_thugstools_kruger_weapon_note", get_m_thugstools_kruger_weapon_note); // 2173 0x4AEF16 THUGSTOOLS Kruger номер оружия (модель должна быть загружена loa
+	lua_register(L, "set_m_thugstools_kruger_weapon_note", set_m_thugstools_kruger_weapon_note); // 2174 0x4AEF16 THUGSTOOLS Kruger номер оружия (модель должна быть загружена loa (установка)
+	lua_register(L, "get_m_thugstools_sniper_rifle_weapon", get_m_thugstools_sniper_rifle_weapon); // 2175 0x4AEF28 THUGSTOOLS Sniper Rifle номер оружия (NOTE: Model needs to
+	lua_register(L, "set_m_thugstools_sniper_rifle_weapon", set_m_thugstools_sniper_rifle_weapon); // 2176 0x4AEF28 THUGSTOOLS Sniper Rifle номер оружия (NOTE: Model needs to (установка)
+
+
+	lua_register(L, "get_m_thugstools_flame_thrower_weapon", get_m_thugstools_flame_thrower_weapon); // 2177 0x4AEF38 THUGSTOOLS Flame Thrower номер оружия (NOTE: Model needs to
+	lua_register(L, "set_m_thugstools_flame_thrower_weapon", set_m_thugstools_flame_thrower_weapon); // 2178 0x4AEF38 THUGSTOOLS Flame Thrower номер оружия (NOTE: Model needs to (установка)
+	lua_register(L, "get_m_deepfriedmarsbars_programmer_tommy_body", get_m_deepfriedmarsbars_programmer_tommy_body); // 2179 0x68E058 DEEPFRIEDMARSBARS/PROGRAMMER Tommy's ширина тела
+	lua_register(L, "set_m_deepfriedmarsbars_programmer_tommy_body", set_m_deepfriedmarsbars_programmer_tommy_body); // 2180 0x68E058 DEEPFRIEDMARSBARS/PROGRAMMER Tommy's ширина тела (установка)
+	lua_register(L, "get_m_onspeed_game_speed", get_m_onspeed_game_speed); // 2181 0x68F1F0 ONSPEED скорость игры
+	lua_register(L, "set_m_onspeed_game_speed", set_m_onspeed_game_speed); // 2182 0x68F1F0 ONSPEED скорость игры (установка)
+	lua_register(L, "get_m_onspeed_game_speed_multiplier", get_m_onspeed_game_speed_multiplier); // 2183 0x68F1F4 ONSPEED множитель скорости игры
+	lua_register(L, "set_m_onspeed_game_speed_multiplier", set_m_onspeed_game_speed_multiplier); // 2184 0x68F1F4 ONSPEED множитель скорости игры (установка)
+	lua_register(L, "get_m_booooooring_game_speed", get_m_booooooring_game_speed); // 2185 0x68F1F8 BOOOOOORING скорость игры
+	lua_register(L, "set_m_booooooring_game_speed", set_m_booooooring_game_speed); // 2186 0x68F1F8 BOOOOOORING скорость игры (установка)
+
+
+	lua_register(L, "get_m_booooooring_game_speed_multiplier", get_m_booooooring_game_speed_multiplier); // 2187 0x68F1FC BOOOOOORING множитель скорости игры
+	lua_register(L, "set_m_booooooring_game_speed_multiplier", set_m_booooooring_game_speed_multiplier); // 2188 0x68F1FC BOOOOOORING множитель скорости игры (установка)
+	lua_register(L, "get_m_chasestat", get_m_chasestat); // 2189 0x97F2C4 CHASESTAT переключатель чита
+	lua_register(L, "set_m_chasestat", set_m_chasestat); // 2190 0x97F2C4 CHASESTAT переключатель чита (установка)
+	lua_register(L, "get_m_ourgodgivenrighttobeararms", get_m_ourgodgivenrighttobeararms); // 2191 0xA10AB3 OURGODGIVENRIGHTTOBEARARMS переключатель чита
+	lua_register(L, "set_m_ourgodgivenrighttobeararms", set_m_ourgodgivenrighttobeararms); // 2192 0xA10AB3 OURGODGIVENRIGHTTOBEARARMS переключатель чита (установка)
+	lua_register(L, "get_m_greenlight", get_m_greenlight); // 2193 0xA10ADC GREENLIGHT переключатель чита
+	lua_register(L, "set_m_greenlight", set_m_greenlight); // 2194 0xA10ADC GREENLIGHT переключатель чита (установка)
+	lua_register(L, "get_m_gripiseverything", get_m_gripiseverything); // 2195 0xA10B0F GRIPISEVERYTHING переключатель чита
+	lua_register(L, "set_m_gripiseverything", set_m_gripiseverything); // 2196 0xA10B0F GRIPISEVERYTHING переключатель чита (установка)
+
+
+	lua_register(L, "get_m_airship", get_m_airship); // 2197 0xA10B11 AIRSHIP переключатель чита
+	lua_register(L, "set_m_airship", set_m_airship); // 2198 0xA10B11 AIRSHIP переключатель чита (установка)
+	lua_register(L, "get_m_certaindeath", get_m_certaindeath); // 2199 0xA10B23 CERTAINDEATH переключатель чита
+	lua_register(L, "set_m_certaindeath", set_m_certaindeath); // 2200 0xA10B23 CERTAINDEATH переключатель чита (установка)
+	lua_register(L, "get_m_ahairdresserscar", get_m_ahairdresserscar); // 2201 0xA10B26 AHAIRDRESSERSCAR переключатель чита
+	lua_register(L, "set_m_ahairdresserscar", set_m_ahairdresserscar); // 2202 0xA10B26 AHAIRDRESSERSCAR переключатель чита (установка)
+	lua_register(L, "get_m_comeflywithme", get_m_comeflywithme); // 2203 0xA10B28 COMEFLYWITHME переключатель чита
+	lua_register(L, "set_m_comeflywithme", set_m_comeflywithme); // 2204 0xA10B28 COMEFLYWITHME переключатель чита (установка)
+	lua_register(L, "get_m_used_flag", get_m_used_flag); // 2205 0xA10B2E флаг использования чита
+	lua_register(L, "set_m_used_flag", set_m_used_flag); // 2206 0xA10B2E флаг использования чита (установка)
+
+
+	lua_register(L, "get_m_wheelsareallineed", get_m_wheelsareallineed); // 2207 0xA10B30 WHEELSAREALLINEED переключатель чита
+	lua_register(L, "set_m_wheelsareallineed", set_m_wheelsareallineed); // 2208 0xA10B30 WHEELSAREALLINEED переключатель чита (установка)
+	lua_register(L, "get_m_miamitraffic", get_m_miamitraffic); // 2209 0xA10B47 MIAMITRAFFIC переключатель чита
+	lua_register(L, "set_m_miamitraffic", set_m_miamitraffic); // 2210 0xA10B47 MIAMITRAFFIC переключатель чита (установка)
+	lua_register(L, "get_m_fannymagnet", get_m_fannymagnet); // 2211 0xA10B5F FANNYMAGNET переключатель чита
+	lua_register(L, "set_m_fannymagnet", set_m_fannymagnet); // 2212 0xA10B5F FANNYMAGNET переключатель чита (установка)
+	lua_register(L, "get_m_seaways", get_m_seaways); // 2213 0xA10B81 SEAWAYS переключатель чита
+	lua_register(L, "set_m_seaways", set_m_seaways); // 2214 0xA10B81 SEAWAYS переключатель чита (установка)
+	lua_register(L, "get_m_iwantitpaintedblack", get_m_iwantitpaintedblack); // 2215 0xA10B82 IWANTITPAINTEDBLACK переключатель чита
+	lua_register(L, "set_m_iwantitpaintedblack", set_m_iwantitpaintedblack); // 2216 0xA10B82 IWANTITPAINTEDBLACK переключатель чита (установка)
+
+
 	lua_register(L, "get_m_lifeispassingmeby", get_m_lifeispassingmeby); // 2217 0xA10B87 LIFEISPASSINGMEBY cheat
-	lua_register(L, "set_m_lifeispassingmeby", set_m_lifeispassingmeby); // 2218 обёртка: set m lifeispassingmeby
-	lua_register(L, "get_m_opcode_de_check_if", get_m_opcode_de_check_if); // 2219 0x456046 Opcode 02DE check if player is in a Taxi
-	lua_register(L, "set_m_opcode_de_check_if", set_m_opcode_de_check_if); // 2220 обёртка: set m opcode de check if
-	lua_register(L, "get_m_cash_when_entering_a", get_m_cash_when_entering_a); // 2221 0x5B8AB6 Cash when entering a taxi (set to 12 by default)
-	lua_register(L, "set_m_cash_when_entering_a", set_m_cash_when_entering_a); // 2222 обёртка: set m cash when entering a
+	lua_register(L, "set_m_lifeispassingmeby", set_m_lifeispassingmeby); // 2218 0xA10B87 LIFEISPASSINGMEBY cheat (установка)
+	lua_register(L, "get_m_opcode_de_check_if", get_m_opcode_de_check_if); // 2219 0x456046 02DE: проверка, игрок в такси
+	lua_register(L, "set_m_opcode_de_check_if", set_m_opcode_de_check_if); // 2220 0x456046 02DE: проверка, игрок в такси (установка)
+	lua_register(L, "get_m_cash_when_entering_a", get_m_cash_when_entering_a); // 2221 0x5B8AB6 деньги при посадке в такси (по умолчанию 12)
+	lua_register(L, "set_m_cash_when_entering_a", set_m_cash_when_entering_a); // 2222 0x5B8AB6 деньги при посадке в такси (по умолчанию 12) (установка)
 	lua_register(L, "get_m_kaufman_cabs_radio_flag", get_m_kaufman_cabs_radio_flag); // 2223 0xA10B7F Kaufman Cabs' radio flag
-	lua_register(L, "set_m_kaufman_cabs_radio_flag", set_m_kaufman_cabs_radio_flag); // 2224 обёртка: set m kaufman cabs radio flag
-	lua_register(L, "get_m_kaufman_cabs_spawn_note", get_m_kaufman_cabs_spawn_note); // 2225 0x42AEAC Kaufman Cabs spawn (NOTE: Model needs to be loaded through 0
-	lua_register(L, "set_m_kaufman_cabs_spawn_note", set_m_kaufman_cabs_spawn_note); // 2226 обёртка: set m kaufman cabs spawn note
-	lua_register(L, "get_m_kaufman_cabs_model_load", get_m_kaufman_cabs_model_load); // 2227 0x42AFB3 Kaufman Cabs model load
-	lua_register(L, "set_m_kaufman_cabs_model_load", set_m_kaufman_cabs_model_load); // 2228 обёртка: set m kaufman cabs model load
-	lua_register(L, "get_m_blue_fade_in_color", get_m_blue_fade_in_color); // 2229 0x42B219 Blue fade in color
-	lua_register(L, "set_m_blue_fade_in_color", set_m_blue_fade_in_color); // 2230 обёртка: set m blue fade in color
-	lua_register(L, "get_m_taxi_text_duration", get_m_taxi_text_duration); // 2231 0x42B24E TAXI text duration
-	lua_register(L, "set_m_taxi_text_duration", set_m_taxi_text_duration); // 2232 обёртка: set m taxi text duration
-	lua_register(L, "get_m_x_coord_taxi_destination", get_m_x_coord_taxi_destination); // 2233 0x94DD94 X-coord taxi destination (updated by opcode 058E)
-	lua_register(L, "set_m_x_coord_taxi_destination", set_m_x_coord_taxi_destination); // 2234 обёртка: set m x coord taxi destination
-	lua_register(L, "get_m_taxi_spawn", get_m_taxi_spawn); // 2235 0x94EEB8 Set taxi to spawn
-	lua_register(L, "set_m_taxi_spawn", set_m_taxi_spawn); // 2236 обёртка: set m taxi spawn
-	lua_register(L, "get_m_angle_taxi_destination", get_m_angle_taxi_destination); // 2237 0xA0D378 Angle taxi destination
-	lua_register(L, "set_m_angle_taxi_destination", set_m_angle_taxi_destination); // 2238 обёртка: set m angle taxi destination
-	lua_register(L, "get_m_activate_mission_restart_taxi", get_m_activate_mission_restart_taxi); // 2239 0xA10B6D Activate mission restart taxi
-	lua_register(L, "set_m_activate_mission_restart_taxi", set_m_activate_mission_restart_taxi); // 2240 обёртка: set m activate mission restart taxi
+	lua_register(L, "set_m_kaufman_cabs_radio_flag", set_m_kaufman_cabs_radio_flag); // 2224 0xA10B7F Kaufman Cabs' radio flag (установка)
+	lua_register(L, "get_m_kaufman_cabs_spawn_note", get_m_kaufman_cabs_spawn_note); // 2225 0x42AEAC спавн Kaufman Cabs (модель должна быть загружена)
+	lua_register(L, "set_m_kaufman_cabs_spawn_note", set_m_kaufman_cabs_spawn_note); // 2226 0x42AEAC спавн Kaufman Cabs (модель должна быть загружена) (установка)
+
+
+	lua_register(L, "get_m_kaufman_cabs_model_load", get_m_kaufman_cabs_model_load); // 2227 0x42AFB3 Kaufman Cabs загрузка модели
+	lua_register(L, "set_m_kaufman_cabs_model_load", set_m_kaufman_cabs_model_load); // 2228 0x42AFB3 Kaufman Cabs загрузка модели (установка)
+	lua_register(L, "get_m_blue_fade_in_color", get_m_blue_fade_in_color); // 2229 0x42B219 синий цвет затемнения
+	lua_register(L, "set_m_blue_fade_in_color", set_m_blue_fade_in_color); // 2230 0x42B219 синий цвет затемнения (установка)
+	lua_register(L, "get_m_taxi_text_duration", get_m_taxi_text_duration); // 2231 0x42B24E длительность текста TAXI
+	lua_register(L, "set_m_taxi_text_duration", set_m_taxi_text_duration); // 2232 0x42B24E длительность текста TAXI (установка)
+	lua_register(L, "get_m_x_coord_taxi_destination", get_m_x_coord_taxi_destination); // 2233 0x94DD94 X координата цели такси (обновляется опкодом 058E)
+	lua_register(L, "set_m_x_coord_taxi_destination", set_m_x_coord_taxi_destination); // 2234 0x94DD94 X координата цели такси (обновляется опкодом 058E) (установка)
+	lua_register(L, "get_m_taxi_spawn", get_m_taxi_spawn); // 2235 0x94EEB8 спавн такси
+	lua_register(L, "set_m_taxi_spawn", set_m_taxi_spawn); // 2236 0x94EEB8 спавн такси (установка)
+
+
+	lua_register(L, "get_m_angle_taxi_destination", get_m_angle_taxi_destination); // 2237 0xA0D378 угол цели такси
+	lua_register(L, "set_m_angle_taxi_destination", set_m_angle_taxi_destination); // 2238 0xA0D378 угол цели такси (установка)
+	lua_register(L, "get_m_activate_mission_restart_taxi", get_m_activate_mission_restart_taxi); // 2239 0xA10B6D перезапуск миссии такси
+	lua_register(L, "set_m_activate_mission_restart_taxi", set_m_activate_mission_restart_taxi); // 2240 0xA10B6D перезапуск миссии такси (установка)
 	lua_register(L, "get_m_camera_move_when_entering", get_m_camera_move_when_entering); // 2241 0x46B389 camera move when entering/exiting car
-	lua_register(L, "set_m_camera_move_when_entering", set_m_camera_move_when_entering); // 2242 обёртка: set m camera move when entering
-	lua_register(L, "get_m_same", get_m_same); // 2243 0x46B58F same [5]
-	lua_register(L, "set_m_same", set_m_same); // 2244 обёртка: set m same
-	lua_register(L, "get_m_camera_distance_from_only", get_m_camera_distance_from_only); // 2245 0x68AE2E camera distance from player (set only lower, higher bugs the
-	lua_register(L, "set_m_camera_distance_from_only", set_m_camera_distance_from_only); // 2246 обёртка: set m camera distance from only
-	lua_register(L, "get_m_cinema_top_border_height", get_m_cinema_top_border_height); // 2247 0x68AEE0 cinema top border height
-	lua_register(L, "set_m_cinema_top_border_height", set_m_cinema_top_border_height); // 2248 обёртка: set m cinema top border height
-	lua_register(L, "get_m_cinema_bottom_border_height", get_m_cinema_bottom_border_height); // 2249 0x68AEE4 cinema bottom border height
-	lua_register(L, "set_m_cinema_bottom_border_height", set_m_cinema_bottom_border_height); // 2250 обёртка: set m cinema bottom border height
-	lua_register(L, "get_m_controls_radar_map", get_m_controls_radar_map); // 2251 0x68FD02 controls radar map [6]
-	lua_register(L, "set_m_controls_radar_map", set_m_controls_radar_map); // 2252 обёртка: set m controls radar map
-	lua_register(L, "get_m_radar_width", get_m_radar_width); // 2253 0x68FD16 radar width
-	lua_register(L, "set_m_radar_width", set_m_radar_width); // 2254 обёртка: set m radar width
-	lua_register(L, "get_m_only_radar_ring_visible", get_m_only_radar_ring_visible); // 2255 0x68FD17 only radar ring visible [6]
-	lua_register(L, "set_m_only_radar_ring_visible", set_m_only_radar_ring_visible); // 2256 обёртка: set m only radar ring visible
-	lua_register(L, "get_m_radar_size_xy", get_m_radar_size_xy); // 2257 0x68FD28 Radar Size (XY)
-	lua_register(L, "set_m_radar_size_xy", set_m_radar_size_xy); // 2258 обёртка: set m radar size xy
-	lua_register(L, "get_m_radar_x_position", get_m_radar_x_position); // 2259 0x68FD2C Radar X Position
-	lua_register(L, "set_m_radar_x_position", set_m_radar_x_position); // 2260 обёртка: set m radar x position
-	lua_register(L, "get_m_radar_y_position", get_m_radar_y_position); // 2261 0x68FD34 Radar Y Position
-	lua_register(L, "set_m_radar_y_position", set_m_radar_y_position); // 2262 обёртка: set m radar y position
-	lua_register(L, "get_m_radar_shape", get_m_radar_shape); // 2263 0x68FD38 Radar Shape
-	lua_register(L, "set_m_radar_shape", set_m_radar_shape); // 2264 обёртка: set m radar shape
-	lua_register(L, "get_m_addr_68FD3C", get_m_addr_68FD3C); // 2265 0x68FD3C Radar Shape
-	lua_register(L, "set_m_addr_68FD3C", set_m_addr_68FD3C); // 2266 обёртка: set m addr 68FD3C
-	lua_register(L, "get_m_ambient_lighting", get_m_ambient_lighting); // 2267 0x698A8C ambient lighting
-	lua_register(L, "set_m_ambient_lighting", set_m_ambient_lighting); // 2268 обёртка: set m ambient lighting
-	lua_register(L, "get_m_camera_x_position", get_m_camera_x_position); // 2269 0x7E46B8 camera X position
-	lua_register(L, "set_m_camera_x_position", set_m_camera_x_position); // 2270 обёртка: set m camera x position
-	lua_register(L, "get_m_camera_y_position", get_m_camera_y_position); // 2271 0x7E46BC camera Y position
-	lua_register(L, "set_m_camera_y_position", set_m_camera_y_position); // 2272 обёртка: set m camera y position
-	lua_register(L, "get_m_camera_z_position", get_m_camera_z_position); // 2273 0x7E46C0 camera Z position
-	lua_register(L, "set_m_camera_z_position", set_m_camera_z_position); // 2274 обёртка: set m camera z position
-	lua_register(L, "get_m_wide_screen_borders", get_m_wide_screen_borders); // 2275 0x7E46F5 wide screen borders
-	lua_register(L, "set_m_wide_screen_borders", set_m_wide_screen_borders); // 2276 обёртка: set m wide screen borders
-	lua_register(L, "get_m_car_camera", get_m_car_camera); // 2277 0x7E4764 car camera
-	lua_register(L, "set_m_car_camera", set_m_car_camera); // 2278 обёртка: set m car camera
-	lua_register(L, "get_m_camera", get_m_camera); // 2279 0x7E47EC player camera
-	lua_register(L, "set_m_camera", set_m_camera); // 2280 обёртка: set m camera
-	lua_register(L, "get_m_frame_limiter", get_m_frame_limiter); // 2281 0x869655 frame limiter
-	lua_register(L, "set_m_frame_limiter", set_m_frame_limiter); // 2282 обёртка: set m frame limiter
-	lua_register(L, "get_m_subtitles", get_m_subtitles); // 2283 0x869650 subtitles
-	lua_register(L, "set_m_subtitles", set_m_subtitles); // 2284 обёртка: set m subtitles
-	lua_register(L, "get_m_widescreen", get_m_widescreen); // 2285 0x869652 widescreen
-	lua_register(L, "set_m_widescreen", set_m_widescreen); // 2286 обёртка: set m widescreen
-	lua_register(L, "get_m_hud_display", get_m_hud_display); // 2287 0x86963A hud display
-	lua_register(L, "set_m_hud_display", set_m_hud_display); // 2288 обёртка: set m hud display
-	lua_register(L, "get_m_replay_display", get_m_replay_display); // 2289 0xA10AF6 replay display on/off
-	lua_register(L, "set_m_replay_display", set_m_replay_display); // 2290 обёртка: set m replay display
-	lua_register(L, "get_m_white_scanlines", get_m_white_scanlines); // 2291 0xA10B68 white scanlines
-	lua_register(L, "set_m_white_scanlines", set_m_white_scanlines); // 2292 обёртка: set m white scanlines
-	lua_register(L, "get_m_green_scanlines", get_m_green_scanlines); // 2293 0xA10B69 green scanlines
-	lua_register(L, "set_m_green_scanlines", set_m_green_scanlines); // 2294 обёртка: set m green scanlines
-	lua_register(L, "get_m_resolution_width", get_m_resolution_width); // 2295 0xA0FD04 resolution Width
-	lua_register(L, "set_m_resolution_width", set_m_resolution_width); // 2296 обёртка: set m resolution width
-	lua_register(L, "get_m_resolution_height", get_m_resolution_height); // 2297 0xA0FD08 resolution height
-	lua_register(L, "set_m_resolution_height", set_m_resolution_height); // 2298 обёртка: set m resolution height
-	lua_register(L, "get_m_color_bit", get_m_color_bit); // 2299 0xA0FD00 Color bit.
-	lua_register(L, "set_m_color_bit", set_m_color_bit); // 2300 обёртка: set m color bit
-	lua_register(L, "get_m_mouse_x_movement", get_m_mouse_x_movement); // 2301 0x936910 Mouse X movement
-	lua_register(L, "set_m_mouse_x_movement", set_m_mouse_x_movement); // 2302 обёртка: set m mouse x movement
-	lua_register(L, "get_m_mouse_y_movement", get_m_mouse_y_movement); // 2303 0x936914 Mouse Y movement
-	lua_register(L, "set_m_mouse_y_movement", set_m_mouse_y_movement); // 2304 обёртка: set m mouse y movement
-	lua_register(L, "get_m_total_stores_knock", get_m_total_stores_knock); // 2305 0x4CC102 Total number of stores to knock off (default is 15)
-	lua_register(L, "set_m_total_stores_knock", set_m_total_stores_knock); // 2306 обёртка: set m total stores knock
-	lua_register(L, "get_m_total_assassination_contracts_complete", get_m_total_assassination_contracts_complete); // 2307 0x4CC1CD Total number of assassination contracts to complete (default
-	lua_register(L, "set_m_total_assassination_contracts_complete", set_m_total_assassination_contracts_complete); // 2308 обёртка: set m total assassination contracts complete
-	lua_register(L, "get_m_police_helicopter_state", get_m_police_helicopter_state); // 2309 0xA10ADB Police helicopter state
-	lua_register(L, "set_m_police_helicopter_state", set_m_police_helicopter_state); // 2310 обёртка: set m police helicopter state
-	lua_register(L, "get_m_size_police_em_lights", get_m_size_police_em_lights); // 2311 0x69A633 size of Police EM lights
-	lua_register(L, "set_m_size_police_em_lights", set_m_size_police_em_lights); // 2312 обёртка: set m size police em lights
-	lua_register(L, "get_m_first_police_car", get_m_first_police_car); // 2313 0x426A21 first police car
-	lua_register(L, "set_m_first_police_car", set_m_first_police_car); // 2314 обёртка: set m first police car
-	lua_register(L, "get_m_second_police_car", get_m_second_police_car); // 2315 0x426987 second police car
-	lua_register(L, "set_m_second_police_car", set_m_second_police_car); // 2316 обёртка: set m second police car
-	lua_register(L, "get_m_enforcer", get_m_enforcer); // 2317 0x42697E Enforcer
-	lua_register(L, "set_m_enforcer", set_m_enforcer); // 2318 обёртка: set m enforcer
-	lua_register(L, "get_m_vicechee", get_m_vicechee); // 2319 0x4268B8 Vicechee 1
-	lua_register(L, "set_m_vicechee", set_m_vicechee); // 2320 обёртка: set m vicechee
-	lua_register(L, "get_m_addr_4268D3", get_m_addr_4268D3); // 2321 0x4268D3 Vicechee 2
-	lua_register(L, "set_m_addr_4268D3", set_m_addr_4268D3); // 2322 обёртка: set m addr 4268D3
-	lua_register(L, "get_m_addr_4268EE", get_m_addr_4268EE); // 2323 0x4268EE Vicechee 3
-	lua_register(L, "set_m_addr_4268EE", set_m_addr_4268EE); // 2324 обёртка: set m addr 4268EE
-	lua_register(L, "get_m_addr_426909", get_m_addr_426909); // 2325 0x426909 Vicechee 4
-	lua_register(L, "set_m_addr_426909", set_m_addr_426909); // 2326 обёртка: set m addr 426909
+	lua_register(L, "set_m_camera_move_when_entering", set_m_camera_move_when_entering); // 2242 0x46B389 camera move when entering/exiting car (установка)
+	lua_register(L, "get_m_same", get_m_same); // 2243 0x46B58F то же [5]
+	lua_register(L, "set_m_same", set_m_same); // 2244 0x46B58F то же [5] (установка)
+	lua_register(L, "get_m_camera_distance_from_only", get_m_camera_distance_from_only); // 2245 0x68AE2E расстояние камеры от игрока (только уменьшать, больше — баг)
+	lua_register(L, "set_m_camera_distance_from_only", set_m_camera_distance_from_only); // 2246 0x68AE2E расстояние камеры от игрока (только уменьшать, больше — баг) (установка)
+
+
+	lua_register(L, "get_m_cinema_top_border_height", get_m_cinema_top_border_height); // 2247 0x68AEE0 высота верхней полосы кинорежима
+	lua_register(L, "set_m_cinema_top_border_height", set_m_cinema_top_border_height); // 2248 0x68AEE0 высота верхней полосы кинорежима (установка)
+	lua_register(L, "get_m_cinema_bottom_border_height", get_m_cinema_bottom_border_height); // 2249 0x68AEE4 высота нижней полосы кинорежима
+	lua_register(L, "set_m_cinema_bottom_border_height", set_m_cinema_bottom_border_height); // 2250 0x68AEE4 высота нижней полосы кинорежима (установка)
+	lua_register(L, "get_m_controls_radar_map", get_m_controls_radar_map); // 2251 0x68FD02 управление картой радара [6]
+	lua_register(L, "set_m_controls_radar_map", set_m_controls_radar_map); // 2252 0x68FD02 управление картой радара [6] (установка)
+	lua_register(L, "get_m_radar_width", get_m_radar_width); // 2253 0x68FD16 ширина радара
+	lua_register(L, "set_m_radar_width", set_m_radar_width); // 2254 0x68FD16 ширина радара (установка)
+	lua_register(L, "get_m_only_radar_ring_visible", get_m_only_radar_ring_visible); // 2255 0x68FD17 видно только кольцо радара [6]
+	lua_register(L, "set_m_only_radar_ring_visible", set_m_only_radar_ring_visible); // 2256 0x68FD17 видно только кольцо радара [6] (установка)
+
+
+	lua_register(L, "get_m_radar_size_xy", get_m_radar_size_xy); // 2257 0x68FD28 размер радара (XY)
+	lua_register(L, "set_m_radar_size_xy", set_m_radar_size_xy); // 2258 0x68FD28 размер радара (XY) (установка)
+	lua_register(L, "get_m_radar_x_position", get_m_radar_x_position); // 2259 0x68FD2C координата X радара
+	lua_register(L, "set_m_radar_x_position", set_m_radar_x_position); // 2260 0x68FD2C координата X радара (установка)
+	lua_register(L, "get_m_radar_y_position", get_m_radar_y_position); // 2261 0x68FD34 координата Y радара
+	lua_register(L, "set_m_radar_y_position", set_m_radar_y_position); // 2262 0x68FD34 координата Y радара (установка)
+	lua_register(L, "get_m_radar_shape", get_m_radar_shape); // 2263 0x68FD38 форма радара
+	lua_register(L, "set_m_radar_shape", set_m_radar_shape); // 2264 0x68FD38 форма радара (установка)
+	lua_register(L, "get_m_addr_68FD3C", get_m_addr_68FD3C); // 2265 0x68FD3C форма радара
+	lua_register(L, "set_m_addr_68FD3C", set_m_addr_68FD3C); // 2266 0x68FD3C форма радара (установка)
+
+
+	lua_register(L, "get_m_ambient_lighting", get_m_ambient_lighting); // 2267 0x698A8C окружающий свет
+	lua_register(L, "set_m_ambient_lighting", set_m_ambient_lighting); // 2268 0x698A8C окружающий свет (установка)
+	lua_register(L, "get_m_camera_x_position", get_m_camera_x_position); // 2269 0x7E46B8 координата X камеры
+	lua_register(L, "set_m_camera_x_position", set_m_camera_x_position); // 2270 0x7E46B8 координата X камеры (установка)
+	lua_register(L, "get_m_camera_y_position", get_m_camera_y_position); // 2271 0x7E46BC координата Y камеры
+	lua_register(L, "set_m_camera_y_position", set_m_camera_y_position); // 2272 0x7E46BC координата Y камеры (установка)
+	lua_register(L, "get_m_camera_z_position", get_m_camera_z_position); // 2273 0x7E46C0 координата Z камеры
+	lua_register(L, "set_m_camera_z_position", set_m_camera_z_position); // 2274 0x7E46C0 координата Z камеры (установка)
+	lua_register(L, "get_m_wide_screen_borders", get_m_wide_screen_borders); // 2275 0x7E46F5 широкоэкранные полосы
+	lua_register(L, "set_m_wide_screen_borders", set_m_wide_screen_borders); // 2276 0x7E46F5 широкоэкранные полосы (установка)
+
+
+	lua_register(L, "get_m_car_camera", get_m_car_camera); // 2277 0x7E4764 камера в авто
+	lua_register(L, "set_m_car_camera", set_m_car_camera); // 2278 0x7E4764 камера в авто (установка)
+	lua_register(L, "get_m_camera", get_m_camera); // 2279 0x7E47EC камера игрока
+	lua_register(L, "set_m_camera", set_m_camera); // 2280 0x7E47EC камера игрока (установка)
+	lua_register(L, "get_m_frame_limiter", get_m_frame_limiter); // 2281 0x869655 ограничитель кадров
+	lua_register(L, "set_m_frame_limiter", set_m_frame_limiter); // 2282 0x869655 ограничитель кадров (установка)
+	lua_register(L, "get_m_subtitles", get_m_subtitles); // 2283 0x869650 субтитры
+	lua_register(L, "set_m_subtitles", set_m_subtitles); // 2284 0x869650 субтитры (установка)
+	lua_register(L, "get_m_widescreen", get_m_widescreen); // 2285 0x869652 широкий экран
+	lua_register(L, "set_m_widescreen", set_m_widescreen); // 2286 0x869652 широкий экран (установка)
+
+
+	lua_register(L, "get_m_hud_display", get_m_hud_display); // 2287 0x86963A отображение HUD
+	lua_register(L, "set_m_hud_display", set_m_hud_display); // 2288 0x86963A отображение HUD (установка)
+	lua_register(L, "get_m_replay_display", get_m_replay_display); // 2289 0xA10AF6 показ повтора вкл/выкл
+	lua_register(L, "set_m_replay_display", set_m_replay_display); // 2290 0xA10AF6 показ повтора вкл/выкл (установка)
+	lua_register(L, "get_m_white_scanlines", get_m_white_scanlines); // 2291 0xA10B68 белые линии развёртки
+	lua_register(L, "set_m_white_scanlines", set_m_white_scanlines); // 2292 0xA10B68 белые линии развёртки (установка)
+	lua_register(L, "get_m_green_scanlines", get_m_green_scanlines); // 2293 0xA10B69 зелёные линии развёртки
+	lua_register(L, "set_m_green_scanlines", set_m_green_scanlines); // 2294 0xA10B69 зелёные линии развёртки (установка)
+	lua_register(L, "get_m_resolution_width", get_m_resolution_width); // 2295 0xA0FD04 ширина разрешения
+	lua_register(L, "set_m_resolution_width", set_m_resolution_width); // 2296 0xA0FD04 ширина разрешения (установка)
+
+
+	lua_register(L, "get_m_resolution_height", get_m_resolution_height); // 2297 0xA0FD08 высота разрешения
+	lua_register(L, "set_m_resolution_height", set_m_resolution_height); // 2298 0xA0FD08 высота разрешения (установка)
+	lua_register(L, "get_m_color_bit", get_m_color_bit); // 2299 0xA0FD00 глубина цвета
+	lua_register(L, "set_m_color_bit", set_m_color_bit); // 2300 0xA0FD00 глубина цвета (установка)
+	lua_register(L, "get_m_mouse_x_movement", get_m_mouse_x_movement); // 2301 0x936910 движение мыши по X
+	lua_register(L, "set_m_mouse_x_movement", set_m_mouse_x_movement); // 2302 0x936910 движение мыши по X (установка)
+	lua_register(L, "get_m_mouse_y_movement", get_m_mouse_y_movement); // 2303 0x936914 движение мыши по Y
+	lua_register(L, "set_m_mouse_y_movement", set_m_mouse_y_movement); // 2304 0x936914 движение мыши по Y (установка)
+	lua_register(L, "get_m_total_stores_knock", get_m_total_stores_knock); // 2305 0x4CC102 всего магазинов для ограбления (по умолчанию 15)
+	lua_register(L, "set_m_total_stores_knock", set_m_total_stores_knock); // 2306 0x4CC102 всего магазинов для ограбления (по умолчанию 15) (установка)
+
+
+	lua_register(L, "get_m_total_assassination_contracts_complete", get_m_total_assassination_contracts_complete); // 2307 0x4CC1CD всего контрактов на убийство (по умолчанию)
+	lua_register(L, "set_m_total_assassination_contracts_complete", set_m_total_assassination_contracts_complete); // 2308 0x4CC1CD всего контрактов на убийство (по умолчанию) (установка)
+	lua_register(L, "get_m_police_helicopter_state", get_m_police_helicopter_state); // 2309 0xA10ADB состояние полицейского вертолёта
+	lua_register(L, "set_m_police_helicopter_state", set_m_police_helicopter_state); // 2310 0xA10ADB состояние полицейского вертолёта (установка)
+	lua_register(L, "get_m_size_police_em_lights", get_m_size_police_em_lights); // 2311 0x69A633 размер проблесковых маячков полиции
+	lua_register(L, "set_m_size_police_em_lights", set_m_size_police_em_lights); // 2312 0x69A633 размер проблесковых маячков полиции (установка)
+	lua_register(L, "get_m_first_police_car", get_m_first_police_car); // 2313 0x426A21 первая полицейская машина
+	lua_register(L, "set_m_first_police_car", set_m_first_police_car); // 2314 0x426A21 первая полицейская машина (установка)
+	lua_register(L, "get_m_second_police_car", get_m_second_police_car); // 2315 0x426987 вторая полицейская машина
+	lua_register(L, "set_m_second_police_car", set_m_second_police_car); // 2316 0x426987 вторая полицейская машина (установка)
+
+
+	lua_register(L, "get_m_enforcer", get_m_enforcer); // 2317 0x42697E Enforcer (модель полицейского авто)
+	lua_register(L, "set_m_enforcer", set_m_enforcer); // 2318 0x42697E Enforcer (модель полицейского авто) (установка)
+	lua_register(L, "get_m_vicechee", get_m_vicechee); // 2319 0x4268B8 Vicechee (модель авто) 1
+	lua_register(L, "set_m_vicechee", set_m_vicechee); // 2320 0x4268B8 Vicechee (модель авто) 1 (установка)
+	lua_register(L, "get_m_addr_4268D3", get_m_addr_4268D3); // 2321 0x4268D3 Vicechee (модель авто) 2
+	lua_register(L, "set_m_addr_4268D3", set_m_addr_4268D3); // 2322 0x4268D3 Vicechee (модель авто) 2 (установка)
+	lua_register(L, "get_m_addr_4268EE", get_m_addr_4268EE); // 2323 0x4268EE Vicechee (модель авто) 3
+	lua_register(L, "set_m_addr_4268EE", set_m_addr_4268EE); // 2324 0x4268EE Vicechee (модель авто) 3 (установка)
+	lua_register(L, "get_m_addr_426909", get_m_addr_426909); // 2325 0x426909 Vicechee (модель авто) 4
+	lua_register(L, "set_m_addr_426909", set_m_addr_426909); // 2326 0x426909 Vicechee (модель авто) 4 (установка)
+
+
 	lua_register(L, "get_m_fbi_rancher", get_m_fbi_rancher); // 2327 0x4269BA FBI Rancher
-	lua_register(L, "set_m_fbi_rancher", set_m_fbi_rancher); // 2328 обёртка: set m fbi rancher
-	lua_register(L, "get_m_barracks_ol", get_m_barracks_ol); // 2329 0x426A0A Barracks Ol
-	lua_register(L, "set_m_barracks_ol", set_m_barracks_ol); // 2330 обёртка: set m barracks ol
+	lua_register(L, "set_m_fbi_rancher", set_m_fbi_rancher); // 2328 0x4269BA FBI Rancher (установка)
+	lua_register(L, "get_m_barracks_ol", get_m_barracks_ol); // 2329 0x426A0A Barracks OL (модель авто)
+	lua_register(L, "set_m_barracks_ol", set_m_barracks_ol); // 2330 0x426A0A Barracks OL (модель авто) (установка)
 
 
 	// === ENGINE / LUA INTROSPECTION (21.11) ===
@@ -2396,6 +2843,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "lua_stack_top", lua_stack_top); // 2338 21.11: из папки «движок»
 	lua_register(L, "get_current_script_name", get_current_script_name); // 2339 21.11: из папки «движок»
 	lua_register(L, "get_game_speed", get_game_speed); // 2340 21.11: из папки «движок»
+
+
 	lua_register(L, "set_gamespeed", set_gamespeed); // 2341 21.11: из папки «движок»
 	lua_register(L, "get_actor_health", get_actor_health); // 2342 21.11: из папки «движок»
 	lua_register(L, "set_actor_health", set_actor_health); // 2343 21.11: из папки «движок»
@@ -2424,59 +2873,71 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_model_id_by_name", get_model_id_by_name); // 2356 получить id модели по имени
 	lua_register(L, "check_studio_gates", check_studio_gates); // 2357 диагностика ворот киностудии
 	lua_register(L, "open_studio_gates", open_studio_gates); // 2358 убрать закрытые ворота и поставить открытые
-	lua_register(L, "get_flag", get_flag); // 2359 обёртка: get flag
-	lua_register(L, "set_flag", set_flag); // 2360 обёртка: set flag
-	lua_register(L, "flag_addr", flag_addr); // 2361 обёртка: flag addr
-	lua_register(L, "get_flag_airship", get_flag_airship); // 2362 обёртка: get flag airship
-	lua_register(L, "set_flag_airship", set_flag_airship); // 2363 обёртка: set flag airship
-	lua_register(L, "get_flag_rc_zone", get_flag_rc_zone); // 2364 обёртка: get flag rc zone
-	lua_register(L, "set_flag_rc_zone", set_flag_rc_zone); // 2365 обёртка: set flag rc zone
-	lua_register(L, "get_flag_rc_mode", get_flag_rc_mode); // 2366 обёртка: get flag rc mode
-	lua_register(L, "set_flag_rc_mode", set_flag_rc_mode); // 2367 обёртка: set flag rc mode
-	lua_register(L, "get_flag_airship2", get_flag_airship2); // 2368 обёртка: get flag airship2
-	lua_register(L, "set_flag_airship2", set_flag_airship2); // 2369 обёртка: set flag airship2
-	lua_register(L, "get_flag_cheat82", get_flag_cheat82); // 2370 обёртка: get flag cheat82
-	lua_register(L, "set_flag_cheat82", set_flag_cheat82); // 2371 обёртка: set flag cheat82
-	lua_register(L, "get_flag_cheat26", get_flag_cheat26); // 2372 обёртка: get flag cheat26
-	lua_register(L, "set_flag_cheat26", set_flag_cheat26); // 2373 обёртка: set flag cheat26
-	lua_register(L, "get_flag_cheatadc", get_flag_cheatadc); // 2374 обёртка: get flag cheatadc
-	lua_register(L, "set_flag_cheatadc", set_flag_cheatadc); // 2375 обёртка: set flag cheatadc
-	lua_register(L, "get_flag_cheat23", get_flag_cheat23); // 2376 обёртка: get flag cheat23
-	lua_register(L, "set_flag_cheat23", set_flag_cheat23); // 2377 обёртка: set flag cheat23
-	lua_register(L, "get_flag_cheat47", get_flag_cheat47); // 2378 обёртка: get flag cheat47
-	lua_register(L, "set_flag_cheat47", set_flag_cheat47); // 2379 обёртка: set flag cheat47
-	lua_register(L, "get_flag_cheat5f", get_flag_cheat5f); // 2380 обёртка: get flag cheat5f
-	lua_register(L, "set_flag_cheat5f", set_flag_cheat5f); // 2381 обёртка: set flag cheat5f
-	lua_register(L, "get_flag_cheatstate", get_flag_cheatstate); // 2382 обёртка: get flag cheatstate
-	lua_register(L, "set_flag_cheatstate", set_flag_cheatstate); // 2383 обёртка: set flag cheatstate
-	lua_register(L, "get_flag_named", get_flag_named); // 2384 обёртка: get flag named
-	lua_register(L, "set_flag_named", set_flag_named); // 2385 обёртка: set flag named
-	lua_register(L, "list_flags", list_flags); // 2386 обёртка: list flags
-	lua_register(L, "keep_rc", keep_rc); // 2387 обёртка: keep rc
-	lua_register(L, "get_mem_addr", get_mem_addr); // 2388 обёртка: get mem addr
-	lua_register(L, "force_rc_autopilot", force_rc_autopilot); // 2389 обёртка: force rc autopilot
-	lua_register(L, "press_fire", press_fire); // 2390 обёртка: press fire
-	lua_register(L, "release_fire", release_fire); // 2391 обёртка: release fire
-	lua_register(L, "set_script_int", set_script_int); // 2392 обёртка: set script int
-	lua_register(L, "get_script_int", get_script_int); // 2393 обёртка: get script int
+	lua_register(L, "get_flag", get_flag); // 2359 get flag
+
+
+	lua_register(L, "set_flag", set_flag); // 2360 установить флаг (flag)
+	lua_register(L, "flag_addr", flag_addr); // 2361 flag addr
+	lua_register(L, "get_flag_airship", get_flag_airship); // 2362 get flag airship
+	lua_register(L, "set_flag_airship", set_flag_airship); // 2363 установить флаг (flag_airship)
+	lua_register(L, "get_flag_rc_zone", get_flag_rc_zone); // 2364 get flag rc zone
+	lua_register(L, "set_flag_rc_zone", set_flag_rc_zone); // 2365 установить флаг (flag_rc_zone)
+	lua_register(L, "get_flag_rc_mode", get_flag_rc_mode); // 2366 get flag rc mode
+	lua_register(L, "set_flag_rc_mode", set_flag_rc_mode); // 2367 установить флаг (flag_rc_mode)
+	lua_register(L, "get_flag_airship2", get_flag_airship2); // 2368 get flag airship2
+	lua_register(L, "set_flag_airship2", set_flag_airship2); // 2369 установить флаг (flag_airship2)
+
+
+	lua_register(L, "get_flag_cheat82", get_flag_cheat82); // 2370 get flag cheat82
+	lua_register(L, "set_flag_cheat82", set_flag_cheat82); // 2371 установить флаг (flag_cheat82)
+	lua_register(L, "get_flag_cheat26", get_flag_cheat26); // 2372 get flag cheat26
+	lua_register(L, "set_flag_cheat26", set_flag_cheat26); // 2373 установить флаг (flag_cheat26)
+	lua_register(L, "get_flag_cheatadc", get_flag_cheatadc); // 2374 get flag cheatadc
+	lua_register(L, "set_flag_cheatadc", set_flag_cheatadc); // 2375 установить флаг (flag_cheatadc)
+	lua_register(L, "get_flag_cheat23", get_flag_cheat23); // 2376 get flag cheat23
+	lua_register(L, "set_flag_cheat23", set_flag_cheat23); // 2377 установить флаг (flag_cheat23)
+	lua_register(L, "get_flag_cheat47", get_flag_cheat47); // 2378 get flag cheat47
+	lua_register(L, "set_flag_cheat47", set_flag_cheat47); // 2379 установить флаг (flag_cheat47)
+
+
+	lua_register(L, "get_flag_cheat5f", get_flag_cheat5f); // 2380 get flag cheat5f
+	lua_register(L, "set_flag_cheat5f", set_flag_cheat5f); // 2381 установить флаг (flag_cheat5f)
+	lua_register(L, "get_flag_cheatstate", get_flag_cheatstate); // 2382 get flag cheatstate
+	lua_register(L, "set_flag_cheatstate", set_flag_cheatstate); // 2383 установить флаг (flag_cheatstate)
+	lua_register(L, "get_flag_named", get_flag_named); // 2384 get flag named
+	lua_register(L, "set_flag_named", set_flag_named); // 2385 установить флаг (flag_named)
+	lua_register(L, "list_flags", list_flags); // 2386 list flags
+	lua_register(L, "keep_rc", keep_rc); // 2387 keep rc
+	lua_register(L, "get_mem_addr", get_mem_addr); // 2388 get mem addr
+	lua_register(L, "force_rc_autopilot", force_rc_autopilot); // 2389 force rc autopilot
+
+
+	lua_register(L, "press_fire", press_fire); // 2390 press fire
+	lua_register(L, "release_fire", release_fire); // 2391 release fire
+	lua_register(L, "set_script_int", set_script_int); // 2392 установить целое в ScriptSpace
+	lua_register(L, "get_script_int", get_script_int); // 2393 get script int
 	lua_register(L, "set_all_timers_99", set_all_timers_99); // 2394 23.11: все убывающие таймеры -> 99 мин
 	lua_register(L, "restore_all_timers", restore_all_timers); // 2395 23.11: вернуть исходные значения таймеров
 	lua_register(L, "map_overlay_on", map_overlay_on); // 2396 23.11: показать карту меню
 	lua_register(L, "map_overlay_off", map_overlay_off); // 2397 23.11: скрыть карту меню
 	lua_register(L, "map_overlay_toggle", map_overlay_toggle); // 2398 23.11: переключить карту меню
 	lua_register(L, "map_overlay_is_on", map_overlay_is_on); // 2399 23.11: статус карты
+
+
 	lua_register(L, "map_crosshair_world", map_crosshair_world); // 2400 23.11: точка карты -> мир
 	lua_register(L, "map_coords_diag", map_coords_diag); // 2401 23.11: диагностика полей карты
 	lua_register(L, "map_cross_set", map_cross_set); // 2402 23.11: перекрестие (u,v)
 	lua_register(L, "map_cross_get", map_cross_get); // 2403 23.11: перекрестие + мир
 	lua_register(L, "play_wav_file", play_wav_file); // 2404 23.11: WAV из Audio/
 	lua_register(L, "stop_wav_file", stop_wav_file); // 2405 23.11: остановить WAV
-	lua_register(L, "set_pad_controls", set_pad_controls); // 2406 обёртка: set pad controls
-	lua_register(L, "sys_key_down", sys_key_down); // 2407 обёртка: sys key down
-	lua_register(L, "sys_key_up", sys_key_up); // 2408 обёртка: sys key up
-	lua_register(L, "sys_mouse_down", sys_mouse_down); // 2409 обёртка: sys mouse down
-	lua_register(L, "sys_mouse_up", sys_mouse_up); // 2410 обёртка: sys mouse up
-	lua_register(L, "find_all_peds_by_model", find_all_peds_by_model); // 2411 обёртка: find all peds by model
+	lua_register(L, "set_pad_controls", set_pad_controls); // 2406 set pad controls (установка)
+	lua_register(L, "sys_key_down", sys_key_down); // 2407 sys key down
+	lua_register(L, "sys_key_up", sys_key_up); // 2408 sys key up
+	lua_register(L, "sys_mouse_down", sys_mouse_down); // 2409 sys mouse down
+
+
+	lua_register(L, "sys_mouse_up", sys_mouse_up); // 2410 sys mouse up
+	lua_register(L, "find_all_peds_by_model", find_all_peds_by_model); // 2411 find all peds by model
 	lua_register(L, "get_water_level", get_water_level); // 2412 0x5C2C80 уровень воды в точке (x,y) или nil
 	lua_register(L, "create_door_object", create_door_object); // 2413 объект-дверь с удержанием модели/коллизии
 	lua_register(L, "get_model_col_bounds", get_model_col_bounds); // 2414 COL min/max модели (6 чисел или nil)
@@ -2485,6 +2946,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "get_stamina", get_stamina); // 2417 текущая выносливость игрока (+0x600)
 	lua_register(L, "set_stamina", set_stamina); // 2418 установить выносливость
 	lua_register(L, "get_max_stamina", get_max_stamina); // 2419 макс. выносливость (+0x604)
+
+
 	lua_register(L, "set_max_stamina", set_max_stamina); // 2420 установить макс. выносливость
 	lua_register(L, "get_stamina_duration", get_stamina_duration); // 2421 длительность (+0x608)
 	lua_register(L, "set_stamina_duration", set_stamina_duration); // 2422 установить длительность
@@ -2495,6 +2958,8 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_vehicle_wheel_type", set_vehicle_wheel_type); // 2427 уст. тип колёс
 	lua_register(L, "get_vehicle_engine_type", get_vehicle_engine_type); // 2428 handling id (+0x46)
 	lua_register(L, "set_vehicle_engine_type", set_vehicle_engine_type); // 2429 уст. handling id
+
+
 	lua_register(L, "get_m_remove_distant_cars", get_m_remove_distant_cars); // 2430 0x426640 byte
 
 	lua_register(L, "set_m_remove_distant_cars", set_m_remove_distant_cars); // 2431 0x426640 byte
