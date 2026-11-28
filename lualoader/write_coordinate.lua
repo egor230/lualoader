@@ -119,6 +119,22 @@ function water_bridge_step()
 end
 
 function main()
+-- «Коробка передач»: сначала проверка «игрок в машине», затем параметры.
+local function gear(num, spd, acc)
+  local inCar, car = incar(player)
+  if not inCar or car == nil then
+    printmessage("not in car", 1500, 1)
+    return
+  end
+  local okSpd = set_car_max_speed_cfg(car, spd)
+  local okAcc = set_car_acceleration_cfg(car, acc)
+  log_line(string.format("GEAR %d: speed=%d accel=%d, set=%s/%s",
+                         num, spd, acc, tostring(okSpd), tostring(okAcc)))
+  printmessage("GEAR " .. tostring(num) .. ": " .. tostring(spd)
+               .. " km/h / " .. tostring(acc) .. " accel", 2000, 1)
+  wait(250)  -- чтобы не срабатывало многократно
+end
+
 i=1
 while true do wait()
  player = findplayer()-- получить игрока
@@ -210,6 +226,12 @@ while true do wait()
       printmessage("not in car", 2000, 1)
     end
   end
+  -- Коробка передач на NUM-блоке (NumLock должен быть включён):
+  -- 1 -> 20/10, 2 -> 40/20, 3 -> 60/30, 4 -> 80/40.
+  if Keypress("VK_NUMPAD1") then gear(1, 20, 10) end
+  if Keypress("VK_NUMPAD2") then gear(2, 40, 20) end
+  if Keypress("VK_NUMPAD3") then gear(3, 60, 30) end
+  if Keypress("VK_NUMPAD4") then gear(4, 80, 40) end
   -- end
  -- if Keypress("VK_S")
  -- then show_save_menu()
