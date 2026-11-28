@@ -36628,3 +36628,49 @@ int set_car_sound_bank(lua_State* L) { // установить банк звук
 	patch::SetChar(a, (char)bank, true);
 	lua_pushboolean(L, true); return 1;
 }
+
+// === (28.11) ХАРАКТЕРИСТИКИ АВТО «КАК В handling.cfg» (на лету) ===
+// reVC HandlingMgr.cpp:358-359 + константы gta-vc.exe 1.0 EN:
+//   0x69BA88 = 0.0004     ускорение: cfg * 0.0004 (1/2500)
+//   0x69BA8C = 0.0055556  скорость:  cfg / 180
+//   0x69BC88 = 1.2        итоговый лимитер = cfg / 180 * 1.2 = cfg / 150
+//   0x69BA90 = 0.25, 0x69BA94 = 0.5  деление ускорения для 4WD / остальных
+// Plugin-SDK: cTransmission::m_fEngineAcceleration +0x4C, m_fMaxGearVelocity +0x50.
+static cTransmission* ma_car_trans(CVehicle* car) {
+	return car && car->m_pHandlingData ? &car->m_pHandlingData->m_transmissionData : nullptr;
+}
+int get_car_max_speed(lua_State* L) { // получить макс. скорость авто в км/ч (как в handling.cfg)
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	cTransmission* t = ma_car_trans(findcarinpool(lua_topointer(L, 1)));
+	if (!t) { lua_pushnil(L); return 1; }
+	lua_pushnumber(L, t->m_fMaxGearVelocity * 180.0f / 1.2f); return 1;
+}
+int set_car_max_speed_cfg(lua_State* L) { // установить макс. скорость (км/ч) и пересчитать передачи
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TLIGHTUSERDATA != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
+	cTransmission* t = ma_car_trans(findcarinpool(lua_topointer(L, 1)));
+	if (!t) { lua_pushboolean(L, false); return 1; }
+	float kmh = (float)lua_tonumber(L, 2);
+	if (kmh < 0.0f || kmh > 1000.0f) { lua_pushboolean(L, false); return 1; }
+	t->m_fMaxGearVelocity = kmh / 180.0f * 1.2f;       // 0x69BA8C * 0x69BC88
+	(*(void(__thiscall*)(void*))0x5B3120)(t);          // cTransmission::InitGearRatios
+	lua_pushboolean(L, true); return 1;
+}
+int get_car_acceleration(lua_State* L) { // получить ускорение авто в значениях handling.cfg
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	cTransmission* t = ma_car_trans(findcarinpool(lua_topointer(L, 1)));
+	if (!t) { lua_pushnil(L); return 1; }
+	float div = (t->m_nDriveType == '4') ? 4.0f : 2.0f;
+	lua_pushnumber(L, t->m_fEngineAcceleration / 0.0004f * div); return 1;
+}
+int set_car_acceleration_cfg(lua_State* L) { // установить ускорение (как в handling.cfg)
+	std::lock_guard<std::recursive_mutex> g(g_lua_api_mx);
+	if (LUA_TLIGHTUSERDATA != lua_type(L, 1) || LUA_TNUMBER != lua_type(L, 2)) { lua_pushboolean(L, false); return 1; }
+	cTransmission* t = ma_car_trans(findcarinpool(lua_topointer(L, 1)));
+	if (!t) { lua_pushboolean(L, false); return 1; }
+	float cfg = (float)lua_tonumber(L, 2);
+	if (cfg < 0.0f || cfg > 1000.0f) { lua_pushboolean(L, false); return 1; }
+	float div = (t->m_nDriveType == '4') ? 4.0f : 2.0f;  // 0x69BA90 / 0x69BA94
+	t->m_fEngineAcceleration = cfg * 0.0004f / div;
+	lua_pushboolean(L, true); return 1;
+}

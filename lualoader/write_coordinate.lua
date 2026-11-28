@@ -148,14 +148,21 @@ while true do wait()
     -- Звук меняем из функции: патчим таблицу aVehicleSettings в памяти,
     -- handling.cfg не трогаем. 15 = SFX_BANK_GOLF_CART (электричка).
     local okSnd   = set_car_sound_bank(car, 15)
+    -- B: медленная машина — макс. скорость 10 км/ч, ускорение 30 (как в handling.cfg)
+    local okSpd   = set_car_max_speed_cfg(car, 10)
+    local okAcc   = set_car_acceleration_cfg(car, 30)
     local d, dName = get_drive_type(car)
     local e, eName = get_engine_type(car)
     local bank = get_car_sound_bank(car)
-    log_line(string.format("VK_B: drive=%s (%s) engine=%s (%s) soundBank=%s, set=%s/%s/%s",
+    local spd = get_car_max_speed(car)
+    local acc = get_car_acceleration(car)
+    log_line(string.format("VK_B: drive=%s (%s) engine=%s (%s) soundBank=%s speed=%s accel=%s, set=%s/%s/%s/%s/%s",
                            tostring(d), tostring(dName), tostring(e), tostring(eName),
-                           tostring(bank), tostring(okDrive), tostring(okEng), tostring(okSnd)))
-    printmessage("AWD + electric + sound: " .. tostring(d) .. " / " .. tostring(e)
-                 .. " / bank " .. tostring(bank), 2500, 1)
+                           tostring(bank), tostring(spd), tostring(acc),
+                           tostring(okDrive), tostring(okEng), tostring(okSnd),
+                           tostring(okSpd), tostring(okAcc)))
+    printmessage("B: speed " .. tostring(spd) .. " accel " .. tostring(acc)
+                 .. " / " .. tostring(d) .. " / " .. tostring(e) .. " / bank " .. tostring(bank), 2500, 1)
     wait(300)  -- чтобы не срабатывало многократно, пока клавиша нажата
   else
     printmessage("not in car", 2000, 1)
@@ -185,6 +192,24 @@ while true do wait()
   --     log_line("VK_B: Createcar вернул nil — байк НЕ создан")
   --     printmessage("bike creation failed", 2500, 1)
     end
+
+  -- T: быстрая машина — макс. скорость 200 км/ч, ускорение 90.
+  if Keypress("VK_T")
+  then
+    local inCar, car = incar(player)
+    if inCar and car ~= nil then
+      local okSpd = set_car_max_speed_cfg(car, 200)
+      local okAcc = set_car_acceleration_cfg(car, 90)
+      local spd = get_car_max_speed(car)
+      local acc = get_car_acceleration(car)
+      log_line(string.format("VK_T: speed=%s accel=%s, set=%s/%s",
+                             tostring(spd), tostring(acc), tostring(okSpd), tostring(okAcc)))
+      printmessage("T: speed " .. tostring(spd) .. " accel " .. tostring(acc), 2500, 1)
+      wait(300)
+    else
+      printmessage("not in car", 2000, 1)
+    end
+  end
   -- end
  -- if Keypress("VK_S")
  -- then show_save_menu()

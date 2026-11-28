@@ -1421,6 +1421,11 @@ int get_vehicle_sound_bank(lua_State* L); // банк звука модели (1
 int set_vehicle_sound_bank(lua_State* L); // установить банк звука модели
 int get_car_sound_bank(lua_State* L); // банк звука авто по хендлу
 int set_car_sound_bank(lua_State* L); // установить банк звука авто по хендлу
+// (28.11) Характеристики авто в значениях handling.cfg (изменение на лету)
+int get_car_max_speed(lua_State* L); // макс. скорость в км/ч
+int set_car_max_speed_cfg(lua_State* L); // установить км/ч + пересчёт передач
+int get_car_acceleration(lua_State* L); // ускорение в значениях handling.cfg
+int set_car_acceleration_cfg(lua_State* L); // установить ускорение
 int getstamina_ped(lua_State* L); // получить выносливость педа.
 int setstamina_ped(lua_State* L); // установить выносливость педа.
 int get_radio_car(lua_State* L); // получить текущую радиостанцию авто.

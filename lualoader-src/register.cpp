@@ -3071,6 +3071,10 @@ int funs(lua_State* L) {// список функций.
 	lua_register(L, "set_vehicle_sound_bank", set_vehicle_sound_bank); // 2487 установить банк звука модели
 	lua_register(L, "get_car_sound_bank", get_car_sound_bank); // 2488 банк звука авто
 	lua_register(L, "set_car_sound_bank", set_car_sound_bank); // 2489 установить банк звука авто
+	lua_register(L, "get_car_max_speed", get_car_max_speed); // 2490 км/ч из m_fMaxGearVelocity
+	lua_register(L, "set_car_max_speed_cfg", set_car_max_speed_cfg); // 2491 км/ч + InitGearRatios
+	lua_register(L, "get_car_acceleration", get_car_acceleration); // 2492 ускорение из cTransmission
+	lua_register(L, "set_car_acceleration_cfg", set_car_acceleration_cfg); // 2493 ускорение с переводом в игровые единицы
 return 0;
 };
 

@@ -47591,3 +47591,45 @@ set_car_sound_bank(car, 22)
 -- ... опыт ...
 set_car_sound_bank(car, old)
 ```
+
+
+### 37.14. Скорость и ускорение на лету (28.11.2026)
+
+Старые `set_car_max_speed` и `set_car_acceleration` работают с игровыми
+единицами (второй пишет сырое значение, поэтому `30` там — слишком много).
+Новые функции принимают **значения как в `handling.cfg`**:
+
+| Функция | Что делает |
+|---|---|
+| `get_car_max_speed(car)` | макс. скорость в км/ч |
+| `set_car_max_speed_cfg(car, kmh)` | ставит км/ч и пересчитывает передачи |
+| `get_car_acceleration(car)` | ускорение в значениях handling.cfg |
+| `set_car_acceleration_cfg(car, v)` | ставит ускорение с переводом в игровые единицы |
+
+Перевод проверен по константам в `gta-vc.exe` и reVC
+`HandlingMgr.cpp:358-359`: `0x69BA88 = 0.0004` (ускорение),
+`0x69BA8C = 0.0055556` (скорость, `1/180`), `0x69BC88 = 1.2` (лимитер),
+`0x69BA90 = 0.25` и `0x69BA94 = 0.5` (деление на 4 для полного привода и на 2
+для остальных). Итог: `лимитер = км/ч / 150`,
+`ускорение_в_памяти = cfg * 0.0004 / (4 или 2)`.
+
+```lua
+local inCar, car = incar(findplayer())
+if inCar then
+  set_car_max_speed_cfg(car, 10)         -- черепаха
+  set_car_acceleration_cfg(car, 30)
+  -- ...
+  set_car_max_speed_cfg(car, 200)        -- ракета
+  set_car_acceleration_cfg(car, 90)
+  print(get_car_max_speed(car), get_car_acceleration(car))
+end
+```
+
+Передачи пересчитываются вызовом `cTransmission::InitGearRatios` (`0x5B3120`),
+иначе верхняя передача держит старую цель скорости. Изменения живут до
+перезапуска игры и действуют на все авто модели.
+
+**Готовый тест:** в `lualoader/write_coordinate.lua` клавиша **B** ставит
+`10 / 30` (плюс полный привод, электро и звук), клавиша **T** ставит
+`200 / 90`. Результат выводится на экран и в `lualoader/log.txt`:
+`VK_B: ... speed=... accel=...` / `VK_T: speed=... accel=...`.
