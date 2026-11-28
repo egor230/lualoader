@@ -138,8 +138,23 @@ while true do wait()
  i=i+1
  end
 
-  -- if Keypress("VK_B")
-  -- then
+  if Keypress("VK_B")
+  then
+  -- Тест новых API: полный привод + электрический двигатель у авто игрока.
+  local inCar, car = incar(player)
+  if inCar and car ~= nil then
+    local okDrive = set_drive_type(car, "4")   -- 4 / 2 / "ALL" — полный привод
+    local okEng   = set_engine_type(car, "E")  -- E / 2 / "ELECTRIC" — электро
+    local d, dName = get_drive_type(car)
+    local e, eName = get_engine_type(car)
+    log_line(string.format("VK_B: drive=%s (%s) engine=%s (%s), set=%s/%s",
+                           tostring(d), tostring(dName), tostring(e), tostring(eName),
+                           tostring(okDrive), tostring(okEng)))
+    printmessage("AWD + electric: " .. tostring(d) .. " / " .. tostring(e), 2500, 1)
+    wait(300)  -- чтобы не срабатывало многократно, пока клавиша нажата
+  else
+    printmessage("not in car", 2000, 1)
+  end
   --   local x, y, z = getpedcoordes(player)
   --   log_line(string.format("VK_B: игрок x=%.1f y=%.1f z=%.1f, создаю байк %d",
   --                          x, y, z, BIKE_MODEL))
@@ -164,7 +179,7 @@ while true do wait()
   --   else
   --     log_line("VK_B: Createcar вернул nil — байк НЕ создан")
   --     printmessage("bike creation failed", 2500, 1)
-  --   end
+    end
   -- end
  -- if Keypress("VK_S")
  -- then show_save_menu()

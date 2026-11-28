@@ -47511,6 +47511,23 @@ end
 Если авто нет или у него нет `m_pHandlingData` (например, не automobile) —
 геттер вернёт `nil`, сеттер — `false`.
 
+**Готовый тест в `lualoader/write_coordinate.lua`:** нажмите **B**, находясь в
+машине — скрипт включит полный привод и электрический двигатель, выведет на
+экран `AWD + electric: 4 / E` и запишет результат в `lualoader/log.txt`:
+
+```lua
+if Keypress("VK_B") then
+  local inCar, car = incar(player)
+  if inCar and car ~= nil then
+    set_drive_type(car, "4")
+    set_engine_type(car, "E")
+    local d, dName = get_drive_type(car)
+    local e, eName = get_engine_type(car)
+    printmessage("AWD + electric: " .. tostring(d) .. " / " .. tostring(e), 2500, 1)
+  end
+end
+```
+
 **Важно.** `m_pHandlingData` общий для всех экземпляров одной модели: изменение
 привода/двигателя действует на все авто этой модели, пока игра не перезапустит
 `handling.cfg`. Сохраните старое значение перед экспериментом:
