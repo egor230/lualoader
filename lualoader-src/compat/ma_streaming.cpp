@@ -25,7 +25,7 @@
 // Спец-модели (LOAD_SPECIAL_CHARACTER, 0x23C): RequestSpecialChar(slot-1, name,
 // DEPENDENCY|SCRIPTOWNED=0x06) один раз за цикл want; статус — HasSpecialCharLoaded.
 // IsObjectInCdImage для них НЕ проверяем: CdPosnAndSize спец-модели заполняется
-// движком только при первом RequestSpecialModel (reVC Streaming.cpp:1050), а не в
+// движком только при первом RequestSpecialModel , а не в
 // default.ide — проверка ложно объявила бы модель «невозможной».
 //
 // ГЛАВНОЕ ПРАВИЛО ФАЙЛА: никаких глобальных конструкторов (иначе Wine-висяк при
@@ -57,9 +57,9 @@ extern std::atomic<bool> teardown_active;
 
 namespace {
 
-// Флаги запроса — в точности как SCM-опкоды (reVC Script3.cpp):
-//   0x247 REQUEST_MODEL          = RequestModel(model, DEPENDENCY|NOFADE|SCRIPTOWNED)
-//   0x23C LOAD_SPECIAL_CHARACTER = RequestSpecialChar(slot-1, name, DEPENDENCY|SCRIPTOWNED)
+// Флаги запроса — в точности как SCM-опкоды :
+// 0x247 REQUEST_MODEL = RequestModel(model, DEPENDENCY|NOFADE|SCRIPTOWNED)
+// 0x23C LOAD_SPECIAL_CHARACTER = RequestSpecialChar(slot-1, name, DEPENDENCY|SCRIPTOWNED)
 const int kFlagsModel   = 0x02 | 0x04 | 0x10;   // SCRIPTOWNED|DEPENDENCY|NOFADE
 const int kFlagsSpecial = 0x02 | 0x04;          // SCRIPTOWNED|DEPENDENCY
 
@@ -135,10 +135,10 @@ void lower_copy(const char* name, char out[64]) {
 // Раньше слоты были захардкожены (SPANDXA=4, SPANDXB=5 в special_actor_slots),
 // остальные спец-актёры шли фолбэком на обычную модель пола. Теперь ЛЮБОЙ
 // спец-актёр из type_specpeds_list создаётся на СВОЕЙ спец-модели: слот
-// 1..8 (модель 109..116, reVC ModelIndices.h: MI_SPECIAL01 = 109) выделяется
+// 1..8 (модель 109..116, MI_SPECIAL01 = 109) выделяется
 // менеджером на имя актора и освобождается, когда педов этой модели не осталось.
 //
-// ГЛАВНАЯ ОПАСНОСТЬ (класс вылетов, reVC Streaming.cpp:985 RequestSpecialModel):
+// ГЛАВНАЯ ОПАСНОСТЬ (класс вылетов, RequestSpecialModel):
 // запрос ДРУГОГО имени на слот, где живут педы этой модели, заставляет движок
 // САМОМУ удалить этих педов (CTheScripts::RemoveThisPed) и переименовать модель
 // — мы теряем сущности и получаем UAF по указателям Lua. Защита: слот с живыми
@@ -172,8 +172,8 @@ static SpecialSlotProbe special_slot_probe(const char* name) {
 }
 
 // (04.11) Выделить слот 1..8 под имя спец-актёра. Возвращает:
-//   >0 — слот (1..8), под этим именем уже живут/держатся педы ИЛИ слот свободен;
-//   0  — свободных слотов нет (все 8 заняты ЖИВЫМИ педами других имён).
+// >0 — слот (1..8), под этим именем уже живут/держатся педы ИЛИ слот свободен;
+// 0 — свободных слотов нет (все 8 заняты ЖИВЫМИ педами других имён).
 // Создатель СНАЧАЛА зовёт want_special, потом (после успешного CREATE_CHAR)
 // hold_special — holds вырастет и слот закрепится за именем до let_go.
 int ma_stream_special_slot(const char* name) {
@@ -396,7 +396,7 @@ static bool wait_sync(int model, bool special, int timeout_ms) {
                 // RequestModel по «дырявому» id (границы ок, но модели нет в .ide)
                 // разыменовывает ms_modelInfoPtrs[id] == NULL — вылет в стримере.
                 // Спец-слоты 109..116 не проверяем: их CdPosnAndSize заполняет
-                // движок только при первом RequestSpecialChar (reVC Streaming.cpp).
+                // движок только при первом RequestSpecialChar .
                 if (!CStreaming::IsObjectInCdImage(model)) {
                     {
                         std::lock_guard<std::mutex> lk(st().mx);
@@ -524,7 +524,7 @@ void ma_stream_frame() {
             const int slot = model - 108;               // 1-based
             if (!w.sent) {
                 // Один раз за цикл интереса. Повторный вызов с ТЕМ ЖЕ именем
-                // безвреден (reVC: имя совпало => обычный RequestModel), а с
+                // безвреден , а с
                 // чужим — опасен (движок удаляет педов той модели): one-shot.
                 CStreaming::RequestSpecialChar(slot - 1, w.name.c_str(), kFlagsSpecial);
                 std::lock_guard<std::mutex> lk(st().mx);

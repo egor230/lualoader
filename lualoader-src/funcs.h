@@ -1985,7 +1985,7 @@ int get_ped_model_index(lua_State* L); // получить ID базовой м�
 int get_current_skin_name(lua_State* L); // получить имя последнего установленного скина игрока (set_skin).
 int get_player_skin(lua_State* L); // получить НАСТОЯЩЕЕ имя текущей модели игрока (CModelInfo).
 
-// ---- НОВЫЕ ФУНКЦИИ (добавлены 2026-09-21 из gta vc база / reVC / IDA-отчёта) ----
+// ---- НОВЫЕ ФУНКЦИИ (добавлены 2026-09-21 из базы GTA VC / IDA-отчёта) ----
 int ped_set_look(lua_State* L); // заставить педа смотреть на сущность (CPed::SetLook).
 int ped_set_look_flag(lua_State* L); // Пешеход установить смотреть флаг
 int ped_can_see_entity(lua_State* L); // может ли пед видеть сущность (CPed::CanSeeEntity).
